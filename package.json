@@ -1,0 +1,12 @@
+{
+  "name": "tab-mail",
+  "private": true,
+  "scripts": {
+    "dev:ext": "pnpm --filter tab-mail-extension run dev",
+    "dev:view": "pnpm --filter tab-mail-viewer run dev",
+    "build": "turbo run build"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@getgauge/cli", "esbuild", "protobufjs", "sharp", "spawn-sync"]
+  }
+}

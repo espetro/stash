@@ -1,0 +1,108 @@
+{
+  "valid-single": {
+    "description": "Valid single tab payload with future expiry",
+    "payload": {
+      "v": 1,
+      "e": 9999999999,
+      "i": [
+        ["https://github.com", "GitHub"]
+      ]
+    }
+  },
+  "valid-multiple": {
+    "description": "Valid multiple tabs payload with future expiry",
+    "payload": {
+      "v": 1,
+      "e": 9999999999,
+      "i": [
+        ["https://github.com", "GitHub"],
+        ["https://stackoverflow.com", "Stack Overflow"],
+        ["https://developer.mozilla.org", "MDN Web Docs"]
+      ]
+    }
+  },
+  "expired": {
+    "description": "Expired payload (expiry in the past)",
+    "payload": {
+      "v": 1,
+      "e": 1000000000,
+      "i": [
+        ["https://github.com", "GitHub"]
+      ]
+    }
+  },
+  "invalid-version": {
+    "description": "Payload with unsupported version",
+    "payload": {
+      "v": 999,
+      "e": 9999999999,
+      "i": [
+        ["https://github.com", "GitHub"]
+      ]
+    }
+  },
+  "missing-version": {
+    "description": "Payload missing version field",
+    "payload": {
+      "e": 9999999999,
+      "i": [
+        ["https://github.com", "GitHub"]
+      ]
+    }
+  },
+  "missing-expiry": {
+    "description": "Payload missing expiry field",
+    "payload": {
+      "v": 1,
+      "i": [
+        ["https://github.com", "GitHub"]
+      ]
+    }
+  },
+  "missing-items": {
+    "description": "Payload missing items array",
+    "payload": {
+      "v": 1,
+      "e": 9999999999
+    }
+  },
+  "invalid-item-format": {
+    "description": "Payload with invalid item format (not an array)",
+    "payload": {
+      "v": 1,
+      "e": 9999999999,
+      "i": [
+        "https://github.com"
+      ]
+    }
+  },
+  "special-chars": {
+    "description": "Payload with special characters and Unicode",
+    "payload": {
+      "v": 1,
+      "e": 9999999999,
+      "i": [
+        ["https://example.com/path?query=value&other=123#section", "URL with special chars & # ?"],
+        ["https://example.com/日本語/テスト", "日本語のページ - Unicode Test"]
+      ]
+    }
+  },
+  "long-title": {
+    "description": "Payload with long title (should be truncated)",
+    "payload": {
+      "v": 1,
+      "e": 9999999999,
+      "i": [
+        ["https://example.com/long-url-path", "This is a very long title that exceeds the thirty character limit and should be truncated"]
+      ]
+    }
+  },
+  "empty-items": {
+    "description": "Payload with empty items array",
+    "payload": {
+      "v": 1,
+      "e": 9999999999,
+      "i": []
+    }
+  }
+}
