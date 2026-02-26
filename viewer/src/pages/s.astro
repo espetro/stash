@@ -1,0 +1,317 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="TabShare Viewer">
+  <div id="app">
+    <!-- Loading state -->
+    <div id="loading">Loading...</div>
+    
+    <!-- Error/Expired state -->
+    <div id="error" style="display: none;"></div>
+    
+    <!-- Content state -->
+    <div id="content" style="display: none;">
+      <div class="card">
+        <div class="header">
+          <div class="folder-icon">📁</div>
+          <h1 id="item-count">0 Items</h1>
+        </div>
+        
+        <div class="actions">
+          <button id="open-all" class="btn btn-primary">Open All Tabs</button>
+          <button id="copy-urls" class="btn btn-secondary">Copy URLs</button>
+        </div>
+        
+        <div class="tab-list" id="tab-list">
+          <!-- Tab items will be rendered here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    #app {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #loading,
+    #error {
+      color: white;
+      font-size: 1.25rem;
+      text-align: center;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      width: 100%;
+      padding: 32px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .folder-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+      color: #1a1a1a;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5a6fd6;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+
+    .tab-list {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+    }
+
+    .tab-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e5e7eb;
+      text-decoration: none;
+      color: inherit;
+      transition: background-color 0.2s ease;
+    }
+
+    .tab-item:last-child {
+      border-bottom: none;
+    }
+
+    .tab-item:hover {
+      background-color: #f9fafb;
+    }
+
+    .tab-favicon {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .tab-favicon.error {
+      display: none;
+    }
+
+    .tab-title {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 0.875rem;
+      color: #374151;
+    }
+
+    .tab-domain {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    /* Scrollbar styling */
+    .tab-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .tab-list::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .tab-list::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+    }
+
+    .tab-list::-webkit-scrollbar-thumb:hover {
+      background: #a1a1a1;
+    }
+  </style>
+
+  <script>
+    import { decodeShareUrl, getDomain, getFaviconUrl } from '../lib/decoder.js';
+    import { PayloadDecodeError } from '../lib/types.js';
+
+    const loadingEl = document.getElementById('loading')!;
+    const errorEl = document.getElementById('error')!;
+    const contentEl = document.getElementById('content')!;
+    const itemCountEl = document.getElementById('item-count')!;
+    const tabListEl = document.getElementById('tab-list')!;
+    const openAllBtn = document.getElementById('open-all')!;
+    const copyUrlsBtn = document.getElementById('copy-urls')!;
+
+    // Store decoded data for button actions
+    let decodedData: any = null;
+
+    async function init() {
+      try {
+        const fragment = window.location.hash;
+        
+        if (!fragment) {
+          showError('No share data found in URL');
+          return;
+        }
+
+        decodedData = decodeShareUrl(fragment);
+
+        if (decodedData.isExpired) {
+          showError('This share link has expired');
+          return;
+        }
+
+        showContent(decodedData);
+
+      } catch (error) {
+        console.error('Failed to decode share URL:', error);
+        if (error instanceof PayloadDecodeError) {
+          showError(error.message);
+        } else {
+          showError('Failed to load shared tabs');
+        }
+      }
+    }
+
+    function showError(message: string) {
+      loadingEl.style.display = 'none';
+      errorEl.textContent = message;
+      errorEl.style.display = 'block';
+    }
+
+    function showContent(data: any) {
+      loadingEl.style.display = 'none';
+      contentEl.style.display = 'block';
+
+      // Set item count
+      const count = data.items.length;
+      itemCountEl.textContent = `${count} Item${count !== 1 ? 's' : ''}`;
+
+      // Render tab list
+      tabListEl.innerHTML = '';
+      
+      data.items.forEach(([url, title]: [string, string]) => {
+        const domain = getDomain(url);
+        const faviconUrl = getFaviconUrl(url);
+
+        const itemEl = document.createElement('a');
+        itemEl.className = 'tab-item';
+        itemEl.href = url;
+        itemEl.target = '_blank';
+        itemEl.rel = 'noopener noreferrer';
+
+        const faviconEl = document.createElement('img');
+        faviconEl.className = 'tab-favicon';
+        faviconEl.src = faviconUrl;
+        faviconEl.alt = '';
+        faviconEl.onerror = function() {
+          this.classList.add('error');
+        };
+
+        const titleEl = document.createElement('span');
+        titleEl.className = 'tab-title';
+        titleEl.textContent = title;
+
+        const domainEl = document.createElement('span');
+        domainEl.className = 'tab-domain';
+        domainEl.textContent = domain;
+
+        itemEl.appendChild(faviconEl);
+        itemEl.appendChild(titleEl);
+        itemEl.appendChild(domainEl);
+
+        tabListEl.appendChild(itemEl);
+      });
+
+      // Wire up buttons
+      openAllBtn.addEventListener('click', openAllTabs);
+      copyUrlsBtn.addEventListener('click', copyUrls);
+    }
+
+    function openAllTabs() {
+      if (!decodedData) return;
+
+      decodedData.items.forEach(([url]: [string, string]) => {
+        window.open(url, '_blank');
+      });
+    }
+
+    async function copyUrls() {
+      if (!decodedData) return;
+
+      const urls = decodedData.items.map(([url]: [string, string]) => url).join('\n');
+
+      try {
+        await navigator.clipboard.writeText(urls);
+        copyUrlsBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          copyUrlsBtn.textContent = 'Copy URLs';
+        }, 2000);
+      } catch (error) {
+        console.error('Failed to copy URLs:', error);
+      }
+    }
+
+    // Initialize on page load
+    init();
+  </script>
+</Layout>

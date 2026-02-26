@@ -1,0 +1,22 @@
+{
+  "name": "tab-mail-extension",
+  "version": "0.1.0",
+  "description": "TabShare browser extension",
+  "private": true,
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip"
+  },
+  "dependencies": {
+    "pako": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.287",
+    "@types/pako": "^2.0.3",
+    "typescript": "^5.7.2",
+    "wxt": "^0.19.15"
+  }
+}
