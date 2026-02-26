@@ -60,23 +60,23 @@ tab-mail/
 ### Prerequisites
 
 - Node.js 18+
-- npm or yarn
+- pnpm
 
 ### Setup
 
 1. Install dependencies:
 ```bash
-npm install
+pnpm install
 ```
 
 2. Build the extension:
 ```bash
-npm run build --workspace=extension
+pnpm run build
 ```
 
 3. Build the viewer:
 ```bash
-npm run build --workspace=viewer
+pnpm run build
 ```
 
 ## Development
@@ -85,10 +85,10 @@ npm run build --workspace=viewer
 
 ```bash
 # Terminal 1: Run extension in development mode
-npm run dev:ext
+pnpm run dev:ext
 
 # Terminal 2: Run viewer in development mode
-npm run dev:view
+pnpm run dev:view
 ```
 
 The extension will be available at `chrome://extensions/` (or Firefox equivalent) and the viewer will run at `http://localhost:4321`.
@@ -111,20 +111,20 @@ The extension will be available at `chrome://extensions/` (or Firefox equivalent
 1. Update `VIEWER_ORIGIN` in [`extension/lib/constants.ts`](extension/lib/constants.ts:1)
 2. Update `site` in [`viewer/astro.config.mjs`](viewer/astro.config.mjs:1)
 3. Deploy `viewer/dist/` to static host (Cloudflare Pages, Vercel, Netlify)
-4. Rebuild extension with production URL
-5. Create zip: `npm run zip --workspace=extension`
+4. Rebuild both packages with production URL: `pnpm run build` (Turborepo builds extension and viewer together)
+5. Create zip: `pnpm --filter tab-mail-extension run zip`
 
 ### Chrome Store Submission
 
-1. Build: `npm run build --workspace=extension`
-2. Zip: `npm run zip --workspace=extension`
+1. Build: `pnpm run build`
+2. Zip: `pnpm --filter tab-mail-extension run zip`
 3. Upload `.output/chrome-mv3-prod.zip` to Chrome Web Store
 4. Provide: Description, icons, screenshots, privacy policy
 
 ### Firefox Add-ons Submission
 
-1. Build: `npm run build:firefox --workspace=extension`
-2. Zip: `npm run zip --workspace=extension`
+1. Build: `pnpm --filter tab-mail-extension run build:firefox`
+2. Zip: `pnpm --filter tab-mail-extension run zip`
 3. Upload `.output/firefox-mv2-prod.zip` to Firefox Add-ons
 4. Provide: Description, icons, screenshots, privacy policy
 
