@@ -1,13 +1,14 @@
 {
   "name": "tabshare-e2e-tests",
   "version": "1.0.0",
-  "description": "E2E tests for TabShare browser extension and viewer",
+  "description": "E2E tests for TabShare browser extension and viewer using Gauge and Playwright",
   "scripts": {
     "test": "gauge run",
     "test:spec": "gauge run specs/",
     "test:parallel": "gauge run --parallel -n 2",
     "test:context-menu": "gauge run specs/extension-context-menu.md",
     "test:link-generation": "gauge run specs/extension-link-generation.md",
+    "test:popup": "gauge run specs/extension-popup.md",
     "test:viewer": "gauge run specs/viewer-rendering.md",
     "test:e2e": "gauge run specs/end-to-end-integration.md",
     "test:coverage": "gauge run --tags 'coverage'",
@@ -19,11 +20,12 @@
     "@getgauge/cli": "^1.6.0",
     "gauge-ts": "^0.3.6",
     "playwright": "^1.40.0",
-    "pako": "^2.1.0"
+    "pako": "^2.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0",
-    "typescript": "^5.3.0"
+    "@types/node": "^20.10.0"
   },
   "engines": {
     "node": ">=18.0.0",
