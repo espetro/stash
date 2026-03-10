@@ -11,11 +11,14 @@
     "zip": "wxt zip"
   },
   "dependencies": {
-    "pako": "^2.1.0"
+    "pako": "^2.1.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.287",
     "@types/pako": "^2.0.3",
+    "@wxt-dev/module-react": "^1.2.1",
     "typescript": "^5.7.2",
     "wxt": "^0.19.15"
   }
