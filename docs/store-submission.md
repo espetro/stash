@@ -32,13 +32,17 @@ pnpm build
 pnpm --filter tab-mail-viewer run build
 
 # Package extension for Chrome
-pnpm --filter tab-mail-extension run zip
+pnpm --filter tab-mail-extension run zip:chrome
 # Output: extension/.output/tab-mail-extension-{version}-chrome.zip
 
 # Build + package for Firefox
 pnpm --filter tab-mail-extension run build:firefox
-pnpm --filter tab-mail-extension run zip
+pnpm --filter tab-mail-extension run zip:firefox
 # Output: extension/.output/tab-mail-extension-{version}-firefox.zip
+
+# Create sources zip for AMO (required for Firefox)
+./scripts/create-sources-zip.sh
+# Output: extension/.output/tabshare-sources-{version}.zip
 ```
 
 ---
@@ -54,7 +58,7 @@ pnpm --filter tab-mail-extension run zip
 1. **Build and package**:
    ```bash
    pnpm build
-   pnpm --filter tab-mail-extension run zip
+   pnpm --filter tab-mail-extension run zip:chrome
    ```
 
 2. **Upload zip** to Chrome Web Store Developer Dashboard:
@@ -104,16 +108,19 @@ Features:
 1. **Build and package for Firefox**:
    ```bash
    pnpm --filter tab-mail-extension run build:firefox
-   pnpm --filter tab-mail-extension run zip
+   pnpm --filter tab-mail-extension run zip:firefox
    ```
 
 2. **Upload zip** to Firefox Add-ons Developer Hub:
    - File: `extension/.output/tab-mail-extension-{version}-firefox.zip` (e.g., `tab-mail-extension-0.1.0-firefox.zip`)
 
 3. **Source code** (required for Firefox review):
-   - Firefox requires source for extensions with minified code
-   - Provide the GitHub repository URL: `https://github.com/[your-username]/tab-mail`
-   - The repository is public — this satisfies the source code requirement
+   - Firefox requires source code for extensions built with bundlers/minifiers
+   - When asked "Do you need to submit source code?" → **Yes**
+   - Create sources zip: `./scripts/create-sources-zip.sh`
+   - Upload: `extension/.output/tabshare-sources-{version}.zip`
+   - Build instructions are included in the zip's `README.md`
+   - See [`extension/SOURCES.md`](../extension/SOURCES.md) for details
 
 4. **Fill in store listing** (same content as Chrome):
    - Name, description, category, screenshots
@@ -126,7 +133,8 @@ Features:
 ### Firefox-Specific Notes
 - Uses Manifest V2 (MV2) — fully supported in Firefox
 - No special Firefox permissions beyond what Chrome requires
-- The public GitHub repo serves as source code submission
+- Source code submission is required (bundled/minified code)
+- Reviewers need to reproduce the build from source
 
 ---
 
@@ -157,8 +165,9 @@ The privacy policy and viewer must be deployed before store submission.
 
 Use this checklist before each store submission:
 
-- [ ] `extension/.output/tab-mail-extension-{version}-chrome.zip` built with `pnpm build && pnpm --filter tab-mail-extension run zip`
-- [ ] `extension/.output/tab-mail-extension-{version}-firefox.zip` built with `pnpm --filter tab-mail-extension run build:firefox && pnpm --filter tab-mail-extension run zip`
+- [ ] `extension/.output/tab-mail-extension-{version}-chrome.zip` built with `pnpm build && pnpm --filter tab-mail-extension run zip:chrome`
+- [ ] `extension/.output/tab-mail-extension-{version}-firefox.zip` built with `pnpm --filter tab-mail-extension run build:firefox && pnpm --filter tab-mail-extension run zip:firefox`
+- [ ] `extension/.output/tabshare-sources-{version}.zip` created with `./scripts/create-sources-zip.sh` (Firefox only)
 - [ ] `screenshots/store-screenshot.png` generated with `pnpm screenshots` (1280×800 PNG)
 - [ ] Privacy policy live at `https://[your-domain]/privacy`
 - [ ] Store description reviewed and localized if needed

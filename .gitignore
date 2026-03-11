@@ -4,3 +4,5 @@ dist/
 .wxt/
 .astro/
 .turbo/
+.sisyphus/
+.DS_STORE
