@@ -3,7 +3,8 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".output/**", "dist/**"]
+      "outputs": [".output/**", "dist/**"],
+      "env": ["VITE_VIEWER_ORIGIN"]
     },
     "dev": {
       "cache": false,
