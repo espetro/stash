@@ -1,7 +1,9 @@
 import { defineConfig } from 'astro/config';
 
+const viewerOrigin = (process.env.VITE_VIEWER_ORIGIN || 'http://localhost:4321').replace(/\/$/, '');
+
 export default defineConfig({
-  site: 'http://localhost:4321', // Update before production
+  site: viewerOrigin,
   output: 'static',
   build: {
     format: 'file'
