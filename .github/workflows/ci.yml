@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+
+      - name: Typecheck extension
+        run: pnpm --filter tab-mail-extension exec tsc --noEmit
+
+      - name: Typecheck viewer
+        run: pnpm --filter tab-mail-viewer exec tsc --noEmit
+
+      - name: Build
+        run: pnpm build
+        env:
+          VITE_VIEWER_ORIGIN: https://tabshare.app
+
+      - name: Upload extension artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-build
+          path: extension/.output/
+          if-no-files-found: warn
+
+      - name: Upload viewer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: viewer-build
+          path: viewer/dist/
+          if-no-files-found: warn
