@@ -9,9 +9,19 @@ export default defineConfig({
     permissions: ['contextMenus', 'tabs', 'clipboardWrite', 'notifications'],
     action: { default_popup: "popup/index.html" },
     icons: {
-      16: '/icon-16.png',
-      48: '/icon-48.png',
-      128: '/icon-128.png'
+      16: 'icon-16.png',
+      48: 'icon-48.png',
+      128: 'icon-128.png'
+    },
+    browser_specific_settings: {
+      gecko: {
+        id: 'tabshare@tab-mail-extension',
+        strict_min_version: '109.0',
+        data_collection_permissions: {
+          required: ["none"],
+          optional: []
+        }
+      }
     }
   }
 });
