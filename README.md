@@ -112,21 +112,24 @@ The extension will be available at `chrome://extensions/` (or Firefox equivalent
 2. Update `site` in [`viewer/astro.config.mjs`](viewer/astro.config.mjs:1)
 3. Deploy `viewer/dist/` to static host (Cloudflare Pages, Vercel, Netlify)
 4. Rebuild both packages with production URL: `pnpm run build` (Turborepo builds extension and viewer together)
-5. Create zip: `pnpm --filter tab-mail-extension run zip`
+5. Create zip: `pnpm --filter tab-mail-extension run zip:chrome` (or `zip:firefox`)
 
 ### Chrome Store Submission
 
 1. Build: `pnpm run build`
-2. Zip: `pnpm --filter tab-mail-extension run zip`
-3. Upload `.output/chrome-mv3-prod.zip` to Chrome Web Store
+2. Zip: `pnpm --filter tab-mail-extension run zip:chrome`
+3. Upload `extension/.output/tab-mail-extension-{version}-chrome.zip` to Chrome Web Store
 4. Provide: Description, icons, screenshots, privacy policy
 
 ### Firefox Add-ons Submission
 
 1. Build: `pnpm --filter tab-mail-extension run build:firefox`
-2. Zip: `pnpm --filter tab-mail-extension run zip`
-3. Upload `.output/firefox-mv2-prod.zip` to Firefox Add-ons
-4. Provide: Description, icons, screenshots, privacy policy
+2. Zip: `pnpm --filter tab-mail-extension run zip:firefox`
+3. Upload `.output/tab-mail-extension-{version}-firefox.zip` to Firefox Add-ons
+4. **Source code required:** Run `./scripts/create-sources-zip.sh` and upload the generated sources zip
+5. Provide: Description, icons, screenshots, privacy policy
+
+See [`extension/SOURCES.md`](extension/SOURCES.md) for detailed build instructions required by Mozilla.
 
 ## Configuration
 
