@@ -120,6 +120,7 @@ import Layout from '../layouts/Layout.astro';
     .tab-list {
       max-height: 400px;
       overflow-y: auto;
+      overflow-x: auto;
       border: 1px solid #e5e7eb;
       border-radius: 8px;
     }
@@ -155,18 +156,20 @@ import Layout from '../layouts/Layout.astro';
 
     .tab-title {
       flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
       white-space: nowrap;
       font-size: 0.875rem;
       color: #374151;
     }
 
-    .tab-domain {
+    .tab-url {
       font-size: 0.75rem;
       color: #9ca3af;
       margin-left: 8px;
       flex-shrink: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 200px;
     }
 
     /* Scrollbar styling */
@@ -190,7 +193,7 @@ import Layout from '../layouts/Layout.astro';
   </style>
 
   <script>
-    import { decodeShareUrl, getDomain, getFaviconUrl } from '../lib/decoder.js';
+    import { decodeShareUrl, getFaviconUrl } from '../lib/decoder.js';
     import { PayloadDecodeError } from '../lib/types.js';
 
     const loadingEl = document.getElementById('loading')!;
@@ -250,7 +253,6 @@ import Layout from '../layouts/Layout.astro';
       tabListEl.innerHTML = '';
       
       data.items.forEach(([url, title]: [string, string]) => {
-        const domain = getDomain(url);
         const faviconUrl = getFaviconUrl(url);
 
         const itemEl = document.createElement('a');
@@ -272,8 +274,8 @@ import Layout from '../layouts/Layout.astro';
         titleEl.textContent = title;
 
         const domainEl = document.createElement('span');
-        domainEl.className = 'tab-domain';
-        domainEl.textContent = domain;
+        domainEl.className = 'tab-url';
+        domainEl.textContent = url;
 
         itemEl.appendChild(faviconEl);
         itemEl.appendChild(titleEl);
