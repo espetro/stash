@@ -40,6 +40,22 @@ import Layout from '../layouts/Layout.astro';
       padding: 20px;
     }
 
+    :global(#output) {
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #000;
+      background: transparent;
+      margin: 0;
+      padding: 8px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: none;
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
     #loading,
     #error {
       color: white;
@@ -214,10 +230,16 @@ import Layout from '../layouts/Layout.astro';
     // Store decoded data for button actions
     let decodedData: any = null;
 
+    function getFormatParam(): string | null {
+      const raw = new URLSearchParams(window.location.search).get('format');
+      return raw ? raw.toLowerCase() : null;
+    }
+
     async function init() {
       try {
+        const format = getFormatParam();
         const fragment = window.location.hash;
-        
+
         if (!fragment) {
           showError('No share data found in URL');
           return;
@@ -230,7 +252,13 @@ import Layout from '../layouts/Layout.astro';
           return;
         }
 
-        showContent(decodedData);
+        if (format === 'json') {
+          renderJson(decodedData);
+        } else if (format === 'md') {
+          renderMarkdown(decodedData);
+        } else {
+          showContent(decodedData);
+        }
 
       } catch (error) {
         console.error('Failed to decode share URL:', error);
@@ -246,6 +274,47 @@ import Layout from '../layouts/Layout.astro';
       loadingEl.style.display = 'none';
       errorEl.textContent = message;
       errorEl.style.display = 'block';
+    }
+
+    function renderJson(data: any) {
+      loadingEl.style.display = 'none';
+      // Override gradient background for raw-response look
+      document.documentElement.style.background = 'white';
+      document.body.style.background = 'white';
+      const appEl = document.getElementById('app')!;
+      appEl.style.background = 'white';
+      appEl.style.display = 'block';
+      appEl.style.padding = '0';
+
+      const output = {
+        expiry: data.expiry,
+        isExpired: data.isExpired,
+        items: data.items.map(([url, title]: [string, string]) => ({ url, title }))
+      };
+      const pre = document.createElement('pre');
+      pre.id = 'output';
+      pre.textContent = JSON.stringify(output, null, 2);
+      appEl.appendChild(pre);
+    }
+
+    function renderMarkdown(data: any) {
+      loadingEl.style.display = 'none';
+      // Override gradient background for raw-response look
+      document.documentElement.style.background = 'white';
+      document.body.style.background = 'white';
+      const appEl = document.getElementById('app')!;
+      appEl.style.background = 'white';
+      appEl.style.display = 'block';
+      appEl.style.padding = '0';
+
+      const lines = data.items.map(([url, title]: [string, string]) => {
+        const safeTitle = title.replace(/\[/g, '\\[').replace(/\]/g, '\\]');
+        return `[${safeTitle}](${url})`;
+      });
+      const pre = document.createElement('pre');
+      pre.id = 'output';
+      pre.textContent = lines.join('\n');
+      appEl.appendChild(pre);
     }
 
     function showContent(data: any) {
