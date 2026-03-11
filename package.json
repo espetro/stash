@@ -5,7 +5,8 @@
   "scripts": {
     "dev:ext": "pnpm --filter tab-mail-extension run dev",
     "dev:view": "pnpm --filter tab-mail-viewer run dev",
-    "build": "turbo run build"
+    "build": "turbo run build",
+    "screenshots": "tsx scripts/generate-screenshots.ts"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -17,6 +18,8 @@
     ]
   },
   "devDependencies": {
+    "playwright": "^1.58.2",
+    "tsx": "^4.21.0",
     "turbo": "^2.8.11"
   }
 }
