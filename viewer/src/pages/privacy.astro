@@ -1,0 +1,181 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Privacy Policy — TabShare">
+  <div id="app">
+    <div class="card">
+      <div class="header">
+        <div class="lock-icon">🔒</div>
+        <h1>No Data Collection</h1>
+        <p class="subtitle">TabShare Privacy Policy</p>
+      </div>
+
+      <div class="content">
+        <p class="intro">
+          <strong>TabShare</strong> is designed with privacy as a core principle. 
+          Here's what you need to know:
+        </p>
+
+        <ul class="policy-list">
+          <li>
+            <span class="check">✓</span>
+            <span><strong>No personal data is collected.</strong> We don't track you, store cookies, or gather any information about you.</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span><strong>All sharing happens locally in your browser.</strong> Tab selection and link generation occur entirely on your device.</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span><strong>No data is transmitted to external servers.</strong> The only thing sent is the share link you choose to send.</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span><strong>Shared links contain only tab URLs and titles.</strong> These are user-selected and encoded directly into the link itself.</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span><strong>Links expire after 24 hours.</strong> Shared content cannot be accessed once the link expires.</span>
+          </li>
+        </ul>
+
+        <div class="summary">
+          <p>TabShare doesn't have servers, databases, or analytics. It's a simple tool that works entirely in your browser.</p>
+        </div>
+      </div>
+
+      <div class="footer">
+        <a href="/" class="back-link">← Back to Home</a>
+        <p class="last-updated">Last updated: 2026</p>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  #app {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    max-width: 600px;
+    width: 100%;
+    padding: 32px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .lock-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: #1a1a1a;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .content {
+    margin-bottom: 28px;
+  }
+
+  .intro {
+    font-size: 1rem;
+    color: #374151;
+    line-height: 1.6;
+    margin: 0 0 20px 0;
+  }
+
+  .policy-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+  }
+
+  .policy-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.9375rem;
+    color: #374151;
+    line-height: 1.5;
+  }
+
+  .policy-list li:last-child {
+    border-bottom: none;
+  }
+
+  .check {
+    color: #10b981;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .summary {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .summary p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.5;
+  }
+
+  .footer {
+    text-align: center;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: #667eea;
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .back-link:hover {
+    background: #f3f4f6;
+    color: #5a6fd6;
+  }
+
+  .last-updated {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin: 16px 0 0 0;
+  }
+</style>
