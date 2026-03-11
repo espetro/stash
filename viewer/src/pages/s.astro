@@ -120,15 +120,15 @@ import Layout from '../layouts/Layout.astro';
     .tab-list {
       max-height: 400px;
       overflow-y: auto;
-      overflow-x: auto;
       border: 1px solid #e5e7eb;
       border-radius: 8px;
     }
 
     .tab-item {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       padding: 12px 16px;
+      gap: 10px;
       border-bottom: 1px solid #e5e7eb;
       text-decoration: none;
       color: inherit;
@@ -144,9 +144,9 @@ import Layout from '../layouts/Layout.astro';
     }
 
     .tab-favicon {
-      width: 20px;
-      height: 20px;
-      margin-right: 12px;
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
       flex-shrink: 0;
     }
 
@@ -154,22 +154,29 @@ import Layout from '../layouts/Layout.astro';
       display: none;
     }
 
-    .tab-title {
+    .tab-content {
       flex: 1;
-      white-space: nowrap;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .tab-title {
       font-size: 0.875rem;
+      font-weight: 500;
       color: #374151;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .tab-url {
       font-size: 0.75rem;
       color: #9ca3af;
-      margin-left: 8px;
-      flex-shrink: 0;
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
-      max-width: 200px;
     }
 
     /* Scrollbar styling */
@@ -269,17 +276,22 @@ import Layout from '../layouts/Layout.astro';
           this.classList.add('error');
         };
 
+        const contentEl = document.createElement('div');
+        contentEl.className = 'tab-content';
+
         const titleEl = document.createElement('span');
         titleEl.className = 'tab-title';
         titleEl.textContent = title;
 
-        const domainEl = document.createElement('span');
-        domainEl.className = 'tab-url';
-        domainEl.textContent = url;
+        const urlEl = document.createElement('span');
+        urlEl.className = 'tab-url';
+        urlEl.textContent = url;
+
+        contentEl.appendChild(titleEl);
+        contentEl.appendChild(urlEl);
 
         itemEl.appendChild(faviconEl);
-        itemEl.appendChild(titleEl);
-        itemEl.appendChild(domainEl);
+        itemEl.appendChild(contentEl);
 
         tabListEl.appendChild(itemEl);
       });
