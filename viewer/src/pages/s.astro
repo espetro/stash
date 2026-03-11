@@ -124,7 +124,7 @@ import Layout from '../layouts/Layout.astro';
       border-radius: 8px;
     }
 
-    .tab-item {
+    :global(.tab-item) {
       display: flex;
       align-items: flex-start;
       padding: 12px 16px;
@@ -135,26 +135,26 @@ import Layout from '../layouts/Layout.astro';
       transition: background-color 0.2s ease;
     }
 
-    .tab-item:last-child {
+    :global(.tab-item:last-child) {
       border-bottom: none;
     }
 
-    .tab-item:hover {
+    :global(.tab-item:hover) {
       background-color: #f9fafb;
     }
 
-    .tab-favicon {
+    :global(.tab-favicon) {
       width: 16px;
       height: 16px;
       margin-top: 2px;
       flex-shrink: 0;
     }
 
-    .tab-favicon.error {
+    :global(.tab-favicon.error) {
       display: none;
     }
 
-    .tab-content {
+    :global(.tab-content) {
       flex: 1;
       min-width: 0;
       display: flex;
@@ -162,7 +162,7 @@ import Layout from '../layouts/Layout.astro';
       gap: 2px;
     }
 
-    .tab-title {
+    :global(.tab-title) {
       font-size: 0.875rem;
       font-weight: 500;
       color: #374151;
@@ -171,7 +171,7 @@ import Layout from '../layouts/Layout.astro';
       text-overflow: ellipsis;
     }
 
-    .tab-url {
+    :global(.tab-url) {
       font-size: 0.75rem;
       color: #9ca3af;
       white-space: nowrap;
