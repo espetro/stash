@@ -33,12 +33,12 @@ pnpm --filter tab-mail-viewer run build
 
 # Package extension for Chrome
 pnpm --filter tab-mail-extension run zip
-# Output: extension/.output/chrome-mv3-prod.zip
+# Output: extension/.output/tab-mail-extension-{version}-chrome.zip
 
 # Build + package for Firefox
 pnpm --filter tab-mail-extension run build:firefox
 pnpm --filter tab-mail-extension run zip
-# Output: extension/.output/firefox-mv2-prod.zip
+# Output: extension/.output/tab-mail-extension-{version}-firefox.zip
 ```
 
 ---
@@ -58,7 +58,7 @@ pnpm --filter tab-mail-extension run zip
    ```
 
 2. **Upload zip** to Chrome Web Store Developer Dashboard:
-   - File: `extension/.output/chrome-mv3-prod.zip`
+   - File: `extension/.output/tab-mail-extension-{version}-chrome.zip` (e.g., `tab-mail-extension-0.1.0-chrome.zip`)
 
 3. **Fill in store listing**:
    - **Name**: TabShare
@@ -108,7 +108,7 @@ Features:
    ```
 
 2. **Upload zip** to Firefox Add-ons Developer Hub:
-   - File: `extension/.output/firefox-mv2-prod.zip`
+   - File: `extension/.output/tab-mail-extension-{version}-firefox.zip` (e.g., `tab-mail-extension-0.1.0-firefox.zip`)
 
 3. **Source code** (required for Firefox review):
    - Firefox requires source for extensions with minified code
@@ -157,8 +157,8 @@ The privacy policy and viewer must be deployed before store submission.
 
 Use this checklist before each store submission:
 
-- [ ] `extension/.output/chrome-mv3-prod.zip` built with `pnpm build && pnpm --filter tab-mail-extension run zip`
-- [ ] `extension/.output/firefox-mv2-prod.zip` built with `pnpm --filter tab-mail-extension run build:firefox && pnpm --filter tab-mail-extension run zip`
+- [ ] `extension/.output/tab-mail-extension-{version}-chrome.zip` built with `pnpm build && pnpm --filter tab-mail-extension run zip`
+- [ ] `extension/.output/tab-mail-extension-{version}-firefox.zip` built with `pnpm --filter tab-mail-extension run build:firefox && pnpm --filter tab-mail-extension run zip`
 - [ ] `screenshots/store-screenshot.png` generated with `pnpm screenshots` (1280×800 PNG)
 - [ ] Privacy policy live at `https://[your-domain]/privacy`
 - [ ] Store description reviewed and localized if needed
