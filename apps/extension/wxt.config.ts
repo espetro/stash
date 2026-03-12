@@ -3,8 +3,8 @@ import { defineConfig } from 'wxt';
 export default defineConfig({
   modules: ["@wxt-dev/module-react"],
   manifest: {
-    name: 'TabShare',
-    description: 'Share selected tabs with snapshot links',
+    name: 'Stash',
+    description: 'Stash lets you save open tabs as a shareable snapshot link. No accounts. No servers. No tracking.',
     version: '0.1.0',
     permissions: ['contextMenus', 'tabs', 'clipboardWrite', 'notifications'],
     action: { default_popup: "popup/index.html" },
@@ -15,7 +15,7 @@ export default defineConfig({
     },
     browser_specific_settings: {
       gecko: {
-        id: 'tabshare@tab-mail-extension',
+        id: 'stash@stash-extension',
         strict_min_version: '109.0'
       }
     },

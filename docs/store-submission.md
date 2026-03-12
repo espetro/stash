@@ -1,12 +1,12 @@
-# TabShare — Store Submission Guide
+# Stash — Store Submission Guide
 
 ## Overview
 
-TabShare is a browser extension that lets users share a snapshot of selected tabs via a single URL. The viewer renders shared tabs in a clean card UI.
+Stash is a browser extension that lets users save a snapshot of selected tabs via a single URL. The viewer renders saved tabs in a clean card UI.
 
 - **Extension version**: 0.1.0
-- **Privacy policy**: `https://[your-domain]/privacy` (replace with your deployed viewer URL)
-- **Source code**: `https://github.com/[your-username]/tab-mail` (replace with your GitHub repo URL)
+- **Privacy policy**: `https://stash.oxejoq.eu/privacy`
+- **Source code**: `https://github.com/[your-username]/stash` (replace with your GitHub repo URL)
 
 ---
 
@@ -29,20 +29,20 @@ Before submitting to any store:
 pnpm build
 
 # Build viewer only (for Vercel deployment)
-pnpm --filter tab-mail-viewer run build
+pnpm --filter stash-viewer run build
 
 # Package extension for Chrome
-pnpm --filter tab-mail-extension run zip:chrome
-# Output: apps/extension/.output/tab-mail-extension-{version}-chrome.zip
+pnpm --filter stash-extension run zip:chrome
+# Output: apps/extension/.output/stash-extension-{version}-chrome.zip
 
 # Build + package for Firefox
-pnpm --filter tab-mail-extension run build:firefox
-pnpm --filter tab-mail-extension run zip:firefox
-# Output: apps/extension/.output/tab-mail-extension-{version}-firefox.zip
+pnpm --filter stash-extension run build:firefox
+pnpm --filter stash-extension run zip:firefox
+# Output: apps/extension/.output/stash-extension-{version}-firefox.zip
 
 # Create sources zip for AMO (required for Firefox)
 ./scripts/create-sources-zip.sh
-# Output: apps/extension/.output/tabshare-sources-{version}.zip
+# Output: apps/extension/.output/stash-sources-{version}.zip
 ```
 
 ---
@@ -56,43 +56,40 @@ pnpm --filter tab-mail-extension run zip:firefox
 ### Upload Steps
 
 1. **Build and package**:
-   ```bash
-   pnpm build
-   pnpm --filter tab-mail-extension run zip:chrome
-   ```
+    ```bash
+    pnpm build
+    pnpm --filter stash-extension run zip:chrome
+    ```
 
 2. **Upload zip** to Chrome Web Store Developer Dashboard:
-    - File: `apps/extension/.output/tab-mail-extension-{version}-chrome.zip` (e.g., `tab-mail-extension-0.1.0-chrome.zip`)
+     - File: `apps/extension/.output/stash-extension-{version}-chrome.zip` (e.g., `stash-extension-0.1.0-chrome.zip`)
 
 3. **Fill in store listing**:
-   - **Name**: TabShare
-   - **Short description** (132 chars max): Share a snapshot of selected tabs with a single URL. Links are self-contained, expire in 24h, and collect no data.
-   - **Detailed description**: See template below
-   - **Category**: Productivity
-   - **Language**: English
+    - **Name**: Stash
+    - **Short description** (132 chars max): Save a snapshot of your open tabs as a shareable link. No accounts, no servers, no tracking. Come back when you're ready.
+    - **Detailed description**: See template below
+    - **Category**: Productivity
+    - **Language**: English
 
 4. **Upload assets**:
-   - Screenshots: `screenshots/store-screenshot.png` (1280×800)
-   - Icon: `extension/public/icon-128.png` (auto-detected from zip)
+    - Screenshots: `screenshots/store-screenshot.png` (1280×800)
+    - Icon: `extension/public/icon-128.png` (auto-detected from zip)
 
 5. **Privacy policy**:
-   - URL: `https://[your-deployed-viewer-domain]/privacy`
+    - URL: `https://stash.oxejoq.eu/privacy`
 
 6. **Submit for review** — typical review time: 1-3 business days
 
 ### Store Description Template
 
 ```
-TabShare lets you share a snapshot of your selected browser tabs with a single URL.
+Too many tabs open? Same. Stash lets you select any tabs, save them as a shareable snapshot, and close them without losing a thing.
 
-Select multiple tabs, right-click, and choose "Share selected tabs…" — a link is copied to your clipboard. Anyone with the link can see the tab titles and URLs in a clean card view.
+No accounts. No servers. No tracking. Everything lives in a simple link you can share or revisit anytime — your browser does all the work.
 
-Features:
-• Share multiple tabs at once
-• Links are URL-encoded — no servers, no accounts
-• Automatic expiry after 24 hours
-• No data collection or tracking
-• Works in Chrome, Firefox, and Edge
+Perfect for researchers, engineers, founders, and anyone who lives with 40+ tabs open. Stash them. Share them. Come back when you're ready.
+
+Install Stash — and finally close those tabs.
 ```
 
 ---
@@ -106,27 +103,27 @@ Features:
 ### Upload Steps
 
 1. **Build and package for Firefox**:
-   ```bash
-   pnpm --filter tab-mail-extension run build:firefox
-   pnpm --filter tab-mail-extension run zip:firefox
-   ```
+    ```bash
+    pnpm --filter stash-extension run build:firefox
+    pnpm --filter stash-extension run zip:firefox
+    ```
 
 2. **Upload zip** to Firefox Add-ons Developer Hub:
-    - File: `apps/extension/.output/tab-mail-extension-{version}-firefox.zip` (e.g., `tab-mail-extension-0.1.0-firefox.zip`)
+     - File: `apps/extension/.output/stash-extension-{version}-firefox.zip` (e.g., `stash-extension-0.1.0-firefox.zip`)
 
 3. **Source code** (required for Firefox review):
-    - Firefox requires source code for extensions built with bundlers/minifiers
-    - When asked "Do you need to submit source code?" → **Yes**
-    - Create sources zip: `./scripts/create-sources-zip.sh`
-    - Upload: `apps/extension/.output/tabshare-sources-{version}.zip`
-    - Build instructions are included in the zip's `README.md`
-    - See [`apps/extension/SOURCES.md`](../apps/extension/SOURCES.md) for details
+     - Firefox requires source code for extensions built with bundlers/minifiers
+     - When asked "Do you need to submit source code?" → **Yes**
+     - Create sources zip: `./scripts/create-sources-zip.sh`
+     - Upload: `apps/extension/.output/stash-sources-{version}.zip`
+     - Build instructions are included in the zip's `README.md`
+     - See [`apps/extension/SOURCES.md`](../apps/extension/SOURCES.md) for details
 
 4. **Fill in store listing** (same content as Chrome):
-   - Name, description, category, screenshots
+    - Name, description, category, screenshots
 
 5. **Privacy policy**:
-   - URL: `https://[your-deployed-viewer-domain]/privacy`
+    - URL: `https://stash.oxejoq.eu/privacy`
 
 6. **Submit for review** — typically faster than Chrome (hours to days)
 
@@ -165,11 +162,11 @@ The privacy policy and viewer must be deployed before store submission.
 
 Use this checklist before each store submission:
 
-- [ ] `apps/extension/.output/tab-mail-extension-{version}-chrome.zip` built with `pnpm build && pnpm --filter tab-mail-extension run zip:chrome`
-- [ ] `apps/extension/.output/tab-mail-extension-{version}-firefox.zip` built with `pnpm --filter tab-mail-extension run build:firefox && pnpm --filter tab-mail-extension run zip:firefox`
-- [ ] `apps/extension/.output/tabshare-sources-{version}.zip` created with `./scripts/create-sources-zip.sh` (Firefox only)
+- [ ] `apps/extension/.output/stash-extension-{version}-chrome.zip` built with `pnpm build && pnpm --filter stash-extension run zip:chrome`
+- [ ] `apps/extension/.output/stash-extension-{version}-firefox.zip` built with `pnpm --filter stash-extension run build:firefox && pnpm --filter stash-extension run zip:firefox`
+- [ ] `apps/extension/.output/stash-sources-{version}.zip` created with `./scripts/create-sources-zip.sh` (Firefox only)
 - [ ] `screenshots/store-screenshot.png` generated with `pnpm screenshots` (1280×800 PNG)
-- [ ] Privacy policy live at `https://[your-domain]/privacy`
+- [ ] Privacy policy live at `https://stash.oxejoq.eu/privacy`
 - [ ] Store description reviewed and localized if needed
 - [ ] Icons verified in extension zip: 16×16, 48×48, 128×128
 

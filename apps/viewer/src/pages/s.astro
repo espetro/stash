@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="TabShare Viewer">
+<Layout title="Stash Viewer">
   <div id="app">
     <!-- Loading state -->
     <div id="loading">Loading...</div>
@@ -241,8 +241,8 @@ import Layout from '../layouts/Layout.astro';
   </style>
 
   <script>
-    import { decodeShareUrl, getFaviconUrl, PayloadDecodeError } from '@tab-mail/codec';
-    import { getTheme, setTheme } from '@tab-mail/theme';
+    import { decodeShareUrl, getFaviconUrl, PayloadDecodeError } from '@stash/codec';
+    import { getTheme, setTheme } from '@stash/theme';
 
     type Theme = 'light' | 'dark' | 'system';
 

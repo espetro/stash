@@ -128,7 +128,7 @@ step('The expiry setting should be saved to localStorage', async () => {
   }
 
   const expiryValue = await optionsPage.evaluate(() => {
-    return localStorage.getItem('tabshare-settings');
+    return localStorage.getItem('stash-settings');
   });
 
   if (!expiryValue) {

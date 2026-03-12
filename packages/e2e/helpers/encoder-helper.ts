@@ -14,7 +14,7 @@ import {
   normalizeTitle,
   encodePayload as codecEncodePayload,
   buildShareUrl,
-} from '@tab-mail/codec';
+} from '@stash/codec';
 
 export type { TabInfo, SharePayload, EncodingResult };
 
@@ -49,7 +49,7 @@ export function createPayloadWithExpiry(tabs: TabInfo[], expiryHours: number): S
 /**
  * Encode payload: JSON → UTF-8 → compress → base64url
  * NOTE: This is a test helper that uses pako directly for compatibility with existing tests.
- * The actual extension uses @tab-mail/codec's encodePayload.
+ * The actual extension uses @stash/codec's encodePayload.
  */
 export function encodePayload(payload: SharePayload): string {
   // JSON stringify without whitespace

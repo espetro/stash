@@ -1,6 +1,6 @@
 import { defineBackground } from "wxt/sandbox";
-import { encodeTabsToShareUrl } from "@tab-mail/codec";
-import type { TabInfo } from "@tab-mail/codec";
+import { encodeTabsToShareUrl } from "@stash/codec";
+import type { TabInfo } from "@stash/codec";
 
 export default defineBackground(() => {
   // Create context menu on install
@@ -47,7 +47,7 @@ export default defineBackground(() => {
       await browser.notifications.create({
         type: "basic",
         iconUrl: browser.runtime.getURL("/icon-48.png"),
-        title: "TabShare",
+        title: "Stash",
         message,
       });
     } catch (error) {
@@ -55,7 +55,7 @@ export default defineBackground(() => {
       await browser.notifications.create({
         type: "basic",
         iconUrl: browser.runtime.getURL("/icon-48.png"),
-        title: "TabShare Error",
+        title: "Stash Error",
         message: "Failed to create share link",
       });
     }

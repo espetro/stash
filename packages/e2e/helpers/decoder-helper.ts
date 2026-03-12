@@ -5,7 +5,7 @@ import {
   PAYLOAD_VERSION,
   getDomain,
   getFaviconUrl,
-} from '@tab-mail/codec';
+} from '@stash/codec';
 
 export type { DecodedPayload };
 export { PayloadDecodeError, getDomain, getFaviconUrl };
@@ -13,7 +13,7 @@ export { PayloadDecodeError, getDomain, getFaviconUrl };
 /**
  * Decode share URL fragment to payload
  * NOTE: This is a test helper that uses pako directly for compatibility with existing tests.
- * The actual viewer uses @tab-mail/codec's decodeShareUrl.
+ * The actual viewer uses @stash/codec's decodeShareUrl.
  */
 export function decodeShareUrl(fragment: string): DecodedPayload {
   // Extract #p=... from fragment

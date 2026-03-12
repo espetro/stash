@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "@tab-mail/theme/tailwind.css";
+import "@stash/theme/tailwind.css";
 import "./style.css";
-import { initTheme } from "@tab-mail/theme";
+import { initTheme } from "@stash/theme";
 import App from "./App";
 
 initTheme();

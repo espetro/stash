@@ -1,14 +1,14 @@
 import type { APIRoute } from "astro";
-import { PAYLOAD_VERSION, EXPIRY_HOURS } from "@tab-mail/codec";
+import { PAYLOAD_VERSION, EXPIRY_HOURS } from "@stash/codec";
 
 export const GET: APIRoute = () => {
   const spec = {
     openapi: "3.1.0",
     info: {
-      title: "TabShare Viewer API",
+      title: "Stash Viewer API",
       version: "1.0.0",
       description:
-        "API documentation for AI agents consuming TabShare viewer endpoints. Use /s/?format=json or /s/?format=md for machine-readable output. The URL fragment #p={base64url} contains the compressed payload (client-side only, not a formal parameter).",
+        "API documentation for AI agents consuming Stash viewer endpoints. Use /s/?format=json or /s/?format=md for machine-readable output. The URL fragment #p={base64url} contains the compressed payload (client-side only, not a formal parameter).",
     },
     servers: [{ url: "/" }],
     paths: {
