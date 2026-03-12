@@ -300,7 +300,7 @@ import Layout from '../layouts/Layout.astro';
           return;
         }
 
-        decodedData = decodeShareUrl(fragment);
+        decodedData = await decodeShareUrl(fragment);
 
         if (decodedData.isExpired) {
           showError('This share link has expired');
