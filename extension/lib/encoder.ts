@@ -1,12 +1,13 @@
 import pako from "pako";
 import {
   PAYLOAD_VERSION,
-  EXPIRY_HOURS,
   BUDGET_CHARS,
   MAX_TITLE_CHARS,
   VIEWER_ORIGIN,
   VIEWER_PATH,
 } from "./constants.js";
+import { EXPIRY_HOURS_MAP } from "./settings.js";
+import { getCachedSettings } from "./settings-cache.js";
 import type { SharePayload, TabInfo, EncodingResult } from "./types.js";
 
 /**
@@ -21,7 +22,7 @@ export function normalizeTitle(title: string): string {
  */
 export function createPayload(tabs: TabInfo[]): SharePayload {
   const now = Math.floor(Date.now() / 1000);
-  const expiry = now + EXPIRY_HOURS * 3600;
+  const expiry = now + EXPIRY_HOURS_MAP[getCachedSettings().expiryMode] * 3600;
 
   return {
     v: PAYLOAD_VERSION,
