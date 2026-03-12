@@ -24,7 +24,7 @@ export default function App() {
 
       const selectedTabs = tabs.filter((t) => t.isSelected);
       const tabInfos: TabInfo[] = selectedTabs.map((t) => ({ url: t.url, title: t.title }));
-      const result = encodeTabsToShareUrl(tabInfos);
+      const result = await encodeTabsToShareUrl(tabInfos);
 
       await navigator.clipboard.writeText(result.url);
 
