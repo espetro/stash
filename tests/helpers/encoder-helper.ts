@@ -1,52 +1,22 @@
 import pako from 'pako';
 import * as fs from 'fs';
 import * as path from 'path';
+import {
+  type TabInfo,
+  type SharePayload,
+  type EncodingResult,
+  PAYLOAD_VERSION,
+  EXPIRY_HOURS,
+  MAX_TITLE_CHARS,
+  BUDGET_CHARS,
+  VIEWER_ORIGIN,
+  VIEWER_PATH,
+  normalizeTitle,
+  encodePayload as codecEncodePayload,
+  buildShareUrl,
+} from '@tab-mail/codec';
 
-/**
- * Tab info interface
- */
-export interface TabInfo {
-  url: string;
-  title: string;
-}
-
-/**
- * Share payload interface
- */
-export interface SharePayload {
-  v: number;  // version
-  e: number;  // expiry timestamp (seconds)
-  i: [string, string][];  // items: [url, title] tuples
-}
-
-/**
- * Encoding result interface
- */
-export interface EncodingResult {
-  url: string;
-  itemCount: number;
-  truncated: boolean;
-}
-
-/**
- * Constants from the extension
- */
-const PAYLOAD_VERSION = 1;
-const EXPIRY_HOURS = 24;
-const MAX_TITLE_CHARS = 30;
-const BUDGET_CHARS = 8000;
-const VIEWER_ORIGIN = 'http://localhost:4321';
-const VIEWER_PATH = '/s/';
-
-/**
- * Normalize title: trim, collapse whitespace, truncate to MAX_TITLE_CHARS
- */
-export function normalizeTitle(title: string): string {
-  return title
-    .trim()
-    .replace(/\s+/g, ' ')
-    .substring(0, MAX_TITLE_CHARS);
-}
+export type { TabInfo, SharePayload, EncodingResult };
 
 /**
  * Create payload with expiry timestamp
@@ -54,7 +24,7 @@ export function normalizeTitle(title: string): string {
 export function createPayload(tabs: TabInfo[]): SharePayload {
   const now = Math.floor(Date.now() / 1000);
   const expiry = now + (EXPIRY_HOURS * 3600);
-  
+
   return {
     v: PAYLOAD_VERSION,
     e: expiry,
@@ -68,7 +38,7 @@ export function createPayload(tabs: TabInfo[]): SharePayload {
 export function createPayloadWithExpiry(tabs: TabInfo[], expiryHours: number): SharePayload {
   const now = Math.floor(Date.now() / 1000);
   const expiry = now + (expiryHours * 3600);
-  
+
   return {
     v: PAYLOAD_VERSION,
     e: expiry,
@@ -78,34 +48,29 @@ export function createPayloadWithExpiry(tabs: TabInfo[], expiryHours: number): S
 
 /**
  * Encode payload: JSON → UTF-8 → compress → base64url
+ * NOTE: This is a test helper that uses pako directly for compatibility with existing tests.
+ * The actual extension uses @tab-mail/codec's encodePayload.
  */
 export function encodePayload(payload: SharePayload): string {
   // JSON stringify without whitespace
   const json = JSON.stringify(payload);
-  
+
   // UTF-8 bytes
   const utf8Bytes = new TextEncoder().encode(json);
-  
+
   // Compress with pako
   const compressed = pako.deflate(utf8Bytes);
-  
+
   // Base64 encode
   const base64 = btoa(String.fromCharCode(...compressed));
-  
+
   // Convert to base64url (URL-safe)
   const base64url = base64
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=/g, '');
-  
-  return base64url;
-}
 
-/**
- * Build share URL from encoded payload
- */
-export function buildShareUrl(encoded: string): string {
-  return `${VIEWER_ORIGIN}${VIEWER_PATH}#p=${encoded}`;
+  return base64url;
 }
 
 /**
@@ -113,34 +78,34 @@ export function buildShareUrl(encoded: string): string {
  */
 export function findMaxTabsWithinBudget(tabs: TabInfo[]): number {
   if (tabs.length === 0) return 0;
-  
+
   // Check if full set fits
   const fullPayload = createPayload(tabs);
   const fullEncoded = encodePayload(fullPayload);
   const fullUrl = buildShareUrl(fullEncoded);
-  
+
   if (fullUrl.length <= BUDGET_CHARS) {
     return tabs.length;
   }
-  
+
   // Binary search for max prefix that fits
   let left = 0;
   let right = tabs.length;
   let result = 0;
-  
+
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
     const subset = tabs.slice(0, mid);
-    
+
     if (subset.length === 0) {
       left = mid + 1;
       continue;
     }
-    
+
     const payload = createPayload(subset);
     const encoded = encodePayload(payload);
     const url = buildShareUrl(encoded);
-    
+
     if (url.length <= BUDGET_CHARS) {
       result = mid;
       left = mid + 1;
@@ -148,7 +113,7 @@ export function findMaxTabsWithinBudget(tabs: TabInfo[]): number {
       right = mid - 1;
     }
   }
-  
+
   return result;
 }
 
@@ -163,12 +128,12 @@ export function encodeTabsToShareUrl(tabs: TabInfo[]): EncodingResult {
       truncated: false
     };
   }
-  
+
   // Try full set first
   const fullPayload = createPayload(tabs);
   const fullEncoded = encodePayload(fullPayload);
   const fullUrl = buildShareUrl(fullEncoded);
-  
+
   if (fullUrl.length <= BUDGET_CHARS) {
     return {
       url: fullUrl,
@@ -176,10 +141,10 @@ export function encodeTabsToShareUrl(tabs: TabInfo[]): EncodingResult {
       truncated: false
     };
   }
-  
+
   // Find max tabs that fit
   const maxTabs = findMaxTabsWithinBudget(tabs);
-  
+
   if (maxTabs === 0) {
     return {
       url: buildShareUrl(''),
@@ -187,12 +152,12 @@ export function encodeTabsToShareUrl(tabs: TabInfo[]): EncodingResult {
       truncated: true
     };
   }
-  
+
   const subset = tabs.slice(0, maxTabs);
   const payload = createPayload(subset);
   const encoded = encodePayload(payload);
   const url = buildShareUrl(encoded);
-  
+
   return {
     url,
     itemCount: maxTabs,
@@ -213,11 +178,11 @@ export function filterChromeUrls(tabs: TabInfo[]): TabInfo[] {
 export function loadSampleTabs(datasetName: string): TabInfo[] {
   const fixturesPath = path.join(process.cwd(), 'fixtures', 'sample-tabs.json');
   const fixtures = JSON.parse(fs.readFileSync(fixturesPath, 'utf-8'));
-  
+
   if (!fixtures[datasetName]) {
     throw new Error(`Dataset "${datasetName}" not found in sample-tabs.json`);
   }
-  
+
   return fixtures[datasetName];
 }
 
@@ -235,11 +200,11 @@ export function loadPayloads(): Record<string, any> {
 export function encodeFixturePayload(payloadName: string): string {
   const payloads = loadPayloads();
   const fixture = payloads[payloadName];
-  
+
   if (!fixture) {
     throw new Error(`Payload "${payloadName}" not found in payloads.json`);
   }
-  
+
   return encodePayload(fixture.payload);
 }
 

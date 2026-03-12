@@ -26,6 +26,9 @@ importers:
 
   extension:
     dependencies:
+      '@tab-mail/codec':
+        specifier: workspace:*
+        version: link:../packages/codec
       '@tab-mail/theme':
         specifier: workspace:*
         version: link:../packages/theme
@@ -64,6 +67,22 @@ importers:
         specifier: ^0.19.15
         version: 0.19.29(@types/node@20.19.34)(rollup@4.59.0)(tsx@4.21.0)
 
+  packages/codec:
+    dependencies:
+      brotli-wasm:
+        specifier: ^3.0.1
+        version: 3.0.1
+      pako:
+        specifier: ^2.1.0
+        version: 2.1.0
+    devDependencies:
+      '@types/pako':
+        specifier: ^2.0.4
+        version: 2.0.4
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+
   packages/theme: {}
 
   tests:
@@ -71,6 +90,9 @@ importers:
       '@getgauge/cli':
         specifier: ^1.6.0
         version: 1.6.25
+      '@tab-mail/codec':
+        specifier: workspace:*
+        version: link:../packages/codec
       gauge-ts:
         specifier: ^0.3.6
         version: 0.3.6(@types/node@20.19.34)
@@ -93,6 +115,9 @@ importers:
 
   viewer:
     dependencies:
+      '@tab-mail/codec':
+        specifier: workspace:*
+        version: link:../packages/codec
       '@tab-mail/theme':
         specifier: workspace:*
         version: link:../packages/theme
@@ -1411,6 +1436,10 @@ packages:
   braces@3.0.3:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
     engines: {node: '>=8'}
+
+  brotli-wasm@3.0.1:
+    resolution: {integrity: sha512-U3K72/JAi3jITpdhZBqzSUq+DUY697tLxOuFXB+FpAE/Ug+5C3VZrv4uA674EUZHxNAuQ9wETXNqQkxZD6oL4A==}
+    engines: {node: '>=v18.0.0'}
 
   browserslist@4.28.1:
     resolution: {integrity: sha512-ZC5Bd0LgJXgwGqUknZY/vkUQ04r8NXnJZ3yYi4vDmSiZmC/pdSN0NbNRPxZpbtO4uAfDUAFffO8IZoM3Gj8IkA==}
@@ -4558,6 +4587,8 @@ snapshots:
   braces@3.0.3:
     dependencies:
       fill-range: 7.1.1
+
+  brotli-wasm@3.0.1: {}
 
   browserslist@4.28.1:
     dependencies:
