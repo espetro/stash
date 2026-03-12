@@ -20,7 +20,7 @@ const THEME_OPTIONS: { value: Theme; label: string }[] = [
 ];
 
 export default function App() {
-  const [expiryMode, setExpiryMode] = useState<ExpiryMode>("24h");
+  const [expiryMode, setExpiryMode] = useState<ExpiryMode>("never");
   const [theme, setThemeState] = useState<Theme>("system");
   const [showSuccess, setShowSuccess] = useState(false);
 
