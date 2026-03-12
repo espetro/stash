@@ -1,0 +1,25 @@
+{
+  "name": "@tab-mail/codec",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "tscheck": "tsc --noEmit",
+    "lint": "oxlint 'src/**/*.ts'",
+    "format": "oxfmt --write 'src/**/*.ts'",
+    "test": "bun test src/__tests__/roundtrip.test.ts"
+  },
+  "dependencies": {
+    "brotli-wasm": "^3.0.1",
+    "pako": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/pako": "^2.0.4",
+    "typescript": "^5.7.2"
+  }
+}
