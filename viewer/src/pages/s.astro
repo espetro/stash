@@ -14,6 +14,7 @@ import Layout from '../layouts/Layout.astro';
     <div id="content" style="display: none;">
       <div class="card">
         <div class="header">
+          <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle theme">🖥️</button>
           <div class="folder-icon">📁</div>
           <h1 id="item-count">0 Items</h1>
         </div>
@@ -33,7 +34,7 @@ import Layout from '../layouts/Layout.astro';
   <style>
     #app {
       min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--background);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -44,8 +45,8 @@ import Layout from '../layouts/Layout.astro';
       font-family: monospace;
       font-size: 13px;
       line-height: 1.5;
-      color: #000;
-      background: transparent;
+      color: var(--foreground);
+      background: var(--background);
       margin: 0;
       padding: 8px;
       white-space: pre-wrap;
@@ -58,23 +59,47 @@ import Layout from '../layouts/Layout.astro';
 
     #loading,
     #error {
-      color: white;
+      color: var(--foreground);
       font-size: 1.25rem;
       text-align: center;
     }
 
     .card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      background: var(--background);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
       max-width: 600px;
       width: 100%;
       padding: 32px;
     }
 
     .header {
+      position: relative;
       text-align: center;
       margin-bottom: 24px;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      font-size: 1.125rem;
+      line-height: 1;
+      border-radius: var(--radius-sm);
+      transition: background-color 0.2s ease;
+    }
+
+    .theme-toggle:hover {
+      background-color: var(--muted);
+    }
+
+    .theme-toggle:focus-visible {
+      outline: 2px solid var(--ring);
+      outline-offset: 2px;
     }
 
     .folder-icon {
@@ -86,7 +111,7 @@ import Layout from '../layouts/Layout.astro';
       font-size: 1.5rem;
       font-weight: 700;
       margin: 0;
-      color: #1a1a1a;
+      color: var(--foreground);
     }
 
     .actions {
@@ -99,7 +124,7 @@ import Layout from '../layouts/Layout.astro';
       flex: 1;
       padding: 12px 20px;
       border: none;
-      border-radius: 8px;
+      border-radius: var(--radius-lg);
       font-size: 0.875rem;
       font-weight: 600;
       cursor: pointer;
@@ -108,7 +133,7 @@ import Layout from '../layouts/Layout.astro';
 
     .btn:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--shadow-md);
     }
 
     .btn:active {
@@ -116,28 +141,28 @@ import Layout from '../layouts/Layout.astro';
     }
 
     .btn-primary {
-      background: #667eea;
-      color: white;
+      background: var(--primary);
+      color: var(--primary-foreground);
     }
 
     .btn-primary:hover {
-      background: #5a6fd6;
+      background: var(--primary);
     }
 
     .btn-secondary {
-      background: #e5e7eb;
-      color: #374151;
+      background: var(--secondary);
+      color: var(--foreground);
     }
 
     .btn-secondary:hover {
-      background: #d1d5db;
+      background: var(--border);
     }
 
     .tab-list {
       max-height: 400px;
       overflow-y: auto;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
     }
 
     :global(.tab-item) {
@@ -145,7 +170,7 @@ import Layout from '../layouts/Layout.astro';
       align-items: flex-start;
       padding: 12px 16px;
       gap: 10px;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid var(--border);
       text-decoration: none;
       color: inherit;
       transition: background-color 0.2s ease;
@@ -156,7 +181,7 @@ import Layout from '../layouts/Layout.astro';
     }
 
     :global(.tab-item:hover) {
-      background-color: #f9fafb;
+      background-color: var(--muted);
     }
 
     :global(.tab-favicon) {
@@ -181,7 +206,7 @@ import Layout from '../layouts/Layout.astro';
     :global(.tab-title) {
       font-size: 0.875rem;
       font-weight: 500;
-      color: #374151;
+      color: var(--foreground);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -189,7 +214,7 @@ import Layout from '../layouts/Layout.astro';
 
     :global(.tab-url) {
       font-size: 0.75rem;
-      color: #9ca3af;
+      color: var(--muted-foreground);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -201,23 +226,53 @@ import Layout from '../layouts/Layout.astro';
     }
 
     .tab-list::-webkit-scrollbar-track {
-      background: #f1f1f1;
+      background: var(--muted);
       border-radius: 4px;
     }
 
     .tab-list::-webkit-scrollbar-thumb {
-      background: #c1c1c1;
+      background: var(--border);
       border-radius: 4px;
     }
 
     .tab-list::-webkit-scrollbar-thumb:hover {
-      background: #a1a1a1;
+      background: var(--muted-foreground);
     }
   </style>
 
   <script>
     import { decodeShareUrl, getFaviconUrl } from '../lib/decoder.js';
     import { PayloadDecodeError } from '../lib/types.js';
+    import { getTheme, setTheme } from '@tab-mail/theme';
+
+    type Theme = 'light' | 'dark' | 'system';
+
+    const THEME_ICONS: Record<Theme, string> = {
+      light: '☀️',
+      dark: '🌙',
+      system: '🖥️',
+    };
+
+    const THEME_ORDER: Theme[] = ['light', 'dark', 'system'];
+
+    const themeToggleBtn = document.getElementById('theme-toggle')!;
+    let currentTheme: Theme = getTheme();
+
+    function updateThemeButton() {
+      themeToggleBtn.textContent = THEME_ICONS[currentTheme];
+    }
+
+    function cycleTheme() {
+      const currentIndex = THEME_ORDER.indexOf(currentTheme);
+      const nextIndex = (currentIndex + 1) % THEME_ORDER.length;
+      currentTheme = THEME_ORDER[nextIndex];
+      setTheme(currentTheme);
+      updateThemeButton();
+    }
+
+    // Initialize theme button
+    updateThemeButton();
+    themeToggleBtn.addEventListener('click', cycleTheme);
 
     const loadingEl = document.getElementById('loading')!;
     const errorEl = document.getElementById('error')!;
@@ -278,11 +333,7 @@ import Layout from '../layouts/Layout.astro';
 
     function renderJson(data: any) {
       loadingEl.style.display = 'none';
-      // Override gradient background for raw-response look
-      document.documentElement.style.background = 'white';
-      document.body.style.background = 'white';
       const appEl = document.getElementById('app')!;
-      appEl.style.background = 'white';
       appEl.style.display = 'block';
       appEl.style.padding = '0';
 
@@ -299,11 +350,7 @@ import Layout from '../layouts/Layout.astro';
 
     function renderMarkdown(data: any) {
       loadingEl.style.display = 'none';
-      // Override gradient background for raw-response look
-      document.documentElement.style.background = 'white';
-      document.body.style.background = 'white';
       const appEl = document.getElementById('app')!;
-      appEl.style.background = 'white';
       appEl.style.display = 'block';
       appEl.style.padding = '0';
 

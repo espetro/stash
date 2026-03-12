@@ -1,0 +1,13 @@
+{
+  "name": "@tab-mail/theme",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./tailwind.css": "./tailwind.css"
+  },
+  "files": [
+    "*.ts",
+    "*.css"
+  ]
+}

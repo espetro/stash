@@ -7,9 +7,13 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "format": "oxfmt --write 'src/**/*.{ts,tsx,astro}'",
+    "lint": "oxlint 'src/**/*.{ts,tsx,astro}' --ignore-pattern '**/*.d.ts'",
+    "tscheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@tab-mail/theme": "workspace:*",
     "astro": "^5.1.1",
     "pako": "^2.1.0"
   },
