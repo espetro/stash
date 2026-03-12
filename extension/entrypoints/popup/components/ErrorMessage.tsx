@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface ErrorMessageProps {
   message: string;
@@ -10,11 +10,7 @@ export function ErrorMessage({ message, onDismiss }: ErrorMessageProps) {
     <div className="error-message" role="alert">
       <span className="error-message-text">{message}</span>
       {onDismiss && (
-        <button
-          className="error-dismiss"
-          onClick={onDismiss}
-          aria-label="Dismiss error"
-        >
+        <button className="error-dismiss" onClick={onDismiss} aria-label="Dismiss error">
           ×
         </button>
       )}

@@ -1,6 +1,6 @@
 export interface SharePayload {
-  v: number;           // Schema version
-  e: number;           // Expiry timestamp (Unix seconds)
+  v: number; // Schema version
+  e: number; // Expiry timestamp (Unix seconds)
   i: [string, string][]; // Items: [url, title][]
 }
 
@@ -25,6 +25,6 @@ export interface DecodedPayload {
 export class PayloadDecodeError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'PayloadDecodeError';
+    this.name = "PayloadDecodeError";
   }
 }
