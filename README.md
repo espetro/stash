@@ -22,34 +22,35 @@ TabShare consists of two parts:
 
 ```
 tab-mail/
-├── extension/              # WXT browser extension
-│   ├── entrypoints/
-│   │   └── background.ts   # Service worker (context menu, clipboard)
-│   ├── lib/
-│   │   ├── encoder.ts      # Payload encoding + budget enforcement
-│   │   ├── types.ts        # Shared TypeScript interfaces
-│   │   └── constants.ts    # BUDGET_CHARS, VIEWER_ORIGIN, etc.
-│   ├── public/
-│   │   ├── icon-16.svg
-│   │   ├── icon-48.svg
-│   │   └── icon-128.svg
-│   ├── wxt.config.ts
-│   ├── package.json
-│   └── tsconfig.json
-│
-├── viewer/                 # Astro static site
-│   ├── src/
-│   │   ├── pages/
-│   │   │   └── s.astro     # Viewer page at /s/
+├── apps/
+│   ├── extension/          # WXT browser extension
+│   │   ├── entrypoints/
+│   │   │   └── background.ts   # Service worker (context menu, clipboard)
 │   │   ├── lib/
-│   │   │   ├── decoder.ts  # Payload decoding
-│   │   │   ├── types.ts    # Same as extension
-│   │   │   └── constants.ts # Same as extension
-│   │   └── layouts/
-│   │       └── Layout.astro
-│   ├── astro.config.mjs
-│   ├── package.json
-│   └── tsconfig.json
+│   │   │   ├── encoder.ts      # Payload encoding + budget enforcement
+│   │   │   ├── types.ts        # Shared TypeScript interfaces
+│   │   │   └── constants.ts    # BUDGET_CHARS, VIEWER_ORIGIN, etc.
+│   │   ├── public/
+│   │   │   ├── icon-16.svg
+│   │   │   ├── icon-48.svg
+│   │   │   └── icon-128.svg
+│   │   ├── wxt.config.ts
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   │
+│   └── viewer/             # Astro static site
+│       ├── src/
+│       │   ├── pages/
+│       │   │   └── s.astro     # Viewer page at /s/
+│       │   ├── lib/
+│       │   │   ├── decoder.ts  # Payload decoding
+│       │   │   ├── types.ts    # Same as extension
+│       │   │   └── constants.ts # Same as extension
+│       │   └── layouts/
+│       │       └── Layout.astro
+│       ├── astro.config.mjs
+│       ├── package.json
+│       └── tsconfig.json
 │
 ├── package.json            # Root workspace config
 └── README.md
@@ -108,9 +109,9 @@ The extension will be available at `chrome://extensions/` (or Firefox equivalent
 
 ### Before Production
 
-1. Update `VIEWER_ORIGIN` in [`extension/lib/constants.ts`](extension/lib/constants.ts:1)
-2. Update `site` in [`viewer/astro.config.mjs`](viewer/astro.config.mjs:1)
-3. Deploy `viewer/dist/` to static host (Cloudflare Pages, Vercel, Netlify)
+1. Update `VIEWER_ORIGIN` in [`apps/extension/lib/constants.ts`](apps/extension/lib/constants.ts:1)
+2. Update `site` in [`apps/viewer/astro.config.mjs`](apps/viewer/astro.config.mjs:1)
+3. Deploy `apps/viewer/dist/` to static host (Cloudflare Pages, Vercel, Netlify)
 4. Rebuild both packages with production URL: `pnpm run build` (Turborepo builds extension and viewer together)
 5. Create zip: `pnpm --filter tab-mail-extension run zip:chrome` (or `zip:firefox`)
 
@@ -118,24 +119,24 @@ The extension will be available at `chrome://extensions/` (or Firefox equivalent
 
 1. Build: `pnpm run build`
 2. Zip: `pnpm --filter tab-mail-extension run zip:chrome`
-3. Upload `extension/.output/tab-mail-extension-{version}-chrome.zip` to Chrome Web Store
+3. Upload `apps/extension/.output/tab-mail-extension-{version}-chrome.zip` to Chrome Web Store
 4. Provide: Description, icons, screenshots, privacy policy
 
 ### Firefox Add-ons Submission
 
 1. Build: `pnpm --filter tab-mail-extension run build:firefox`
 2. Zip: `pnpm --filter tab-mail-extension run zip:firefox`
-3. Upload `.output/tab-mail-extension-{version}-firefox.zip` to Firefox Add-ons
+3. Upload `apps/extension/.output/tab-mail-extension-{version}-firefox.zip` to Firefox Add-ons
 4. **Source code required:** Run `./scripts/create-sources-zip.sh` and upload the generated sources zip
 5. Provide: Description, icons, screenshots, privacy policy
 
-See [`extension/SOURCES.md`](extension/SOURCES.md) for detailed build instructions required by Mozilla.
+See [`apps/extension/SOURCES.md`](apps/extension/SOURCES.md) for detailed build instructions required by Mozilla.
 
 ## Configuration
 
 ### Extension Constants
 
-Edit [`extension/lib/constants.ts`](extension/lib/constants.ts:1):
+Edit [`apps/extension/lib/constants.ts`](apps/extension/lib/constants.ts:1):
 
 ```typescript
 export const PAYLOAD_VERSION = 1;
@@ -148,7 +149,7 @@ export const VIEWER_PATH = '/s/';
 
 ### Viewer Config
 
-Edit [`viewer/astro.config.mjs`](viewer/astro.config.mjs:1):
+Edit [`apps/viewer/astro.config.mjs`](apps/viewer/astro.config.mjs:1):
 
 ```javascript
 export default defineConfig({

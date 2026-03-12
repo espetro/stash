@@ -43,14 +43,15 @@ tab-mail/
 ├── package.json           # Root workspace config
 ├── pnpm-workspace.yaml    # Workspace definition
 ├── pnpm-lock.yaml         # Dependency lock file
-├── extension/             # Browser extension
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── wxt.config.ts
-│   ├── entrypoints/
-│   ├── lib/
-│   └── public/
-└── viewer/                # Astro viewer site
+├── apps/
+│   ├── extension/         # Browser extension
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   ├── wxt.config.ts
+│   │   ├── entrypoints/
+│   │   ├── lib/
+│   │   └── public/
+│   └── viewer/            # Astro viewer site
 ```
 
 ### Steps
@@ -66,10 +67,10 @@ tab-mail/
    ```
 
 3. **Build the Firefox extension:**
-   ```bash
-   cd extension
-   pnpm run build:firefox
-   ```
+    ```bash
+    cd apps/extension
+    pnpm run build:firefox
+    ```
 
 4. **Verify the build:**
    The built extension will be in `.output/firefox-mv2/`
@@ -96,13 +97,13 @@ Or manually:
 mkdir -p /tmp/tabshare-sources
 
 # Copy extension source files
-cp -r extension/entrypoints /tmp/tabshare-sources/
-cp -r extension/lib /tmp/tabshare-sources/
-cp -r extension/public /tmp/tabshare-sources/
-cp extension/package.json /tmp/tabshare-sources/
-cp extension/tsconfig.json /tmp/tabshare-sources/
-cp extension/wxt.config.ts /tmp/tabshare-sources/
-cp extension/SOURCES.md /tmp/tabshare-sources/README.md
+cp -r apps/extension/entrypoints /tmp/tabshare-sources/
+cp -r apps/extension/lib /tmp/tabshare-sources/
+cp -r apps/extension/public /tmp/tabshare-sources/
+cp apps/extension/package.json /tmp/tabshare-sources/
+cp apps/extension/tsconfig.json /tmp/tabshare-sources/
+cp apps/extension/wxt.config.ts /tmp/tabshare-sources/
+cp apps/extension/SOURCES.md /tmp/tabshare-sources/README.md
 
 # Copy workspace files
 cp pnpm-workspace.yaml /tmp/tabshare-sources/
