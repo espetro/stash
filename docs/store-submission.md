@@ -33,16 +33,16 @@ pnpm --filter tab-mail-viewer run build
 
 # Package extension for Chrome
 pnpm --filter tab-mail-extension run zip:chrome
-# Output: extension/.output/tab-mail-extension-{version}-chrome.zip
+# Output: apps/extension/.output/tab-mail-extension-{version}-chrome.zip
 
 # Build + package for Firefox
 pnpm --filter tab-mail-extension run build:firefox
 pnpm --filter tab-mail-extension run zip:firefox
-# Output: extension/.output/tab-mail-extension-{version}-firefox.zip
+# Output: apps/extension/.output/tab-mail-extension-{version}-firefox.zip
 
 # Create sources zip for AMO (required for Firefox)
 ./scripts/create-sources-zip.sh
-# Output: extension/.output/tabshare-sources-{version}.zip
+# Output: apps/extension/.output/tabshare-sources-{version}.zip
 ```
 
 ---
@@ -62,7 +62,7 @@ pnpm --filter tab-mail-extension run zip:firefox
    ```
 
 2. **Upload zip** to Chrome Web Store Developer Dashboard:
-   - File: `extension/.output/tab-mail-extension-{version}-chrome.zip` (e.g., `tab-mail-extension-0.1.0-chrome.zip`)
+    - File: `apps/extension/.output/tab-mail-extension-{version}-chrome.zip` (e.g., `tab-mail-extension-0.1.0-chrome.zip`)
 
 3. **Fill in store listing**:
    - **Name**: TabShare
@@ -112,15 +112,15 @@ Features:
    ```
 
 2. **Upload zip** to Firefox Add-ons Developer Hub:
-   - File: `extension/.output/tab-mail-extension-{version}-firefox.zip` (e.g., `tab-mail-extension-0.1.0-firefox.zip`)
+    - File: `apps/extension/.output/tab-mail-extension-{version}-firefox.zip` (e.g., `tab-mail-extension-0.1.0-firefox.zip`)
 
 3. **Source code** (required for Firefox review):
-   - Firefox requires source code for extensions built with bundlers/minifiers
-   - When asked "Do you need to submit source code?" → **Yes**
-   - Create sources zip: `./scripts/create-sources-zip.sh`
-   - Upload: `extension/.output/tabshare-sources-{version}.zip`
-   - Build instructions are included in the zip's `README.md`
-   - See [`extension/SOURCES.md`](../extension/SOURCES.md) for details
+    - Firefox requires source code for extensions built with bundlers/minifiers
+    - When asked "Do you need to submit source code?" → **Yes**
+    - Create sources zip: `./scripts/create-sources-zip.sh`
+    - Upload: `apps/extension/.output/tabshare-sources-{version}.zip`
+    - Build instructions are included in the zip's `README.md`
+    - See [`apps/extension/SOURCES.md`](../apps/extension/SOURCES.md) for details
 
 4. **Fill in store listing** (same content as Chrome):
    - Name, description, category, screenshots
@@ -165,9 +165,9 @@ The privacy policy and viewer must be deployed before store submission.
 
 Use this checklist before each store submission:
 
-- [ ] `extension/.output/tab-mail-extension-{version}-chrome.zip` built with `pnpm build && pnpm --filter tab-mail-extension run zip:chrome`
-- [ ] `extension/.output/tab-mail-extension-{version}-firefox.zip` built with `pnpm --filter tab-mail-extension run build:firefox && pnpm --filter tab-mail-extension run zip:firefox`
-- [ ] `extension/.output/tabshare-sources-{version}.zip` created with `./scripts/create-sources-zip.sh` (Firefox only)
+- [ ] `apps/extension/.output/tab-mail-extension-{version}-chrome.zip` built with `pnpm build && pnpm --filter tab-mail-extension run zip:chrome`
+- [ ] `apps/extension/.output/tab-mail-extension-{version}-firefox.zip` built with `pnpm --filter tab-mail-extension run build:firefox && pnpm --filter tab-mail-extension run zip:firefox`
+- [ ] `apps/extension/.output/tabshare-sources-{version}.zip` created with `./scripts/create-sources-zip.sh` (Firefox only)
 - [ ] `screenshots/store-screenshot.png` generated with `pnpm screenshots` (1280×800 PNG)
 - [ ] Privacy policy live at `https://[your-domain]/privacy`
 - [ ] Store description reviewed and localized if needed

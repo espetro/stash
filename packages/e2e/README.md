@@ -14,16 +14,16 @@ Comprehensive end-to-end tests for the TabShare browser extension and viewer app
 
 ```bash
 # From the project root
-npm run build --workspace=extension
+pnpm --filter tab-mail-extension run build
 ```
 
-This will build the extension to `extension/.output/chrome-mv3`.
+This will build the extension to `apps/extension/.output/chrome-mv3`.
 
 ### 2. Start the Viewer Server
 
 ```bash
 # From the project root
-npm run dev --workspace=viewer
+pnpm --filter tab-mail-viewer run dev
 ```
 
 The viewer will be available at `http://localhost:4321`.
@@ -31,8 +31,8 @@ The viewer will be available at `http://localhost:4321`.
 ### 3. Install Test Dependencies
 
 ```bash
-cd tests
-npm install
+cd packages/e2e
+pnpm install
 ```
 
 ## Running Tests
@@ -80,7 +80,7 @@ npm run validate
 ## Test Structure
 
 ```
-tests/
+packages/e2e/
 ├── specs/                          # Gauge specification files (.md)
 │   ├── extension-context-menu.md    # Context menu behavior tests
 │   ├── extension-link-generation.md # Link generation tests
@@ -147,12 +147,12 @@ tests/
 
 ### Environment Variables
 
-Set these in `tests/env/default/gauge.properties`:
+Set these in `packages/e2e/env/default/gauge.properties`:
 
 ```properties
 BROWSER = chrome                    # Browser to use
 HEADLESS = false                   # Run tests in headless mode
-EXTENSION_PATH = ./extension/.output/chrome-mv3  # Extension build path
+EXTENSION_PATH = ./apps/extension/.output/chrome-mv3  # Extension build path
 VIEWER_URL = http://localhost:4321               # Viewer server URL
 STEP_TIMEOUT = 30000               # Step timeout in milliseconds
 ```
@@ -172,12 +172,12 @@ EXTENSION_PATH=./custom/path npm test
 ### Extension Not Found
 
 ```
-Error: Extension not found at ./extension/.output/chrome-mv3
+Error: Extension not found at ./apps/extension/.output/chrome-mv3
 ```
 
 **Solution**: Build the extension first:
 ```bash
-npm run build --workspace=extension
+pnpm --filter tab-mail-extension run build
 ```
 
 ### Viewer Server Not Running
@@ -188,7 +188,7 @@ Error: Cannot connect to http://localhost:4321
 
 **Solution**: Start the viewer server:
 ```bash
-npm run dev --workspace=viewer
+pnpm --filter tab-mail-viewer run dev
 ```
 
 ### Gauge Not Installed
@@ -217,7 +217,7 @@ npx playwright install chromium
 
 ### 1. Create a Specification File
 
-Create a new `.md` file in `tests/specs/`:
+Create a new `.md` file in `packages/e2e/specs/`:
 
 ```markdown
 # My New Test
@@ -230,7 +230,7 @@ Then something should happen
 
 ### 2. Implement Steps
 
-Add step implementations in `tests/step_implementations/`:
+Add step implementations in `packages/e2e/step_implementations/`:
 
 ```typescript
 import { step } from '@getgauge/cli';

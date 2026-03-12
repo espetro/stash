@@ -1,5 +1,5 @@
 {
-  "name": "tabshare-e2e-tests",
+  "name": "@tab-mail/e2e",
   "version": "1.0.0",
   "description": "E2E tests for TabShare browser extension and viewer using Gauge and Playwright",
   "scripts": {
