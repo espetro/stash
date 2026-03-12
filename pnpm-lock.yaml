@@ -110,6 +110,9 @@ importers:
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
+      vite:
+        specifier: ^6.0.0
+        version: 6.4.1(@types/node@20.19.34)(jiti@2.6.1)(tsx@4.21.0)
 
   packages/e2e:
     dependencies:
