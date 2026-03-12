@@ -15,9 +15,13 @@
     "build:firefox": "wxt build -b firefox",
     "zip": "wxt zip",
     "zip:chrome": "wxt zip",
-    "zip:firefox": "wxt zip -b firefox"
+    "zip:firefox": "wxt zip -b firefox",
+    "format": "oxfmt --write 'entrypoints/**/*.{ts,tsx}' 'lib/**/*.{ts,tsx}'",
+    "lint": "oxlint 'entrypoints/**/*.{ts,tsx}' 'lib/**/*.{ts,tsx}' --ignore-pattern '**/*.d.ts'",
+    "tscheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@tab-mail/theme": "workspace:*",
     "pako": "^2.1.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
@@ -25,6 +29,9 @@
   "devDependencies": {
     "@types/chrome": "^0.0.287",
     "@types/pako": "^2.0.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/webextension-polyfill": "^0.12.5",
     "@wxt-dev/module-react": "^1.2.1",
     "typescript": "^5.7.2",
     "wxt": "^0.19.15"

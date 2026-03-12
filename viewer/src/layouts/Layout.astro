@@ -10,7 +10,12 @@ const { title } = Astro.props;
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{title}</title>
+  <script>
+    import { initTheme } from '@tab-mail/theme';
+    initTheme();
+  </script>
   <style is:global>
+    @import '@tab-mail/theme/tailwind.css';
     * { box-sizing: border-box; }
     body {
       margin: 0;

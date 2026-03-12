@@ -1,28 +1,53 @@
-import React, { useState } from 'react';
-import { useTabSelection } from './hooks/useTabSelection';
-import { TabList } from './components/TabList';
-import { SelectAllToggle } from './components/SelectAllToggle';
-import { LinkResult } from './components/LinkResult';
-import { ErrorMessage } from './components/ErrorMessage';
-import { encodeTabsToShareUrl } from '../../lib/encoder.js';
-import type { TabInfo } from '../../lib/types.js';
+import React, { useState, useEffect } from "react";
+import { useTabSelection } from "./hooks/useTabSelection";
+import { TabList } from "./components/TabList";
+import { SelectAllToggle } from "./components/SelectAllToggle";
+import { LinkResult } from "./components/LinkResult";
+import { ErrorMessage } from "./components/ErrorMessage";
+import { encodeTabsToShareUrl } from "../../lib/encoder.js";
+import { getTheme, setTheme } from "@tab-mail/theme";
+import type { TabInfo } from "../../lib/types.js";
+
+type Theme = "light" | "dark" | "system";
+
+const THEME_ICONS: Record<Theme, string> = {
+  light: "☀️",
+  dark: "🌙",
+  system: "🖥️",
+};
+
+const THEME_ORDER: Theme[] = ["light", "dark", "system"];
 
 export default function App() {
-  const { tabs, isLoading, error, setError, toggleTab, selectAll, deselectAll, selectedCount } = useTabSelection();
+  const { tabs, isLoading, error, setError, toggleTab, selectAll, deselectAll, selectedCount } =
+    useTabSelection();
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [linkItemCount, setLinkItemCount] = useState(0);
   const [linkTruncated, setLinkTruncated] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState<Theme>("system");
+
+  useEffect(() => {
+    setCurrentTheme(getTheme());
+  }, []);
+
+  const cycleTheme = () => {
+    const currentIndex = THEME_ORDER.indexOf(currentTheme);
+    const nextIndex = (currentIndex + 1) % THEME_ORDER.length;
+    const nextTheme = THEME_ORDER[nextIndex];
+    setTheme(nextTheme);
+    setCurrentTheme(nextTheme);
+  };
 
   async function handleCreateLink() {
     try {
       if (selectedCount === 0) {
-        setError('Please select at least one tab');
+        setError("Please select at least one tab");
         return;
       }
 
-      const selectedTabs = tabs.filter(t => t.isSelected);
-      const tabInfos: TabInfo[] = selectedTabs.map(t => ({ url: t.url, title: t.title }));
+      const selectedTabs = tabs.filter((t) => t.isSelected);
+      const tabInfos: TabInfo[] = selectedTabs.map((t) => ({ url: t.url, title: t.title }));
       const result = encodeTabsToShareUrl(tabInfos);
 
       await navigator.clipboard.writeText(result.url);
@@ -34,8 +59,8 @@ export default function App() {
 
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
-      console.error('handleCreateLink error:', err);
-      setError('Failed to create share link');
+      console.error("handleCreateLink error:", err);
+      setError("Failed to create share link");
     }
   }
 
@@ -46,7 +71,7 @@ export default function App() {
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
-      setError('Failed to copy to clipboard');
+      setError("Failed to copy to clipboard");
     }
   }
 
@@ -71,14 +96,17 @@ export default function App() {
     <div className="popup-container">
       <div className="popup-header">
         <h1>TabShare</h1>
+        <button
+          className="theme-toggle"
+          onClick={cycleTheme}
+          aria-label={`Current theme: ${currentTheme}. Click to change.`}
+          title={`Theme: ${currentTheme}`}
+        >
+          {THEME_ICONS[currentTheme]}
+        </button>
       </div>
 
-      {error && (
-        <ErrorMessage
-          message={error}
-          onDismiss={() => setError(null)}
-        />
-      )}
+      {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}
 
       {shareUrl ? (
         <>
@@ -88,7 +116,7 @@ export default function App() {
             isCopied={isCopied}
             itemCount={linkItemCount}
             truncated={linkTruncated}
-            totalCount={tabs.filter(t => t.isSelected).length}
+            totalCount={tabs.filter((t) => t.isSelected).length}
           />
           <div className="popup-actions">
             <button className="btn btn-secondary" onClick={handleBack}>
@@ -98,11 +126,7 @@ export default function App() {
         </>
       ) : (
         <>
-          <SelectAllToggle
-            tabs={tabs}
-            onSelectAll={handleSelectAll}
-            onDeselectAll={deselectAll}
-          />
+          <SelectAllToggle tabs={tabs} onSelectAll={handleSelectAll} onDeselectAll={deselectAll} />
           <TabList tabs={tabs} onToggle={toggleTab} />
           <div className="popup-actions">
             <button

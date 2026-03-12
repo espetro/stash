@@ -2,3 +2,4 @@ packages:
   - 'extension'
   - 'viewer'
   - 'tests'
+  - 'packages/*'
