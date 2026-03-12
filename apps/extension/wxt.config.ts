@@ -18,6 +18,9 @@ export default defineConfig({
         id: 'tabshare@tab-mail-extension',
         strict_min_version: '109.0'
       }
+    },
+    content_security_policy: {
+      extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
     }
   }
 });
