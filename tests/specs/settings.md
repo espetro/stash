@@ -39,9 +39,9 @@ When the user navigates to the options page
 And the user selects the "7 days" expiry option
 And the user navigates back to a content page
 And the user clicks the extension icon
-And the user clicks Create Link
-Then a share link should be generated
-And the expiry should be approximately 168 hours from now
+And the user clicks Create Link from popup
+Then a share link should be generated from popup
+And the link expiry should be approximately 168 hours from now
 
 ## Scenario: Link with Never expiry uses settings
 Given the browser is launched with the TabShare extension loaded
@@ -50,6 +50,6 @@ When the user navigates to the options page
 And the user selects the "Never" expiry option
 And the user navigates back to a content page
 And the user clicks the extension icon
-And the user clicks Create Link
-Then a share link should be generated
-And the expiry should be greater than 438000 hours from now
+And the user clicks Create Link from popup
+Then a share link should be generated from popup
+And the link expiry should be greater than 438000 hours from now
