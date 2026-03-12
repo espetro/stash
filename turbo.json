@@ -16,6 +16,15 @@
     "zip": {
       "dependsOn": ["build"],
       "outputs": [".output/**"]
+    },
+    "format": {
+      "dependsOn": []
+    },
+    "lint": {
+      "dependsOn": []
+    },
+    "tscheck": {
+      "dependsOn": []
     }
   }
 }

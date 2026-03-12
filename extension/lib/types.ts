@@ -1,6 +1,6 @@
 export interface SharePayload {
-  v: number;           // Schema version
-  e: number;           // Expiry timestamp (Unix seconds)
+  v: number; // Schema version
+  e: number; // Expiry timestamp (Unix seconds)
   i: [string, string][]; // Items: [url, title][]
 }
 

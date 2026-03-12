@@ -1,5 +1,5 @@
-import type { APIRoute } from 'astro';
-import { PAYLOAD_VERSION, EXPIRY_HOURS } from '../lib/constants.js';
+import type { APIRoute } from "astro";
+import { PAYLOAD_VERSION, EXPIRY_HOURS } from "../../lib/constants";
 
 export const GET: APIRoute = () => {
   const spec = {
@@ -7,14 +7,16 @@ export const GET: APIRoute = () => {
     info: {
       title: "TabShare Viewer API",
       version: "1.0.0",
-      description: "API documentation for AI agents consuming TabShare viewer endpoints. Use /s/?format=json or /s/?format=md for machine-readable output. The URL fragment #p={base64url} contains the compressed payload (client-side only, not a formal parameter)."
+      description:
+        "API documentation for AI agents consuming TabShare viewer endpoints. Use /s/?format=json or /s/?format=md for machine-readable output. The URL fragment #p={base64url} contains the compressed payload (client-side only, not a formal parameter).",
     },
     servers: [{ url: "/" }],
     paths: {
       "/s/": {
         get: {
           summary: "View shared tabs",
-          description: "Renders shared tabs. The URL fragment #p={base64url} contains the compressed payload (client-side only, not a formal parameter). Use ?format=json or ?format=md for machine-readable output.",
+          description:
+            "Renders shared tabs. The URL fragment #p={base64url} contains the compressed payload (client-side only, not a formal parameter). Use ?format=json or ?format=md for machine-readable output.",
           parameters: [
             {
               name: "format",
@@ -23,9 +25,9 @@ export const GET: APIRoute = () => {
               schema: {
                 type: "string",
                 enum: ["json", "md"],
-                description: "Response format. Omit for HTML."
-              }
-            }
+                description: "Response format. Omit for HTML.",
+              },
+            },
           ],
           responses: {
             "200": {
@@ -33,34 +35,34 @@ export const GET: APIRoute = () => {
               content: {
                 "application/json": {
                   schema: {
-                    $ref: "#/components/schemas/DecodedPayload"
-                  }
+                    $ref: "#/components/schemas/DecodedPayload",
+                  },
                 },
                 "text/markdown": {
                   schema: {
-                    type: "string"
-                  }
+                    type: "string",
+                  },
                 },
                 "text/html": {
                   schema: {
-                    type: "string"
-                  }
-                }
-              }
+                    type: "string",
+                  },
+                },
+              },
             },
             "400": {
               description: "Invalid or expired payload",
               content: {
                 "text/html": {
                   schema: {
-                    $ref: "#/components/schemas/ErrorResponse"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    $ref: "#/components/schemas/ErrorResponse",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     components: {
       schemas: {
@@ -71,27 +73,27 @@ export const GET: APIRoute = () => {
             v: {
               type: "integer",
               description: "Schema version",
-              example: 1
+              example: 1,
             },
             e: {
               type: "integer",
               description: "Expiry timestamp (Unix seconds)",
-              example: 1736524800
+              example: 1736524800,
             },
             i: {
               type: "array",
               items: {
                 type: "array",
                 items: {
-                  type: "string"
+                  type: "string",
                 },
                 minItems: 2,
                 maxItems: 2,
-                description: "[url, title] tuple"
+                description: "[url, title] tuple",
               },
-              description: "Array of [url, title] pairs"
-            }
-          }
+              description: "Array of [url, title] pairs",
+            },
+          },
         },
         DecodedPayload: {
           type: "object",
@@ -99,44 +101,44 @@ export const GET: APIRoute = () => {
           properties: {
             version: {
               type: "integer",
-              description: "Payload schema version"
+              description: "Payload schema version",
             },
             expiry: {
               type: "integer",
-              description: "Expiry timestamp (Unix seconds)"
+              description: "Expiry timestamp (Unix seconds)",
             },
             items: {
               type: "array",
               items: {
                 type: "array",
                 items: {
-                  type: "string"
+                  type: "string",
                 },
                 minItems: 2,
-                maxItems: 2
+                maxItems: 2,
               },
-              description: "Array of [url, title] pairs"
+              description: "Array of [url, title] pairs",
             },
             isExpired: {
               type: "boolean",
-              description: "Whether the payload has expired"
-            }
-          }
+              description: "Whether the payload has expired",
+            },
+          },
         },
         ErrorResponse: {
           type: "object",
           properties: {
             error: {
               type: "string",
-              description: "Error message"
-            }
-          }
-        }
-      }
-    }
+              description: "Error message",
+            },
+          },
+        },
+      },
+    },
   };
 
   return new Response(JSON.stringify(spec), {
-    headers: { 'Content-Type': 'application/json' }
+    headers: { "Content-Type": "application/json" },
   });
 };

@@ -1,5 +1,5 @@
-import React from 'react';
-import type { PopupTab } from '../types';
+import React from "react";
+import type { PopupTab } from "../types";
 
 interface TabItemProps {
   tab: PopupTab;
@@ -7,9 +7,7 @@ interface TabItemProps {
 }
 
 export function TabItem({ tab, onToggle }: TabItemProps) {
-  const displayTitle = tab.title.length > 30 
-    ? tab.title.substring(0, 30) + '...' 
-    : tab.title;
+  const displayTitle = tab.title.length > 30 ? tab.title.substring(0, 30) + "..." : tab.title;
 
   return (
     <div className="tab-item">
@@ -25,7 +23,7 @@ export function TabItem({ tab, onToggle }: TabItemProps) {
         src={tab.faviconUrl}
         alt=""
         onError={(e) => {
-          (e.target as HTMLImageElement).style.display = 'none';
+          (e.target as HTMLImageElement).style.display = "none";
         }}
       />
       <label htmlFor={`tab-${tab.id}`} className="tab-title" title={tab.title}>

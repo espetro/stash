@@ -56,7 +56,7 @@ import Layout from '../layouts/Layout.astro';
 <style>
   #app {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--background);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -64,9 +64,9 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .card {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    background: var(--background);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
     max-width: 600px;
     width: 100%;
     padding: 32px;
@@ -76,7 +76,7 @@ import Layout from '../layouts/Layout.astro';
     text-align: center;
     margin-bottom: 28px;
     padding-bottom: 24px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border);
   }
 
   .lock-icon {
@@ -88,12 +88,12 @@ import Layout from '../layouts/Layout.astro';
     font-size: 1.75rem;
     font-weight: 700;
     margin: 0 0 8px 0;
-    color: #1a1a1a;
+    color: var(--foreground);
   }
 
   .subtitle {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--muted-foreground);
     margin: 0;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -105,7 +105,7 @@ import Layout from '../layouts/Layout.astro';
 
   .intro {
     font-size: 1rem;
-    color: #374151;
+    color: var(--foreground);
     line-height: 1.6;
     margin: 0 0 20px 0;
   }
@@ -121,9 +121,9 @@ import Layout from '../layouts/Layout.astro';
     align-items: flex-start;
     gap: 12px;
     padding: 12px 0;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--border);
     font-size: 0.9375rem;
-    color: #374151;
+    color: var(--foreground);
     line-height: 1.5;
   }
 
@@ -132,50 +132,50 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .check {
-    color: #10b981;
+    color: var(--success);
     font-weight: 700;
     flex-shrink: 0;
     margin-top: 2px;
   }
 
   .summary {
-    background: #f9fafb;
-    border-radius: 8px;
+    background: var(--muted);
+    border-radius: var(--radius-lg);
     padding: 16px;
   }
 
   .summary p {
     margin: 0;
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--muted-foreground);
     line-height: 1.5;
   }
 
   .footer {
     text-align: center;
     padding-top: 24px;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border);
   }
 
   .back-link {
     display: inline-block;
-    color: #667eea;
+    color: var(--primary);
     text-decoration: none;
     font-size: 0.9375rem;
     font-weight: 500;
     padding: 8px 16px;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     transition: all 0.2s ease;
   }
 
   .back-link:hover {
-    background: #f3f4f6;
-    color: #5a6fd6;
+    background: var(--muted);
+    color: var(--primary);
   }
 
   .last-updated {
     font-size: 0.75rem;
-    color: #9ca3af;
+    color: var(--muted-foreground);
     margin: 16px 0 0 0;
   }
 </style>
