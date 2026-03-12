@@ -17,7 +17,7 @@ export class BrowserHelper {
   }
 
   /**
-   * Launch browser with TabShare extension loaded
+   * Launch browser with Stash extension loaded
    */
   async launchWithExtension(): Promise<BrowserContext> {
     // Check if extension exists

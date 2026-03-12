@@ -1,7 +1,7 @@
 {
-  "name": "@tab-mail/e2e",
+  "name": "@stash/e2e",
   "version": "1.0.0",
-  "description": "E2E tests for TabShare browser extension and viewer using Gauge and Playwright",
+  "description": "E2E tests for Stash browser extension and viewer using Gauge and Playwright",
   "scripts": {
     "test": "gauge run",
     "test:spec": "gauge run specs/",
@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@getgauge/cli": "^1.6.0",
-    "@tab-mail/codec": "workspace:*",
+    "@stash/codec": "workspace:*",
     "gauge-ts": "^0.3.6",
     "playwright": "^1.40.0",
     "pako": "^2.1.0",
@@ -38,7 +38,7 @@
     "gauge",
     "playwright",
     "browser-extension",
-    "tabshare"
+    "stash"
   ],
   "author": "",
   "license": "MIT"

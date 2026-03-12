@@ -1,8 +1,8 @@
 {
-  "name": "tab-mail-viewer",
+  "name": "stash-viewer",
   "version": "0.1.0",
   "private": true,
-  "description": "TabShare viewer site",
+  "description": "Stash viewer site",
   "type": "module",
   "scripts": {
     "dev": "astro dev",
@@ -13,8 +13,8 @@
     "tscheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tab-mail/codec": "workspace:*",
-    "@tab-mail/theme": "workspace:*",
+    "@stash/codec": "workspace:*",
+    "@stash/theme": "workspace:*",
     "astro": "^5.1.1",
     "brotli-wasm": "^3.0.1",
     "pako": "^2.1.0"

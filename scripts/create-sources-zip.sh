@@ -8,10 +8,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 EXTENSION_DIR="$ROOT_DIR/apps/extension"
 OUTPUT_DIR="${1:-$ROOT_DIR/apps/extension/.output}"
-SOURCES_DIR="/tmp/tabshare-sources-$$"
+SOURCES_DIR="/tmp/stash-sources-$$"
 VERSION=$(node -p "require('$EXTENSION_DIR/package.json').version")
 
-echo "Creating sources zip for TabShare v$VERSION..."
+echo "Creating sources zip for Stash v$VERSION..."
 
 # Create temp directory
 mkdir -p "$SOURCES_DIR"
@@ -36,12 +36,12 @@ cp "$ROOT_DIR/package.json" "$SOURCES_DIR/root-package.json"
 echo "Creating zip..."
 mkdir -p "$OUTPUT_DIR"
 cd "$SOURCES_DIR"
-zip -r "$OUTPUT_DIR/tabshare-sources-$VERSION.zip" .
+zip -r "$OUTPUT_DIR/stash-sources-$VERSION.zip" .
 cd "$ROOT_DIR"
 
 # Cleanup
 rm -rf "$SOURCES_DIR"
 
-echo "✓ Created: $OUTPUT_DIR/tabshare-sources-$VERSION.zip"
+echo "✓ Created: $OUTPUT_DIR/stash-sources-$VERSION.zip"
 echo ""
 echo "Upload this file to AMO when asked for source code."

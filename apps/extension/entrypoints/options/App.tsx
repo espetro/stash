@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getSettings, setSettings } from "../../lib/settings.js";
 import { invalidateSettingsCache } from "../../lib/settings-cache.js";
-import { getTheme, setTheme } from "@tab-mail/theme";
+import { getTheme, setTheme } from "@stash/theme";
 
 type ExpiryMode = "24h" | "7d" | "30d" | "never";
 type Theme = "light" | "dark" | "system";
@@ -53,7 +53,7 @@ export default function App() {
   return (
     <div className="settings-container">
       <header className="settings-header">
-        <h1>TabShare Settings</h1>
+        <h1>Stash Settings</h1>
         {showSuccess && (
           <div className="settings-success" role="status" aria-live="polite">
             Settings saved!
@@ -92,7 +92,7 @@ export default function App() {
         <h2 id="theme-heading" className="settings-section-title">
           Appearance
         </h2>
-        <p className="settings-section-description">Choose how TabShare looks on your device.</p>
+        <p className="settings-section-description">Choose how Stash looks on your device.</p>
         <div className="form-group" role="radiogroup" aria-labelledby="theme-heading">
           <span className="form-label">Theme</span>
           <div className="theme-options">

@@ -12,22 +12,22 @@ This project uses the following code quality scripts (centralized via Turbo):
 **Format** - Auto-format code with oxfmt:
 ```bash
 pnpm run format        # Format all packages
-pnpm --filter tab-mail-viewer run format    # Format viewer only
-pnpm --filter tab-mail-extension run format # Format extension only
+pnpm --filter stash-viewer run format    # Format viewer only
+pnpm --filter stash-extension run format # Format extension only
 ```
 
 **Lint** - Check code with oxlint:
 ```bash
 pnpm run lint          # Lint all packages
-pnpm --filter tab-mail-viewer run lint      # Lint viewer only
-pnpm --filter tab-mail-extension run lint   # Lint extension only
+pnpm --filter stash-viewer run lint      # Lint viewer only
+pnpm --filter stash-extension run lint   # Lint extension only
 ```
 
 **Type Check** - Run TypeScript compiler without emit:
 ```bash
 pnpm run tscheck       # Type check all packages
-pnpm --filter tab-mail-viewer run tscheck   # Check viewer only
-pnpm --filter tab-mail-extension run tscheck # Check extension only
+pnpm --filter stash-viewer run tscheck   # Check viewer only
+pnpm --filter stash-extension run tscheck # Check extension only
 ```
 
 ### Pre-commit Checklist

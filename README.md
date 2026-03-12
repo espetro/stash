@@ -1,10 +1,10 @@
-# TabShare - Browser Extension
+# Stash - Browser Extension
 
 A cross-browser extension that enables users to share snapshots of selected tabs via URL-encoded links.
 
 ## Overview
 
-TabShare consists of two parts:
+Stash consists of two parts:
 
 1. **Browser Extension** - Captures tabs and generates share links
 2. **Viewer Site** (Astro) - Renders shared tabs in a centered card UI
@@ -21,7 +21,7 @@ TabShare consists of two parts:
 ## Project Structure
 
 ```
-tab-mail/
+stash/
 ├── apps/
 │   ├── extension/          # WXT browser extension
 │   │   ├── entrypoints/
@@ -113,20 +113,20 @@ The extension will be available at `chrome://extensions/` (or Firefox equivalent
 2. Update `site` in [`apps/viewer/astro.config.mjs`](apps/viewer/astro.config.mjs:1)
 3. Deploy `apps/viewer/dist/` to static host (Cloudflare Pages, Vercel, Netlify)
 4. Rebuild both packages with production URL: `pnpm run build` (Turborepo builds extension and viewer together)
-5. Create zip: `pnpm --filter tab-mail-extension run zip:chrome` (or `zip:firefox`)
+5. Create zip: `pnpm --filter stash-extension run zip:chrome` (or `zip:firefox`)
 
 ### Chrome Store Submission
 
 1. Build: `pnpm run build`
-2. Zip: `pnpm --filter tab-mail-extension run zip:chrome`
-3. Upload `apps/extension/.output/tab-mail-extension-{version}-chrome.zip` to Chrome Web Store
+2. Zip: `pnpm --filter stash-extension run zip:chrome`
+3. Upload `apps/extension/.output/stash-extension-{version}-chrome.zip` to Chrome Web Store
 4. Provide: Description, icons, screenshots, privacy policy
 
 ### Firefox Add-ons Submission
 
-1. Build: `pnpm --filter tab-mail-extension run build:firefox`
-2. Zip: `pnpm --filter tab-mail-extension run zip:firefox`
-3. Upload `apps/extension/.output/tab-mail-extension-{version}-firefox.zip` to Firefox Add-ons
+1. Build: `pnpm --filter stash-extension run build:firefox`
+2. Zip: `pnpm --filter stash-extension run zip:firefox`
+3. Upload `apps/extension/.output/stash-extension-{version}-firefox.zip` to Firefox Add-ons
 4. **Source code required:** Run `./scripts/create-sources-zip.sh` and upload the generated sources zip
 5. Provide: Description, icons, screenshots, privacy policy
 

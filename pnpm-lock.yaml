@@ -26,10 +26,10 @@ importers:
 
   apps/extension:
     dependencies:
-      '@tab-mail/codec':
+      '@stash/codec':
         specifier: workspace:*
         version: link:../../packages/codec
-      '@tab-mail/theme':
+      '@stash/theme':
         specifier: workspace:*
         version: link:../../packages/theme
       brotli-wasm:
@@ -72,10 +72,10 @@ importers:
 
   apps/viewer:
     dependencies:
-      '@tab-mail/codec':
+      '@stash/codec':
         specifier: workspace:*
         version: link:../../packages/codec
-      '@tab-mail/theme':
+      '@stash/theme':
         specifier: workspace:*
         version: link:../../packages/theme
       astro:
@@ -116,7 +116,7 @@ importers:
       '@getgauge/cli':
         specifier: ^1.6.0
         version: 1.6.25
-      '@tab-mail/codec':
+      '@stash/codec':
         specifier: workspace:*
         version: link:../codec
       gauge-ts:

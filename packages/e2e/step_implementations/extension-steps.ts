@@ -21,7 +21,7 @@ beforeSuite(async () => {
 /**
  * Launch browser with extension
  */
-step('The browser is launched with the TabShare extension loaded', async () => {
+step('The browser is launched with the Stash extension loaded', async () => {
   const browserHelper = getBrowserHelper();
   if (!extensionContext) {
     extensionContext = await browserHelper.launchWithExtension();

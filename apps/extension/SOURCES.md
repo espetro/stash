@@ -1,6 +1,6 @@
 # Source Code Build Instructions
 
-This document provides step-by-step instructions for building the TabShare Firefox extension from source. Required for Mozilla Add-ons (AMO) source code submission.
+This document provides step-by-step instructions for building the Stash Firefox extension from source. Required for Mozilla Add-ons (AMO) source code submission.
 
 ## Build Requirements
 
@@ -39,7 +39,7 @@ pnpm --version  # Should show 10.x.x or higher
 This extension uses a pnpm workspace. The project structure is:
 
 ```
-tab-mail/
+stash/
 ├── package.json           # Root workspace config
 ├── pnpm-workspace.yaml    # Workspace definition
 ├── pnpm-lock.yaml         # Dependency lock file
@@ -57,9 +57,9 @@ tab-mail/
 ### Steps
 
 1. **Navigate to the workspace root:**
-   ```bash
-   cd tab-mail
-   ```
+    ```bash
+    cd stash
+    ```
 
 2. **Install dependencies:**
    ```bash
@@ -79,14 +79,14 @@ tab-mail/
    ```bash
    pnpm run zip:firefox
    ```
-   Output: `.output/tab-mail-extension-{version}-firefox.zip`
+    Output: `.output/stash-extension-{version}-firefox.zip`
 
 ## Creating Sources Zip for AMO
 
 Mozilla requires a sources zip for extensions built with bundlers. To create it:
 
 ```bash
-# From the workspace root (tab-mail/)
+# From the workspace root (stash/)
 ./scripts/create-sources-zip.sh
 ```
 
@@ -94,7 +94,7 @@ Or manually:
 
 ```bash
 # Create a temporary directory
-mkdir -p /tmp/tabshare-sources
+mkdir -p /tmp/stash-sources
 
 # Copy extension source files
 cp -r apps/extension/entrypoints /tmp/tabshare-sources/
@@ -111,9 +111,9 @@ cp pnpm-lock.yaml /tmp/tabshare-sources/
 cp package.json /tmp/tabshare-sources/root-package.json
 
 # Create the zip
-cd /tmp/tabshare-sources
-zip -r tabshare-sources.zip .
-mv tabshare-sources.zip ~/Downloads/
+cd /tmp/stash-sources
+zip -r stash-sources.zip .
+mv stash-sources.zip ~/Downloads/
 ```
 
 ## Verification

@@ -4,8 +4,8 @@ import { TabList } from "./components/TabList";
 import { SelectAllToggle } from "./components/SelectAllToggle";
 import { LinkResult } from "./components/LinkResult";
 import { ErrorMessage } from "./components/ErrorMessage";
-import { encodeTabsToShareUrl } from "@tab-mail/codec";
-import type { TabInfo } from "@tab-mail/codec";
+import { encodeTabsToShareUrl } from "@stash/codec";
+import type { TabInfo } from "@stash/codec";
 
 export default function App() {
   const { tabs, isLoading, error, setError, toggleTab, selectAll, deselectAll, selectedCount } =
@@ -71,7 +71,7 @@ export default function App() {
   return (
     <div className="popup-container">
       <div className="popup-header">
-        <h1>TabShare</h1>
+        <h1>Stash</h1>
         <button
           className="theme-toggle"
           onClick={() => browser.runtime.openOptionsPage()}

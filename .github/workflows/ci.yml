@@ -32,15 +32,15 @@ jobs:
         run: npx playwright install chromium
 
       - name: Typecheck extension
-        run: pnpm --filter tab-mail-extension exec tsc --noEmit
+        run: pnpm --filter stash-extension exec tsc --noEmit
 
       - name: Typecheck viewer
-        run: pnpm --filter tab-mail-viewer exec tsc --noEmit
+        run: pnpm --filter stash-viewer exec tsc --noEmit
 
       - name: Build
         run: pnpm build
         env:
-          VITE_VIEWER_ORIGIN: https://tabshare.app
+          VITE_VIEWER_ORIGIN: https://stash.oxejoq.eu
 
       - name: Upload extension artifact
         uses: actions/upload-artifact@v4

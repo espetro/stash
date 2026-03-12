@@ -1,6 +1,6 @@
-# TabShare E2E Test Suite
+# Stash E2E Test Suite
 
-Comprehensive end-to-end tests for the TabShare browser extension and viewer application using Gauge and Playwright.
+Comprehensive end-to-end tests for the Stash browser extension and viewer application using Gauge and Playwright.
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ Comprehensive end-to-end tests for the TabShare browser extension and viewer app
 
 ```bash
 # From the project root
-pnpm --filter tab-mail-extension run build
+pnpm --filter stash-extension run build
 ```
 
 This will build the extension to `apps/extension/.output/chrome-mv3`.
@@ -23,7 +23,7 @@ This will build the extension to `apps/extension/.output/chrome-mv3`.
 
 ```bash
 # From the project root
-pnpm --filter tab-mail-viewer run dev
+pnpm --filter stash-viewer run dev
 ```
 
 The viewer will be available at `http://localhost:4321`.
@@ -177,7 +177,7 @@ Error: Extension not found at ./apps/extension/.output/chrome-mv3
 
 **Solution**: Build the extension first:
 ```bash
-pnpm --filter tab-mail-extension run build
+pnpm --filter stash-extension run build
 ```
 
 ### Viewer Server Not Running
@@ -188,7 +188,7 @@ Error: Cannot connect to http://localhost:4321
 
 **Solution**: Start the viewer server:
 ```bash
-pnpm --filter tab-mail-viewer run dev
+pnpm --filter stash-viewer run dev
 ```
 
 ### Gauge Not Installed

@@ -1,6 +1,6 @@
 # Viewer Rendering
 
-This specification tests the viewer page display and interactions of the TabShare application.
+This specification tests the viewer page display and interactions of the Stash application.
 
 ## Scenario: Display single tab with favicon, title, and domain
 Given the viewer server is running on localhost:4321
