@@ -1,5 +1,3 @@
 packages:
-  - 'extension'
-  - 'viewer'
-  - 'tests'
+  - 'apps/*'
   - 'packages/*'

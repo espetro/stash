@@ -24,14 +24,14 @@ importers:
         specifier: ^2.8.11
         version: 2.8.11
 
-  extension:
+  apps/extension:
     dependencies:
       '@tab-mail/codec':
         specifier: workspace:*
-        version: link:../packages/codec
+        version: link:../../packages/codec
       '@tab-mail/theme':
         specifier: workspace:*
-        version: link:../packages/theme
+        version: link:../../packages/theme
       brotli-wasm:
         specifier: ^3.0.1
         version: 3.0.1
@@ -70,6 +70,31 @@ importers:
         specifier: ^0.19.15
         version: 0.19.29(@types/node@20.19.34)(rollup@4.59.0)(tsx@4.21.0)
 
+  apps/viewer:
+    dependencies:
+      '@tab-mail/codec':
+        specifier: workspace:*
+        version: link:../../packages/codec
+      '@tab-mail/theme':
+        specifier: workspace:*
+        version: link:../../packages/theme
+      astro:
+        specifier: ^5.1.1
+        version: 5.18.0(@types/node@20.19.34)(jiti@2.6.1)(rollup@4.59.0)(tsx@4.21.0)(typescript@5.9.3)
+      brotli-wasm:
+        specifier: ^3.0.1
+        version: 3.0.1
+      pako:
+        specifier: ^2.1.0
+        version: 2.1.0
+    devDependencies:
+      '@types/pako':
+        specifier: ^2.0.3
+        version: 2.0.4
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+
   packages/codec:
     dependencies:
       brotli-wasm:
@@ -86,16 +111,14 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
 
-  packages/theme: {}
-
-  tests:
+  packages/e2e:
     dependencies:
       '@getgauge/cli':
         specifier: ^1.6.0
         version: 1.6.25
       '@tab-mail/codec':
         specifier: workspace:*
-        version: link:../packages/codec
+        version: link:../codec
       gauge-ts:
         specifier: ^0.3.6
         version: 0.3.6(@types/node@20.19.34)
@@ -116,30 +139,7 @@ importers:
         specifier: ^20.10.0
         version: 20.19.34
 
-  viewer:
-    dependencies:
-      '@tab-mail/codec':
-        specifier: workspace:*
-        version: link:../packages/codec
-      '@tab-mail/theme':
-        specifier: workspace:*
-        version: link:../packages/theme
-      astro:
-        specifier: ^5.1.1
-        version: 5.18.0(@types/node@20.19.34)(jiti@2.6.1)(rollup@4.59.0)(tsx@4.21.0)(typescript@5.9.3)
-      brotli-wasm:
-        specifier: ^3.0.1
-        version: 3.0.1
-      pako:
-        specifier: ^2.1.0
-        version: 2.1.0
-    devDependencies:
-      '@types/pako':
-        specifier: ^2.0.3
-        version: 2.0.4
-      typescript:
-        specifier: ^5.7.2
-        version: 5.9.3
+  packages/theme: {}
 
 packages:
 
