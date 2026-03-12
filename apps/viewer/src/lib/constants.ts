@@ -1,8 +1,0 @@
-export {
-  PAYLOAD_VERSION,
-  EXPIRY_HOURS,
-  BUDGET_CHARS,
-  MAX_TITLE_CHARS,
-  VIEWER_ORIGIN,
-  VIEWER_PATH,
-} from '@tab-mail/codec';

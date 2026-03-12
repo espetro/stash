@@ -241,8 +241,7 @@ import Layout from '../layouts/Layout.astro';
   </style>
 
   <script>
-    import { decodeShareUrl, getFaviconUrl } from '../lib/decoder.js';
-    import { PayloadDecodeError } from '../lib/types.js';
+    import { decodeShareUrl, getFaviconUrl, PayloadDecodeError } from '@tab-mail/codec';
     import { getTheme, setTheme } from '@tab-mail/theme';
 
     type Theme = 'light' | 'dark' | 'system';

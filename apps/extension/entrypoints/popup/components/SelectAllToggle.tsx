@@ -1,7 +1,7 @@
 import React from "react";
 import type { PopupTab } from "../types";
-import { findMaxTabsWithinBudget } from "../../../lib/encoder.js";
-import type { TabInfo } from "../../../lib/types.js";
+import { findMaxTabsWithinBudget } from "@tab-mail/codec";
+import type { TabInfo } from "@tab-mail/codec";
 
 interface SelectAllToggleProps {
   tabs: PopupTab[];

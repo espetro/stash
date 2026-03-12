@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { PAYLOAD_VERSION, EXPIRY_HOURS } from "../../lib/constants";
+import { PAYLOAD_VERSION, EXPIRY_HOURS } from "@tab-mail/codec";
 
 export const GET: APIRoute = () => {
   const spec = {
