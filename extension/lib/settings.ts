@@ -1,8 +1,8 @@
-type ExpiryMode = '24h' | '7d' | '30d' | 'never'
+export type ExpiryMode = '24h' | '7d' | '30d' | 'never'
 
 const SETTINGS_STORAGE_KEY = 'tabshare-settings' as const
 
-const EXPIRY_HOURS_MAP: Record<ExpiryMode, number> = {
+export const EXPIRY_HOURS_MAP: Record<ExpiryMode, number> = {
   '24h': 24,
   '7d': 168,
   '30d': 720,
@@ -13,7 +13,7 @@ export const DEFAULT_SETTINGS = {
   expiryMode: '24h' as const,
 }
 
-interface Settings {
+export interface Settings {
   expiryMode: ExpiryMode
 }
 
