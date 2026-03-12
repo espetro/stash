@@ -46,12 +46,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: extension-build
-          path: extension/.output/
+          path: apps/extension/.output/
           if-no-files-found: warn
 
       - name: Upload viewer artifact
         uses: actions/upload-artifact@v4
         with:
           name: viewer-build
-          path: viewer/dist/
+          path: apps/viewer/dist/
           if-no-files-found: warn

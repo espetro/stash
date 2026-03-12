@@ -1,8 +1,8 @@
 {
   "name": "tab-mail-viewer",
   "version": "0.1.0",
-  "description": "TabShare viewer site",
   "private": true,
+  "description": "TabShare viewer site",
   "type": "module",
   "scripts": {
     "dev": "astro dev",

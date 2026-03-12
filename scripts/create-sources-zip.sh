@@ -6,8 +6,8 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-EXTENSION_DIR="$ROOT_DIR/extension"
-OUTPUT_DIR="${1:-$ROOT_DIR/extension/.output}"
+EXTENSION_DIR="$ROOT_DIR/apps/extension"
+OUTPUT_DIR="${1:-$ROOT_DIR/apps/extension/.output}"
 SOURCES_DIR="/tmp/tabshare-sources-$$"
 VERSION=$(node -p "require('$EXTENSION_DIR/package.json').version")
 

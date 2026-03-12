@@ -1,10 +1,16 @@
 {
   "name": "tab-mail",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev:ext": "pnpm --filter tab-mail-extension run dev",
-    "dev:view": "pnpm --filter tab-mail-viewer run dev",
+    "dev": "turbo run dev",
     "build": "turbo run build",
+    "tscheck": "turbo run tscheck",
+    "lint": "turbo run lint",
+    "format": "turbo run format",
     "screenshots": "tsx scripts/generate-screenshots.ts"
   },
   "devDependencies": {
