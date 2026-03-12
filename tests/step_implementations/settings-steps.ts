@@ -40,20 +40,20 @@ async function getExtensionId(): Promise<string> {
   return 'abcdefghijklmnopabcdefghijklmnop';
 }
 
-step('The user clicks the extension icon', async () => {
+step('The user clicks the settings button', async () => {
   const browserHelper = getBrowserHelper();
   const context = browserHelper.getContext();
 
+  // Find the open popup page (opened by previous step 'The user clicks the extension icon')
+  const pages = context.pages();
   const extensionId = await getExtensionId();
+  popupPage = pages.find(p => p.url().includes(`chrome-extension://${extensionId}/popup.html`)) || null;
 
-  popupPage = await context.newPage();
-  await popupPage.goto(`chrome-extension://${extensionId}/popup.html`);
-  await popupPage.waitForLoadState('networkidle');
-});
-
-step('The user clicks the settings button', async () => {
   if (!popupPage) {
-    throw new Error('Popup page is not initialized. Click extension icon first.');
+    // Try to open popup if not found
+    popupPage = await context.newPage();
+    await popupPage.goto(`chrome-extension://${extensionId}/popup.html`);
+    await popupPage.waitForLoadState('networkidle');
   }
 
   const settingsButton = popupPage.locator('button[aria-label*="settings" i], button:has-text("⚙️")').first();
@@ -65,7 +65,7 @@ step('The user clicks the settings button', async () => {
   await settingsButton.click();
 });
 
-step('Then a new tab should open with the settings page', async () => {
+step('A new tab should open with the settings page', async () => {
   const browserHelper = getBrowserHelper();
   const context = browserHelper.getContext();
 
@@ -85,7 +85,7 @@ step('Then a new tab should open with the settings page', async () => {
   await optionsPage.waitForLoadState('networkidle');
 });
 
-step('When the user navigates to the options page', async () => {
+step('The user navigates to the options page', async () => {
   const browserHelper = getBrowserHelper();
   const context = browserHelper.getContext();
 
@@ -100,7 +100,7 @@ step('When the user navigates to the options page', async () => {
   await optionsPage.waitForLoadState('networkidle');
 });
 
-step('And the user selects the "<option>" expiry option', async (option: string) => {
+step('The user selects the "<option>" expiry option', async (option: string) => {
   if (!optionsPage) {
     throw new Error('Options page is not initialized. Navigate to options page first.');
   }
@@ -122,21 +122,30 @@ step('And the user selects the "<option>" expiry option', async (option: string)
   await optionsPage.waitForTimeout(100);
 });
 
-step('Then the expiry setting should be saved to localStorage', async () => {
+step('The expiry setting should be saved to localStorage', async () => {
   if (!optionsPage) {
     throw new Error('Options page is not initialized');
   }
 
   const expiryValue = await optionsPage.evaluate(() => {
-    return localStorage.getItem('expiryHours');
+    return localStorage.getItem('tabshare-settings');
   });
 
   if (!expiryValue) {
     throw new Error('Expiry setting not saved to localStorage');
   }
+
+  try {
+    const settings = JSON.parse(expiryValue);
+    if (!settings.expiryMode) {
+      throw new Error('Expiry mode not found in settings');
+    }
+  } catch (error) {
+    throw new Error('Invalid settings JSON format');
+  }
 });
 
-step('And the user selects the <theme> theme', async (theme: string) => {
+step('The user selects the <theme> theme', async (theme: string) => {
   if (!optionsPage) {
     throw new Error('Options page is not initialized. Navigate to options page first.');
   }
@@ -158,7 +167,7 @@ step('And the user selects the <theme> theme', async (theme: string) => {
   await optionsPage.waitForTimeout(100);
 });
 
-step('Then the theme setting should be saved to localStorage', async () => {
+step('The theme setting should be saved to localStorage', async () => {
   if (!optionsPage) {
     throw new Error('Options page is not initialized');
   }
@@ -172,7 +181,7 @@ step('Then the theme setting should be saved to localStorage', async () => {
   }
 });
 
-step('And the user navigates back to a content page', async () => {
+step('The user navigates back to a content page', async () => {
   const browserHelper = getBrowserHelper();
 
   if (optionsPage && !optionsPage.isClosed()) {
@@ -189,18 +198,30 @@ step('And the user navigates back to a content page', async () => {
   setCurrentPage(contentPage);
 });
 
-step('And the user clicks Create Link', async () => {
-  if (!popupPage) {
-    throw new Error('Popup page is not initialized. Click extension icon first.');
+step('The user clicks Create Link from popup', async () => {
+  const browserHelper = getBrowserHelper();
+  const context = browserHelper.getContext();
+
+  if (!popupPage || popupPage.isClosed()) {
+    const extensionId = await getExtensionId();
+    const pages = context.pages();
+    popupPage = pages.find(p => p.url().includes(`chrome-extension://${extensionId}/popup.html`)) || null;
+    if (!popupPage) {
+      popupPage = await context.newPage();
+      await popupPage.goto(`chrome-extension://${extensionId}/popup.html`);
+      await popupPage.waitForLoadState('networkidle');
+    }
   }
+
+  await popupPage.locator('input[type="checkbox"]').first().check();
 
   const button = popupPage.locator('button:has-text("Create Link")');
   await button.click();
 
-  await popupPage.waitForTimeout(500);
+  await popupPage.waitForTimeout(1000);
 
-  const linkResult = popupPage.locator('.link-result input, .link-result textarea');
-  const linkValue = await linkResult.inputValue();
+  const linkResult = popupPage.locator('input[readonly], .link-url');
+  const linkValue = await linkResult.inputValue().catch(() => linkResult.textContent());
 
   if (!linkValue) {
     throw new Error('Link was not generated');
@@ -209,7 +230,7 @@ step('And the user clicks Create Link', async () => {
   (global as any)['shareLink'] = linkValue;
 });
 
-step('Then a share link should be generated', async () => {
+step('A share link should be generated from popup', async () => {
   const shareLink = (global as any)['shareLink'];
 
   if (!shareLink) {
@@ -217,7 +238,7 @@ step('Then a share link should be generated', async () => {
   }
 });
 
-step('And the expiry should be approximately <hours> hours from now', async (hoursStr: string) => {
+step('The link expiry should be approximately <hours> hours from now', async (hoursStr: string) => {
   const hours = parseInt(hoursStr, 10);
   const shareLink = (global as any)['shareLink'];
 
@@ -238,7 +259,7 @@ step('And the expiry should be approximately <hours> hours from now', async (hou
   }
 });
 
-step('And the expiry should be greater than <hours> hours from now', async (hoursStr: string) => {
+step('The link expiry should be greater than <hours> hours from now', async (hoursStr: string) => {
   const hours = parseInt(hoursStr, 10);
   const shareLink = (global as any)['shareLink'];
 
