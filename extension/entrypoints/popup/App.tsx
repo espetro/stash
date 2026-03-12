@@ -1,22 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useTabSelection } from "./hooks/useTabSelection";
 import { TabList } from "./components/TabList";
 import { SelectAllToggle } from "./components/SelectAllToggle";
 import { LinkResult } from "./components/LinkResult";
 import { ErrorMessage } from "./components/ErrorMessage";
 import { encodeTabsToShareUrl } from "../../lib/encoder.js";
-import { getTheme, setTheme } from "@tab-mail/theme";
 import type { TabInfo } from "../../lib/types.js";
-
-type Theme = "light" | "dark" | "system";
-
-const THEME_ICONS: Record<Theme, string> = {
-  light: "☀️",
-  dark: "🌙",
-  system: "🖥️",
-};
-
-const THEME_ORDER: Theme[] = ["light", "dark", "system"];
 
 export default function App() {
   const { tabs, isLoading, error, setError, toggleTab, selectAll, deselectAll, selectedCount } =
@@ -25,19 +14,6 @@ export default function App() {
   const [isCopied, setIsCopied] = useState(false);
   const [linkItemCount, setLinkItemCount] = useState(0);
   const [linkTruncated, setLinkTruncated] = useState(false);
-  const [currentTheme, setCurrentTheme] = useState<Theme>("system");
-
-  useEffect(() => {
-    setCurrentTheme(getTheme());
-  }, []);
-
-  const cycleTheme = () => {
-    const currentIndex = THEME_ORDER.indexOf(currentTheme);
-    const nextIndex = (currentIndex + 1) % THEME_ORDER.length;
-    const nextTheme = THEME_ORDER[nextIndex];
-    setTheme(nextTheme);
-    setCurrentTheme(nextTheme);
-  };
 
   async function handleCreateLink() {
     try {
@@ -98,11 +74,11 @@ export default function App() {
         <h1>TabShare</h1>
         <button
           className="theme-toggle"
-          onClick={cycleTheme}
-          aria-label={`Current theme: ${currentTheme}. Click to change.`}
-          title={`Theme: ${currentTheme}`}
+          onClick={() => browser.runtime.openOptionsPage()}
+          aria-label="Open settings"
+          title="Settings"
         >
-          {THEME_ICONS[currentTheme]}
+          ⚙️
         </button>
       </div>
 
