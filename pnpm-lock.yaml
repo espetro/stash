@@ -32,6 +32,9 @@ importers:
       '@tab-mail/theme':
         specifier: workspace:*
         version: link:../packages/theme
+      brotli-wasm:
+        specifier: ^3.0.1
+        version: 3.0.1
       pako:
         specifier: ^2.1.0
         version: 2.1.0
@@ -124,6 +127,9 @@ importers:
       astro:
         specifier: ^5.1.1
         version: 5.18.0(@types/node@20.19.34)(jiti@2.6.1)(rollup@4.59.0)(tsx@4.21.0)(typescript@5.9.3)
+      brotli-wasm:
+        specifier: ^3.0.1
+        version: 3.0.1
       pako:
         specifier: ^2.1.0
         version: 2.1.0
