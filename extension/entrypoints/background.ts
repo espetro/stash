@@ -25,15 +25,16 @@ export default defineBackground(() => {
 
       if (tabs.length === 0) return;
 
-      // Extract tab info
+      // Extract tab info - only http:// and https:// URLs
       const tabInfos = tabs
         .filter((t) => t.url && t.title)
+        .filter((t) => t.url!.startsWith("http://") || t.url!.startsWith("https://"))
         .map((t) => ({ url: t.url!, title: t.title! })) as TabInfo[];
 
       if (tabInfos.length === 0) return;
 
-      // Encode to share URL
-      const result = encodeTabsToShareUrl(tabInfos);
+      // Encode to share URL (async)
+      const result = await encodeTabsToShareUrl(tabInfos);
 
       // Copy to clipboard
       await navigator.clipboard.writeText(result.url);

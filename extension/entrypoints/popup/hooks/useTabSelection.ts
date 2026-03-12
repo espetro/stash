@@ -18,11 +18,10 @@ function getFaviconUrl(url: string): string {
 }
 
 function isValidTab(tab: Tabs.Tab): boolean {
+  // Only allow http:// and https:// URLs
   return !!(
     tab.url &&
-    !tab.url.startsWith("chrome://") &&
-    !tab.url.startsWith("about:") &&
-    !tab.url.startsWith("chrome-extension://")
+    (tab.url.startsWith("http://") || tab.url.startsWith("https://"))
   );
 }
 
