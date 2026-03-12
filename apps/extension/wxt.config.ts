@@ -1,7 +1,7 @@
 import { defineConfig } from 'wxt';
 
 export default defineConfig({
-  modules: ["@wxt-dev/module-react"],
+  modules: ["@wxt-dev/module-react", "./modules/brotli-wasm.ts"],
   manifest: {
     name: 'Stash',
     description: 'Stash lets you save open tabs as a shareable snapshot link. No accounts. No servers. No tracking.',
