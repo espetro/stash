@@ -6,3 +6,6 @@ dist/
 .turbo/
 .sisyphus/
 .DS_STORE
+
+# Generated JavaScript files from TypeScript compilation
+packages/codec/src/**/*.js
