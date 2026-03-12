@@ -1,6 +1,6 @@
 import { defineBackground } from "wxt/sandbox";
-import { encodeTabsToShareUrl } from "../lib/encoder.js";
-import type { TabInfo } from "../lib/types.js";
+import { encodeTabsToShareUrl } from "@tab-mail/codec";
+import type { TabInfo } from "@tab-mail/codec";
 
 export default defineBackground(() => {
   // Create context menu on install

@@ -4,8 +4,8 @@ import { TabList } from "./components/TabList";
 import { SelectAllToggle } from "./components/SelectAllToggle";
 import { LinkResult } from "./components/LinkResult";
 import { ErrorMessage } from "./components/ErrorMessage";
-import { encodeTabsToShareUrl } from "../../lib/encoder.js";
-import type { TabInfo } from "../../lib/types.js";
+import { encodeTabsToShareUrl } from "@tab-mail/codec";
+import type { TabInfo } from "@tab-mail/codec";
 
 export default function App() {
   const { tabs, isLoading, error, setError, toggleTab, selectAll, deselectAll, selectedCount } =
