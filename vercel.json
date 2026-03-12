@@ -1,6 +1,6 @@
 {
   "buildCommand": "pnpm run build --filter=tab-mail-viewer",
-  "outputDirectory": "viewer/dist",
+  "outputDirectory": "apps/viewer/dist",
   "installCommand": "pnpm install",
   "framework": null
 }
