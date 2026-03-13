@@ -24,7 +24,7 @@ export default defineWxtModule((wxt) => {
 
     assets.push({
       absoluteSrc: wasmPath,
-      relativeDest: "brotli_wasm_bg.wasm",
+      relativeDest: "chunks/brotli_wasm_bg.wasm",
     });
   });
 });
