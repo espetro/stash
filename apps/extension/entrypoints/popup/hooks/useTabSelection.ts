@@ -19,16 +19,14 @@ function getFaviconUrl(url: string): string {
 
 function isValidTab(tab: Tabs.Tab): boolean {
   // Only allow http:// and https:// URLs
-  return !!(
-    tab.url &&
-    (tab.url.startsWith("http://") || tab.url.startsWith("https://"))
-  );
+  return !!(tab.url && (tab.url.startsWith("http://") || tab.url.startsWith("https://")));
 }
 
 export function useTabSelection() {
   const [tabs, setTabs] = useState<PopupTab[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [windowId, setWindowId] = useState<number | undefined>(undefined);
 
   // Load tabs on mount
   useEffect(() => {
@@ -36,6 +34,7 @@ export function useTabSelection() {
       try {
         setIsLoading(true);
         const allTabs = await browser.tabs.query({ currentWindow: true });
+        if (allTabs[0]?.windowId !== undefined) setWindowId(allTabs[0].windowId);
         const highlightedTabs = await browser.tabs.query({
           highlighted: true,
           currentWindow: true,
@@ -92,9 +91,9 @@ export function useTabSelection() {
         );
         const selectedIndices = newSelectedTabs.filter((t) => t.isSelected).map((t) => t.index);
 
-        if (selectedIndices.length > 0) {
-          await browser.tabs.highlight({ tabs: selectedIndices, populate: false });
-        } else {
+         if (selectedIndices.length > 0) {
+           await browser.tabs.highlight({ windowId, tabs: selectedIndices });
+         } else {
           // Cannot highlight zero tabs — just update local state
           setTabs((prev) => prev.map((t) => (t.id === tabId ? { ...t, isSelected: false } : t)));
           return;
@@ -108,7 +107,7 @@ export function useTabSelection() {
         setError("Failed to update tab selection");
       }
     },
-    [tabs],
+    [tabs, windowId],
   );
 
   const selectAll = useCallback(
@@ -117,7 +116,7 @@ export function useTabSelection() {
         const tabsToSelect = maxCount !== undefined ? tabs.slice(0, maxCount) : tabs;
         const indices = tabsToSelect.map((t) => t.index);
         if (indices.length > 0) {
-          await browser.tabs.highlight({ tabs: indices, populate: false });
+          await browser.tabs.highlight({ windowId, tabs: indices });
           const selectedIds = new Set(tabsToSelect.map((t) => t.id));
           setTabs((prev) => prev.map((t) => ({ ...t, isSelected: selectedIds.has(t.id) })));
         }
@@ -126,7 +125,7 @@ export function useTabSelection() {
         setError("Failed to select all tabs");
       }
     },
-    [tabs],
+    [tabs, windowId],
   );
 
   const deselectAll = useCallback(async () => {
@@ -137,17 +136,14 @@ export function useTabSelection() {
         currentWindow: true,
       });
       if (activeTabs.length > 0) {
-        await browser.tabs.highlight({
-          tabs: [activeTabs[0].index],
-          populate: false,
-        });
+        await browser.tabs.highlight({ windowId, tabs: [activeTabs[0].index] });
       }
       setTabs((prev) => prev.map((t) => ({ ...t, isSelected: false })));
     } catch (err) {
       console.error("deselectAll error:", err);
       setError("Failed to deselect all tabs");
     }
-  }, [tabs]);
+  }, []);
 
   const selectedCount = tabs.filter((t) => t.isSelected).length;
 
