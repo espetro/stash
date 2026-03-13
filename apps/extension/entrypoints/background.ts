@@ -1,6 +1,7 @@
 import { defineBackground } from "wxt/sandbox";
 import { encodeTabsToShareUrl } from "@stash/codec";
 import type { TabInfo } from "@stash/codec";
+import { getBrotliFunctions } from "../lib/brotli";
 
 export default defineBackground(() => {
   // Create context menu on install
@@ -31,10 +32,13 @@ export default defineBackground(() => {
         .filter((t) => t.url!.startsWith("http://") || t.url!.startsWith("https://"))
         .map((t) => ({ url: t.url!, title: t.title! })) as TabInfo[];
 
-      if (tabInfos.length === 0) return;
+       if (tabInfos.length === 0) return;
 
-      // Encode to share URL (async)
-      const result = await encodeTabsToShareUrl(tabInfos);
+       // Get brotli compression functions
+       const brotli = await getBrotliFunctions();
+
+       // Encode to share URL (async)
+       const result = await encodeTabsToShareUrl(tabInfos, brotli);
 
       // Copy to clipboard
       await navigator.clipboard.writeText(result.url);

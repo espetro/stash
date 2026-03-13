@@ -1,7 +1,6 @@
-import { getBrotli } from "./brotli.js";
 import { base64UrlToBase64 } from "./base64.js";
 import { PAYLOAD_VERSION } from "./constants.js";
-import type { DecodedPayload } from "./types.js";
+import type { BrotliFunctions, DecodedPayload } from "./types.js";
 import { PayloadDecodeError } from "./types.js";
 
 /**
@@ -34,7 +33,7 @@ export function getFaviconUrl(url: string): string {
  * 3. Decompress if needed (brotli)
  * 4. Parse v2 delimiter format
  */
-export async function decodeShareUrl(fragment: string): Promise<DecodedPayload> {
+export async function decodeShareUrl(fragment: string, brotli: BrotliFunctions): Promise<DecodedPayload> {
   // Extract #p=... from fragment
   const match = fragment.match(/^#p=(.+)$/);
   if (!match) {
@@ -74,7 +73,7 @@ export async function decodeShareUrl(fragment: string): Promise<DecodedPayload> 
   let decompressed: Uint8Array;
   if (prefix === "C") {
     try {
-      decompressed = (await getBrotli()).decompress(bytes);
+      decompressed = brotli.decompress(bytes);
     } catch (e) {
       throw new PayloadDecodeError("Failed to decompress payload");
     }

@@ -1,4 +1,3 @@
-import { getBrotli } from "./brotli.js";
 import { uint8ToBase64 } from "./base64.js";
 import {
   PAYLOAD_VERSION,
@@ -7,7 +6,7 @@ import {
   VIEWER_ORIGIN,
   VIEWER_PATH,
 } from "./constants.js";
-import type { SharePayload, TabInfo, EncodingResult } from "./types.js";
+import type { SharePayload, TabInfo, EncodingResult, BrotliFunctions } from "./types.js";
 
 /**
  * Normalize title: trim, collapse whitespace, truncate to MAX_TITLE_CHARS
@@ -39,12 +38,12 @@ export function createPayload(tabs: TabInfo[]): SharePayload {
 
 /**
  * Encode payload using v2 delimiter format:
- * "2" + expiry + "\x1d" + url1 + "\x1f" + title1 + "\x1e" + url2 + "\x1f" + title2 + ...
+ * "2" + expiry + "\x1d" + items
  *
  * Compression: brotli quality 11, only if > 50 bytes
  * Prefix: "C" for compressed, "R" for raw
  */
-export async function encodePayload(payload: SharePayload): Promise<string> {
+export async function encodePayload(payload: SharePayload, brotli: BrotliFunctions): Promise<string> {
   // Build v2 format: version char + expiry + group separator + items
   const items = payload.i
     .filter(([url]) => {
@@ -67,7 +66,7 @@ export async function encodePayload(payload: SharePayload): Promise<string> {
   // Compress only if > 50 bytes
   const isCompressed = utf8.length > 50;
   const bytes = isCompressed
-    ? (await getBrotli()).compress(utf8, { quality: 11 })
+    ? brotli.compress(utf8, { quality: 11 })
     : utf8;
 
   // Base64 encode and convert to base64url
@@ -89,12 +88,12 @@ export function buildShareUrl(encoded: string): string {
 /**
  * Find max number of tabs that fit within budget using binary search
  */
-export async function findMaxTabsWithinBudget(tabs: TabInfo[]): Promise<number> {
+export async function findMaxTabsWithinBudget(tabs: TabInfo[], brotli: BrotliFunctions): Promise<number> {
   if (tabs.length === 0) return 0;
 
   // Check if full set fits
   const fullPayload = createPayload(tabs);
-  const fullEncoded = await encodePayload(fullPayload);
+  const fullEncoded = await encodePayload(fullPayload, brotli);
   const fullUrl = buildShareUrl(fullEncoded);
 
   if (fullUrl.length <= BUDGET_CHARS) {
@@ -116,7 +115,7 @@ export async function findMaxTabsWithinBudget(tabs: TabInfo[]): Promise<number> 
     }
 
     const payload = createPayload(subset);
-    const encoded = await encodePayload(payload);
+    const encoded = await encodePayload(payload, brotli);
     const url = buildShareUrl(encoded);
 
     if (url.length <= BUDGET_CHARS) {
@@ -133,7 +132,7 @@ export async function findMaxTabsWithinBudget(tabs: TabInfo[]): Promise<number> 
 /**
  * Main entry point: encode tabs to share URL with budget enforcement
  */
-export async function encodeTabsToShareUrl(tabs: TabInfo[]): Promise<EncodingResult> {
+export async function encodeTabsToShareUrl(tabs: TabInfo[], brotli: BrotliFunctions): Promise<EncodingResult> {
   if (tabs.length === 0) {
     return {
       url: buildShareUrl(""),
@@ -144,7 +143,7 @@ export async function encodeTabsToShareUrl(tabs: TabInfo[]): Promise<EncodingRes
 
   // Try full set first
   const fullPayload = createPayload(tabs);
-  const fullEncoded = await encodePayload(fullPayload);
+  const fullEncoded = await encodePayload(fullPayload, brotli);
   const fullUrl = buildShareUrl(fullEncoded);
 
   if (fullUrl.length <= BUDGET_CHARS) {
@@ -156,7 +155,7 @@ export async function encodeTabsToShareUrl(tabs: TabInfo[]): Promise<EncodingRes
   }
 
   // Find max tabs that fit
-  const maxTabs = await findMaxTabsWithinBudget(tabs);
+  const maxTabs = await findMaxTabsWithinBudget(tabs, brotli);
 
   if (maxTabs === 0) {
     return {
@@ -168,7 +167,7 @@ export async function encodeTabsToShareUrl(tabs: TabInfo[]): Promise<EncodingRes
 
   const subset = tabs.slice(0, maxTabs);
   const payload = createPayload(subset);
-  const encoded = await encodePayload(payload);
+  const encoded = await encodePayload(payload, brotli);
   const url = buildShareUrl(encoded);
 
   return {

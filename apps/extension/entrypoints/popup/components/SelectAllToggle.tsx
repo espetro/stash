@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import type { PopupTab } from "../types";
 import { findMaxTabsWithinBudget } from "@stash/codec";
 import type { TabInfo } from "@stash/codec";
+import { getBrotliFunctions } from "../../../lib/brotli";
 
 interface SelectAllToggleProps {
   tabs: PopupTab[];
@@ -12,19 +13,32 @@ interface SelectAllToggleProps {
 export function SelectAllToggle({ tabs, onSelectAll, onDeselectAll }: SelectAllToggleProps) {
   const selectedCount = tabs.filter((t) => t.isSelected).length;
   const allSelected = selectedCount === tabs.length && tabs.length > 0;
+  const [maxTabCount, setMaxTabCount] = useState<number | null>(null);
 
-  function handleSelectAll() {
+  useEffect(() => {
+    let cancelled = false;
+    async function computeMax() {
+      if (tabs.length === 0) {
+        setMaxTabCount(0);
+        return;
+      }
+      const brotli = await getBrotliFunctions();
+      const tabInfos: TabInfo[] = tabs.map((t) => ({ url: t.url, title: t.title }));
+      const max = await findMaxTabsWithinBudget(tabInfos, brotli);
+      if (!cancelled) setMaxTabCount(max);
+    }
+    computeMax();
+    return () => { cancelled = true; };
+  }, [tabs]);
+
+  async function handleSelectAll() {
+    const brotli = await getBrotliFunctions();
     const tabInfos: TabInfo[] = tabs.map((t) => ({ url: t.url, title: t.title }));
-    const maxCount = findMaxTabsWithinBudget(tabInfos);
+    const maxCount = await findMaxTabsWithinBudget(tabInfos, brotli);
     onSelectAll(maxCount);
   }
 
-  const isTruncated = (() => {
-    if (selectedCount === 0) return false;
-    const tabInfos: TabInfo[] = tabs.map((t) => ({ url: t.url, title: t.title }));
-    const maxCount = findMaxTabsWithinBudget(tabInfos);
-    return maxCount < tabs.length;
-  })();
+  const isTruncated = maxTabCount !== null && maxTabCount < tabs.length;
 
   return (
     <div className="select-all-toggle">

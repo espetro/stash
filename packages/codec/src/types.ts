@@ -28,3 +28,15 @@ export class PayloadDecodeError extends Error {
     this.name = "PayloadDecodeError";
   }
 }
+
+export interface BrotliFunctions {
+  compress: (data: Uint8Array, options: { quality: number }) => Uint8Array;
+  decompress: (data: Uint8Array) => Uint8Array;
+}
+
+export class BrotliInitError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "BrotliInitError";
+  }
+}
