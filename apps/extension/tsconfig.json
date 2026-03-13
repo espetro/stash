@@ -11,7 +11,11 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["chrome", "webextension-polyfill", "react", "react-dom"]
+    "types": ["chrome", "webextension-polyfill", "react", "react-dom"],
+    "baseUrl": ".",
+    "paths": {
+      "#*": ["./*"]
+    }
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules", ".wxt", "dist"]
