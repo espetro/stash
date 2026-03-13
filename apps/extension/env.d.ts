@@ -1,5 +1,7 @@
 interface ImportMetaEnv {
   readonly VITE_VIEWER_ORIGIN: string;
+  readonly FIREFOX: boolean;
+  readonly CHROME: boolean;
 }
 
 interface ImportMeta {
