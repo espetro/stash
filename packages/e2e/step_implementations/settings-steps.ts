@@ -127,16 +127,17 @@ step('The expiry setting should be saved to localStorage', async () => {
     throw new Error('Options page is not initialized');
   }
 
-  const expiryValue = await optionsPage.evaluate(() => {
-    return localStorage.getItem('stash-settings');
+  const result = await optionsPage.evaluate(async () => {
+    const stored = await chrome.storage.sync.get('stash-settings');
+    return stored['stash-settings'];
   });
 
-  if (!expiryValue) {
-    throw new Error('Expiry setting not saved to localStorage');
+  if (!result) {
+    throw new Error('Expiry setting not saved to chrome.storage.sync');
   }
 
   try {
-    const settings = JSON.parse(expiryValue);
+    const settings = JSON.parse(result);
     if (!settings.expiryMode) {
       throw new Error('Expiry mode not found in settings');
     }
@@ -172,12 +173,13 @@ step('The theme setting should be saved to localStorage', async () => {
     throw new Error('Options page is not initialized');
   }
 
-  const themeValue = await optionsPage.evaluate(() => {
-    return localStorage.getItem('theme');
+  const result = await optionsPage.evaluate(async () => {
+    const stored = await chrome.storage.sync.get('theme');
+    return stored['theme'];
   });
 
-  if (!themeValue) {
-    throw new Error('Theme setting not saved to localStorage');
+  if (!result) {
+    throw new Error('Theme setting not saved to chrome.storage.sync');
   }
 });
 
