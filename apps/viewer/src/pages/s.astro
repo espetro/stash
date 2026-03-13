@@ -242,6 +242,7 @@ import Layout from '../layouts/Layout.astro';
 
   <script>
     import { decodeShareUrl, getFaviconUrl, PayloadDecodeError } from '@stash/codec';
+    import { getBrotliFunctions } from '../lib/brotli';
     import { getTheme, setTheme } from '@stash/theme';
 
     type Theme = 'light' | 'dark' | 'system';
@@ -299,7 +300,8 @@ import Layout from '../layouts/Layout.astro';
           return;
         }
 
-        decodedData = await decodeShareUrl(fragment);
+         const brotli = await getBrotliFunctions();
+         decodedData = await decodeShareUrl(fragment, brotli);
 
         if (decodedData.isExpired) {
           showError('This share link has expired');
