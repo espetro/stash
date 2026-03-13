@@ -1,34 +1,38 @@
-import { chromium, Browser, BrowserContext, Page, chromium as ChromiumType } from 'playwright';
+import { chromium, Browser, BrowserContext, Page } from 'playwright';
 import * as path from 'path';
 import * as fs from 'fs';
 
-/**
- * Browser helper class for managing browser instances with extension loading
- */
 export class BrowserHelper {
   private browser: Browser | null = null;
   private context: BrowserContext | null = null;
   private extensionPath: string;
+  private usePersistentContext: boolean;
 
   constructor() {
-    // Default extension path - can be overridden via environment variable
     this.extensionPath = process.env.EXTENSION_PATH || 
-      path.join(process.cwd(), '..', 'extension', '.output', 'chrome-mv3');
+      path.join(process.cwd(), '..', '..', 'apps', 'extension', '.output', 'chrome-mv3');
+    this.usePersistentContext = true;
   }
 
-  /**
-   * Launch browser with Stash extension loaded
-   */
   async launchWithExtension(): Promise<BrowserContext> {
-    // Check if extension exists
     if (!fs.existsSync(this.extensionPath)) {
-      throw new Error(`Extension not found at ${this.extensionPath}. Please build the extension first.`);
+      throw new Error(`Extension not found at ${this.extensionPath}. Build first: pnpm --filter stash-extension run build`);
     }
 
-    // Resolve extension path to absolute path
     const absoluteExtensionPath = path.resolve(this.extensionPath);
 
-    // Launch browser with extension
+    if (this.usePersistentContext) {
+      this.context = await chromium.launchPersistentContext('', {
+        channel: 'chromium',
+        args: [
+          `--disable-extensions-except=${absoluteExtensionPath}`,
+          `--load-extension=${absoluteExtensionPath}`,
+        ],
+        viewport: { width: 1280, height: 720 }
+      });
+      return this.context;
+    }
+
     this.browser = await chromium.launch({
       headless: process.env.HEADLESS === 'true',
       args: [
@@ -38,7 +42,6 @@ export class BrowserHelper {
       ]
     });
 
-    // Create context
     this.context = await this.browser.newContext({
       viewport: { width: 1280, height: 720 }
     });
@@ -46,12 +49,10 @@ export class BrowserHelper {
     return this.context;
   }
 
-  /**
-   * Launch browser without extension (for viewer testing)
-   */
   async launch(): Promise<BrowserContext> {
     this.browser = await chromium.launch({
-      headless: process.env.HEADLESS === 'true'
+      headless: true,
+      channel: 'chromium',
     });
 
     this.context = await this.browser.newContext({
@@ -61,9 +62,6 @@ export class BrowserHelper {
     return this.context;
   }
 
-  /**
-   * Get the current browser context
-   */
   getContext(): BrowserContext {
     if (!this.context) {
       throw new Error('Browser context not initialized. Call launch() or launchWithExtension() first.');
@@ -71,9 +69,6 @@ export class BrowserHelper {
     return this.context;
   }
 
-  /**
-   * Get the current browser instance
-   */
   getBrowser(): Browser {
     if (!this.browser) {
       throw new Error('Browser not initialized. Call launch() or launchWithExtension() first.');
@@ -81,43 +76,31 @@ export class BrowserHelper {
     return this.browser;
   }
 
-  /**
-   * Create a new page
-   */
   async newPage(): Promise<Page> {
     const context = this.getContext();
     return await context.newPage();
   }
 
-  /**
-   * Get all pages in the context
-   */
   getPages(): Page[] {
     const context = this.getContext();
     return context.pages();
   }
 
-  /**
-   * Close the browser
-   */
   async close(): Promise<void> {
+    if (this.context) {
+      await this.context.close();
+      this.context = null;
+    }
     if (this.browser) {
       await this.browser.close();
       this.browser = null;
-      this.context = null;
     }
   }
 
-  /**
-   * Wait for extension to be loaded
-   */
   async waitForExtensionLoad(page: Page, timeout: number = 10000): Promise<void> {
     await page.waitForTimeout(1000); // Give extension time to initialize
   }
 
-  /**
-   * Get extension background page
-   */
   async getExtensionBackgroundPage(): Promise<Page | null> {
     const context = this.getContext();
     const backgroundPages = context.backgroundPages();
@@ -135,9 +118,6 @@ export class BrowserHelper {
     return null;
   }
 
-  /**
-   * Mock time for testing expiry
-   */
   async mockTime(page: Page, hoursOffset: number): Promise<void> {
     await page.addInitScript((offset) => {
       const now = Date.now();
@@ -146,9 +126,6 @@ export class BrowserHelper {
     }, hoursOffset);
   }
 
-  /**
-   * Reset time mock
-   */
   async resetTimeMock(page: Page): Promise<void> {
     await page.addInitScript(() => {
       // Restore original Date.now
@@ -157,17 +134,11 @@ export class BrowserHelper {
     });
   }
 
-  /**
-   * Set viewport size
-   */
   async setViewport(width: number, height: number): Promise<void> {
     const context = this.getContext();
     await context.setViewportSize({ width, height });
   }
 
-  /**
-   * Take screenshot for debugging
-   */
   async takeScreenshot(page: Page, filename: string): Promise<void> {
     const screenshotDir = path.join(process.cwd(), 'screenshots');
     if (!fs.existsSync(screenshotDir)) {
@@ -177,12 +148,8 @@ export class BrowserHelper {
   }
 }
 
-// Global browser helper instance
 let browserHelper: BrowserHelper | null = null;
 
-/**
- * Get or create the global browser helper instance
- */
 export function getBrowserHelper(): BrowserHelper {
   if (!browserHelper) {
     browserHelper = new BrowserHelper();
@@ -190,9 +157,6 @@ export function getBrowserHelper(): BrowserHelper {
   return browserHelper;
 }
 
-/**
- * Reset the global browser helper instance
- */
 export function resetBrowserHelper(): void {
   browserHelper = null;
 }
