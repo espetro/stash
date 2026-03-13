@@ -1,4 +1,4 @@
-import { describe, it, expect } from "bun:test";
+import { describe, it, expect, beforeAll } from "bun:test";
 import {
   encodeTabsToShareUrl,
   encodePayload,
@@ -9,6 +9,8 @@ import {
   buildShareUrl,
 } from "../index.js";
 import type { TabInfo } from "../index.js";
+import type { BrotliFunctions } from "./types.js";
+import brotliWasm from "brotli-wasm";
 
 // Test data
 const smallTabs: TabInfo[] = [{ url: "https://github.com", title: "GitHub" }];
@@ -37,13 +39,23 @@ function getFragment(url: string): string {
 }
 
 describe("v2 codec round-trip tests", () => {
+  let brotli: BrotliFunctions;
+
+  beforeAll(async () => {
+    const module = await brotliWasm;
+    brotli = {
+      compress: (data, opts) => module.compress(data, opts),
+      decompress: (data) => module.decompress(data),
+    };
+  });
+
   it("Test 1: Small payload (1 tab, below 50-byte threshold) → 'R' prefix", async () => {
-    const result = await encodeTabsToShareUrl(smallTabs);
+    const result = await encodeTabsToShareUrl(smallTabs, brotli);
     expect(result.url).toContain("#p=R");
     expect(result.itemCount).toBe(1);
     expect(result.truncated).toBe(false);
 
-    const decoded = await decodeShareUrl(getFragment(result.url));
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
     expect(decoded.version).toBe(2);
     expect(decoded.items.length).toBe(1);
     expect(decoded.items[0][0]).toBe("https://github.com");
@@ -51,12 +63,12 @@ describe("v2 codec round-trip tests", () => {
   });
 
   it("Test 2: Medium payload (5 tabs) → 'C' prefix", async () => {
-    const result = await encodeTabsToShareUrl(mediumTabs);
+    const result = await encodeTabsToShareUrl(mediumTabs, brotli);
     expect(result.url).toContain("#p=C");
     expect(result.itemCount).toBe(5);
     expect(result.truncated).toBe(false);
 
-    const decoded = await decodeShareUrl(getFragment(result.url));
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
     expect(decoded.version).toBe(2);
     expect(decoded.items.length).toBe(5);
     expect(decoded.items[0][0]).toBe("https://github.com");
@@ -64,8 +76,8 @@ describe("v2 codec round-trip tests", () => {
   });
 
   it("Test 3: Unicode URLs and titles round-trip correctly", async () => {
-    const result = await encodeTabsToShareUrl(unicodeTabs);
-    const decoded = await decodeShareUrl(getFragment(result.url));
+    const result = await encodeTabsToShareUrl(unicodeTabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
 
     expect(decoded.items.length).toBe(2);
     expect(decoded.items[0][0]).toBe("https://example.com/日本語/テスト");
@@ -75,8 +87,8 @@ describe("v2 codec round-trip tests", () => {
   });
 
   it("Test 4: Title truncation to 30 chars", async () => {
-    const result = await encodeTabsToShareUrl(longTitleTabs);
-    const decoded = await decodeShareUrl(getFragment(result.url));
+    const result = await encodeTabsToShareUrl(longTitleTabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
 
     expect(decoded.items[0][1].length).toBeLessThanOrEqual(30);
     expect(decoded.items[0][1]).toBe("This is a very long title that");
@@ -95,7 +107,7 @@ describe("v2 codec round-trip tests", () => {
     const fragment = `#p=R${base64url}`;
 
     try {
-      await decodeShareUrl(fragment);
+      await decodeShareUrl(fragment, brotli);
       expect(false).toBe(true);
     } catch (error) {
       expect(error).toBeInstanceOf(PayloadDecodeError);
@@ -105,7 +117,7 @@ describe("v2 codec round-trip tests", () => {
 
   it("Test 6: Empty fragment rejected", async () => {
     try {
-      await decodeShareUrl("#p=");
+      await decodeShareUrl("#p=", brotli);
       expect(false).toBe(true);
     } catch (error) {
       expect(error).toBeInstanceOf(PayloadDecodeError);
@@ -115,10 +127,10 @@ describe("v2 codec round-trip tests", () => {
 
   it("Test 7: 'R' prefix (raw) decodes correctly", async () => {
     const payload = createPayload(smallTabs);
-    const encoded = await encodePayload(payload);
+    const encoded = await encodePayload(payload, brotli);
     expect(encoded.startsWith("R")).toBe(true);
 
-    const decoded = await decodeShareUrl(`#p=${encoded}`);
+    const decoded = await decodeShareUrl(`#p=${encoded}`, brotli);
     expect(decoded.version).toBe(2);
     expect(decoded.items.length).toBe(1);
     expect(decoded.items[0][0]).toBe("https://github.com");
@@ -130,8 +142,8 @@ describe("v2 codec round-trip tests", () => {
       { url: "https://example.org", title: "HTTPS Example" },
     ];
 
-    const result = await encodeTabsToShareUrl(mixedTabs);
-    const decoded = await decodeShareUrl(getFragment(result.url));
+    const result = await encodeTabsToShareUrl(mixedTabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
 
     expect(decoded.items[0][0]).toBe("https://example.com");
     expect(decoded.items[1][0]).toBe("https://example.org");

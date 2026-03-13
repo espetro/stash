@@ -26,6 +26,12 @@ export default defineConfig({
   vite: () => ({
     optimizeDeps: {
       exclude: ['brotli-wasm']
-    }
+    },
+    resolve: {
+      alias: {
+        // Allow importing from lib directory
+        '@lib': 'lib',
+      },
+    },
   })
 });

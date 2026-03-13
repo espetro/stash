@@ -6,6 +6,7 @@ import { LinkResult } from "./components/LinkResult";
 import { ErrorMessage } from "./components/ErrorMessage";
 import { encodeTabsToShareUrl } from "@stash/codec";
 import type { TabInfo } from "@stash/codec";
+import { getBrotliFunctions } from "../../lib/brotli";
 
 export default function App() {
   const { tabs, isLoading, error, setError, toggleTab, selectAll, deselectAll, selectedCount } =
@@ -22,9 +23,10 @@ export default function App() {
         return;
       }
 
-      const selectedTabs = tabs.filter((t) => t.isSelected);
-      const tabInfos: TabInfo[] = selectedTabs.map((t) => ({ url: t.url, title: t.title }));
-      const result = await encodeTabsToShareUrl(tabInfos);
+       const selectedTabs = tabs.filter((t) => t.isSelected);
+       const tabInfos: TabInfo[] = selectedTabs.map((t) => ({ url: t.url, title: t.title }));
+       const brotli = await getBrotliFunctions();
+       const result = await encodeTabsToShareUrl(tabInfos, brotli);
 
       await navigator.clipboard.writeText(result.url);
 

@@ -15,12 +15,12 @@
     "test": "bun test src/__tests__/roundtrip.test.ts"
   },
   "dependencies": {
-    "brotli-wasm": "^3.0.1",
     "pako": "^2.1.0"
   },
   "devDependencies": {
     "@types/pako": "^2.0.4",
     "@types/webextension-polyfill": "^0.12.5",
+    "brotli-wasm": "^3.0.1",
     "typescript": "^5.7.2",
     "vite": "^6.0.0"
   }
