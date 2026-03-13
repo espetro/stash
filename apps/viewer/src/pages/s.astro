@@ -264,7 +264,7 @@ import Layout from '../layouts/Layout.astro';
     const THEME_ORDER: Theme[] = ['light', 'dark', 'system'];
 
     const themeToggleBtn = document.getElementById('theme-toggle')!;
-    let currentTheme: Theme = getTheme();
+    let currentTheme: Theme = getTheme(localStorage);
 
     function updateThemeButton() {
       themeToggleBtn.textContent = THEME_ICONS[currentTheme];
@@ -274,7 +274,7 @@ import Layout from '../layouts/Layout.astro';
       const currentIndex = THEME_ORDER.indexOf(currentTheme);
       const nextIndex = (currentIndex + 1) % THEME_ORDER.length;
       currentTheme = THEME_ORDER[nextIndex];
-      setTheme(currentTheme);
+      setTheme(currentTheme, localStorage);
       updateThemeButton();
     }
 

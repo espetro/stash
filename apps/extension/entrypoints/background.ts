@@ -2,9 +2,13 @@ import { defineBackground } from "wxt/sandbox";
 import { encodeTabsToShareUrl } from "@stash/codec";
 import type { TabInfo } from "@stash/codec";
 import { getBrotliFunctions } from "../lib/brotli";
-import { getSettings } from "../lib/settings";
+import { getSettings, settingsItem } from "../lib/settings";
 
 export default defineBackground(() => {
+  settingsItem.watch((newValue, oldValue) => {
+    console.log('Settings changed:', { oldValue, newValue });
+  });
+
   browser.runtime.onInstalled.addListener(async () => {
     await browser.contextMenus.removeAll();
 
@@ -45,7 +49,7 @@ export default defineBackground(() => {
       if (tabInfos.length === 0) return;
 
       const brotli = await getBrotliFunctions();
-      const { viewerOrigin } = getSettings();
+      const { viewerOrigin } = await getSettings();
 
       const result = await encodeTabsToShareUrl(tabInfos, brotli, viewerOrigin);
 

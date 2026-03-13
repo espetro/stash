@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getSettings, setSettings } from "../../lib/settings.js";
-import { invalidateSettingsCache } from "../../lib/settings-cache.js";
 import { getTheme, setTheme } from "@stash/theme";
+import { browserStorageAdapter } from "../../lib/browser-storage-adapter.js";
 
 type ExpiryMode = "24h" | "7d" | "30d" | "never";
 type Theme = "light" | "dark" | "system";
@@ -24,26 +24,29 @@ export default function App() {
   const [theme, setThemeState] = useState<Theme>("system");
   const [viewerOrigin, setViewerOrigin] = useState<string>("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const settings = getSettings();
-    setExpiryMode(settings.expiryMode);
-    setViewerOrigin(settings.viewerOrigin);
-    setThemeState(getTheme());
+    getSettings()
+      .then((settings) => {
+        setExpiryMode(settings.expiryMode);
+        setViewerOrigin(settings.viewerOrigin);
+        setThemeState(getTheme(browserStorageAdapter));
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
-  const handleExpiryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleExpiryChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newMode = e.target.value as ExpiryMode;
     setExpiryMode(newMode);
-    setSettings({ expiryMode: newMode });
-    invalidateSettingsCache();
+    await setSettings({ expiryMode: newMode });
     showSuccessFeedback();
   };
 
   const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTheme = e.target.value as Theme;
     setThemeState(newTheme);
-    setTheme(newTheme);
+    setTheme(newTheme, browserStorageAdapter);
     showSuccessFeedback();
   };
 
@@ -51,11 +54,10 @@ export default function App() {
     setViewerOrigin(e.target.value);
   };
 
-  const handleViewerOriginSave = () => {
+  const handleViewerOriginSave = async () => {
     const trimmedOrigin = viewerOrigin.trim();
     if (trimmedOrigin === "") return;
-    setSettings({ viewerOrigin: trimmedOrigin });
-    invalidateSettingsCache();
+    await setSettings({ viewerOrigin: trimmedOrigin });
     showSuccessFeedback();
   };
 
@@ -75,90 +77,98 @@ export default function App() {
         )}
       </header>
 
-      <section className="settings-section" aria-labelledby="expiry-heading">
-        <h2 id="expiry-heading" className="settings-section-title">
-          Link Expiry
-        </h2>
-        <p className="settings-section-description">
-          Shared links will expire after the selected duration.
-        </p>
-        <div className="form-group">
-          <label htmlFor="expiry-select" className="form-label">
-            Expiry time
-          </label>
-          <select
-            id="expiry-select"
-            className="settings-select"
-            value={expiryMode}
-            onChange={handleExpiryChange}
-            aria-label="Select link expiry duration"
-          >
-            {EXPIRY_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+      {isLoading ? (
+        <div className="settings-loading" role="status" aria-live="polite">
+          Loading settings...
         </div>
-      </section>
-
-      <section className="settings-section" aria-labelledby="theme-heading">
-        <h2 id="theme-heading" className="settings-section-title">
-          Appearance
-        </h2>
-        <p className="settings-section-description">Choose how Stash looks on your device.</p>
-        <div className="form-group" role="radiogroup" aria-labelledby="theme-heading">
-          <span className="form-label">Theme</span>
-          <div className="theme-options">
-            {THEME_OPTIONS.map((option) => (
-              <label key={option.value} className="theme-option">
-                <input
-                  type="radio"
-                  name="theme"
-                  value={option.value}
-                  checked={theme === option.value}
-                  onChange={handleThemeChange}
-                  aria-label={`${option.label} theme`}
-                />
-                <span className="theme-option-label">{option.label}</span>
+      ) : (
+        <>
+          <section className="settings-section" aria-labelledby="expiry-heading">
+            <h2 id="expiry-heading" className="settings-section-title">
+              Link Expiry
+            </h2>
+            <p className="settings-section-description">
+              Shared links will expire after the selected duration.
+            </p>
+            <div className="form-group">
+              <label htmlFor="expiry-select" className="form-label">
+                Expiry time
               </label>
-            ))}
-          </div>
-        </div>
-      </section>
+              <select
+                id="expiry-select"
+                className="settings-select"
+                value={expiryMode}
+                onChange={handleExpiryChange}
+                aria-label="Select link expiry duration"
+              >
+                {EXPIRY_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </section>
 
-      <section className="settings-section" aria-labelledby="viewer-heading">
-        <h2 id="viewer-heading" className="settings-section-title">
-          Viewer Server
-        </h2>
-        <p className="settings-section-description">
-          The URL of the server that renders shared tabs. Change this if the default server is down or you want to use your own.
-        </p>
-        <div className="form-group">
-          <label htmlFor="viewer-origin-input" className="form-label">
-            Viewer URL
-          </label>
-          <div className="viewer-origin-row">
-            <input
-              id="viewer-origin-input"
-              type="url"
-              className="settings-input"
-              value={viewerOrigin}
-              onChange={handleViewerOriginChange}
-              placeholder="https://viewer.example.com"
-              aria-label="Viewer server URL"
-            />
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={handleViewerOriginSave}
-              disabled={viewerOrigin.trim() === ""}
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      </section>
+          <section className="settings-section" aria-labelledby="theme-heading">
+            <h2 id="theme-heading" className="settings-section-title">
+              Appearance
+            </h2>
+            <p className="settings-section-description">Choose how Stash looks on your device.</p>
+            <div className="form-group" role="radiogroup" aria-labelledby="theme-heading">
+              <span className="form-label">Theme</span>
+              <div className="theme-options">
+                {THEME_OPTIONS.map((option) => (
+                  <label key={option.value} className="theme-option">
+                    <input
+                      type="radio"
+                      name="theme"
+                      value={option.value}
+                      checked={theme === option.value}
+                      onChange={handleThemeChange}
+                      aria-label={`${option.label} theme`}
+                    />
+                    <span className="theme-option-label">{option.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="settings-section" aria-labelledby="viewer-heading">
+            <h2 id="viewer-heading" className="settings-section-title">
+              Viewer Server
+            </h2>
+            <p className="settings-section-description">
+              The URL of the server that renders shared tabs. Change this if the default server is down or you want to use your own.
+            </p>
+            <div className="form-group">
+              <label htmlFor="viewer-origin-input" className="form-label">
+                Viewer URL
+              </label>
+              <div className="viewer-origin-row">
+                <input
+                  id="viewer-origin-input"
+                  type="url"
+                  className="settings-input"
+                  value={viewerOrigin}
+                  onChange={handleViewerOriginChange}
+                  placeholder="https://viewer.example.com"
+                  aria-label="Viewer server URL"
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleViewerOriginSave}
+                  disabled={viewerOrigin.trim() === ""}
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }
