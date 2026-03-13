@@ -429,10 +429,15 @@ import Layout from '../layouts/Layout.astro';
     async function copyUrls() {
       if (!decodedData) return;
 
-      const urls = decodedData.items.map(([url]: [string, string]) => url).join('\n');
+      // Always copy URLs in markdown format
+      const lines = decodedData.items.map(([url, title]: [string, string]) => {
+        const safeTitle = title.replace(/\[/g, '\\[').replace(/\]/g, '\\]');
+        return `[${safeTitle}](${url})`;
+      });
+      const text = lines.join('\n');
 
       try {
-        await navigator.clipboard.writeText(urls);
+        await navigator.clipboard.writeText(text);
         copyUrlsBtn.textContent = 'Copied!';
         setTimeout(() => {
           copyUrlsBtn.textContent = 'Copy URLs';
