@@ -22,11 +22,13 @@ const THEME_OPTIONS: { value: Theme; label: string }[] = [
 export default function App() {
   const [expiryMode, setExpiryMode] = useState<ExpiryMode>("never");
   const [theme, setThemeState] = useState<Theme>("system");
+  const [viewerOrigin, setViewerOrigin] = useState<string>("");
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     const settings = getSettings();
     setExpiryMode(settings.expiryMode);
+    setViewerOrigin(settings.viewerOrigin);
     setThemeState(getTheme());
   }, []);
 
@@ -42,6 +44,18 @@ export default function App() {
     const newTheme = e.target.value as Theme;
     setThemeState(newTheme);
     setTheme(newTheme);
+    showSuccessFeedback();
+  };
+
+  const handleViewerOriginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setViewerOrigin(e.target.value);
+  };
+
+  const handleViewerOriginSave = () => {
+    const trimmedOrigin = viewerOrigin.trim();
+    if (trimmedOrigin === "") return;
+    setSettings({ viewerOrigin: trimmedOrigin });
+    invalidateSettingsCache();
     showSuccessFeedback();
   };
 
@@ -109,6 +123,39 @@ export default function App() {
                 <span className="theme-option-label">{option.label}</span>
               </label>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="settings-section" aria-labelledby="viewer-heading">
+        <h2 id="viewer-heading" className="settings-section-title">
+          Viewer Server
+        </h2>
+        <p className="settings-section-description">
+          The URL of the server that renders shared tabs. Change this if the default server is down or you want to use your own.
+        </p>
+        <div className="form-group">
+          <label htmlFor="viewer-origin-input" className="form-label">
+            Viewer URL
+          </label>
+          <div className="viewer-origin-row">
+            <input
+              id="viewer-origin-input"
+              type="url"
+              className="settings-input"
+              value={viewerOrigin}
+              onChange={handleViewerOriginChange}
+              placeholder="https://viewer.example.com"
+              aria-label="Viewer server URL"
+            />
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleViewerOriginSave}
+              disabled={viewerOrigin.trim() === ""}
+            >
+              Save
+            </button>
           </div>
         </div>
       </section>
