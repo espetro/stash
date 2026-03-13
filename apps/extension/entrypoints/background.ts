@@ -5,12 +5,20 @@ import { getBrotliFunctions } from "../lib/brotli";
 import { getSettings } from "../lib/settings";
 
 export default defineBackground(() => {
-  browser.runtime.onInstalled.addListener(() => {
+  browser.runtime.onInstalled.addListener(async () => {
+    await browser.contextMenus.removeAll();
+
     if (import.meta.env.FIREFOX) {
       browser.contextMenus.create({
         id: "share-tabs",
         title: "Share selected tabs…",
         contexts: ["tab"],
+      });
+    } else {
+      browser.contextMenus.create({
+        id: "share-tabs",
+        title: "Share selected tabs…",
+        contexts: ["action"],
       });
     }
   });
