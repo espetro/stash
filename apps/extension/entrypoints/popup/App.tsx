@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTabSelection } from "./hooks/useTabSelection";
 import { TabList } from "./components/TabList";
 import { SelectAllToggle } from "./components/SelectAllToggle";
@@ -7,18 +7,25 @@ import { ErrorMessage } from "./components/ErrorMessage";
 import { encodeTabsToShareUrl } from "@stash/codec";
 import type { TabInfo } from "@stash/codec";
 import { getBrotliFunctions } from "../../lib/brotli";
-import { getSettings } from "../../lib/settings";
+import { getSettings, type Settings } from "../../lib/settings";
 
 export default function App() {
   const { tabs, isLoading, error, setError, toggleTab, selectAll, deselectAll, selectedCount } =
     useTabSelection();
+  const [settings, setSettings] = useState<Settings | null>(null);
+  const [isSettingsLoading, setIsSettingsLoading] = useState(true);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [linkItemCount, setLinkItemCount] = useState(0);
   const [linkTruncated, setLinkTruncated] = useState(false);
 
+  useEffect(() => {
+    getSettings().then(setSettings).finally(() => setIsSettingsLoading(false));
+  }, []);
+
   async function handleCreateLink() {
     try {
+      if (!settings) return;
       if (selectedCount === 0) {
         setError("Please select at least one tab");
         return;
@@ -27,8 +34,7 @@ export default function App() {
         const selectedTabs = tabs.filter((t) => t.isSelected);
         const tabInfos: TabInfo[] = selectedTabs.map((t) => ({ url: t.url, title: t.title }));
         const brotli = await getBrotliFunctions();
-        const { viewerOrigin } = getSettings();
-        const result = await encodeTabsToShareUrl(tabInfos, brotli, viewerOrigin);
+        const result = await encodeTabsToShareUrl(tabInfos, brotli, settings.viewerOrigin);
 
       await navigator.clipboard.writeText(result.url);
 
@@ -64,10 +70,10 @@ export default function App() {
     selectAll(maxCount);
   }
 
-  if (isLoading) {
+  if (isLoading || isSettingsLoading) {
     return (
       <div className="popup-container">
-        <div className="loading">Loading tabs...</div>
+        <div className="loading">Loading...</div>
       </div>
     );
   }
