@@ -226,6 +226,46 @@ body {
   color: var(--foreground);
 }
 
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.settings-input {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.settings-input:hover {
+  border-color: var(--ring);
+}
+
+.settings-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.settings-input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.viewer-origin-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.viewer-origin-row .settings-input {
+  max-width: 320px;
+}
+
 .btn:focus-visible,
 .settings-select:focus-visible,
 .theme-option input:focus-visible {

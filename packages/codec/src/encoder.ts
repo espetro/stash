@@ -81,20 +81,25 @@ export async function encodePayload(payload: SharePayload, brotli: BrotliFunctio
 /**
  * Build share URL from encoded payload
  */
-export function buildShareUrl(encoded: string): string {
-  return `${VIEWER_ORIGIN}${VIEWER_PATH}#p=${encoded}`;
+export function buildShareUrl(encoded: string, viewerOrigin?: string): string {
+  const origin = viewerOrigin ?? VIEWER_ORIGIN;
+  return `${origin}${VIEWER_PATH}#p=${encoded}`;
 }
 
 /**
  * Find max number of tabs that fit within budget using binary search
  */
-export async function findMaxTabsWithinBudget(tabs: TabInfo[], brotli: BrotliFunctions): Promise<number> {
+export async function findMaxTabsWithinBudget(
+  tabs: TabInfo[],
+  brotli: BrotliFunctions,
+  viewerOrigin?: string
+): Promise<number> {
   if (tabs.length === 0) return 0;
 
   // Check if full set fits
   const fullPayload = createPayload(tabs);
   const fullEncoded = await encodePayload(fullPayload, brotli);
-  const fullUrl = buildShareUrl(fullEncoded);
+  const fullUrl = buildShareUrl(fullEncoded, viewerOrigin);
 
   if (fullUrl.length <= BUDGET_CHARS) {
     return tabs.length;
@@ -116,7 +121,7 @@ export async function findMaxTabsWithinBudget(tabs: TabInfo[], brotli: BrotliFun
 
     const payload = createPayload(subset);
     const encoded = await encodePayload(payload, brotli);
-    const url = buildShareUrl(encoded);
+    const url = buildShareUrl(encoded, viewerOrigin);
 
     if (url.length <= BUDGET_CHARS) {
       result = mid;
@@ -132,10 +137,14 @@ export async function findMaxTabsWithinBudget(tabs: TabInfo[], brotli: BrotliFun
 /**
  * Main entry point: encode tabs to share URL with budget enforcement
  */
-export async function encodeTabsToShareUrl(tabs: TabInfo[], brotli: BrotliFunctions): Promise<EncodingResult> {
+export async function encodeTabsToShareUrl(
+  tabs: TabInfo[],
+  brotli: BrotliFunctions,
+  viewerOrigin?: string
+): Promise<EncodingResult> {
   if (tabs.length === 0) {
     return {
-      url: buildShareUrl(""),
+      url: buildShareUrl("", viewerOrigin),
       itemCount: 0,
       truncated: false,
     };
@@ -144,7 +153,7 @@ export async function encodeTabsToShareUrl(tabs: TabInfo[], brotli: BrotliFuncti
   // Try full set first
   const fullPayload = createPayload(tabs);
   const fullEncoded = await encodePayload(fullPayload, brotli);
-  const fullUrl = buildShareUrl(fullEncoded);
+  const fullUrl = buildShareUrl(fullEncoded, viewerOrigin);
 
   if (fullUrl.length <= BUDGET_CHARS) {
     return {
@@ -155,11 +164,11 @@ export async function encodeTabsToShareUrl(tabs: TabInfo[], brotli: BrotliFuncti
   }
 
   // Find max tabs that fit
-  const maxTabs = await findMaxTabsWithinBudget(tabs, brotli);
+  const maxTabs = await findMaxTabsWithinBudget(tabs, brotli, viewerOrigin);
 
   if (maxTabs === 0) {
     return {
-      url: buildShareUrl(""),
+      url: buildShareUrl("", viewerOrigin),
       itemCount: 0,
       truncated: true,
     };
@@ -168,7 +177,7 @@ export async function encodeTabsToShareUrl(tabs: TabInfo[], brotli: BrotliFuncti
   const subset = tabs.slice(0, maxTabs);
   const payload = createPayload(subset);
   const encoded = await encodePayload(payload, brotli);
-  const url = buildShareUrl(encoded);
+  const url = buildShareUrl(encoded, viewerOrigin);
 
   return {
     url,
