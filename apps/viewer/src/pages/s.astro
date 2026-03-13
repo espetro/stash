@@ -17,6 +17,7 @@ import Layout from '../layouts/Layout.astro';
           <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle theme">🖥️</button>
           <div class="folder-icon">📁</div>
           <h1 id="item-count">0 Items</h1>
+          <p id="expiry-timer" class="expiry-timer"></p>
         </div>
         
         <div class="actions">
@@ -112,6 +113,13 @@ import Layout from '../layouts/Layout.astro';
       font-weight: 700;
       margin: 0;
       color: var(--foreground);
+    }
+
+    .expiry-timer {
+      font-size: 0.875rem;
+      color: var(--muted-foreground);
+      margin: 8px 0 0 0;
+      text-align: center;
     }
 
     .actions {
@@ -278,6 +286,7 @@ import Layout from '../layouts/Layout.astro';
     const errorEl = document.getElementById('error')!;
     const contentEl = document.getElementById('content')!;
     const itemCountEl = document.getElementById('item-count')!;
+    const expiryTimerEl = document.getElementById('expiry-timer')!;
     const tabListEl = document.getElementById('tab-list')!;
     const openAllBtn = document.getElementById('open-all')!;
     const copyUrlsBtn = document.getElementById('copy-urls')!;
@@ -365,6 +374,26 @@ import Layout from '../layouts/Layout.astro';
       appEl.appendChild(pre);
     }
 
+    function formatRemainingTime(expiryTimestamp: number): string {
+      const now = Math.floor(Date.now() / 1000);
+      const remainingSeconds = expiryTimestamp - now;
+      
+      if (remainingSeconds <= 0) {
+        return 'Expired';
+      }
+      
+      const hours = Math.floor(remainingSeconds / 3600);
+      const minutes = Math.floor((remainingSeconds % 3600) / 60);
+      
+      if (hours > 0) {
+        return `Expires in ${hours}h ${minutes}m`;
+      } else if (minutes > 0) {
+        return `Expires in ${minutes}m`;
+      } else {
+        return 'Expires in < 1m';
+      }
+    }
+
     function showContent(data: any) {
       loadingEl.style.display = 'none';
       contentEl.style.display = 'block';
@@ -372,6 +401,9 @@ import Layout from '../layouts/Layout.astro';
       // Set item count
       const count = data.items.length;
       itemCountEl.textContent = `${count} Item${count !== 1 ? 's' : ''}`;
+
+      // Set expiry timer
+      expiryTimerEl.textContent = formatRemainingTime(data.expiry);
 
       // Render tab list
       tabListEl.innerHTML = '';
