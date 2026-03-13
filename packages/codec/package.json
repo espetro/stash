@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@types/pako": "^2.0.4",
+    "@types/webextension-polyfill": "^0.12.5",
     "typescript": "^5.7.2",
     "vite": "^6.0.0"
   }
