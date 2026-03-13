@@ -2,6 +2,7 @@ import { defineBackground } from "wxt/sandbox";
 import { encodeTabsToShareUrl } from "@stash/codec";
 import type { TabInfo } from "@stash/codec";
 import { getBrotliFunctions } from "../lib/brotli";
+import { getSettings } from "../lib/settings";
 
 export default defineBackground(() => {
   browser.runtime.onInstalled.addListener(() => {
@@ -35,11 +36,10 @@ export default defineBackground(() => {
 
       if (tabInfos.length === 0) return;
 
-      // Get brotli compression functions
       const brotli = await getBrotliFunctions();
+      const { viewerOrigin } = getSettings();
 
-      // Encode to share URL (async)
-      const result = await encodeTabsToShareUrl(tabInfos, brotli);
+      const result = await encodeTabsToShareUrl(tabInfos, brotli, viewerOrigin);
 
       // Copy to clipboard
       await navigator.clipboard.writeText(result.url);
