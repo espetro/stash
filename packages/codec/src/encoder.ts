@@ -25,9 +25,9 @@ function stripUrlScheme(url: string): string {
 /**
  * Create payload with expiry timestamp
  */
-export function createPayload(tabs: TabInfo[]): SharePayload {
+export function createPayload(tabs: TabInfo[], expiryHours: number): SharePayload {
   const now = Math.floor(Date.now() / 1000);
-  const expiry = now + 24 * 3600; // 24 hours
+  const expiry = now + expiryHours * 3600;
 
   return {
     v: PAYLOAD_VERSION,
@@ -91,11 +91,12 @@ export async function findMaxTabsWithinBudget(
   tabs: TabInfo[],
   brotli: BrotliFunctions,
   viewerOrigin?: string,
+  expiryHours: number = 24,
 ): Promise<number> {
   if (tabs.length === 0) return 0;
 
   // Check if full set fits
-  const fullPayload = createPayload(tabs);
+  const fullPayload = createPayload(tabs, expiryHours);
   const fullEncoded = await encodePayload(fullPayload, brotli);
   const fullUrl = buildShareUrl(fullEncoded, viewerOrigin);
 
@@ -117,7 +118,7 @@ export async function findMaxTabsWithinBudget(
       continue;
     }
 
-    const payload = createPayload(subset);
+    const payload = createPayload(subset, expiryHours);
     const encoded = await encodePayload(payload, brotli);
     const url = buildShareUrl(encoded, viewerOrigin);
 
@@ -138,6 +139,7 @@ export async function findMaxTabsWithinBudget(
 export async function encodeTabsToShareUrl(
   tabs: TabInfo[],
   brotli: BrotliFunctions,
+  expiryHours: number,
   viewerOrigin?: string,
 ): Promise<EncodingResult> {
   if (tabs.length === 0) {
@@ -149,7 +151,7 @@ export async function encodeTabsToShareUrl(
   }
 
   // Try full set first
-  const fullPayload = createPayload(tabs);
+  const fullPayload = createPayload(tabs, expiryHours);
   const fullEncoded = await encodePayload(fullPayload, brotli);
   const fullUrl = buildShareUrl(fullEncoded, viewerOrigin);
 
@@ -162,7 +164,7 @@ export async function encodeTabsToShareUrl(
   }
 
   // Find max tabs that fit
-  const maxTabs = await findMaxTabsWithinBudget(tabs, brotli, viewerOrigin);
+  const maxTabs = await findMaxTabsWithinBudget(tabs, brotli, viewerOrigin, expiryHours);
 
   if (maxTabs === 0) {
     return {
@@ -173,7 +175,7 @@ export async function encodeTabsToShareUrl(
   }
 
   const subset = tabs.slice(0, maxTabs);
-  const payload = createPayload(subset);
+  const payload = createPayload(subset, expiryHours);
   const encoded = await encodePayload(payload, brotli);
   const url = buildShareUrl(encoded, viewerOrigin);
 
