@@ -4,10 +4,12 @@ import { TabList } from "./components/TabList";
 import { SelectAllToggle } from "./components/SelectAllToggle";
 import { LinkResult } from "./components/LinkResult";
 import { ErrorMessage } from "./components/ErrorMessage";
-import { encodeTabsToShareUrl } from "@stash/codec";
+import { HistoryView } from "./components/HistoryView";
+import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import type { TabInfo } from "@stash/codec";
 import { getBrotliFunctions } from "../../lib/brotli";
 import { getSettings, type Settings } from "../../lib/settings";
+import { addToHistory } from "../../lib/history";
 
 export default function App() {
   const { tabs, isLoading, error, setError, toggleTab, selectAll, deselectAll, selectedCount } =
@@ -18,6 +20,7 @@ export default function App() {
   const [isCopied, setIsCopied] = useState(false);
   const [linkItemCount, setLinkItemCount] = useState(0);
   const [linkTruncated, setLinkTruncated] = useState(false);
+  const [view, setView] = useState<'main' | 'history'>('main');
 
   useEffect(() => {
     getSettings()
@@ -36,9 +39,20 @@ export default function App() {
       const selectedTabs = tabs.filter((t) => t.isSelected);
       const tabInfos: TabInfo[] = selectedTabs.map((t) => ({ url: t.url, title: t.title }));
       const brotli = await getBrotliFunctions();
-      const result = await encodeTabsToShareUrl(tabInfos, brotli, settings.viewerOrigin);
+      const expiryHours = EXPIRY_HOURS_MAP[settings.expiryMode];
+      const result = await encodeTabsToShareUrl(tabInfos, brotli, expiryHours, settings.viewerOrigin);
 
       await navigator.clipboard.writeText(result.url);
+
+      const expiresAt = Date.now() + expiryHours * 3600 * 1000;
+      await addToHistory({
+        id: Date.now().toString(36),
+        url: result.url,
+        itemCount: result.itemCount,
+        truncated: result.truncated,
+        createdAt: Date.now(),
+        expiresAt,
+      });
 
       setShareUrl(result.url);
       setLinkItemCount(result.itemCount);
@@ -84,47 +98,63 @@ export default function App() {
     <div className="popup-container">
       <div className="popup-header">
         <h1>Stash</h1>
-        <button
-          className="theme-toggle"
-          onClick={() => browser.runtime.openOptionsPage()}
-          aria-label="Open settings"
-          title="Settings"
-        >
-          ⚙️
-        </button>
+        <div className="header-buttons">
+          <button
+            className="theme-toggle"
+            onClick={() => setView('history')}
+            aria-label="View history"
+            title="History"
+          >
+            🕐
+          </button>
+          <button
+            className="theme-toggle"
+            onClick={() => browser.runtime.openOptionsPage()}
+            aria-label="Open settings"
+            title="Settings"
+          >
+            ⚙️
+          </button>
+        </div>
       </div>
 
       {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}
 
-      {shareUrl ? (
-        <>
-          <LinkResult
-            url={shareUrl}
-            onCopy={handleCopy}
-            isCopied={isCopied}
-            itemCount={linkItemCount}
-            truncated={linkTruncated}
-            totalCount={tabs.filter((t) => t.isSelected).length}
-          />
-          <div className="popup-actions">
-            <button className="btn btn-secondary" onClick={handleBack}>
-              ← Back to Selection
-            </button>
-          </div>
-        </>
+      {view === 'history' ? (
+        <HistoryView onBack={() => setView('main')} />
       ) : (
         <>
-          <SelectAllToggle tabs={tabs} onSelectAll={handleSelectAll} onDeselectAll={deselectAll} />
-          <TabList tabs={tabs} onToggle={toggleTab} />
-          <div className="popup-actions">
-            <button
-              className="btn btn-primary"
-              onClick={handleCreateLink}
-              disabled={selectedCount === 0}
-            >
-              Create Link ({selectedCount})
-            </button>
-          </div>
+          {shareUrl ? (
+            <>
+              <LinkResult
+                url={shareUrl}
+                onCopy={handleCopy}
+                isCopied={isCopied}
+                itemCount={linkItemCount}
+                truncated={linkTruncated}
+                totalCount={tabs.filter((t) => t.isSelected).length}
+              />
+              <div className="popup-actions">
+                <button className="btn btn-secondary" onClick={handleBack}>
+                  ← Back to Selection
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <SelectAllToggle tabs={tabs} onSelectAll={handleSelectAll} onDeselectAll={deselectAll} />
+              <TabList tabs={tabs} onToggle={toggleTab} />
+              <div className="popup-actions">
+                <button
+                  className="btn btn-primary"
+                  onClick={handleCreateLink}
+                  disabled={selectedCount === 0}
+                >
+                  Create Link ({selectedCount})
+                </button>
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

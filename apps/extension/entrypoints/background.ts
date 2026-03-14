@@ -1,5 +1,5 @@
 import { defineBackground } from "wxt/sandbox";
-import { encodeTabsToShareUrl } from "@stash/codec";
+import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import type { TabInfo } from "@stash/codec";
 import { getBrotliFunctions } from "../lib/brotli";
 import { getSettings, settingsItem } from "../lib/settings";
@@ -49,9 +49,10 @@ export default defineBackground(() => {
       if (tabInfos.length === 0) return;
 
       const brotli = await getBrotliFunctions();
-      const { viewerOrigin } = await getSettings();
+      const settings = await getSettings();
+      const expiryHours = EXPIRY_HOURS_MAP[settings.expiryMode];
 
-      const result = await encodeTabsToShareUrl(tabInfos, brotli, viewerOrigin);
+      const result = await encodeTabsToShareUrl(tabInfos, brotli, expiryHours, settings.viewerOrigin);
 
       // Copy to clipboard
       await navigator.clipboard.writeText(result.url);
