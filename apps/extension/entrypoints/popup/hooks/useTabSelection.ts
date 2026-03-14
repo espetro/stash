@@ -91,9 +91,9 @@ export function useTabSelection() {
         );
         const selectedIndices = newSelectedTabs.filter((t) => t.isSelected).map((t) => t.index);
 
-         if (selectedIndices.length > 0) {
-           await browser.tabs.highlight({ windowId, tabs: selectedIndices });
-         } else {
+        if (selectedIndices.length > 0) {
+          await browser.tabs.highlight({ windowId, tabs: selectedIndices });
+        } else {
           // Cannot highlight zero tabs — just update local state
           setTabs((prev) => prev.map((t) => (t.id === tabId ? { ...t, isSelected: false } : t)));
           return;
