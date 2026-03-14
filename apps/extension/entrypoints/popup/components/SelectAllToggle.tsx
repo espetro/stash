@@ -28,7 +28,9 @@ export function SelectAllToggle({ tabs, onSelectAll, onDeselectAll }: SelectAllT
       if (!cancelled) setMaxTabCount(max);
     }
     computeMax();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [tabs]);
 
   async function handleSelectAll() {

@@ -140,7 +140,8 @@ export default function App() {
               Viewer Server
             </h2>
             <p className="settings-section-description">
-              The URL of the server that renders shared tabs. Change this if the default server is down or you want to use your own.
+              The URL of the server that renders shared tabs. Change this if the default server is
+              down or you want to use your own.
             </p>
             <div className="form-group">
               <label htmlFor="viewer-origin-input" className="form-label">

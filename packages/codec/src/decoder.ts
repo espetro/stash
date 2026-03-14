@@ -33,7 +33,10 @@ export function getFaviconUrl(url: string): string {
  * 3. Decompress if needed (brotli)
  * 4. Parse v2 delimiter format
  */
-export async function decodeShareUrl(fragment: string, brotli: BrotliFunctions): Promise<DecodedPayload> {
+export async function decodeShareUrl(
+  fragment: string,
+  brotli: BrotliFunctions,
+): Promise<DecodedPayload> {
   // Extract #p=... from fragment
   const match = fragment.match(/^#p=(.+)$/);
   if (!match) {

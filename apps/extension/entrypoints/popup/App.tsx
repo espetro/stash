@@ -20,7 +20,9 @@ export default function App() {
   const [linkTruncated, setLinkTruncated] = useState(false);
 
   useEffect(() => {
-    getSettings().then(setSettings).finally(() => setIsSettingsLoading(false));
+    getSettings()
+      .then(setSettings)
+      .finally(() => setIsSettingsLoading(false));
   }, []);
 
   async function handleCreateLink() {
@@ -31,10 +33,10 @@ export default function App() {
         return;
       }
 
-        const selectedTabs = tabs.filter((t) => t.isSelected);
-        const tabInfos: TabInfo[] = selectedTabs.map((t) => ({ url: t.url, title: t.title }));
-        const brotli = await getBrotliFunctions();
-        const result = await encodeTabsToShareUrl(tabInfos, brotli, settings.viewerOrigin);
+      const selectedTabs = tabs.filter((t) => t.isSelected);
+      const tabInfos: TabInfo[] = selectedTabs.map((t) => ({ url: t.url, title: t.title }));
+      const brotli = await getBrotliFunctions();
+      const result = await encodeTabsToShareUrl(tabInfos, brotli, settings.viewerOrigin);
 
       await navigator.clipboard.writeText(result.url);
 
