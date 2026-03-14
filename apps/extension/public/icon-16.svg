@@ -1,4 +1,2 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-  <path d="M2 4C2 2.89543 2.89543 2 4 2H12C13.1046 2 14 2.89543 14 4V12C14 13.1046 13.1046 14 12 14H4C2.89543 14 2 13.1046 2 12V4Z" fill="#667eea"/>
-  <path d="M5 6H11M5 8H9M5 10H7" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-</svg>
+<?xml version="1.0" encoding="utf-8" ?>
+<svg baseProfile="full" height="16" version="1.1" width="16" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink"><defs /><image height="16" width="16" x="0" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA9ElEQVR4nO2QsUoDURBF78y+Z3aj7AtJITaCEKtU/oOdrUXwLywsJKRK4T9YaCN+g42lqRKsIwiyjUbQKrJPNzuTwsIkGzH2uTDFHe4cLgOsRL8tiRkAoCpQ/QdgrRSZxtHFZVDZqavkCDTzyU3r5OXhrrcUIK5tub3j+6fMVCvQHKKCMH8bDq6aB8+Dbn8+zwWkKiTzqY49vidFSm5z9/D8Otpwpb8BAGiqV0AMBiA2doGNwvmsWXjNxhIbMFsAgIiCiJio+PMC4Cv98J/vyaPw6zC5PWtDge39085Y/CjzI7+ocUE2jMs2dOUf79an/UqzmgC8elHnjOLCzgAAAABJRU5ErkJggg==" y="0" /></svg>
