@@ -25,11 +25,18 @@ const mediumTabs: TabInfo[] = [
 
 const unicodeTabs: TabInfo[] = [
   { url: "https://example.com/日本語/テスト", title: "日本語のページ - Unicode Test" },
-  { url: "https://example.com/path?query=value&other=123#section", title: "URL with special chars & # ?" },
+  {
+    url: "https://example.com/path?query=value&other=123#section",
+    title: "URL with special chars & # ?",
+  },
 ];
 
 const longTitleTabs: TabInfo[] = [
-  { url: "https://example.com/long-url-path", title: "This is a very long title that exceeds the thirty character limit and should be truncated" },
+  {
+    url: "https://example.com/long-url-path",
+    title:
+      "This is a very long title that exceeds the thirty character limit and should be truncated",
+  },
 ];
 
 // Helper to extract fragment from URL
@@ -151,7 +158,9 @@ describe("v2 codec round-trip tests", () => {
 
   it("Test 9: normalizeTitle works correctly", () => {
     expect(normalizeTitle("  Hello   World  ")).toBe("Hello World");
-    expect(normalizeTitle("This is a very long title that exceeds limits").length).toBeLessThanOrEqual(30);
+    expect(
+      normalizeTitle("This is a very long title that exceeds limits").length,
+    ).toBeLessThanOrEqual(30);
   });
 
   it("Test 10: buildShareUrl creates correct URL", () => {

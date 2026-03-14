@@ -6,7 +6,7 @@ import { getSettings, settingsItem } from "../lib/settings";
 
 export default defineBackground(() => {
   settingsItem.watch((newValue, oldValue) => {
-    console.log('Settings changed:', { oldValue, newValue });
+    console.log("Settings changed:", { oldValue, newValue });
   });
 
   browser.runtime.onInstalled.addListener(async () => {

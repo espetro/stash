@@ -43,7 +43,10 @@ export function createPayload(tabs: TabInfo[]): SharePayload {
  * Compression: brotli quality 11, only if > 50 bytes
  * Prefix: "C" for compressed, "R" for raw
  */
-export async function encodePayload(payload: SharePayload, brotli: BrotliFunctions): Promise<string> {
+export async function encodePayload(
+  payload: SharePayload,
+  brotli: BrotliFunctions,
+): Promise<string> {
   // Build v2 format: version char + expiry + group separator + items
   const items = payload.i
     .filter(([url]) => {
@@ -65,15 +68,10 @@ export async function encodePayload(payload: SharePayload, brotli: BrotliFunctio
 
   // Compress only if > 50 bytes
   const isCompressed = utf8.length > 50;
-  const bytes = isCompressed
-    ? brotli.compress(utf8, { quality: 11 })
-    : utf8;
+  const bytes = isCompressed ? brotli.compress(utf8, { quality: 11 }) : utf8;
 
   // Base64 encode and convert to base64url
-  const b64 = uint8ToBase64(bytes)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
+  const b64 = uint8ToBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 
   return (isCompressed ? "C" : "R") + b64;
 }
@@ -92,7 +90,7 @@ export function buildShareUrl(encoded: string, viewerOrigin?: string): string {
 export async function findMaxTabsWithinBudget(
   tabs: TabInfo[],
   brotli: BrotliFunctions,
-  viewerOrigin?: string
+  viewerOrigin?: string,
 ): Promise<number> {
   if (tabs.length === 0) return 0;
 
@@ -140,7 +138,7 @@ export async function findMaxTabsWithinBudget(
 export async function encodeTabsToShareUrl(
   tabs: TabInfo[],
   brotli: BrotliFunctions,
-  viewerOrigin?: string
+  viewerOrigin?: string,
 ): Promise<EncodingResult> {
   if (tabs.length === 0) {
     return {

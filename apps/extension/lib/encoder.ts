@@ -5,4 +5,4 @@ export {
   buildShareUrl,
   normalizeTitle,
   findMaxTabsWithinBudget,
-} from '@stash/codec';
+} from "@stash/codec";
