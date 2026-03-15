@@ -1,181 +1,204 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/landing/Navbar.astro';
+import Footer from '../components/landing/Footer.astro';
 ---
 
 <Layout title="Privacy Policy — Stash">
-  <div id="app">
-    <div class="card">
-      <div class="header">
-        <div class="lock-icon">🔒</div>
-        <h1>No Data Collection</h1>
-        <p class="subtitle">Stash Privacy Policy</p>
-      </div>
+  <Navbar />
+  <main class="page-main">
+    <div class="page-container">
 
-      <div class="content">
-        <p class="intro">
-          <strong>Stash</strong> is designed with privacy as a core principle. 
-          Here's what you need to know:
+      <!-- Page header -->
+      <header class="page-header">
+        <span class="page-label">PRIVACY POLICY</span>
+        <h1 class="page-title">No Data Collection</h1>
+        <p class="page-subtitle">
+          Stash is designed with privacy as a core principle. Here's exactly what happens — and what doesn't.
         </p>
+      </header>
 
-        <ul class="policy-list">
-          <li>
-            <span class="check">✓</span>
-            <span><strong>No personal data is collected.</strong> We don't track you, store cookies, or gather any information about you.</span>
-          </li>
-          <li>
-            <span class="check">✓</span>
-            <span><strong>All sharing happens locally in your browser.</strong> Stash selection and link generation occur entirely on your device.</span>
-          </li>
-          <li>
-            <span class="check">✓</span>
-            <span><strong>No data is transmitted to external servers.</strong> The only thing sent is the share link you choose to send.</span>
-          </li>
-          <li>
-            <span class="check">✓</span>
-            <span><strong>Shared links contain only tab URLs and titles.</strong> These are user-selected and encoded directly into the link itself.</span>
-          </li>
-          <li>
-            <span class="check">✓</span>
-            <span><strong>Links expire based on your settings.</strong> You can configure expiry to 24 hours, 7 days, 30 days, or never. Shared content cannot be accessed once a link expires.</span>
-          </li>
-        </ul>
+      <!-- Policy items -->
+      <ul class="policy-list" role="list">
+        <li class="policy-item">
+          <svg class="check-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="8" stroke="#3981F6" stroke-width="1.5"/>
+            <path d="M5.5 9L7.5 11L12.5 6.5" stroke="#3981F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div>
+            <strong>No personal data is collected.</strong> We don't track you, store cookies, or gather any information about you.
+          </div>
+        </li>
+        <li class="policy-item">
+          <svg class="check-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="8" stroke="#3981F6" stroke-width="1.5"/>
+            <path d="M5.5 9L7.5 11L12.5 6.5" stroke="#3981F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div>
+            <strong>All sharing happens locally in your browser.</strong> Stash selection and link generation occur entirely on your device.
+          </div>
+        </li>
+        <li class="policy-item">
+          <svg class="check-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="8" stroke="#3981F6" stroke-width="1.5"/>
+            <path d="M5.5 9L7.5 11L12.5 6.5" stroke="#3981F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div>
+            <strong>No data is transmitted to external servers.</strong> The only thing sent is the share link you choose to send.
+          </div>
+        </li>
+        <li class="policy-item">
+          <svg class="check-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="8" stroke="#3981F6" stroke-width="1.5"/>
+            <path d="M5.5 9L7.5 11L12.5 6.5" stroke="#3981F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div>
+            <strong>Shared links contain only tab URLs and titles.</strong> These are user-selected and encoded directly into the link itself.
+          </div>
+        </li>
+        <li class="policy-item">
+          <svg class="check-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="8" stroke="#3981F6" stroke-width="1.5"/>
+            <path d="M5.5 9L7.5 11L12.5 6.5" stroke="#3981F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div>
+            <strong>Links expire automatically.</strong> Shared content cannot be accessed once a link expires. Stash doesn't have servers, databases, or analytics.
+          </div>
+        </li>
+      </ul>
 
-        <div class="summary">
-          <p>Stash doesn't have servers, databases, or analytics. It's a simple tool that works entirely in your browser.</p>
-        </div>
+      <!-- Footer note -->
+      <div class="page-foot">
+        <a href="/" class="back-link">← Back to home</a>
+        <span class="updated">Last updated: 2026</span>
       </div>
 
-      <div class="footer">
-        <a href="/" class="back-link">← Back to Home</a>
-        <p class="last-updated">Last updated: 2026</p>
-      </div>
     </div>
-  </div>
+  </main>
+  <Footer />
 </Layout>
 
 <style>
-  #app {
+  .page-main {
+    background-color: var(--background);
     min-height: 100vh;
-    background: var(--background);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+    padding-top: 5rem; /* navbar offset */
   }
 
-  .card {
-    background: var(--background);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-lg);
-    max-width: 600px;
-    width: 100%;
-    padding: 32px;
+  .page-container {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 5rem;
   }
 
-  .header {
-    text-align: center;
-    margin-bottom: 28px;
-    padding-bottom: 24px;
+  /* Header */
+  .page-header {
+    margin-bottom: 3rem;
+    padding-bottom: 2.5rem;
     border-bottom: 1px solid var(--border);
   }
 
-  .lock-icon {
-    font-size: 2.5rem;
-    margin-bottom: 12px;
+  .page-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted-foreground);
+    margin-bottom: 1rem;
   }
 
-  .header h1 {
-    font-size: 1.75rem;
+  .page-title {
+    font-size: 2rem;
     font-weight: 700;
-    margin: 0 0 8px 0;
+    letter-spacing: -0.03em;
     color: var(--foreground);
+    margin: 0 0 0.875rem;
+    line-height: 1.1;
   }
 
-  .subtitle {
-    font-size: 0.875rem;
+  .page-subtitle {
+    font-size: 1rem;
+    line-height: 1.6;
     color: var(--muted-foreground);
     margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    max-width: 36rem;
   }
 
-  .content {
-    margin-bottom: 28px;
-  }
-
-  .intro {
-    font-size: 1rem;
-    color: var(--foreground);
-    line-height: 1.6;
-    margin: 0 0 20px 0;
-  }
-
+  /* Policy list */
   .policy-list {
     list-style: none;
     padding: 0;
-    margin: 0 0 20px 0;
+    margin: 0 0 3rem;
   }
 
-  .policy-list li {
+  .policy-item {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    padding: 12px 0;
+    gap: 0.875rem;
+    padding: 1.125rem 0;
     border-bottom: 1px solid var(--border);
     font-size: 0.9375rem;
     color: var(--foreground);
-    line-height: 1.5;
+    line-height: 1.6;
   }
 
-  .policy-list li:last-child {
+  .policy-item:first-child {
+    border-top: none;
+  }
+
+  .policy-item:last-child {
     border-bottom: none;
   }
 
-  .check {
-    color: var(--success);
-    font-weight: 700;
+  .check-icon {
     flex-shrink: 0;
-    margin-top: 2px;
+    margin-top: 0.1875rem;
   }
 
-  .summary {
-    background: var(--muted);
-    border-radius: var(--radius-lg);
-    padding: 16px;
-  }
-
-  .summary p {
-    margin: 0;
-    font-size: 0.875rem;
-    color: var(--muted-foreground);
-    line-height: 1.5;
-  }
-
-  .footer {
-    text-align: center;
-    padding-top: 24px;
+  /* Footer row */
+  .page-foot {
+    padding-top: 2rem;
     border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
   }
 
   .back-link {
-    display: inline-block;
-    color: var(--primary);
-    text-decoration: none;
     font-size: 0.9375rem;
     font-weight: 500;
-    padding: 8px 16px;
-    border-radius: var(--radius-md);
-    transition: all 0.2s ease;
+    color: var(--primary);
+    text-decoration: none;
+    transition: opacity 0.15s ease;
   }
 
   .back-link:hover {
-    background: var(--muted);
-    color: var(--primary);
+    opacity: 0.8;
   }
 
-  .last-updated {
+  .back-link:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .updated {
+    font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--muted-foreground);
-    margin: 16px 0 0 0;
+  }
+
+  @media (min-width: 768px) {
+    .page-container {
+      padding-top: 5rem;
+      padding-bottom: 6rem;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+    }
   }
 </style>

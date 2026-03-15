@@ -1,160 +1,213 @@
 ---
-// Demo video placeholder section
-// Shows a "coming soon" state while video is being produced
+// Demo section — dark background with browser session mockup
 ---
 
 <section class="demo-section" id="demo">
   <div class="demo-container">
-    <!-- Section headline -->
-    <h2 class="headline">See It In Action</h2>
-    
-    <!-- Caption -->
-    <p class="caption">See how it works — under 2 minutes</p>
-    
-    <!-- Video placeholder with 16:9 aspect ratio -->
-    <div class="video-placeholder">
-      <div class="play-icon">
-        <span class="play-triangle"></span>
+    <h2 class="headline">See it in action</h2>
+
+    <!-- Browser session mockup -->
+    <div class="browser-mockup">
+      <!-- Chrome bar -->
+      <div class="browser-chrome">
+        <div class="browser-dots" aria-hidden="true">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+        </div>
+        <div class="browser-url" aria-label="URL bar">
+          stash.oxejoq.eu/s/#p=CG60BAIyU7hLTLJxTqSYvzOfaATkA0GXUdn7BN3V...
+        </div>
       </div>
-      <p class="placeholder-text">Video coming soon</p>
+
+      <!-- Session content -->
+      <div class="session-body">
+        <span class="session-meta">SAVED SESSION</span>
+        <p class="session-title">Research: Astro 5 Migration</p>
+
+        <div class="tab-list" role="list">
+          <div class="tab-row" role="listitem">
+            <span class="tab-num">1</span>
+            <span class="tab-url">github.com/withastro/astro/releases/tag/astro%405.0.0</span>
+          </div>
+          <div class="tab-row" role="listitem">
+            <span class="tab-num">2</span>
+            <span class="tab-url">docs.astro.build/en/guides/upgrade-to/v5/</span>
+          </div>
+          <div class="tab-row" role="listitem">
+            <span class="tab-num">3</span>
+            <span class="tab-url">tailwindcss.com/docs/v4-beta</span>
+          </div>
+          <div class="tab-row" role="listitem">
+            <span class="tab-num">4</span>
+            <span class="tab-url">stackoverflow.com/questions/79124/astro-content-collections-migration</span>
+          </div>
+          <div class="tab-row" role="listitem">
+            <span class="tab-num">5</span>
+            <span class="tab-url">mdn.mozilla.org/en-US/docs/Web/CSS/animation-timeline</span>
+          </div>
+        </div>
+      </div>
     </div>
-    
-    <!-- Secondary CTA link -->
-    <a href="#features" class="secondary-link">
-      Explore features while you wait <span class="arrow">→</span>
-    </a>
+
+    <a href="https://stash.oxejoq.eu/s/#p=CG60BAIyU7hLTLJxTqSYvzOfaATkA0GXUdn7BN3VTH5TnaGzrojWw8wUWYphu8-gIuk1D3YiIjvBHbzDtjXvGeNIban7YBK1VX6CdWTdVjk6htPJO5-3_I8WNcHK7Vk2p8Bq4GehboS0SfeQmRzeEfIsAhTS3-aJuSLTK7Vo0ZpjwsLLr2hu48AVAKCR6z13YuHI_N4SZTy_bmpbP5xFp_RFhFphllYQMwDEcv2RNxT4bTsiZc4cYoqWLlPanpYqYCbJUcNko1iNW9m7G76f31de1PuPMdo0THmp1MLMwjUsyFhCoBymOiEdL59UF" class="demo-link" target="_blank" rel="noopener noreferrer">View a live example →</a>
   </div>
 </section>
 
 <style>
   .demo-section {
+    background-color: #0B0E15;
     padding: 5rem 1.5rem;
-    background-color: var(--background);
   }
 
   .demo-container {
-    max-width: 48rem;
+    max-width: 56rem;
     margin: 0 auto;
-    text-align: center;
   }
 
   .headline {
-    color: var(--foreground);
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: -0.025em;
-    margin: 0 0 0.75rem 0;
+    font-size: 1.875rem;
+    font-weight: 600;
+    color: #EBEEF6;
+    letter-spacing: -0.02em;
+    margin: 0 0 2.5rem;
+    text-align: center;
   }
 
-  .caption {
-    color: var(--muted-foreground);
-    font-size: 1.0625rem;
-    margin: 0 0 2.5rem 0;
+  /* Browser mockup */
+  .browser-mockup {
+    background-color: #11151E;
+    border: 1px solid #1E2438;
+    border-radius: 10px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    text-align: left;
   }
 
-  .video-placeholder {
-    aspect-ratio: 16 / 9;
-    background-color: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
+  .browser-chrome {
+    background-color: #161B28;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #1E2438;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .browser-dots {
+    display: flex;
+    gap: 0.375rem;
+    flex-shrink: 0;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .dot-red    { background-color: #ff5f57; }
+  .dot-yellow { background-color: #ffbd2e; }
+  .dot-green  { background-color: #28c840; }
+
+  .browser-url {
+    flex: 1;
+    background-color: #0B0E15;
+    border: 1px solid #1E2438;
+    border-radius: 6px;
+    padding: 0.25rem 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: #5B9DF8;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* Session body */
+  .session-body {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .session-meta {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #5B9DF8;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .session-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #EBEEF6;
+    margin: 0 0 1.25rem;
+  }
+
+  .tab-list {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    transition: box-shadow 0.3s ease;
   }
 
-  .video-placeholder:hover {
-    box-shadow: var(--shadow-lg);
-  }
-
-  .play-icon {
-    width: 4rem;
-    height: 4rem;
-    background-color: var(--muted);
-    border-radius: 50%;
+  .tab-row {
     display: flex;
     align-items: center;
-    justify-content: center;
-    opacity: 0.7;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #1E2438;
   }
 
-  .play-triangle {
-    width: 0;
-    height: 0;
-    border-left: 1.25rem solid var(--muted-foreground);
-    border-top: 0.75rem solid transparent;
-    border-bottom: 0.75rem solid transparent;
-    margin-left: 0.25rem;
+  .tab-row:last-child {
+    border-bottom: none;
   }
 
-  .placeholder-text {
-    color: var(--muted-foreground);
+  .tab-num {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: #8896AD;
+    min-width: 1rem;
+    flex-shrink: 0;
+  }
+
+  .tab-url {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: #8896AD;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* Link below mockup */
+  .demo-link {
+    display: block;
+    margin-top: 1.5rem;
+    color: #5B9DF8;
     font-size: 0.9375rem;
-    margin: 0;
-    font-weight: 500;
-  }
-
-  .secondary-link {
-    color: var(--primary);
     text-decoration: none;
-    font-size: 0.9375rem;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    transition: opacity 0.2s ease;
+    transition: text-decoration 0.15s ease;
+    text-align: center;
   }
 
-  .secondary-link:hover {
-    opacity: 0.85;
+  .demo-link:hover {
+    text-decoration: underline;
   }
 
-  .secondary-link:focus-visible {
-    outline: 2px solid var(--ring);
+  .demo-link:focus-visible {
+    outline: 2px solid #5B9DF8;
     outline-offset: 2px;
     border-radius: 2px;
   }
 
-  .arrow {
-    transition: transform 0.2s ease;
-  }
-
-  .secondary-link:hover .arrow {
-    transform: translateX(4px);
-  }
-
-  /* Responsive */
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     .demo-section {
-      padding: 6rem 2rem;
+      padding: 7rem 2rem;
     }
 
     .headline {
-      font-size: 2.5rem;
-    }
-
-    .caption {
-      font-size: 1.125rem;
+      font-size: 2rem;
       margin-bottom: 3rem;
-    }
-
-    .video-placeholder {
-      margin-bottom: 2.5rem;
-    }
-
-    .play-icon {
-      width: 5rem;
-      height: 5rem;
-    }
-
-    .play-triangle {
-      border-left-width: 1.5rem;
-      border-top-width: 0.875rem;
-      border-bottom-width: 0.875rem;
     }
   }
 </style>
