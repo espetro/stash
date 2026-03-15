@@ -31,12 +31,14 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@release-it/conventional-changelog": "^8.0.2",
     "@types/chrome": "^0.0.287",
     "@types/pako": "^2.0.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/webextension-polyfill": "^0.12.5",
     "@wxt-dev/module-react": "^1.2.1",
+    "release-it": "^19.2.4",
     "typescript": "^5.7.2",
     "wxt": "^0.19.15"
   }
