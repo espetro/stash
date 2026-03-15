@@ -66,16 +66,19 @@ stash/
 ### Setup
 
 1. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
 2. Build the extension:
+
 ```bash
 pnpm run build
 ```
 
 3. Build the viewer:
+
 ```bash
 pnpm run build
 ```
@@ -143,8 +146,8 @@ export const PAYLOAD_VERSION = 1;
 export const EXPIRY_HOURS = 24;
 export const BUDGET_CHARS = 8000;
 export const MAX_TITLE_CHARS = 30;
-export const VIEWER_ORIGIN = 'http://localhost:4321'; // Update before production
-export const VIEWER_PATH = '/s/';
+export const VIEWER_ORIGIN = "http://localhost:4321"; // Update before production
+export const VIEWER_PATH = "/s/";
 ```
 
 ### Viewer Config
@@ -153,11 +156,11 @@ Edit [`apps/viewer/astro.config.mjs`](apps/viewer/astro.config.mjs:1):
 
 ```javascript
 export default defineConfig({
-  site: 'http://localhost:4321', // Update before production
-  output: 'static',
+  site: "http://localhost:4321", // Update before production
+  output: "static",
   build: {
-    format: 'file'
-  }
+    format: "file",
+  },
 });
 ```
 
@@ -190,8 +193,4 @@ export default defineConfig({
 
 This fork is licensed under the GNU Affero General Public License v3.0 (AGPL‑3.0‑only).
 
-The original project, [dylanfeltus/otto-canvas](https://github.com/dylanfeltus/otto-canvas), is licensed under the MIT License. Portions of this fork are derived from that project and remain available under the terms of the MIT License as originally granted by its authors.
-
-New contributions specific to this fork are licensed under AGPL‑3.0‑only.
-
-See the [LICENSE](./LICENSE) file for the full license text, or refer to https://github.com/espetro/otto-canvas/blob/main/LICENSE.
+See the [LICENSE](./LICENSE) file for the full license text, or refer to [the LICENSE file](https://github.com/espetro/stash/blob/main/LICENSE).
