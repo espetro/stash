@@ -1,6 +1,0 @@
-{
-  "buildCommand": "pnpm run build --filter=stash-viewer",
-  "outputDirectory": "apps/viewer/dist",
-  "installCommand": "pnpm install",
-  "framework": null
-}
