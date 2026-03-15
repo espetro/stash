@@ -18,7 +18,8 @@
     "zip:firefox": "wxt zip -b firefox",
     "format": "oxfmt --write 'entrypoints/**/*.{ts,tsx}' 'lib/**/*.{ts,tsx}'",
     "lint": "oxlint 'entrypoints/**/*.{ts,tsx}' 'lib/**/*.{ts,tsx}' --ignore-pattern '**/*.d.ts'",
-    "tscheck": "tsc --noEmit"
+    "tscheck": "tsc --noEmit",
+    "release": "release-it"
   },
   "dependencies": {
     "@stash/codec": "workspace:*",
