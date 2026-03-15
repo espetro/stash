@@ -1,60 +1,64 @@
 ---
 // Main hero section for landing page
+import { FaChrome, FaFirefoxBrowser } from 'react-icons/fa6';
 ---
 
 <section class="hero" id="hero">
   <div class="hero-container">
-    <!-- Content -->
+    <!-- Left Column (60%) -->
     <div class="hero-content">
       <h1 class="hero-headline">
-        Your tabs are your thinking.<br />
-        <span class="headline-accent">Stop losing them.</span>
+        <span class="headline-line1">Your tabs are your thinking.</span><br />
+        <span class="headline-line2">Stop losing them.</span>
       </h1>
       
       <p class="hero-subheadline">
-        Stash lets you share your entire browser context as one link, or save it for later — locally, privately, and AI-ready. No account. No cloud. No noise.
+        Share your entire browser context as one link — or save it for later. Locally. Privately. No account. No cloud. No noise.
       </p>
       
-      <!-- CTA Buttons -->
+      <!-- CTA Row -->
       <div class="cta-group">
-        <a href="#" class="cta-button cta-chrome" aria-label="Add Stash to Chrome">
-          <svg class="cta-icon" viewBox="0 0 496 512" fill="currentColor" aria-hidden="true">
-            <path d="M131.5 217.5L55.1 100.1c47.6-59.2 119-91.8 192-92.1 42.3-.3 85.5 10.5 124.8 33.2 43.4 25.2 76.4 61.4 97.4 103L264 133.4c-58.1-3.4-113.4 29.3-132.5 84.1zm32.9 38.5c0 46.2 37.4 83.6 83.6 83.6s83.6-37.4 83.6-83.6-37.4-83.6-83.6-83.6-83.6 37.4-83.6 83.6zm314.9-89.2L339.6 174c37.9 44.3 38.5 108.2 6.6 157.2L234.8 464.9c-1.6 2.3-3.2 4.6-4.8 6.9 50.9 4.3 103.5-6.4 150.8-33.8 94.5-54.8 134.6-161.8 108.5-261.2zm-361.4 53L9.7 257.9c-14.8 57.9 1.4 121.4 49.2 166.1 45.9 43 112.4 55.3 170.2 33.1l-85.1-149.4c-9.2-16.1-14.9-33.9-16-52.3z"/>
-          </svg>
+        <a href="#" class="cta-button cta-primary" aria-label="Add Stash to Chrome">
+          <FaChrome class="cta-icon" aria-hidden="true" />
           Add to Chrome
         </a>
         
-        <a href="#" class="cta-button cta-firefox" aria-label="Add Stash to Firefox">
-          <svg class="cta-icon" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true">
-            <path d="M503.52 241.48c-.12-1.56-.24-3.12-.24-4.68v-.12l-.36-4.68v-.12a245.86 245.86 0 0 0 -7.32-41.15c0-.12 0-.12-.12-.24l-1.08-4c-.12-.24-.12-.48-.24-.6-.36-1.2-.72-2.52-1.08-3.72-.12-.24-.12-.6-.24-.84-.36-1.2-.72-2.4-1.2-3.48a.6.6 0 0 1 -.12-.24 206.64 206.64 0 0 0 -36.84-63.36 226.44 226.44 0 0 0 -30.24-29.52c-2.4-1.92-4.92-3.72-7.44-5.52s-5.04-3.48-7.68-5.16a234.24 234.24 0 0 0 -43.44-22.8c-.84-.36-1.68-.72-2.52-1.08-1.32-.48-2.64-1.08-4.08-1.56-1.08-.48-2.16-.84-3.24-1.32-1.32-.48-2.52-1.08-3.84-1.44-1.08-.48-2.16-.84-3.24-1.32-1.32-.48-2.52-1.08-3.84-1.44-1.2-.48-2.4-.84-3.6-1.2s-2.52-1.08-3.72-1.44c-1.2-.48-2.4-.72-3.6-1.2a206.64 206.64 0 0 0 -56.88-8.88c-1.2 0-2.28-.12-3.48-.12h-3.48c-1.56-.12-3.12-.12-4.68-.24h-.24l-4.68-.24h-.24a206.64 206.64 0 0 0 -70.44 13.2c-1.44.6-2.88 1.08-4.32 1.68s-2.88 1.2-4.2 1.8c-2.88 1.32-5.64 2.64-8.4 4.08-1.44.72-2.76 1.44-4.08 2.28-1.44.84-2.76 1.56-4.08 2.4-1.32.84-2.76 1.68-4.08 2.52-2.64 1.68-5.28 3.48-7.8 5.28-1.32.96-2.52 1.8-3.72 2.76-1.2.96-2.4 1.8-3.6 2.76-1.08.84-2.16 1.8-3.24 2.64-1.08.96-2.16 1.8-3.24 2.76-1.08.84-2.04 1.8-3.12 2.64-3.84 3.48-7.56 7.08-11.04 10.92-1.08 1.2-2.16 2.28-3.12 3.48-1.08 1.2-2.04 2.28-3 3.48-1.92 2.28-3.72 4.68-5.52 7.08-4.08 5.52-7.8 11.28-11.28 17.28-.72 1.2-1.44 2.52-2.04 3.72-1.32 2.4-2.64 4.92-3.84 7.44-.6 1.2-1.2 2.28-1.68 3.48-.12 .24-.24 .48-.24 .72-.48 1.08-.96 2.16-1.44 3.24-.12 .24-.24 .48-.24 .72l-1.44 3.48c-.12 .24-.24 .6-.36 .84-.36 .96-.84 1.92-1.2 2.88-.12 .24-.24 .6-.36 .84l-1.08 2.88c-.12 .36-.24 .6-.36 .96-.36 1.08-.72 2.16-1.08 3.24-.12 .24-.24 .6-.24 .84l-.84 2.76c-.12 .36-.24 .6-.36 .96-.24 .84-.48 1.68-.72 2.64-.12 .24-.12 .6-.24 .84-.24 1.08-.6 2.16-.84 3.24 0 .12-.12 .24-.12 .36-.24 1.08-.48 2.16-.72 3.24 0 .12-.12 .36-.12 .48-.12 .6-.24 1.2-.36 1.8-.12 .36-.12 .72-.24 1.08-.12 .72-.24 1.44-.36 2.16-.12 .24-.12 .6-.12 .84-.12 .84-.24 1.56-.36 2.4 0 .24-.12 .48-.12 .72-.12 .96-.24 1.92-.36 2.88v.12c-.12 .84-.24 1.68-.24 2.52-.12 1.08-.12 2.16-.24 3.24 0 .12 0 .36-.12 .48v.48c-.12 1.32-.12 2.64-.12 3.96v4.68c0 1.32 .12 2.64 .12 3.96v.12l.36 4.68v.12c.12 1.56 .24 3.12 .24 4.68v.12l.36 4.68v.12a245.86 245.86 0 0 0 7.32 41.15c0 .12 0 .12 .12 .24l1.08 4c.12 .24 .12 .48 .24 .6 .36 1.2 .72 2.52 1.08 3.72 .12 .24 .12 .6 .24 .84 .36 1.2 .72 2.4 1.2 3.48a.6 .6 0 0 1 .12 .24 206.64 206.64 0 0 0 36.84 63.36 226.44 226.44 0 0 0 30.24 29.52c2.4 1.92 4.92 3.72 7.44 5.52s5.04 3.48 7.68 5.16a234.24 234.24 0 0 0 43.44 22.8c.84 .36 1.68 .72 2.52 1.08 1.32 .48 2.64 1.08 4.08 1.56 1.08 .48 2.16 .84 3.24 1.32 1.32 .48 2.52 1.08 3.84 1.44 1.08 .48 2.16 .84 3.24 1.2 1.32 .48 2.52 1.08 3.84 1.44 1.2 .48 2.4 .84 3.6 1.2s2.52 1.08 3.72 1.44c1.2 .48 2.4 .72 3.6 1.2a206.64 206.64 0 0 0 56.88 8.88c1.2 0 2.28 .12 3.48 .12h3.48c1.56 .12 3.12 .12 4.68 .24h.24l4.68 .24h.24a206.64 206.64 0 0 0 70.44-13.2c1.44-.6 2.88-1.08 4.32-1.68s2.88-1.2 4.2-1.8c2.88-1.32 5.64-2.64 8.4-4.08 1.44-.72 2.76-1.44 4.08-2.28 1.44-.84 2.76-1.56 4.08-2.4 1.32-.84 2.76-1.68 4.08-2.52 2.64-1.68 5.28-3.48 7.8-5.28 1.32-.96 2.52-1.8 3.72-2.76 1.2-.96 2.4-1.8 3.6-2.76 1.08-.84 2.16-1.8 3.24-2.64 1.08-.96 2.16-1.8 3.24-2.76 1.08-.84 2.04-1.8 3.12-2.64 3.84-3.48 7.56-7.08 11.04-10.92 1.08-1.2 2.16-2.28 3.12-3.48 1.08-1.2 2.04-2.28 3-3.48 1.92-2.28 3.72-4.68 5.52-7.08 4.08-5.52 7.8-11.28 11.28-17.28 .72-1.2 1.44-2.52 2.04-3.72 1.32-2.4 2.64-4.92 3.84-7.44 .6-1.2 1.2-2.28 1.68-3.48 .12-.24 .24-.48 .24-.72 .48-1.08 .96-2.16 1.44-3.24 .12-.24 .24-.48 .24-.72l1.44-3.48c.12-.24 .24-.6 .36-.84 .36-.96 .84-1.92 1.2-2.88 .12-.24 .24-.6 .36-.84l1.08-2.88c.12-.36 .24-.6 .36-.96 .36-1.08 .72-2.16 1.08-3.24 .12-.24 .24-.6 .24-.84l.84-2.76c.12-.36 .24-.6 .36-.96 .24-.84 .48-1.68 .72-2.64 .12-.24 .12-.6 .24-.84 .24-1.08 .6-2.16 .84-3.24 0-.12 .12-.24 .12-.36 .24-1.08 .48-2.16 .72-3.24 0-.12 .12-.36 .12-.48 .12-.6 .24-1.2 .36-1.8 .12-.36 .12-.72 .24-1.08 .12-.72 .24-1.44 .36-2.16 .12-.24 .12-.6 .12-.84 .12-.84 .24-1.56 .36-2.4 0-.24 .12-.48 .12-.72 .12-.96 .24-1.92 .36-2.88v-.12c.12-.84 .24-1.68 .24-2.52 .12-1.08 .12-2.16 .24-3.24 0-.12 0-.36 .12-.48v-.48c.12-1.32 .12-2.64 .12-3.96v-4.68c0-1.32-.12-2.64-.12-3.96v-.12l-.36-4.68v-.12c-.12-1.56-.24-3.12-.24-4.68v-.12l-.36-4.68v-.12a245.86 245.86 0 0 0 -7.32-41.15c0-.12 0-.12-.12-.24l-1.08-4c-.12-.24-.12-.48-.24-.6-.36-1.2-.72-2.52-1.08-3.72-.12-.24-.12-.6-.24-.84-.36-1.2-.72-2.4-1.2-3.48a.6.6 0 0 1-.12-.24 206.64 206.64 0 0 0 -36.84-63.36 226.44 226.44 0 0 0 -30.24-29.52c-2.4-1.92-4.92-3.72-7.44-5.52s-5.04-3.48-7.68-5.16a234.24 234.24 0 0 0 -43.44-22.8c-.84-.36-1.68-.72-2.52-1.08-1.32-.48-2.64-1.08-4.08-1.56-1.08-.48-2.16-.84-3.24-1.32-1.32-.48-2.52-1.08-3.84-1.44-1.08-.48-2.16-.84-3.24-1.2-1.32-.48-2.52-1.08-3.84-1.44-1.2-.48-2.4-.84-3.6-1.2s-2.52-1.08-3.72-1.44c-1.2-.48-2.4-.72-3.6-1.2a206.64 206.64 0 0 0 -56.88-8.88c-1.2 0-2.28-.12-3.48-.12h-3.48c-1.56-.12-3.12-.12-4.68-.24h-.24l-4.68-.24h-.24a206.64 206.64 0 0 0 -70.44 13.2c-1.44.6-2.88 1.08-4.32 1.68s-2.88 1.2-4.2 1.8c-2.88 1.32-5.64 2.64-8.4 4.08-1.44.72-2.76 1.44-4.08 2.28-1.44.84-2.76 1.56-4.08 2.4-1.32.84-2.76 1.68-4.08 2.52-2.64 1.68-5.28 3.48-7.8 5.28-1.32.96-2.52 1.8-3.72 2.76-1.2.96-2.4 1.8-3.6 2.76-1.08.84-2.16 1.8-3.24 2.64-1.08.96-2.16 1.8-3.24 2.76-1.08.84-2.04 1.8-3.12 2.64-3.84 3.48-7.56 7.08-11.04 10.92-1.08 1.2-2.16 2.28-3.12 3.48-1.08 1.2-2.04 2.28-3 3.48-1.92 2.28-3.72 4.68-5.52 7.08-4.08 5.52-7.8 11.28-11.28 17.28-.72 1.2-1.44 2.52-2.04 3.72-1.32 2.4-2.64 4.92-3.84 7.44-.6 1.2-1.2 2.28-1.68 3.48-.12.24-.24.48-.24.72-.48 1.08-.96 2.16-1.44 3.24-.12.24-.24.48-.24.72l-1.44 3.48c-.12.24-.24.6-.36.84-.36.96-.84 1.92-1.2 2.88-.12.24-.24.6-.36.84l-1.08 2.88c-.12.36-.24.6-.36.96-.36 1.08-.72 2.16-1.08 3.24-.12.24-.24.6-.24.84l-.84 2.76c-.12.36-.24.6-.36.96-.24.84-.48 1.68-.72 2.64-.12.24-.12.6-.24.84-.24 1.08-.6 2.16-.84 3.24 0 .12-.12.24-.12.36-.24 1.08-.48 2.16-.72 3.24 0 .12-.12.36-.12.48-.12.6-.24 1.2-.36 1.8-.12.36-.12.72-.24 1.08-.12.72-.24 1.44-.36 2.16-.12.24-.12.6-.12.84-.12.84-.24 1.56-.36 2.4 0 .24-.12.48-.12.72-.12.96-.24 1.92-.36 2.88v.12c-.12.84-.24 1.68-.24 2.52-.12 1.08-.12 2.16-.24 3.24 0 .12 0 .36-.12.48v.48c-.12 1.32-.12 2.64-.12 3.96z"/>
-          </svg>
+        <a href="#" class="cta-button cta-secondary" aria-label="Add Stash to Firefox">
+          <FaFirefoxBrowser class="cta-icon" aria-hidden="true" />
           Add to Firefox
         </a>
       </div>
+      
+      <p class="cta-tagline">
+        Free · No account required · Works offline
+      </p>
     </div>
     
-    <!-- Browser Mockup Placeholder -->
-    <div class="mockup-container">
-      <div class="browser-mockup">
-        <div class="mockup-header">
-          <div class="mockup-dots">
-            <span class="dot dot-red"></span>
-            <span class="dot dot-yellow"></span>
-            <span class="dot dot-green"></span>
+    <!-- Right Column (40%) - Popup Mockup -->
+    <div class="popup-wrapper">
+      <div class="popup-card">
+        <div class="popup-header">
+          <div class="popup-brand">
+            <img src="/icon-48.png" width="16" height="16" alt="" aria-hidden="true" />
+            <span class="popup-title">Stash</span>
           </div>
-          <div class="mockup-address-bar"></div>
+          <span class="popup-close" aria-hidden="true">×</span>
         </div>
-        <div class="mockup-content">
-          <div class="mockup-placeholder">
-            <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <rect x="3" y="3" width="18" height="18" rx="2"/>
-              <path d="M3 9h18"/>
-              <circle cx="6" cy="6" r="0.5" fill="currentColor"/>
-              <circle cx="8" cy="6" r="0.5" fill="currentColor"/>
-              <circle cx="10" cy="6" r="0.5" fill="currentColor"/>
-            </svg>
-            <span class="placeholder-text">Your tabs, organized</span>
-          </div>
+        
+        <div class="popup-divider"></div>
+        
+        <div class="popup-tabs">
+          <div class="popup-tab">github.com/espetro/st..</div>
+          <div class="popup-tab">docs.astro.build</div>
+          <div class="popup-tab">tailwindcss.com/docs</div>
+          <div class="popup-tab">mdn.mozilla.org/en-US</div>
+        </div>
+        
+        <div class="popup-divider"></div>
+        
+        <div class="popup-actions">
+          <button class="popup-button">Stash tabs →</button>
+          <a href="#" class="popup-secondary-link">Save session</a>
         </div>
       </div>
     </div>
@@ -64,7 +68,7 @@
 <style>
   .hero {
     min-height: 85vh;
-    padding-top: 5rem; /* pt-20 equivalent for navbar offset */
+    padding-top: 5rem;
     padding-bottom: 4rem;
     display: flex;
     align-items: center;
@@ -73,88 +77,71 @@
     overflow: hidden;
   }
 
-  /* Subtle gradient overlay for depth */
-  .hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(ellipse at top, var(--accent) 0%, transparent 50%);
-    opacity: 0.15;
-    pointer-events: none;
-  }
-
   .hero-container {
-    max-width: 1200px;
+    max-width: 72rem;
     margin: 0 auto;
     padding: 0 1.5rem;
     width: 100%;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 3rem;
     position: relative;
     z-index: 1;
   }
 
+  /* Left Column */
   .hero-content {
-    text-align: center;
-    max-width: 800px;
-    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
   }
 
   .hero-headline {
-    font-size: 2.5rem;
-    font-weight: 800;
+    font-family: var(--font-sans);
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
     line-height: 1.1;
     letter-spacing: -0.03em;
-    color: var(--foreground);
-    margin: 0 0 1.5rem 0;
+    margin: 0;
   }
 
-  .headline-accent {
-    color: var(--primary);
+  .headline-line1 {
+    color: var(--foreground);
+  }
+
+  .headline-line2 {
+    color: #3981F6;
   }
 
   .hero-subheadline {
+    font-family: var(--font-sans);
     font-size: 1.125rem;
     line-height: 1.6;
     color: var(--muted-foreground);
-    margin: 0 0 2.5rem 0;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0;
+    max-width: 28rem;
   }
 
-  /* CTA Buttons */
+  /* CTA Row */
   .cta-group {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
     align-items: center;
-    justify-content: center;
   }
 
   .cta-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.625rem;
-    padding: 0.875rem 1.75rem;
-    border-radius: var(--radius-lg);
-    font-size: 1rem;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 6px;
+    font-size: 0.9375rem;
     font-weight: 600;
     text-decoration: none;
-    color: #ffffff;
-    transition: all 0.25s ease;
-    box-shadow: var(--shadow-md);
-    min-width: 200px;
-  }
-
-  .cta-button:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    font-family: var(--font-sans);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
   }
 
   .cta-button:focus-visible {
@@ -162,152 +149,148 @@
     outline-offset: 2px;
   }
 
-  .cta-chrome {
-    background-color: #4285F4;
+  .cta-primary {
+    background-color: #3981F6;
+    color: #ffffff;
   }
 
-  .cta-chrome:hover {
-    background-color: #4285F4;
-    filter: brightness(1.15);
+  .cta-primary:hover {
+    background-color: #2563EB;
   }
 
-  .cta-firefox {
-    background-color: #FF7139;
+  .cta-secondary {
+    background-color: #ffffff;
+    color: var(--foreground);
+    border: 1px solid var(--border);
   }
 
-  .cta-firefox:hover {
-    background-color: #FF7139;
-    filter: brightness(1.15);
+  .cta-secondary:hover {
+    border-color: #C0C8D8;
   }
 
   .cta-icon {
-    width: 1.25rem;
-    height: 1.25rem;
+    width: 1.125rem;
+    height: 1.125rem;
     flex-shrink: 0;
   }
 
-  /* Browser Mockup */
-  .mockup-container {
-    display: flex;
-    justify-content: center;
-    padding: 0 1rem;
-  }
-
-  .browser-mockup {
+  .cta-tagline {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    margin: 0;
     width: 100%;
-    max-width: 700px;
-    aspect-ratio: 16 / 9;
-    background-color: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-xl);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
   }
 
-  .mockup-header {
+  /* Right Column - Popup */
+  .popup-wrapper {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    background-color: var(--muted);
-    border-bottom: 1px solid var(--border);
+    justify-content: center;
   }
 
-  .mockup-dots {
+  .popup-card {
+    background-color: #11151E;
+    border: 1px solid #1E2438;
+    border-radius: 10px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .popup-header {
+    padding: 0.875rem 1rem;
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .popup-brand {
+    display: flex;
+    align-items: center;
     gap: 0.5rem;
   }
 
-  .dot {
-    width: 0.75rem;
-    height: 0.75rem;
-    border-radius: 50%;
+  .popup-title {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #ffffff;
   }
 
-  .dot-red {
-    background-color: #ff5f57;
+  .popup-close {
+    color: #8896AD;
+    font-size: 1.25rem;
+    line-height: 1;
   }
 
-  .dot-yellow {
-    background-color: #ffbd2e;
+  .popup-divider {
+    border-bottom: 1px solid #1E2438;
   }
 
-  .dot-green {
-    background-color: #28c840;
+  .popup-tabs {
+    padding: 0.5rem 0;
   }
 
-  .mockup-address-bar {
-    flex: 1;
-    height: 1.5rem;
-    background-color: var(--background);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
+  .popup-tab {
+    padding: 0.5rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: #8896AD;
+    border-bottom: 1px solid #1E2438;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
-  .mockup-content {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
+  .popup-tab:last-child {
+    border-bottom: none;
   }
 
-  .mockup-placeholder {
+  .popup-actions {
+    padding: 0.875rem 1rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    color: var(--muted-foreground);
-    opacity: 0.6;
+    gap: 0.625rem;
   }
 
-  .placeholder-icon {
-    width: 4rem;
-    height: 4rem;
-  }
-
-  .placeholder-text {
+  .popup-button {
+    background-color: #3981F6;
+    color: #ffffff;
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 6px;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
+    text-align: center;
+    font-family: var(--font-sans);
+    border: none;
+    cursor: default;
   }
 
-  /* Desktop styles */
-  @media (min-width: 640px) {
-    .cta-group {
-      flex-direction: row;
-    }
+  .popup-secondary-link {
+    color: #5B9DF8;
+    font-size: 0.8125rem;
+    text-align: center;
+    text-decoration: none;
+    font-family: var(--font-sans);
   }
 
-  @media (min-width: 768px) {
-    .hero-headline {
-      font-size: 3.5rem;
-    }
-
-    .hero-subheadline {
-      font-size: 1.25rem;
-    }
-
-    .cta-button {
-      padding: 1rem 2rem;
-      font-size: 1.0625rem;
-    }
+  .popup-secondary-link:hover {
+    text-decoration: underline;
   }
 
+  /* Desktop: 60/40 split */
   @media (min-width: 1024px) {
-    .hero-headline {
-      font-size: 4rem;
-    }
-
     .hero-container {
+      grid-template-columns: 60% 40%;
+      align-items: center;
       gap: 4rem;
     }
-  }
 
-  @media (min-width: 1280px) {
-    .hero-headline {
-      font-size: 4.5rem;
+    .hero-content {
+      gap: 1.75rem;
     }
   }
 
@@ -328,11 +311,12 @@
 
     .cta-button {
       width: 100%;
-      max-width: 280px;
+      max-width: 200px;
+      justify-content: center;
     }
 
-    .mockup-container {
-      padding: 0;
+    .popup-wrapper {
+      margin-top: 2rem;
     }
   }
 </style>

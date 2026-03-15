@@ -1,0 +1,160 @@
+---
+// Privacy Statement — two-column trust section
+---
+
+<section class="privacy-section">
+  <div class="privacy-container">
+    <!-- Left column -->
+    <div class="privacy-left">
+      <h2 class="headline">Built for trust.</h2>
+      <p class="privacy-tagline">Zero telemetry, zero cloud, zero compromise.</p>
+    </div>
+
+    <!-- Right column -->
+    <div class="privacy-right">
+      <ul class="trust-list" role="list">
+        <li class="trust-item">
+          <svg class="check-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="8" stroke="#3981F6" stroke-width="1.5"/>
+            <path d="M5.5 9L7.5 11L12.5 6.5" stroke="#3981F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>No account required. Never.</span>
+        </li>
+        <li class="trust-item">
+          <svg class="check-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="8" stroke="#3981F6" stroke-width="1.5"/>
+            <path d="M5.5 9L7.5 11L12.5 6.5" stroke="#3981F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>All sessions stored in your browser's local storage.</span>
+        </li>
+        <li class="trust-item">
+          <svg class="check-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="8" stroke="#3981F6" stroke-width="1.5"/>
+            <path d="M5.5 9L7.5 11L12.5 6.5" stroke="#3981F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Sharing is opt-in. Nothing leaves without your action.</span>
+        </li>
+        <li class="trust-item">
+          <svg class="check-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="8" stroke="#3981F6" stroke-width="1.5"/>
+            <path d="M5.5 9L7.5 11L12.5 6.5" stroke="#3981F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Open source. Audit it yourself.</span>
+        </li>
+      </ul>
+
+      <a
+        href="https://github.com/espetro/stash"
+        class="github-link"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        github.com/espetro/stash →
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .privacy-section {
+    background-color: var(--background);
+    padding: 5rem 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .privacy-container {
+    max-width: 72rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  /* Left column */
+  .privacy-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .headline {
+    font-size: 1.875rem;
+    font-weight: 600;
+    color: var(--foreground);
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  .privacy-tagline {
+    font-size: 1rem;
+    color: var(--muted-foreground);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* Right column */
+  .trust-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .trust-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--foreground);
+    line-height: 1.6;
+  }
+
+  .check-icon {
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  .github-link {
+    display: inline-block;
+    margin-top: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--primary);
+    text-decoration: none;
+    transition: text-decoration 0.15s ease;
+  }
+
+  .github-link:hover {
+    text-decoration: underline;
+  }
+
+  .github-link:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  @media (min-width: 768px) {
+    .privacy-container {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 4rem;
+    }
+
+    .privacy-left {
+      flex: 0 0 38%;
+    }
+
+    .privacy-right {
+      flex: 1;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .privacy-section {
+      padding: 7rem 2rem;
+    }
+  }
+</style>
