@@ -52,7 +52,12 @@ export default defineBackground(() => {
       const settings = await getSettings();
       const expiryHours = EXPIRY_HOURS_MAP[settings.expiryMode];
 
-      const result = await encodeTabsToShareUrl(tabInfos, brotli, expiryHours, settings.viewerOrigin);
+      const result = await encodeTabsToShareUrl(
+        tabInfos,
+        brotli,
+        expiryHours,
+        settings.viewerOrigin,
+      );
 
       // Copy to clipboard
       await navigator.clipboard.writeText(result.url);

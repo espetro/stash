@@ -154,33 +154,33 @@ export default function App() {
               <label htmlFor="viewer-origin-input" className="form-label">
                 Viewer URL
               </label>
-                <div className="viewer-origin-row">
-                  <input
-                    id="viewer-origin-input"
-                    type="url"
-                    className={`settings-input${viewerOriginError ? " settings-input--error" : ""}`}
-                    value={viewerOrigin}
-                    onChange={handleViewerOriginChange}
-                    placeholder="https://viewer.example.com"
-                    aria-label="Viewer server URL"
-                    aria-describedby={viewerOriginError ? "viewer-origin-error" : undefined}
-                    aria-invalid={viewerOriginError ? "true" : undefined}
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={handleViewerOriginSave}
-                    disabled={viewerOrigin.trim() === "" || viewerOriginError !== null}
-                  >
-                    Save
-                  </button>
-                </div>
-                {viewerOriginError && (
-                  <p id="viewer-origin-error" className="settings-error" role="alert">
-                    {viewerOriginError}
-                  </p>
-                )}
+              <div className="viewer-origin-row">
+                <input
+                  id="viewer-origin-input"
+                  type="url"
+                  className={`settings-input${viewerOriginError ? " settings-input--error" : ""}`}
+                  value={viewerOrigin}
+                  onChange={handleViewerOriginChange}
+                  placeholder="https://viewer.example.com"
+                  aria-label="Viewer server URL"
+                  aria-describedby={viewerOriginError ? "viewer-origin-error" : undefined}
+                  aria-invalid={viewerOriginError ? "true" : undefined}
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleViewerOriginSave}
+                  disabled={viewerOrigin.trim() === "" || viewerOriginError !== null}
+                >
+                  Save
+                </button>
               </div>
+              {viewerOriginError && (
+                <p id="viewer-origin-error" className="settings-error" role="alert">
+                  {viewerOriginError}
+                </p>
+              )}
+            </div>
           </section>
         </>
       )}

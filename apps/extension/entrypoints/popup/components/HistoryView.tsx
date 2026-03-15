@@ -47,22 +47,13 @@ export function HistoryView({ onBack }: HistoryViewProps) {
     <div className="history-view">
       <div className="history-header">
         <div className="history-header-left">
-          <button
-            className="history-back-btn"
-            onClick={onBack}
-            aria-label="Go back"
-            type="button"
-          >
+          <button className="history-back-btn" onClick={onBack} aria-label="Go back" type="button">
             ←
           </button>
           <span className="history-title">History</span>
         </div>
         {entries.length > 0 && (
-          <button
-            className="history-clear-btn"
-            onClick={handleClear}
-            type="button"
-          >
+          <button className="history-clear-btn" onClick={handleClear} type="button">
             CLEAR
           </button>
         )}
@@ -92,11 +83,7 @@ export function HistoryView({ onBack }: HistoryViewProps) {
       ) : (
         <div className="history-list">
           {filteredEntries.map((entry) => (
-            <HistoryItem
-              key={entry.id}
-              entry={entry}
-              onClick={() => handleEntryClick(entry.url)}
-            />
+            <HistoryItem key={entry.id} entry={entry} onClick={() => handleEntryClick(entry.url)} />
           ))}
         </div>
       )}

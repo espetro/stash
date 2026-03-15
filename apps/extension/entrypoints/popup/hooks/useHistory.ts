@@ -22,7 +22,7 @@ export function useHistory() {
   const add = useCallback(async (entry: HistoryEntry) => {
     try {
       await addToHistory(entry);
-      setEntries(prev => [...prev, entry]);
+      setEntries((prev) => [...prev, entry]);
     } catch (err) {
       setError("Failed to add to history");
     }

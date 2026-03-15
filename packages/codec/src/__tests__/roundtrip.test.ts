@@ -9,7 +9,7 @@ import {
   buildShareUrl,
 } from "../index.js";
 import type { TabInfo } from "../index.js";
-import type { BrotliFunctions } from "./types.js";
+import type { BrotliFunctions } from "../types.js";
 import brotliWasm from "brotli-wasm";
 
 // Test data

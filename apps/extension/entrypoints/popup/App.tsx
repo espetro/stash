@@ -20,7 +20,7 @@ export default function App() {
   const [isCopied, setIsCopied] = useState(false);
   const [linkItemCount, setLinkItemCount] = useState(0);
   const [linkTruncated, setLinkTruncated] = useState(false);
-  const [view, setView] = useState<'main' | 'history'>('main');
+  const [view, setView] = useState<"main" | "history">("main");
 
   useEffect(() => {
     getSettings()
@@ -40,7 +40,12 @@ export default function App() {
       const tabInfos: TabInfo[] = selectedTabs.map((t) => ({ url: t.url, title: t.title }));
       const brotli = await getBrotliFunctions();
       const expiryHours = EXPIRY_HOURS_MAP[settings.expiryMode];
-      const result = await encodeTabsToShareUrl(tabInfos, brotli, expiryHours, settings.viewerOrigin);
+      const result = await encodeTabsToShareUrl(
+        tabInfos,
+        brotli,
+        expiryHours,
+        settings.viewerOrigin,
+      );
 
       await navigator.clipboard.writeText(result.url);
 
@@ -101,7 +106,7 @@ export default function App() {
         <div className="header-buttons">
           <button
             className="theme-toggle"
-            onClick={() => setView('history')}
+            onClick={() => setView("history")}
             aria-label="View history"
             title="History"
           >
@@ -120,8 +125,8 @@ export default function App() {
 
       {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}
 
-      {view === 'history' ? (
-        <HistoryView onBack={() => setView('main')} />
+      {view === "history" ? (
+        <HistoryView onBack={() => setView("main")} />
       ) : (
         <>
           {shareUrl ? (
@@ -142,7 +147,11 @@ export default function App() {
             </>
           ) : (
             <>
-              <SelectAllToggle tabs={tabs} onSelectAll={handleSelectAll} onDeselectAll={deselectAll} />
+              <SelectAllToggle
+                tabs={tabs}
+                onSelectAll={handleSelectAll}
+                onDeselectAll={deselectAll}
+              />
               <TabList tabs={tabs} onToggle={toggleTab} />
               <div className="popup-actions">
                 <button
