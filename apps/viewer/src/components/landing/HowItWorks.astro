@@ -1,0 +1,140 @@
+---
+// How It Works — 3-step horizontal flow
+---
+
+<section class="how-section" id="how-it-works">
+  <div class="how-container">
+    <header class="how-header">
+      <h2 class="headline">Three steps.</h2>
+    </header>
+
+    <div class="steps-row">
+      <!-- Step 1 -->
+      <div class="step">
+        <span class="step-number">01</span>
+        <div class="step-connector" aria-hidden="true"></div>
+        <h3 class="step-title">Open Stash</h3>
+        <p class="step-description">Click the extension icon while browsing. Your current tabs appear instantly.</p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step">
+        <span class="step-number">02</span>
+        <div class="step-connector" aria-hidden="true"></div>
+        <h3 class="step-title">Save or share</h3>
+        <p class="step-description">Hit "Save session" to store locally, or "Copy link" to share your exact context.</p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step step-last">
+        <span class="step-number">03</span>
+        <h3 class="step-title">Restore anytime</h3>
+        <p class="step-description">Open any saved session with one click. Tabs reopen exactly as you left them.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .how-section {
+    background-color: var(--background);
+    padding: 5rem 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .how-container {
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  .how-header {
+    margin-bottom: 3rem;
+  }
+
+  .headline {
+    font-size: 1.875rem;
+    font-weight: 600;
+    color: var(--foreground);
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  .steps-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    position: relative;
+  }
+
+  .step-number {
+    font-family: var(--font-mono);
+    font-size: 3rem;
+    font-weight: 600;
+    color: #3981F6;
+    line-height: 1;
+    display: block;
+  }
+
+  .step-connector {
+    display: none;
+  }
+
+  .step-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--foreground);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .step-description {
+    font-size: 0.9375rem;
+    color: var(--muted-foreground);
+    line-height: 1.6;
+    margin: 0;
+    max-width: 22rem;
+  }
+
+  @media (min-width: 1024px) {
+    .how-section {
+      padding: 7rem 2rem;
+    }
+
+    .steps-row {
+      flex-direction: row;
+      gap: 0;
+      align-items: flex-start;
+    }
+
+    .step {
+      flex: 1;
+      padding-right: 3rem;
+      position: relative;
+    }
+
+    .step-last {
+      padding-right: 0;
+    }
+
+    /* Connecting line between step numbers */
+    .step-connector {
+      display: block;
+      position: absolute;
+      top: 1.5rem; /* vertically center with step number */
+      right: 0;
+      width: 3rem;
+      height: 1px;
+      background-color: var(--border);
+    }
+
+    .step-description {
+      max-width: none;
+    }
+  }
+</style>

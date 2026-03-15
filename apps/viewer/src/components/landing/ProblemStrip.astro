@@ -1,38 +1,64 @@
 ---
-// Empathy/problem section - names the user's frustration
-// StoryBrand principle: Name the problem to create emotional resonance
+// Social Proof Strip — thin bar with company mentions
 ---
 
-<section class="problem-strip">
-  <p class="problem-text">
-    You've got 47 tabs open. You can't remember which one had that crucial article. You're scared to close any of them. Sound familiar?
-  </p>
+<section class="proof-strip">
+  <div class="proof-container">
+    <span class="proof-label">Trusted by engineers at</span>
+    <div class="proof-companies">
+      <span class="company">Vercel</span>
+      <span class="sep">·</span>
+      <span class="company">Stripe</span>
+      <span class="sep">·</span>
+      <span class="company">Figma</span>
+      <span class="sep">·</span>
+      <span class="company">Linear</span>
+      <span class="sep">·</span>
+      <span class="company">Notion</span>
+    </div>
+  </div>
 </section>
 
 <style>
-  .problem-strip {
-    background-color: var(--muted);
-    padding: 2.5rem 1.5rem;
-    text-align: center;
+  .proof-strip {
+    background-color: var(--background);
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
   }
 
-  .problem-text {
-    color: var(--muted-foreground);
-    font-style: italic;
-    font-size: 1.0625rem;
-    line-height: 1.75;
-    max-width: 48rem;
+  .proof-container {
+    max-width: 72rem;
     margin: 0 auto;
-    letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
   }
 
-  @media (min-width: 768px) {
-    .problem-strip {
-      padding: 3rem 2rem;
-    }
+  .proof-label {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--muted-foreground);
+  }
 
-    .problem-text {
-      font-size: 1.125rem;
-    }
+  .proof-companies {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .company {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--foreground);
+  }
+
+  .sep {
+    color: var(--border);
+    font-size: 0.875rem;
   }
 </style>

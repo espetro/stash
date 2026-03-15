@@ -1,157 +1,193 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/landing/Navbar.astro';
+import Footer from '../components/landing/Footer.astro';
 ---
 
 <Layout title="Terms of Service — Stash">
-  <div id="app">
-    <div class="card">
-      <div class="header">
-        <div class="doc-icon">📋</div>
-        <h1>Terms of Service</h1>
-        <p class="subtitle">Stash User Agreement</p>
-      </div>
+  <Navbar />
+  <main class="page-main">
+    <div class="page-container">
 
-      <div class="content">
-        <p class="intro">
-          <strong>Last updated: March 2025</strong>
+      <!-- Page header -->
+      <header class="page-header">
+        <span class="page-label">TERMS OF SERVICE</span>
+        <h1 class="page-title">User Agreement</h1>
+        <p class="page-subtitle">
+          By using Stash, you agree to the following terms.
         </p>
+      </header>
+
+      <!-- Sections -->
+      <div class="terms-body">
 
         <section class="term-section">
-          <h2>1. Acceptance of Terms</h2>
-          <p>By accessing and using Stash, you accept and agree to be bound by the terms and provision of this agreement.</p>
+          <h2 class="term-heading">1. Acceptance of Terms</h2>
+          <p class="term-body">By accessing and using Stash, you accept and agree to be bound by the terms and provision of this agreement.</p>
         </section>
 
         <section class="term-section">
-          <h2>2. Use License</h2>
-          <p>Stash is provided for personal, non-commercial use. The extension is provided "as is" without warranties of any kind.</p>
+          <h2 class="term-heading">2. Use License</h2>
+          <p class="term-body">Stash is provided for personal, non-commercial use. The extension is provided "as is" without warranties of any kind.</p>
         </section>
 
         <section class="term-section">
-          <h2>3. Privacy</h2>
-          <p>Your tabs and browsing data never leave your machine. We do not collect, store, or transmit any personal information.</p>
+          <h2 class="term-heading">3. Privacy</h2>
+          <p class="term-body">Your tabs and browsing data never leave your machine. We do not collect, store, or transmit any personal information. See our <a href="/privacy" class="inline-link">Privacy Policy</a> for full details.</p>
         </section>
 
         <section class="term-section">
-          <h2>5. Open Source License</h2>
-          <p>Stash is open source software released under the <a href="https://www.gnu.org/licenses/agpl-3.0" target="_blank" rel="noopener noreferrer">GNU Affero General Public License v3.0 (AGPL-3.0)</a>. You are free to use, modify, and distribute this software in accordance with the license terms.</p>
+          <h2 class="term-heading">4. Open Source License</h2>
+          <p class="term-body">Stash is open source software released under the <a href="https://www.gnu.org/licenses/agpl-3.0" target="_blank" rel="noopener noreferrer" class="inline-link">GNU Affero General Public License v3.0 (AGPL-3.0)</a>. You are free to use, modify, and distribute this software in accordance with the license terms.</p>
         </section>
+
       </div>
 
-      <div class="footer">
-        <a href="/" class="back-link">← Back to Home</a>
-        <p class="last-updated">Last updated: March 2025</p>
+      <!-- Footer row -->
+      <div class="page-foot">
+        <a href="/" class="back-link">← Back to home</a>
+        <span class="updated">Last updated: March 2025</span>
       </div>
+
     </div>
-  </div>
+  </main>
+  <Footer />
 </Layout>
 
 <style>
-  #app {
+  .page-main {
+    background-color: var(--background);
     min-height: 100vh;
-    background: var(--background);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+    padding-top: 5rem;
   }
 
-  .card {
-    background: var(--background);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-lg);
-    max-width: 600px;
-    width: 100%;
-    padding: 32px;
+  .page-container {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 5rem;
   }
 
-  .header {
-    text-align: center;
-    margin-bottom: 28px;
-    padding-bottom: 24px;
+  /* Header */
+  .page-header {
+    margin-bottom: 3rem;
+    padding-bottom: 2.5rem;
     border-bottom: 1px solid var(--border);
   }
 
-  .doc-icon {
-    font-size: 2.5rem;
-    margin-bottom: 12px;
+  .page-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted-foreground);
+    margin-bottom: 1rem;
   }
 
-  .header h1 {
-    font-size: 1.75rem;
+  .page-title {
+    font-size: 2rem;
     font-weight: 700;
-    margin: 0 0 8px 0;
+    letter-spacing: -0.03em;
     color: var(--foreground);
+    margin: 0 0 0.875rem;
+    line-height: 1.1;
   }
 
-  .subtitle {
-    font-size: 0.875rem;
+  .page-subtitle {
+    font-size: 1rem;
+    line-height: 1.6;
     color: var(--muted-foreground);
     margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
   }
 
-  .content {
-    margin-bottom: 28px;
-  }
-
-  .intro {
-    font-size: 0.875rem;
-    color: var(--muted-foreground);
-    margin: 0 0 24px 0;
+  /* Terms sections */
+  .terms-body {
+    margin-bottom: 3rem;
   }
 
   .term-section {
-    margin-bottom: 20px;
-    padding-bottom: 20px;
+    padding: 1.5rem 0;
     border-bottom: 1px solid var(--border);
+  }
+
+  .term-section:first-child {
+    padding-top: 0;
   }
 
   .term-section:last-child {
     border-bottom: none;
-    margin-bottom: 0;
     padding-bottom: 0;
   }
 
-  .term-section h2 {
+  .term-heading {
     font-size: 1rem;
     font-weight: 600;
     color: var(--foreground);
-    margin: 0 0 8px 0;
+    margin: 0 0 0.625rem;
+    letter-spacing: -0.01em;
   }
 
-  .term-section p {
+  .term-body {
     font-size: 0.9375rem;
-    color: var(--foreground);
-    line-height: 1.6;
+    color: var(--muted-foreground);
+    line-height: 1.7;
     margin: 0;
   }
 
-  .footer {
-    text-align: center;
-    padding-top: 24px;
+  .inline-link {
+    color: var(--primary);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s ease;
+  }
+
+  .inline-link:hover {
+    border-bottom-color: var(--primary);
+  }
+
+  /* Footer row */
+  .page-foot {
+    padding-top: 2rem;
     border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
   }
 
   .back-link {
-    display: inline-block;
-    color: var(--primary);
-    text-decoration: none;
     font-size: 0.9375rem;
     font-weight: 500;
-    padding: 8px 16px;
-    border-radius: var(--radius-md);
-    transition: all 0.2s ease;
+    color: var(--primary);
+    text-decoration: none;
+    transition: opacity 0.15s ease;
   }
 
   .back-link:hover {
-    background: var(--muted);
-    color: var(--primary);
+    opacity: 0.8;
   }
 
-  .last-updated {
+  .back-link:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .updated {
+    font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--muted-foreground);
-    margin: 16px 0 0 0;
+  }
+
+  @media (min-width: 768px) {
+    .page-container {
+      padding-top: 5rem;
+      padding-bottom: 6rem;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+    }
   }
 </style>
