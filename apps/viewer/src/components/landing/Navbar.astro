@@ -3,68 +3,85 @@
 ---
 
 <nav class="navbar" id="navbar">
+  <!-- Sentinel for scroll detection -->
+  <div id="nav-sentinel" class="sentinel"></div>
+  
   <div class="navbar-container">
     <!-- Logo -->
     <a href="/" class="logo">
-      Stash
+      <img src="/icon-48.png" width="24" height="24" alt="" aria-hidden="true" class="logo-icon" />
+      <span class="logo-text">Stash</span>
     </a>
 
-    <!-- Nav Links (hidden on mobile) -->
+    <!-- Nav Links -->
     <div class="nav-links">
       <a href="#features" class="nav-link">Features</a>
-      <a href="#roadmap" class="nav-link">Roadmap</a>
+      <a href="#how-it-works" class="nav-link">How it works</a>
       <a href="#demo" class="nav-link">Demo</a>
     </div>
 
-    <!-- CTA Button (appears after scrolling past hero) -->
-    <a href="#" class="cta-button" id="nav-cta">
-      Add to Browser
+    <!-- CTA Button - always visible -->
+    <a href="#" class="cta-button">
+      Add to Chrome
     </a>
   </div>
 </nav>
 
 <script>
-  // IntersectionObserver to show CTA after hero section
-  const heroSection = document.getElementById('hero');
-  const ctaButton = document.getElementById('nav-cta');
+  // IntersectionObserver to detect scroll past sentinel
+  const sentinel = document.getElementById('nav-sentinel');
+  const navbar = document.getElementById('navbar');
 
-  if (heroSection && ctaButton) {
+  if (sentinel && navbar) {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) {
-            ctaButton.classList.add('visible');
+            navbar.classList.add('scrolled');
           } else {
-            ctaButton.classList.remove('visible');
+            navbar.classList.remove('scrolled');
           }
         });
       },
       {
         threshold: 0,
-        rootMargin: '-80px 0px 0px 0px',
+        rootMargin: '0px 0px 0px 0px',
       }
     );
 
-    observer.observe(heroSection);
+    observer.observe(sentinel);
   }
 </script>
 
 <style>
+  .sentinel {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+
   .navbar {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 100;
-    background-color: color-mix(in srgb, var(--background) 85%, transparent);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background-color: transparent;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    border-bottom: 1px solid transparent;
+  }
+
+  .navbar.scrolled {
+    background-color: var(--card);
     border-bottom: 1px solid var(--border);
-    transition: background-color 0.3s ease;
+    box-shadow: var(--shadow-sm);
   }
 
   .navbar-container {
-    max-width: 1200px;
+    max-width: 72rem;
     margin: 0 auto;
     padding: 0.875rem 1.5rem;
     display: flex;
@@ -73,16 +90,27 @@
   }
 
   .logo {
-    font-size: 1.375rem;
-    font-weight: 700;
-    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     text-decoration: none;
-    letter-spacing: -0.02em;
     transition: opacity 0.2s ease;
   }
 
   .logo:hover {
     opacity: 0.85;
+  }
+
+  .logo-icon {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--foreground);
+    letter-spacing: -0.02em;
   }
 
   .nav-links {
@@ -92,56 +120,50 @@
   }
 
   .nav-link {
-    color: var(--muted-foreground);
+    color: var(--foreground);
     text-decoration: none;
     font-size: 0.9375rem;
     font-weight: 500;
-    transition: color 0.2s ease;
+    font-family: var(--font-sans);
     position: relative;
+    padding-bottom: 2px;
   }
 
   .nav-link::after {
     content: '';
     position: absolute;
-    bottom: -4px;
+    bottom: 0;
     left: 0;
     width: 0;
-    height: 2px;
+    height: 1px;
     background-color: var(--primary);
     transition: width 0.2s ease;
-  }
-
-  .nav-link:hover {
-    color: var(--foreground);
   }
 
   .nav-link:hover::after {
     width: 100%;
   }
 
+  .nav-link:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
   .cta-button {
-    background-color: var(--primary);
-    color: var(--primary-foreground);
-    padding: 0.625rem 1.25rem;
-    border-radius: var(--radius);
+    background-color: #3981F6;
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
     font-size: 0.875rem;
     font-weight: 600;
     text-decoration: none;
-    transition: all 0.25s ease;
-    opacity: 0;
-    transform: translateY(-4px);
-    pointer-events: none;
-  }
-
-  .cta-button.visible {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
+    transition: background-color 0.2s ease;
+    font-family: var(--font-sans);
   }
 
   .cta-button:hover {
-    filter: brightness(1.1);
-    box-shadow: var(--shadow-md);
+    background-color: #2563EB;
   }
 
   .cta-button:focus-visible {
@@ -150,7 +172,7 @@
   }
 
   /* Mobile responsive */
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .navbar-container {
       padding: 0.75rem 1rem;
     }
@@ -159,22 +181,13 @@
       display: none;
     }
 
-    .logo {
-      font-size: 1.25rem;
+    .logo-text {
+      font-size: 1rem;
     }
 
     .cta-button {
       font-size: 0.8125rem;
-      padding: 0.5rem 1rem;
-    }
-  }
-
-  /* Show CTA immediately on mobile since nav links are hidden */
-  @media (max-width: 768px) {
-    .cta-button {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
+      padding: 0.5rem 0.875rem;
     }
   }
 </style>
