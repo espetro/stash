@@ -8,7 +8,6 @@ export default defineConfig({
     name: "Stash",
     description:
       "Stash lets you save open tabs as a shareable snapshot link. No accounts. No servers. No tracking.",
-    version: "0.2.0",
     permissions: ["contextMenus", "tabs", "clipboardWrite", "notifications", "storage"],
     action: { default_popup: "popup/index.html" },
     icons: {
