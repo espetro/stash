@@ -6,9 +6,6 @@ const viewerOrigin = (process.env.VITE_VIEWER_ORIGIN || 'http://localhost:4321')
 export default defineConfig({
   site: viewerOrigin,
   output: 'static',
-  build: {
-    format: 'file'
-  },
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {
