@@ -1,0 +1,74 @@
+---
+// No frontmatter needed
+---
+<div class="tab-list" id="tab-list"></div>
+
+<style>
+  .tab-list {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+  :global(.tab-item) {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 16px;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.2s ease;
+  }
+  :global(.tab-item:last-child) {
+    border-bottom: none;
+  }
+  :global(.tab-item:hover) {
+    background-color: var(--muted);
+  }
+  :global(.tab-favicon) {
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  :global(.tab-favicon.error) {
+    display: none;
+  }
+  :global(.tab-content) {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  :global(.tab-title) {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--foreground);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  :global(.tab-url) {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tab-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  .tab-list::-webkit-scrollbar-track {
+    background: var(--muted);
+    border-radius: 4px;
+  }
+  .tab-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+  .tab-list::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+  }
+</style>

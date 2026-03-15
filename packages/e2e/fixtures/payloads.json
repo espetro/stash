@@ -1,108 +1,51 @@
 {
   "valid-single": {
     "description": "Valid single tab payload with future expiry",
-    "payload": {
-      "v": 1,
-      "e": 9999999999,
-      "i": [
-        ["https://github.com", "GitHub"]
-      ]
-    }
+    "fragment": "#p=RMjk5OTk5OTk5OTk5OTkdZ2l0aHViLmNvbR9HaXRIdWI",
+    "expectedItems": [
+      { "url": "https://github.com", "title": "GitHub" }
+    ],
+    "expectedExpiry": 9999999999
   },
   "valid-multiple": {
     "description": "Valid multiple tabs payload with future expiry",
-    "payload": {
-      "v": 1,
-      "e": 9999999999,
-      "i": [
-        ["https://github.com", "GitHub"],
-        ["https://stackoverflow.com", "Stack Overflow"],
-        ["https://developer.mozilla.org", "MDN Web Docs"]
-      ]
-    }
+    "fragment": "#p=CG2AAoGS9peR_SIKmf6MgCLKbYYIAnZwelH_71kpa4kEAEDgOieh4-zKNsdlqrDe_jCl0gj9wX20bmXrnoik5AWNo4PzAj4EjlS7Ep10",
+    "expectedItems": [
+      { "url": "https://github.com", "title": "GitHub" },
+      { "url": "https://stackoverflow.com", "title": "Stack Overflow" },
+      { "url": "https://developer.mozilla.org", "title": "MDN Web Docs" }
+    ],
+    "expectedExpiry": 9999999999
   },
   "expired": {
     "description": "Expired payload (expiry in the past)",
-    "payload": {
-      "v": 1,
-      "e": 1000000000,
-      "i": [
-        ["https://github.com", "GitHub"]
-      ]
-    }
-  },
-  "invalid-version": {
-    "description": "Payload with unsupported version",
-    "payload": {
-      "v": 999,
-      "e": 9999999999,
-      "i": [
-        ["https://github.com", "GitHub"]
-      ]
-    }
-  },
-  "missing-version": {
-    "description": "Payload missing version field",
-    "payload": {
-      "e": 9999999999,
-      "i": [
-        ["https://github.com", "GitHub"]
-      ]
-    }
-  },
-  "missing-expiry": {
-    "description": "Payload missing expiry field",
-    "payload": {
-      "v": 1,
-      "i": [
-        ["https://github.com", "GitHub"]
-      ]
-    }
-  },
-  "missing-items": {
-    "description": "Payload missing items array",
-    "payload": {
-      "v": 1,
-      "e": 9999999999
-    }
-  },
-  "invalid-item-format": {
-    "description": "Payload with invalid item format (not an array)",
-    "payload": {
-      "v": 1,
-      "e": 9999999999,
-      "i": [
-        "https://github.com"
-      ]
-    }
+    "fragment": "#p=RMjEwMDAwMDAwMDAdZ2l0aHViLmNvbR9HaXRIdWI",
+    "expectedItems": [
+      { "url": "https://github.com", "title": "GitHub" }
+    ],
+    "expectedExpiry": 1000000000
   },
   "special-chars": {
     "description": "Payload with special characters and Unicode",
-    "payload": {
-      "v": 1,
-      "e": 9999999999,
-      "i": [
-        ["https://example.com/path?query=value&other=123#section", "URL with special chars & # ?"],
-        ["https://example.com/日本語/テスト", "日本語のページ - Unicode Test"]
-      ]
-    }
+    "fragment": "#p=CG5sA4IzUTnfjTmV5S4n_7bOZlwSTM7-ZkJUgs2ntwgRqcsB-26-tX5xQDglFuY1dxw8KKTzSqdaCcpPlx0BuvXNNMJepSbMQTFIILOT_6OK7jVm4-UIhxSvCJsaDLQo86Ae2YR_jcvDXWdUC",
+    "expectedItems": [
+      { "url": "https://example.com/path?query=value&other=123#section", "title": "URL with special chars & # ?" },
+      { "url": "https://example.com/日本語/テスト", "title": "日本語のページ - Unicode Test" }
+    ],
+    "expectedExpiry": 9999999999
   },
   "long-title": {
-    "description": "Payload with long title (should be truncated)",
-    "payload": {
-      "v": 1,
-      "e": 9999999999,
-      "i": [
-        ["https://example.com/long-url-path", "This is a very long title that exceeds the thirty character limit and should be truncated"]
-      ]
-    }
+    "description": "Payload with long title (should be truncated to 30 chars)",
+    "fragment": "#p=CG34A4MXOlpIRiqJpmWv2wbP96-SA_d-ldj5YkEi5jV3P9ziKaBhFMYcpovgT0Op2qZLZDaMiDqZlqejBCyCvzL5kfm9Bp-RLvJnec3doJQ",
+    "expectedItems": [
+      { "url": "https://example.com/long-url-path", "title": "This is a very long title that" }
+    ],
+    "expectedExpiry": 9999999999
   },
   "empty-items": {
     "description": "Payload with empty items array",
-    "payload": {
-      "v": 1,
-      "e": 9999999999,
-      "i": []
-    }
+    "fragment": "#p=RMjk5OTk5OTk5OTkd",
+    "expectedItems": [],
+    "expectedExpiry": 9999999999
   }
 }

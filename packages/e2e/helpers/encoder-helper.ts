@@ -1,6 +1,7 @@
-import pako from 'pako';
-import * as fs from 'fs';
-import * as path from 'path';
+import type { BrotliFunctions } from "@stash/codec";
+import brotliWasm from "brotli-wasm";
+import * as fs from "fs";
+import * as path from "path";
 import {
   type TabInfo,
   type SharePayload,
@@ -11,158 +12,86 @@ import {
   BUDGET_CHARS,
   VIEWER_ORIGIN,
   VIEWER_PATH,
-  normalizeTitle,
+  normalizeTitle as codecNormalizeTitle,
+  createPayload as codecCreatePayload,
   encodePayload as codecEncodePayload,
   buildShareUrl,
-} from '@stash/codec';
+  findMaxTabsWithinBudget as codecFindMaxTabsWithinBudget,
+  encodeTabsToShareUrl as codecEncodeTabsToShareUrl,
+} from "@stash/codec";
 
 export type { TabInfo, SharePayload, EncodingResult };
 
+let _brotli: BrotliFunctions | null = null;
+let _initPromise: Promise<BrotliFunctions> | null = null;
+
 /**
- * Create payload with expiry timestamp
+ * Get brotli functions (cached)
+ */
+export async function getBrotliFunctions(): Promise<BrotliFunctions> {
+  if (_brotli) return _brotli;
+
+  if (!_initPromise) {
+    _initPromise = (async () => {
+      const brotliModule = await brotliWasm;
+      _brotli = {
+        compress: (data, opts) => brotliModule.compress(data, opts),
+        decompress: (data) => brotliModule.decompress(data),
+      };
+      return _brotli;
+    })();
+  }
+
+  return _initPromise;
+}
+
+/**
+ * Normalize title (re-export from codec)
+ */
+export const normalizeTitle = codecNormalizeTitle;
+
+/**
+ * Create payload with expiry timestamp (re-export from codec)
  */
 export function createPayload(tabs: TabInfo[]): SharePayload {
-  const now = Math.floor(Date.now() / 1000);
-  const expiry = now + (EXPIRY_HOURS * 3600);
-
-  return {
-    v: PAYLOAD_VERSION,
-    e: expiry,
-    i: tabs.map(tab => [tab.url, normalizeTitle(tab.title)] as [string, string])
-  };
+  return codecCreatePayload(tabs, EXPIRY_HOURS);
 }
 
 /**
  * Create payload with custom expiry for testing
  */
-export function createPayloadWithExpiry(tabs: TabInfo[], expiryHours: number): SharePayload {
-  const now = Math.floor(Date.now() / 1000);
-  const expiry = now + (expiryHours * 3600);
-
-  return {
-    v: PAYLOAD_VERSION,
-    e: expiry,
-    i: tabs.map(tab => [tab.url, normalizeTitle(tab.title)] as [string, string])
-  };
+export function createPayloadWithExpiry(
+  tabs: TabInfo[],
+  expiryHours: number,
+): SharePayload {
+  return codecCreatePayload(tabs, expiryHours);
 }
 
 /**
- * Encode payload: JSON → UTF-8 → compress → base64url
- * NOTE: This is a test helper that uses pako directly for compatibility with existing tests.
- * The actual extension uses @stash/codec's encodePayload.
+ * Encode payload to base64url string using brotli compression
+ * NOTE: This is async and uses the codec's v2 encoding with brotli-wasm
  */
-export function encodePayload(payload: SharePayload): string {
-  // JSON stringify without whitespace
-  const json = JSON.stringify(payload);
-
-  // UTF-8 bytes
-  const utf8Bytes = new TextEncoder().encode(json);
-
-  // Compress with pako
-  const compressed = pako.deflate(utf8Bytes);
-
-  // Base64 encode
-  const base64 = btoa(String.fromCharCode(...compressed));
-
-  // Convert to base64url (URL-safe)
-  const base64url = base64
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
-
-  return base64url;
+export async function encodePayload(payload: SharePayload): Promise<string> {
+  const brotli = await getBrotliFunctions();
+  return codecEncodePayload(payload, brotli);
 }
 
 /**
  * Find max number of tabs that fit within budget using binary search
  */
-export function findMaxTabsWithinBudget(tabs: TabInfo[]): number {
-  if (tabs.length === 0) return 0;
-
-  // Check if full set fits
-  const fullPayload = createPayload(tabs);
-  const fullEncoded = encodePayload(fullPayload);
-  const fullUrl = buildShareUrl(fullEncoded);
-
-  if (fullUrl.length <= BUDGET_CHARS) {
-    return tabs.length;
-  }
-
-  // Binary search for max prefix that fits
-  let left = 0;
-  let right = tabs.length;
-  let result = 0;
-
-  while (left <= right) {
-    const mid = Math.floor((left + right) / 2);
-    const subset = tabs.slice(0, mid);
-
-    if (subset.length === 0) {
-      left = mid + 1;
-      continue;
-    }
-
-    const payload = createPayload(subset);
-    const encoded = encodePayload(payload);
-    const url = buildShareUrl(encoded);
-
-    if (url.length <= BUDGET_CHARS) {
-      result = mid;
-      left = mid + 1;
-    } else {
-      right = mid - 1;
-    }
-  }
-
-  return result;
+export async function findMaxTabsWithinBudget(tabs: TabInfo[]): Promise<number> {
+  const brotli = await getBrotliFunctions();
+  return codecFindMaxTabsWithinBudget(tabs, brotli, VIEWER_ORIGIN, EXPIRY_HOURS);
 }
 
 /**
  * Main entry point: encode tabs to share URL with budget enforcement
  */
-export function encodeTabsToShareUrl(tabs: TabInfo[]): EncodingResult {
-  if (tabs.length === 0) {
-    return {
-      url: buildShareUrl(''),
-      itemCount: 0,
-      truncated: false
-    };
-  }
-
-  // Try full set first
-  const fullPayload = createPayload(tabs);
-  const fullEncoded = encodePayload(fullPayload);
-  const fullUrl = buildShareUrl(fullEncoded);
-
-  if (fullUrl.length <= BUDGET_CHARS) {
-    return {
-      url: fullUrl,
-      itemCount: tabs.length,
-      truncated: false
-    };
-  }
-
-  // Find max tabs that fit
-  const maxTabs = findMaxTabsWithinBudget(tabs);
-
-  if (maxTabs === 0) {
-    return {
-      url: buildShareUrl(''),
-      itemCount: 0,
-      truncated: true
-    };
-  }
-
-  const subset = tabs.slice(0, maxTabs);
-  const payload = createPayload(subset);
-  const encoded = encodePayload(payload);
-  const url = buildShareUrl(encoded);
-
-  return {
-    url,
-    itemCount: maxTabs,
-    truncated: true
-  };
+export async function encodeTabsToShareUrl(
+  tabs: TabInfo[],
+): Promise<EncodingResult> {
+  const brotli = await getBrotliFunctions();
+  return codecEncodeTabsToShareUrl(tabs, brotli, EXPIRY_HOURS, VIEWER_ORIGIN);
 }
 
 /**
@@ -195,9 +124,9 @@ export function loadPayloads(): Record<string, any> {
 }
 
 /**
- * Encode a fixture payload
+ * Encode a fixture payload (async)
  */
-export function encodeFixturePayload(payloadName: string): string {
+export async function encodeFixturePayload(payloadName: string): Promise<string> {
   const payloads = loadPayloads();
   const fixture = payloads[payloadName];
 
@@ -205,14 +134,20 @@ export function encodeFixturePayload(payloadName: string): string {
     throw new Error(`Payload "${payloadName}" not found in payloads.json`);
   }
 
+  if (fixture.fragment) {
+    return fixture.fragment.replace(/^#p=/, '');
+  }
+
   return encodePayload(fixture.payload);
 }
 
 /**
- * Generate viewer URL from fixture payload
+ * Generate viewer URL from fixture payload (async)
  */
-export function generateViewerUrlFromFixture(payloadName: string): string {
-  const encoded = encodeFixturePayload(payloadName);
+export async function generateViewerUrlFromFixture(
+  payloadName: string,
+): Promise<string> {
+  const encoded = await encodeFixturePayload(payloadName);
   return buildShareUrl(encoded);
 }
 

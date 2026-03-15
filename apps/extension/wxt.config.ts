@@ -34,5 +34,10 @@ export default defineConfig({
         "@lib": "lib",
       },
     },
+    build: {
+      rollupOptions: {
+        external: ["wxt/storage"],
+      },
+    },
   }),
 });

@@ -17,10 +17,13 @@
     "@stash/theme": "workspace:*",
     "astro": "^5.1.1",
     "brotli-wasm": "^3.0.1",
+    "markdown-escape": "^2.0.0",
     "pako": "^2.1.0"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.2.1",
     "@types/pako": "^2.0.3",
+    "tailwindcss": "^4.2.1",
     "typescript": "^5.7.2"
   }
 }

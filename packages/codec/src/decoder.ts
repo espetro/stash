@@ -4,26 +4,6 @@ import type { BrotliFunctions, DecodedPayload } from "./types.js";
 import { PayloadDecodeError } from "./types.js";
 
 /**
- * Extract domain from URL
- */
-export function getDomain(url: string): string {
-  try {
-    const urlObj = new URL(url);
-    return urlObj.hostname;
-  } catch {
-    return url;
-  }
-}
-
-/**
- * Get Google favicon URL for a domain
- */
-export function getFaviconUrl(url: string): string {
-  const domain = getDomain(url);
-  return `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
-}
-
-/**
  * Decode share URL fragment to payload using v2 format:
  * "C" or "R" prefix + base64url(encoded data)
  *

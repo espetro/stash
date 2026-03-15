@@ -1,5 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import CardHeader from '../components/CardHeader.astro';
+import ActionBar from '../components/ActionBar.astro';
+import TabList from '../components/TabList.astro';
+import TabItem from '../components/TabItem.astro';
 ---
 
 <Layout title="Stash Viewer">
@@ -14,25 +19,19 @@ import Layout from '../layouts/Layout.astro';
     <div id="content" style="display: none;">
       <div class="card">
         <div class="header">
-          <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle theme">🖥️</button>
-          <div class="folder-icon">📁</div>
-          <h1 id="item-count">0 Items</h1>
-          <p id="expiry-timer" class="expiry-timer"></p>
+          <ThemeToggle />
+          <CardHeader />
         </div>
         
-        <div class="actions">
-          <button id="open-all" class="btn btn-primary">Open All Tabs</button>
-          <button id="copy-urls" class="btn btn-secondary">Copy URLs</button>
-        </div>
-        
-        <div class="tab-list" id="tab-list">
-          <!-- Tab items will be rendered here -->
-        </div>
+        <ActionBar />
+        <TabList />
       </div>
     </div>
   </div>
 
   <style>
+    @import "tailwindcss";
+
     #app {
       min-height: 100vh;
       background: var(--background);
@@ -79,208 +78,13 @@ import Layout from '../layouts/Layout.astro';
       text-align: center;
       margin-bottom: 24px;
     }
-
-    .theme-toggle {
-      position: absolute;
-      top: 0;
-      right: 0;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      padding: 4px;
-      font-size: 1.125rem;
-      line-height: 1;
-      border-radius: var(--radius-sm);
-      transition: background-color 0.2s ease;
-    }
-
-    .theme-toggle:hover {
-      background-color: var(--muted);
-    }
-
-    .theme-toggle:focus-visible {
-      outline: 2px solid var(--ring);
-      outline-offset: 2px;
-    }
-
-    .folder-icon {
-      font-size: 3rem;
-      margin-bottom: 12px;
-    }
-
-    .header h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin: 0;
-      color: var(--foreground);
-    }
-
-    .expiry-timer {
-      font-size: 0.875rem;
-      color: var(--muted-foreground);
-      margin: 8px 0 0 0;
-      text-align: center;
-    }
-
-    .actions {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .btn {
-      flex: 1;
-      padding: 12px 20px;
-      border: none;
-      border-radius: var(--radius-lg);
-      font-size: 0.875rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .btn:active {
-      transform: translateY(0);
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: var(--primary-foreground);
-    }
-
-    .btn-primary:hover {
-      background: var(--primary);
-    }
-
-    .btn-secondary {
-      background: var(--secondary);
-      color: var(--foreground);
-    }
-
-    .btn-secondary:hover {
-      background: var(--border);
-    }
-
-    .tab-list {
-      max-height: 400px;
-      overflow-y: auto;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-    }
-
-    :global(.tab-item) {
-      display: flex;
-      align-items: flex-start;
-      padding: 12px 16px;
-      gap: 10px;
-      border-bottom: 1px solid var(--border);
-      text-decoration: none;
-      color: inherit;
-      transition: background-color 0.2s ease;
-    }
-
-    :global(.tab-item:last-child) {
-      border-bottom: none;
-    }
-
-    :global(.tab-item:hover) {
-      background-color: var(--muted);
-    }
-
-    :global(.tab-favicon) {
-      width: 16px;
-      height: 16px;
-      margin-top: 2px;
-      flex-shrink: 0;
-    }
-
-    :global(.tab-favicon.error) {
-      display: none;
-    }
-
-    :global(.tab-content) {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    :global(.tab-title) {
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--foreground);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    :global(.tab-url) {
-      font-size: 0.75rem;
-      color: var(--muted-foreground);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* Scrollbar styling */
-    .tab-list::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .tab-list::-webkit-scrollbar-track {
-      background: var(--muted);
-      border-radius: 4px;
-    }
-
-    .tab-list::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 4px;
-    }
-
-    .tab-list::-webkit-scrollbar-thumb:hover {
-      background: var(--muted-foreground);
-    }
   </style>
 
   <script>
-    import { decodeShareUrl, getFaviconUrl, PayloadDecodeError } from '@stash/codec';
+    import { decodeShareUrl, PayloadDecodeError } from '@stash/codec';
     import { getBrotliFunctions } from '../lib/brotli';
-    import { getTheme, setTheme } from '@stash/theme';
-
-    type Theme = 'light' | 'dark' | 'system';
-
-    const THEME_ICONS: Record<Theme, string> = {
-      light: '☀️',
-      dark: '🌙',
-      system: '🖥️',
-    };
-
-    const THEME_ORDER: Theme[] = ['light', 'dark', 'system'];
-
-    const themeToggleBtn = document.getElementById('theme-toggle')!;
-    let currentTheme: Theme = getTheme(localStorage);
-
-    function updateThemeButton() {
-      themeToggleBtn.textContent = THEME_ICONS[currentTheme];
-    }
-
-    function cycleTheme() {
-      const currentIndex = THEME_ORDER.indexOf(currentTheme);
-      const nextIndex = (currentIndex + 1) % THEME_ORDER.length;
-      currentTheme = THEME_ORDER[nextIndex];
-      setTheme(currentTheme, localStorage);
-      updateThemeButton();
-    }
-
-    // Initialize theme button
-    updateThemeButton();
-    themeToggleBtn.addEventListener('click', cycleTheme);
+    import { createTabItemElement } from '../lib/tab-item';
+    import markdownEscape from 'markdown-escape';
 
     const loadingEl = document.getElementById('loading')!;
     const errorEl = document.getElementById('error')!;
@@ -291,7 +95,6 @@ import Layout from '../layouts/Layout.astro';
     const openAllBtn = document.getElementById('open-all')!;
     const copyUrlsBtn = document.getElementById('copy-urls')!;
 
-    // Store decoded data for button actions
     let decodedData: any = null;
 
     function getFormatParam(): string | null {
@@ -309,8 +112,8 @@ import Layout from '../layouts/Layout.astro';
           return;
         }
 
-         const brotli = await getBrotliFunctions();
-         decodedData = await decodeShareUrl(fragment, brotli);
+        const brotli = await getBrotliFunctions();
+        decodedData = await decodeShareUrl(fragment, brotli);
 
         if (decodedData.isExpired) {
           showError('This share link has expired');
@@ -324,7 +127,6 @@ import Layout from '../layouts/Layout.astro';
         } else {
           showContent(decodedData);
         }
-
       } catch (error) {
         console.error('Failed to decode share URL:', error);
         if (error instanceof PayloadDecodeError) {
@@ -365,8 +167,7 @@ import Layout from '../layouts/Layout.astro';
       appEl.style.padding = '0';
 
       const lines = data.items.map(([url, title]: [string, string]) => {
-        const safeTitle = title.replace(/\[/g, '\\[').replace(/\]/g, '\\]');
-        return `[${safeTitle}](${url})`;
+        return `[${markdownEscape(title)}](${url})`;
       });
       const pre = document.createElement('pre');
       pre.id = 'output';
@@ -377,14 +178,20 @@ import Layout from '../layouts/Layout.astro';
     function formatRemainingTime(expiryTimestamp: number): string {
       const now = Math.floor(Date.now() / 1000);
       const remainingSeconds = expiryTimestamp - now;
-      
+
       if (remainingSeconds <= 0) {
         return 'Expired';
       }
-      
+
+      // 10 years in seconds
+      const TEN_YEARS_SECONDS = 10 * 365 * 24 * 60 * 60;
+      if (remainingSeconds > TEN_YEARS_SECONDS) {
+        return 'No expiration date';
+      }
+
       const hours = Math.floor(remainingSeconds / 3600);
       const minutes = Math.floor((remainingSeconds % 3600) / 60);
-      
+
       if (hours > 0) {
         return `Expires in ${hours}h ${minutes}m`;
       } else if (minutes > 0) {
@@ -398,61 +205,21 @@ import Layout from '../layouts/Layout.astro';
       loadingEl.style.display = 'none';
       contentEl.style.display = 'block';
 
-      // Set item count
       const count = data.items.length;
       itemCountEl.textContent = `${count} Item${count !== 1 ? 's' : ''}`;
-
-      // Set expiry timer
       expiryTimerEl.textContent = formatRemainingTime(data.expiry);
 
-      // Render tab list
       tabListEl.innerHTML = '';
-      
       data.items.forEach(([url, title]: [string, string]) => {
-        const faviconUrl = getFaviconUrl(url);
-
-        const itemEl = document.createElement('a');
-        itemEl.className = 'tab-item';
-        itemEl.href = url;
-        itemEl.target = '_blank';
-        itemEl.rel = 'noopener noreferrer';
-
-        const faviconEl = document.createElement('img');
-        faviconEl.className = 'tab-favicon';
-        faviconEl.src = faviconUrl;
-        faviconEl.alt = '';
-        faviconEl.onerror = function() {
-          this.classList.add('error');
-        };
-
-        const contentEl = document.createElement('div');
-        contentEl.className = 'tab-content';
-
-        const titleEl = document.createElement('span');
-        titleEl.className = 'tab-title';
-        titleEl.textContent = title;
-
-        const urlEl = document.createElement('span');
-        urlEl.className = 'tab-url';
-        urlEl.textContent = url;
-
-        contentEl.appendChild(titleEl);
-        contentEl.appendChild(urlEl);
-
-        itemEl.appendChild(faviconEl);
-        itemEl.appendChild(contentEl);
-
-        tabListEl.appendChild(itemEl);
+        tabListEl.appendChild(createTabItemElement(url, title));
       });
 
-      // Wire up buttons
       openAllBtn.addEventListener('click', openAllTabs);
       copyUrlsBtn.addEventListener('click', copyUrls);
     }
 
     function openAllTabs() {
       if (!decodedData) return;
-
       decodedData.items.forEach(([url]: [string, string]) => {
         window.open(url, '_blank');
       });
@@ -461,10 +228,8 @@ import Layout from '../layouts/Layout.astro';
     async function copyUrls() {
       if (!decodedData) return;
 
-      // Always copy URLs in markdown format
       const lines = decodedData.items.map(([url, title]: [string, string]) => {
-        const safeTitle = title.replace(/\[/g, '\\[').replace(/\]/g, '\\]');
-        return `[${safeTitle}](${url})`;
+        return `[${markdownEscape(title)}](${url})`;
       });
       const text = lines.join('\n');
 
@@ -479,7 +244,6 @@ import Layout from '../layouts/Layout.astro';
       }
     }
 
-    // Initialize on page load
     init();
   </script>
 </Layout>

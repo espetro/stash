@@ -1,0 +1,53 @@
+---
+// No frontmatter needed
+---
+<button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle theme">🖥️</button>
+
+<script>
+  import { getTheme, setTheme } from '@stash/theme';
+
+  type Theme = 'light' | 'dark' | 'system';
+  const THEME_ICONS: Record<Theme, string> = { light: '☀️', dark: '🌙', system: '🖥️' };
+  const THEME_ORDER: Theme[] = ['light', 'dark', 'system'];
+
+  const themeToggleBtn = document.getElementById('theme-toggle')!;
+  let currentTheme: Theme = getTheme(localStorage);
+
+  const updateThemeButton = () => {
+    themeToggleBtn.textContent = THEME_ICONS[currentTheme];
+  };
+
+  const cycleTheme = () => {
+    const currentIndex = THEME_ORDER.indexOf(currentTheme);
+    const nextIndex = (currentIndex + 1) % THEME_ORDER.length;
+    currentTheme = THEME_ORDER[nextIndex];
+    setTheme(currentTheme, localStorage);
+    updateThemeButton();
+  };
+
+  updateThemeButton();
+  themeToggleBtn.addEventListener('click', cycleTheme);
+</script>
+
+<style>
+  .theme-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    font-size: 1.125rem;
+    line-height: 1;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.2s ease;
+  }
+  .theme-toggle:hover {
+    background-color: var(--muted);
+  }
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+</style>

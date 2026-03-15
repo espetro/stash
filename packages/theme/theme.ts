@@ -1,6 +1,9 @@
 type Theme = "light" | "dark" | "system";
 
-export type StorageAdapter = Pick<Storage, "getItem" | "setItem">;
+export type StorageAdapter = {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+};
 
 const THEME_STORAGE_KEY = "theme" as const;
 
