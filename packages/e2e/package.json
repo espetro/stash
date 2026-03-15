@@ -19,6 +19,7 @@
   "dependencies": {
     "@getgauge/cli": "^1.6.0",
     "@stash/codec": "workspace:*",
+    "brotli-wasm": "^3.0.1",
     "gauge-ts": "^0.3.6",
     "playwright": "^1.40.0",
     "pako": "^2.1.0",

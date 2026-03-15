@@ -1,0 +1,43 @@
+---
+// No frontmatter needed
+---
+<div class="actions">
+  <button id="open-all" class="btn btn-primary">Open All Tabs</button>
+  <button id="copy-urls" class="btn btn-secondary">Copy URLs</button>
+</div>
+
+<style>
+  .actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  .btn:active {
+    transform: translateY(0);
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+  .btn-secondary {
+    background: var(--secondary);
+    color: var(--foreground);
+  }
+  .btn-secondary:hover {
+    background: var(--border);
+  }
+</style>

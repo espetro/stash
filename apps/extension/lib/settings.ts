@@ -1,4 +1,5 @@
 import { storage } from "wxt/storage";
+import { validateViewerOrigin } from "./validation.js";
 
 export type ExpiryMode = "24h" | "7d" | "30d" | "never";
 const BUILD_TIME_VIEWER_ORIGIN = import.meta.env.VITE_VIEWER_ORIGIN || "http://localhost:4321";
@@ -32,12 +33,21 @@ export const getSettings = async (): Promise<Settings> => {
   }
 };
 
-export const setSettings = async (partial: Partial<Settings>): Promise<void> => {
+export const setSettings = async (
+  partial: Partial<Settings>,
+): Promise<{ success: boolean; error?: string }> => {
+  if (partial.viewerOrigin !== undefined) {
+    const validation = validateViewerOrigin(partial.viewerOrigin);
+    if (!validation.success) {
+      return { success: false, error: validation.error };
+    }
+  }
   try {
     const current = await getSettings();
     const merged = { ...current, ...partial };
     await settingsItem.setValue(merged);
+    return { success: true };
   } catch {
-    // Silent fail
+    return { success: false, error: "Failed to save settings" };
   }
 };

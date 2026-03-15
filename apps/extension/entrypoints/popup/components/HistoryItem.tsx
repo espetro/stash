@@ -37,6 +37,11 @@ function formatTimeRemaining(msRemaining: number): string {
     return "EXPIRED";
   }
 
+  const TEN_YEARS_IN_MS = 10 * 365 * 24 * 60 * 60 * 1000;
+  if (msRemaining > TEN_YEARS_IN_MS) {
+    return "No expiration date";
+  }
+
   const hours = Math.floor(msRemaining / (1000 * 60 * 60));
   const days = Math.floor(hours / 24);
   const remainingHours = hours % 24;

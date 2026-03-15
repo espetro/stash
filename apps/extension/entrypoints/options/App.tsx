@@ -23,6 +23,7 @@ export default function App() {
   const [expiryMode, setExpiryMode] = useState<ExpiryMode>("never");
   const [theme, setThemeState] = useState<Theme>("system");
   const [viewerOrigin, setViewerOrigin] = useState<string>("");
+  const [viewerOriginError, setViewerOriginError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -52,13 +53,19 @@ export default function App() {
 
   const handleViewerOriginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setViewerOrigin(e.target.value);
+    setViewerOriginError(null);
   };
 
   const handleViewerOriginSave = async () => {
     const trimmedOrigin = viewerOrigin.trim();
     if (trimmedOrigin === "") return;
-    await setSettings({ viewerOrigin: trimmedOrigin });
-    showSuccessFeedback();
+    const result = await setSettings({ viewerOrigin: trimmedOrigin });
+    if (result.success) {
+      setViewerOriginError(null);
+      showSuccessFeedback();
+    } else {
+      setViewerOriginError(result.error ?? "Invalid URL");
+    }
   };
 
   const showSuccessFeedback = () => {
@@ -147,26 +154,33 @@ export default function App() {
               <label htmlFor="viewer-origin-input" className="form-label">
                 Viewer URL
               </label>
-              <div className="viewer-origin-row">
-                <input
-                  id="viewer-origin-input"
-                  type="url"
-                  className="settings-input"
-                  value={viewerOrigin}
-                  onChange={handleViewerOriginChange}
-                  placeholder="https://viewer.example.com"
-                  aria-label="Viewer server URL"
-                />
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={handleViewerOriginSave}
-                  disabled={viewerOrigin.trim() === ""}
-                >
-                  Save
-                </button>
+                <div className="viewer-origin-row">
+                  <input
+                    id="viewer-origin-input"
+                    type="url"
+                    className={`settings-input${viewerOriginError ? " settings-input--error" : ""}`}
+                    value={viewerOrigin}
+                    onChange={handleViewerOriginChange}
+                    placeholder="https://viewer.example.com"
+                    aria-label="Viewer server URL"
+                    aria-describedby={viewerOriginError ? "viewer-origin-error" : undefined}
+                    aria-invalid={viewerOriginError ? "true" : undefined}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={handleViewerOriginSave}
+                    disabled={viewerOrigin.trim() === "" || viewerOriginError !== null}
+                  >
+                    Save
+                  </button>
+                </div>
+                {viewerOriginError && (
+                  <p id="viewer-origin-error" className="settings-error" role="alert">
+                    {viewerOriginError}
+                  </p>
+                )}
               </div>
-            </div>
           </section>
         </>
       )}

@@ -1,0 +1,25 @@
+---
+// No frontmatter needed - content is set dynamically via JS
+---
+<div class="folder-icon">📁</div>
+<h1 id="item-count">0 Items</h1>
+<p id="expiry-timer" class="expiry-timer"></p>
+
+<style>
+  .folder-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+  }
+  :global(.header h1) {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--foreground);
+  }
+  .expiry-timer {
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+    margin: 8px 0 0 0;
+    text-align: center;
+  }
+</style>

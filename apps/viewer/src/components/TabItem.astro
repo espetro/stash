@@ -1,0 +1,16 @@
+---
+// Tab items are rendered dynamically via createTabItemElement in tab-item.ts
+// This component exists for documentation purposes
+interface Props {
+  url: string;
+  title: string;
+}
+const { url, title } = Astro.props;
+---
+<a class="tab-item" href={url} target="_blank" rel="noopener noreferrer">
+  <img class="tab-favicon" src={`https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=32`} alt="" />
+  <div class="tab-content">
+    <span class="tab-title">{title}</span>
+    <span class="tab-url">{url}</span>
+  </div>
+</a>
