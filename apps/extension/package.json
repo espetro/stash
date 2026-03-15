@@ -12,6 +12,9 @@
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "postinstall": "wxt clean",
+    "format": "oxfmt --write 'entrypoints/**/*.{ts,tsx}' 'lib/**/*.{ts,tsx}'",
+    "lint": "oxlint 'entrypoints/**/*.{ts,tsx}' 'lib/**/*.{ts,tsx}' --ignore-pattern '**/*.d.ts'",
+    "tscheck": "tsc --noEmit",
     "compile": "tsc --noEmit",
     "release": "release-it"
   },
