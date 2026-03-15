@@ -6,6 +6,6 @@ dist/
 .turbo/
 .sisyphus/
 .DS_STORE
-
+.env
 # Generated JavaScript files from TypeScript compilation
 *.js

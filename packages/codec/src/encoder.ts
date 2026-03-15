@@ -1,6 +1,7 @@
 import { uint8ToBase64 } from "./base64.js";
 import {
   PAYLOAD_VERSION,
+  EXPIRY_HOURS,
   BUDGET_CHARS,
   MAX_TITLE_CHARS,
   VIEWER_ORIGIN,
@@ -25,7 +26,7 @@ function stripUrlScheme(url: string): string {
 /**
  * Create payload with expiry timestamp
  */
-export function createPayload(tabs: TabInfo[], expiryHours: number): SharePayload {
+export function createPayload(tabs: TabInfo[], expiryHours: number = EXPIRY_HOURS): SharePayload {
   const now = Math.floor(Date.now() / 1000);
   const expiry = now + expiryHours * 3600;
 
@@ -139,7 +140,7 @@ export async function findMaxTabsWithinBudget(
 export async function encodeTabsToShareUrl(
   tabs: TabInfo[],
   brotli: BrotliFunctions,
-  expiryHours: number,
+  expiryHours: number = EXPIRY_HOURS,
   viewerOrigin?: string,
 ): Promise<EncodingResult> {
   if (tabs.length === 0) {
