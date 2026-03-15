@@ -1,0 +1,70 @@
+name: Release Extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version, generate changelog, and create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm --filter stash-extension exec release-it ${{ inputs.bump }} --ci
+
+      - name: Build extension
+        env:
+          VITE_VIEWER_ORIGIN: https://stash.oxejoq.eu
+        run: pnpm run build
+
+      - name: Create extension ZIPs
+        run: |
+          pnpm --filter stash-extension run zip:chrome
+          pnpm --filter stash-extension run zip:firefox
+
+      - name: Create Firefox sources bundle
+        run: ./scripts/create-sources-zip.sh
+
+      - name: Upload artifacts to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(jq -r '.version' apps/extension/package.json)
+          gh release upload "v${VERSION}" apps/extension/.output/*.zip
