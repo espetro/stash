@@ -30,15 +30,21 @@ export default defineConfig({
       extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
     },
   },
-  vite: () => ({
-    optimizeDeps: {
-      exclude: ["brotli-wasm"],
-    },
-    resolve: {
-      alias: {
-        // Allow importing from lib directory
-        "@lib": "lib",
+  imports: {
+    // @ts-ignore this fixes the issues with 'wxt/storage' and vite
+    exclude: [/[\\/]node_modules[\\/]/, /[\\/]\.git[\\/]/, /[\\/]packages[\\/]/],
+  },
+  vite: () => {
+    return {
+      envDir: "../../", // Load .env from monorepo root
+      optimizeDeps: {
+        exclude: ["brotli-wasm"],
       },
-    },
-  }),
+      resolve: {
+        alias: {
+          "@lib": "lib",
+        },
+      },
+    };
+  },
 });

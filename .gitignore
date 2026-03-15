@@ -5,6 +5,7 @@ dist/
 .astro/
 .turbo/
 .sisyphus/
+tmp/
 .DS_STORE
 .env
 # Generated JavaScript files from TypeScript compilation

@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "wxt",
     "dev:firefox": "wxt -b firefox",
-    "build": "pnpm run build:chrome && pnpm run build:firefox",
+    "build": "pnpm run build:chrome & pnpm run build:firefox",
     "build:chrome": "wxt build",
     "build:firefox": "wxt build -b firefox",
-    "zip": "wxt zip",
+    "zip": "pnpm run zip:chrome & pnpm run zip:firefox",
     "zip:chrome": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "format": "oxfmt --write 'entrypoints/**/*.{ts,tsx}' 'lib/**/*.{ts,tsx}'",
