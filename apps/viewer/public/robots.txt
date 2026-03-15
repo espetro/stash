@@ -1,0 +1,7 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Disallow: /s
+Disallow: /api/
+
+Sitemap: https://stash.oxejoq.eu/sitemap.xml
