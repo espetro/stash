@@ -1,5 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd ../.. && pnpm run build --filter=stash-viewer",
-  "outputDirectory": "apps/viewer/dist"
+  "buildCommand": "pnpm exec astro build",
+  "outputDirectory": "dist"
 }
