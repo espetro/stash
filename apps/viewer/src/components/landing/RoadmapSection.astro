@@ -1,0 +1,144 @@
+---
+// Roadmap section with compact grid
+// Displays shipped features, upcoming items, and suggest CTA
+
+import RoadmapCell from './RoadmapCell.astro';
+
+// Done items (shipped features)
+const doneItems = [
+  'AI-first',
+  'Select any tab',
+  'Set expiration time',
+  'Share with a link',
+  'Light/dark theme',
+  'Chrome & Firefox',
+  'Review anywhere',
+];
+
+// Upcoming items
+const upcomingItems = [
+  'More languages (i18n)',
+  'Safari support',
+];
+
+// Suggest link
+const suggestHref = 'https://github.com/espetro/stash/issues';
+---
+
+<section class="roadmap-section" id="roadmap">
+  <div class="roadmap-container">
+    <!-- Section header -->
+    <h2 class="section-headline">Where We Are — And Where We're Going</h2>
+    <p class="section-subheadline">Transparent development, community-driven priorities</p>
+    
+    <!-- Compact grid -->
+    <div class="roadmap-grid">
+      {doneItems.map((item) => (
+        <RoadmapCell status="done" label={item} />
+      ))}
+      {upcomingItems.map((item) => (
+        <RoadmapCell status="upcoming" label={item} />
+      ))}
+      <RoadmapCell status="suggest" label="Suggest a feature" href={suggestHref} />
+    </div>
+    
+    <!-- Legend -->
+    <div class="legend">
+      <span class="legend-item">
+        <span class="legend-badge">✓</span>
+        <span class="legend-text">Shipped</span>
+      </span>
+      <span class="legend-item">
+        <span class="legend-badge">🕐</span>
+        <span class="legend-text">Coming Soon</span>
+      </span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .roadmap-section {
+    padding: 4rem 1.5rem;
+    background-color: var(--background);
+  }
+
+  .roadmap-container {
+    max-width: 56rem;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .section-headline {
+    color: var(--foreground);
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .section-subheadline {
+    color: var(--muted-foreground);
+    font-size: 1rem;
+    margin: 0 0 2.5rem 0;
+  }
+
+  /* Responsive grid */
+  .roadmap-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .legend-badge {
+    font-size: 0.75rem;
+  }
+
+  .legend-text {
+    font-size: 0.8125rem;
+    color: var(--muted-foreground);
+  }
+
+  /* Tablet: 3 columns */
+  @media (min-width: 640px) {
+    .roadmap-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* Desktop: 5 columns */
+  @media (min-width: 1024px) {
+    .roadmap-section {
+      padding: 5rem 2rem;
+    }
+
+    .section-headline {
+      font-size: 2rem;
+    }
+
+    .section-subheadline {
+      font-size: 1.0625rem;
+      margin-bottom: 3rem;
+    }
+
+    .roadmap-grid {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+    }
+  }
+</style>
