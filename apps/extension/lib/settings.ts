@@ -1,4 +1,4 @@
-import { storage } from "@wxt-dev/storage";
+import { storage } from "#imports";
 import { validateViewerOrigin } from "./validation.js";
 
 export type ExpiryMode = "24h" | "7d" | "30d" | "never";

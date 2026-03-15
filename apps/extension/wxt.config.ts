@@ -1,6 +1,8 @@
 import { defineConfig } from "wxt";
 
 export default defineConfig({
+  publicDir: "public/",
+  modulesDir: "modules",
   modules: ["@wxt-dev/module-react", "./modules/brotli-wasm.ts"],
   manifest: {
     name: "Stash",
@@ -36,11 +38,6 @@ export default defineConfig({
       alias: {
         // Allow importing from lib directory
         "@lib": "lib",
-      },
-    },
-    build: {
-      rollupOptions: {
-        external: ["wxt/storage"],
       },
     },
   }),

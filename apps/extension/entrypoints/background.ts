@@ -1,4 +1,4 @@
-import { defineBackground } from "wxt/sandbox";
+import { defineBackground } from "#imports";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import type { TabInfo } from "@stash/codec";
 import { getBrotliFunctions } from "../lib/brotli";
