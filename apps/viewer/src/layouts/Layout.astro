@@ -1,4 +1,6 @@
 ---
+import Analytics from '@vercel/analytics/astro';
+
 interface Props {
   title: string;
 }
@@ -10,6 +12,7 @@ const { title } = Astro.props;
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{title}</title>
+  <Analytics />
   <script>
     import { initTheme } from '@stash/theme';
     initTheme(localStorage);
