@@ -1,4 +1,4 @@
-import { storage } from "wxt/storage";
+import { storage } from "@wxt-dev/storage";
 
 export interface HistoryEntry {
   id: string;
@@ -19,7 +19,7 @@ export async function getHistory(): Promise<HistoryEntry[]> {
   try {
     const history = await historyItem.getValue();
     const now = Date.now();
-    const cleanedHistory = history.filter(entry => now - entry.createdAt < HISTORY_MAX_AGE_MS);
+    const cleanedHistory = history.filter((entry) => now - entry.createdAt < HISTORY_MAX_AGE_MS);
 
     await historyItem.setValue(cleanedHistory);
     return cleanedHistory;
@@ -33,13 +33,11 @@ export async function addToHistory(entry: HistoryEntry): Promise<void> {
     const history = await historyItem.getValue();
     const updated = [...history, entry];
     await historyItem.setValue(updated);
-  } catch {
-  }
+  } catch {}
 }
 
 export async function clearHistory(): Promise<void> {
   try {
     await historyItem.setValue([]);
-  } catch {
-  }
+  } catch {}
 }
