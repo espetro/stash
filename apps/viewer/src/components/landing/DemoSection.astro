@@ -1,0 +1,160 @@
+---
+// Demo video placeholder section
+// Shows a "coming soon" state while video is being produced
+---
+
+<section class="demo-section" id="demo">
+  <div class="demo-container">
+    <!-- Section headline -->
+    <h2 class="headline">See It In Action</h2>
+    
+    <!-- Caption -->
+    <p class="caption">See how it works — under 2 minutes</p>
+    
+    <!-- Video placeholder with 16:9 aspect ratio -->
+    <div class="video-placeholder">
+      <div class="play-icon">
+        <span class="play-triangle"></span>
+      </div>
+      <p class="placeholder-text">Video coming soon</p>
+    </div>
+    
+    <!-- Secondary CTA link -->
+    <a href="#features" class="secondary-link">
+      Explore features while you wait <span class="arrow">→</span>
+    </a>
+  </div>
+</section>
+
+<style>
+  .demo-section {
+    padding: 5rem 1.5rem;
+    background-color: var(--background);
+  }
+
+  .demo-container {
+    max-width: 48rem;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .headline {
+    color: var(--foreground);
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .caption {
+    color: var(--muted-foreground);
+    font-size: 1.0625rem;
+    margin: 0 0 2.5rem 0;
+  }
+
+  .video-placeholder {
+    aspect-ratio: 16 / 9;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    transition: box-shadow 0.3s ease;
+  }
+
+  .video-placeholder:hover {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .play-icon {
+    width: 4rem;
+    height: 4rem;
+    background-color: var(--muted);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+  }
+
+  .play-triangle {
+    width: 0;
+    height: 0;
+    border-left: 1.25rem solid var(--muted-foreground);
+    border-top: 0.75rem solid transparent;
+    border-bottom: 0.75rem solid transparent;
+    margin-left: 0.25rem;
+  }
+
+  .placeholder-text {
+    color: var(--muted-foreground);
+    font-size: 0.9375rem;
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .secondary-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    transition: opacity 0.2s ease;
+  }
+
+  .secondary-link:hover {
+    opacity: 0.85;
+  }
+
+  .secondary-link:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .arrow {
+    transition: transform 0.2s ease;
+  }
+
+  .secondary-link:hover .arrow {
+    transform: translateX(4px);
+  }
+
+  /* Responsive */
+  @media (min-width: 768px) {
+    .demo-section {
+      padding: 6rem 2rem;
+    }
+
+    .headline {
+      font-size: 2.5rem;
+    }
+
+    .caption {
+      font-size: 1.125rem;
+      margin-bottom: 3rem;
+    }
+
+    .video-placeholder {
+      margin-bottom: 2.5rem;
+    }
+
+    .play-icon {
+      width: 5rem;
+      height: 5rem;
+    }
+
+    .play-triangle {
+      border-left-width: 1.5rem;
+      border-top-width: 0.875rem;
+      border-bottom-width: 0.875rem;
+    }
+  }
+</style>

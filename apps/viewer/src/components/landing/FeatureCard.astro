@@ -1,0 +1,71 @@
+---
+// Reusable feature card component
+// StoryBrand: Lead with outcomes, not functionality
+
+interface Props {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+const { icon, title, description } = Astro.props;
+---
+
+<article class="feature-card">
+  <div class="card-icon" aria-hidden="true">{icon}</div>
+  <h3 class="card-title">{title}</h3>
+  <p class="card-description">{description}</p>
+</article>
+
+<style>
+  .feature-card {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .feature-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  .card-icon {
+    font-size: 2rem;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .card-title {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--foreground);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .card-description {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--muted-foreground);
+    margin: 0;
+  }
+
+  @media (min-width: 768px) {
+    .feature-card {
+      padding: 1.75rem;
+    }
+
+    .card-icon {
+      font-size: 2.25rem;
+    }
+
+    .card-title {
+      font-size: 1.125rem;
+    }
+  }
+</style>

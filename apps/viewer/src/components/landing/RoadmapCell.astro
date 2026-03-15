@@ -1,0 +1,123 @@
+---
+// Status-aware roadmap cell component
+// Variants: done (green checkmark), upcoming (clock), suggest (dashed + icon)
+
+interface Props {
+  status: 'done' | 'upcoming' | 'suggest';
+  label: string;
+  href?: string;
+}
+
+const { status, label, href } = Astro.props;
+
+const isSuggest = status === 'suggest';
+const Element = isSuggest ? 'a' : 'div';
+const linkProps = isSuggest && href ? { href, target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+
+<Element class:list={['roadmap-cell', `status-${status}`]} {...linkProps}>
+  {status === 'done' && (
+    <span class="badge badge-done" aria-label="Shipped">✓</span>
+  )}
+  {status === 'upcoming' && (
+    <span class="badge badge-upcoming" aria-label="Coming soon">🕐</span>
+  )}
+  {status === 'suggest' && (
+    <span class="plus-icon" aria-hidden="true">+</span>
+  )}
+  <span class="cell-label">{label}</span>
+</Element>
+
+<style>
+  .roadmap-cell {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.5rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    transition: all 0.2s ease;
+  }
+
+  .roadmap-cell:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Status: Done */
+  .status-done {
+    opacity: 1;
+  }
+
+  /* Status: Upcoming - reduced opacity */
+  .status-upcoming {
+    opacity: 0.7;
+  }
+
+  /* Status: Suggest - dashed border, interactive */
+  .status-suggest {
+    border: 2px dashed var(--border);
+    background-color: transparent;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .status-suggest:hover {
+    border-color: var(--primary);
+    background-color: var(--muted);
+  }
+
+  .status-suggest:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Badge positioning - upper right */
+  .badge {
+    position: absolute;
+    top: 0.375rem;
+    right: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .badge-done {
+    color: #22c55e;
+  }
+
+  .badge-upcoming {
+    font-size: 0.625rem;
+  }
+
+  /* Plus icon for suggest */
+  .plus-icon {
+    font-size: 1.25rem;
+    font-weight: 300;
+    color: var(--muted-foreground);
+    margin-right: 0.375rem;
+  }
+
+  .status-suggest:hover .plus-icon {
+    color: var(--primary);
+  }
+
+  /* Label */
+  .cell-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--foreground);
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .status-suggest .cell-label {
+    color: var(--muted-foreground);
+  }
+
+  .status-suggest:hover .cell-label {
+    color: var(--foreground);
+  }
+</style>

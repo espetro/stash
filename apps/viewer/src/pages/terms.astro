@@ -1,0 +1,157 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Terms of Service — Stash">
+  <div id="app">
+    <div class="card">
+      <div class="header">
+        <div class="doc-icon">📋</div>
+        <h1>Terms of Service</h1>
+        <p class="subtitle">Stash User Agreement</p>
+      </div>
+
+      <div class="content">
+        <p class="intro">
+          <strong>Last updated: March 2025</strong>
+        </p>
+
+        <section class="term-section">
+          <h2>1. Acceptance of Terms</h2>
+          <p>By accessing and using Stash, you accept and agree to be bound by the terms and provision of this agreement.</p>
+        </section>
+
+        <section class="term-section">
+          <h2>2. Use License</h2>
+          <p>Stash is provided for personal, non-commercial use. The extension is provided "as is" without warranties of any kind.</p>
+        </section>
+
+        <section class="term-section">
+          <h2>3. Privacy</h2>
+          <p>Your tabs and browsing data never leave your machine. We do not collect, store, or transmit any personal information.</p>
+        </section>
+
+        <section class="term-section">
+          <h2>5. Open Source License</h2>
+          <p>Stash is open source software released under the <a href="https://www.gnu.org/licenses/agpl-3.0" target="_blank" rel="noopener noreferrer">GNU Affero General Public License v3.0 (AGPL-3.0)</a>. You are free to use, modify, and distribute this software in accordance with the license terms.</p>
+        </section>
+      </div>
+
+      <div class="footer">
+        <a href="/" class="back-link">← Back to Home</a>
+        <p class="last-updated">Last updated: March 2025</p>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  #app {
+    min-height: 100vh;
+    background: var(--background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .card {
+    background: var(--background);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    max-width: 600px;
+    width: 100%;
+    padding: 32px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .doc-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: var(--foreground);
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .content {
+    margin-bottom: 28px;
+  }
+
+  .intro {
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+    margin: 0 0 24px 0;
+  }
+
+  .term-section {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .term-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .term-section h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--foreground);
+    margin: 0 0 8px 0;
+  }
+
+  .term-section p {
+    font-size: 0.9375rem;
+    color: var(--foreground);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .footer {
+    text-align: center;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .back-link {
+    display: inline-block;
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+  }
+
+  .back-link:hover {
+    background: var(--muted);
+    color: var(--primary);
+  }
+
+  .last-updated {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    margin: 16px 0 0 0;
+  }
+</style>

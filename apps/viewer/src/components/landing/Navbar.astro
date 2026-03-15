@@ -1,0 +1,180 @@
+---
+// Sticky navigation bar for landing page
+---
+
+<nav class="navbar" id="navbar">
+  <div class="navbar-container">
+    <!-- Logo -->
+    <a href="/" class="logo">
+      Stash
+    </a>
+
+    <!-- Nav Links (hidden on mobile) -->
+    <div class="nav-links">
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#roadmap" class="nav-link">Roadmap</a>
+      <a href="#demo" class="nav-link">Demo</a>
+    </div>
+
+    <!-- CTA Button (appears after scrolling past hero) -->
+    <a href="#" class="cta-button" id="nav-cta">
+      Add to Browser
+    </a>
+  </div>
+</nav>
+
+<script>
+  // IntersectionObserver to show CTA after hero section
+  const heroSection = document.getElementById('hero');
+  const ctaButton = document.getElementById('nav-cta');
+
+  if (heroSection && ctaButton) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            ctaButton.classList.add('visible');
+          } else {
+            ctaButton.classList.remove('visible');
+          }
+        });
+      },
+      {
+        threshold: 0,
+        rootMargin: '-80px 0px 0px 0px',
+      }
+    );
+
+    observer.observe(heroSection);
+  }
+</script>
+
+<style>
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background-color: color-mix(in srgb, var(--background) 85%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    transition: background-color 0.3s ease;
+  }
+
+  .navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.875rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    transition: opacity 0.2s ease;
+  }
+
+  .logo:hover {
+    opacity: 0.85;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .nav-link {
+    color: var(--muted-foreground);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    position: relative;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary);
+    transition: width 0.2s ease;
+  }
+
+  .nav-link:hover {
+    color: var(--foreground);
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
+  }
+
+  .cta-button {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+  }
+
+  .cta-button.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .cta-button:hover {
+    filter: brightness(1.1);
+    box-shadow: var(--shadow-md);
+  }
+
+  .cta-button:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    .navbar-container {
+      padding: 0.75rem 1rem;
+    }
+
+    .nav-links {
+      display: none;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+    }
+
+    .cta-button {
+      font-size: 0.8125rem;
+      padding: 0.5rem 1rem;
+    }
+  }
+
+  /* Show CTA immediately on mobile since nav links are hidden */
+  @media (max-width: 768px) {
+    .cta-button {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+  }
+</style>
