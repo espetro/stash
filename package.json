@@ -14,6 +14,8 @@
     "screenshots": "tsx scripts/generate-screenshots.ts"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
     "oxfmt": "^0.38.0",
     "oxlint": "^1.53.0",
     "playwright": "^1.58.2",
