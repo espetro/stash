@@ -1,4 +1,4 @@
-import { storage } from "@wxt-dev/storage";
+import { storage } from "#imports";
 
 export interface HistoryEntry {
   id: string;

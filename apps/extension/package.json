@@ -1,12 +1,8 @@
 {
   "name": "stash-extension",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Stash browser extension",
-  "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=10.0.0"
-  },
   "scripts": {
     "dev": "wxt",
     "dev:firefox": "wxt -b firefox",
@@ -23,7 +19,6 @@
   "dependencies": {
     "@stash/codec": "workspace:*",
     "@stash/theme": "workspace:*",
-    "@wxt-dev/storage": "^1.2.8",
     "brotli-wasm": "^3.0.1",
     "pako": "^2.1.0",
     "react": "^19.2.4",
@@ -31,13 +26,17 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.287",
+    "@types/chrome": "^0.1.37",
     "@types/pako": "^2.0.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/webextension-polyfill": "^0.12.5",
     "@wxt-dev/module-react": "^1.2.1",
-    "typescript": "^5.7.2",
-    "wxt": "^0.19.15"
+    "typescript": "^5.9.3",
+    "wxt": "^0.20.19"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=10.0.0"
   }
 }
