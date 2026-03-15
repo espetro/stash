@@ -1,3 +1,5 @@
+@import '@stash/theme/components.css';
+
 body {
   width: 100%;
   min-height: 100vh;
@@ -180,12 +182,7 @@ body {
   color: var(--muted-foreground);
 }
 
-.loading {
-  text-align: center;
-  padding: 32px;
-  color: var(--muted-foreground);
-  font-size: 0.875rem;
-}
+
 
 .error-message {
   background: color-mix(in srgb, var(--destructive) 10%, var(--background));
@@ -197,9 +194,7 @@ body {
   font-size: 0.875rem;
 }
 
-.hidden {
-  display: none !important;
-}
+
 
 .btn {
   padding: 8px 16px;
