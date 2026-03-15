@@ -1,0 +1,14 @@
+/* Shared utility classes */
+
+/* Utility: hide element */
+.hidden {
+  display: none !important;
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 32px;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
