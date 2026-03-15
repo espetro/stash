@@ -265,4 +265,4 @@ The E2E test suite is complete when:
 
 ## License
 
-MIT
+AGPL-3.0-only - See [LICENSE](../../LICENSE) for details.
