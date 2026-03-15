@@ -14,6 +14,12 @@ export default defineConfig({
       48: "icon-48.png",
       128: "icon-128.png",
     },
+    web_accessible_resources: [
+      {
+        resources: ["fonts/*.woff2"],
+        matches: ["<all_urls>"],
+      },
+    ],
     browser_specific_settings: {
       gecko: {
         id: "stash@stash-extension",
