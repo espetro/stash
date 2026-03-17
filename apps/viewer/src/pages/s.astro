@@ -38,7 +38,15 @@ import TabItem from '../components/TabItem.astro';
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 12px;
+      padding-left: max(12px, env(safe-area-inset-left));
+      padding-right: max(12px, env(safe-area-inset-right));
+    }
+
+    @media (min-width: 640px) {
+      #app {
+        padding: 20px;
+      }
     }
 
     :global(#output) {
@@ -70,7 +78,23 @@ import TabItem from '../components/TabItem.astro';
       box-shadow: var(--shadow-lg);
       max-width: 600px;
       width: 100%;
-      padding: 32px;
+      padding: 16px;
+    }
+
+    @media (min-width: 640px) {
+      .card {
+        padding: 32px;
+      }
+    }
+
+    #content {
+      width: 100%;
+    }
+
+    @media (min-width: 640px) {
+      #content {
+        width: auto;
+      }
     }
 
     .header {
