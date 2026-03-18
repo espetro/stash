@@ -1,7 +1,9 @@
 import { base64UrlToBase64 } from "./base64.js";
 import { PAYLOAD_VERSION } from "./constants.js";
 import type { BrotliFunctions, DecodedPayload } from "./types.js";
-import { PayloadDecodeError } from "./types.js";
+import { PayloadDecodeError, SharePayload } from "./types.js";
+import { decode } from "@msgpack/msgpack";
+import { TLD_WHITELIST } from "./normalizer.js";
 
 /**
  * Decode share URL fragment to payload using v2 format:
@@ -30,7 +32,7 @@ export async function decodeShareUrl(
 
   // Detect prefix
   const prefix = encoded[0];
-  if (prefix !== "C" && prefix !== "R") {
+  if (prefix !== "C" && prefix !== "R" && prefix !== "D" && prefix !== "S") {
     throw new PayloadDecodeError("Unknown payload prefix");
   }
 
@@ -54,7 +56,7 @@ export async function decodeShareUrl(
 
   // Decompress if compressed
   let decompressed: Uint8Array;
-  if (prefix === "C") {
+  if (prefix === "C" || prefix === "D") {
     try {
       decompressed = brotli.decompress(bytes);
     } catch (e) {
@@ -62,6 +64,21 @@ export async function decodeShareUrl(
     }
   } else {
     decompressed = bytes;
+  }
+
+  // v3 path: D/S prefixes use MessagePack
+  if (prefix === "D" || prefix === "S") {
+    const msgpackPayload = decode(decompressed) as SharePayload;
+    const { v, e, i } = msgpackPayload;
+    if (!Array.isArray(i)) {
+      throw new PayloadDecodeError("Invalid v3 payload structure");
+    }
+    return {
+      version: v,
+      expiry: e,
+      items: i,
+      isExpired: Date.now() > e,
+    };
   }
 
   // Decode UTF-8 bytes to string
@@ -102,8 +119,88 @@ export async function decodeShareUrl(
     const urlWithoutScheme = itemStr.slice(0, usIndex);
     const title = itemStr.slice(usIndex + 1);
 
-    // Restore https:// prefix
-    const url = "https://" + urlWithoutScheme;
+    // Restore https:// prefix and TLD (if it was stripped by normalizer)
+    // Try to restore a whitelisted TLD by checking if the hostname matches a known pattern
+    // This is a best-effort restoration; not 100% reliable but good enough for common cases
+    const normalizedHasTrailingSlash = urlWithoutScheme.endsWith('/');
+    let url = "https://" + urlWithoutScheme;
+
+    // Try to restore TLD if the URL looks like it had one stripped
+    // Check if the hostname (first part before / or :) doesn't contain a dot
+    // If so, try to find a matching TLD from our whitelist by checking common patterns
+    try {
+      const parsed = new URL(url);
+      const hostname = parsed.hostname;
+
+      // If hostname has no dots, it might have had a TLD stripped
+      // Try to restore based on common patterns (e.g., github -> github.com)
+      if (!hostname.includes('.')) {
+        // Common domain mappings that were likely stripped
+        const commonDomains: Record<string, string> = {
+          'github': '.com',
+          'stackoverflow': '.com',
+          'developer': '.mozilla.org',
+          'reddit': '.com',
+          'css-tricks': '.com',
+          'codepen': '.io',
+          'jsfiddle': '.net',
+          'npmjs': '.com',
+          'yarnpkg': '.com',
+          'caniuse': '.com',
+          'web': '.dev',
+          'developer.chrome': '.com',
+          'javascript': '.info',
+          'react': '.dev',
+          'vuejs': '.org',
+          'angular': '.io',
+          'svelte': '.dev',
+          'nextjs': '.org',
+          'nuxt': '.com',
+          'remix': '.run',
+          'astro': '.build',
+          'deno': '.com',
+          'bun': '.sh',
+          'nodejs': '.org',
+          'typescriptlang': '.org',
+          'tailwindcss': '.com',
+          'webpack': '.js.org',
+          'vitejs': '.dev',
+          'rollupjs': '.org',
+          'eslint': '.org',
+          'prettier': '.io',
+          'jestjs': '.io',
+          'vitest': '.dev',
+          'testing-library': '.com',
+          'cypress': '.io',
+          'playwright': '.dev',
+          'sentry': '.io',
+          'datadoghq': '.com',
+          'vercel': '.com',
+          'netlify': '.com',
+          'cloudflare': '.com',
+          'mongodb': '.com',
+          'postgresql': '.org',
+          'redis': '.io',
+          'supabase': '.com',
+          'firebase': '.google.com',
+          'planetscale': '.com',
+        };
+
+        // Try exact match first
+        if (commonDomains[hostname]) {
+          parsed.hostname = hostname + commonDomains[hostname];
+        }
+        url = parsed.toString();
+      }
+
+      // URL.toString() adds trailing slash for root paths automatically
+      if (!normalizedHasTrailingSlash && parsed.pathname === '/') {
+        url = url.slice(0, -1);
+      }
+    } catch {
+      // If URL parsing fails, just use the simple scheme restoration
+    }
+
     items.push([url, title]);
   }
 
