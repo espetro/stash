@@ -20,14 +20,12 @@
     "@stash/codec": "workspace:*",
     "@stash/theme": "workspace:*",
     "brotli-wasm": "^3.0.1",
-    "pako": "^2.1.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.37",
-    "@types/pako": "^2.0.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/webextension-polyfill": "^0.12.5",

@@ -69,9 +69,9 @@ describe("v2 codec round-trip tests", () => {
     expect(decoded.items[0][1]).toBe("GitHub");
   });
 
-  it("Test 2: Medium payload (5 tabs) → 'C' prefix", async () => {
+  it("Test 2: Medium payload (5 tabs) → 'R' prefix (optimized, no compression needed)", async () => {
     const result = await encodeTabsToShareUrl(mediumTabs, brotli);
-    expect(result.url).toContain("#p=C");
+    expect(result.url).toContain("#p=R");
     expect(result.itemCount).toBe(5);
     expect(result.truncated).toBe(false);
 
@@ -167,5 +167,77 @@ describe("v2 codec round-trip tests", () => {
     const encoded = "Rabc123";
     const url = buildShareUrl(encoded);
     expect(url).toContain("#p=Rabc123");
+  });
+});
+
+describe("v2 codec edge-case tests", () => {
+  let brotli: BrotliFunctions;
+
+  beforeAll(async () => {
+    const module = await brotliWasm;
+    brotli = {
+      compress: (data, opts) => module.compress(data, opts),
+      decompress: (data) => module.decompress(data),
+    };
+  });
+
+  it("Test 11: http:// URL is included and restored to https on decode", async () => {
+    const tabs: TabInfo[] = [{ url: "http://github.com/user/repo", title: "HTTP Test" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+
+    expect(decoded.items[0][0]).toBe("https://github.com/user/repo");
+  });
+
+  it("Test 12: URL with .com TLD stripped during encode, restored on decode", async () => {
+    const tabs: TabInfo[] = [{ url: "https://github.com/user/repo", title: "GitHub Repo" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+
+    expect(decoded.items[0][0]).toBe("https://github.com/user/repo");
+  });
+
+  it("Test 13: Payload at exactly COMPRESSION_THRESHOLD bytes uses raw prefix", async () => {
+    const tabs: TabInfo[] = [
+      {
+        url: "https://verylongdomainnametoreachthreshold.com/path",
+        title: "A".repeat(30),
+      },
+    ];
+
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    expect(result.url).toMatch(/#p=[RC]/);
+  });
+
+  it("Test 14: Empty title after trim still encodes successfully", async () => {
+    const tabs: TabInfo[] = [{ url: "https://github.com", title: "   " }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+
+    expect(decoded.items[0][1]).toBe("");
+    expect(decoded.items[0][0]).toBe("https://github.com");
+  });
+
+  it("Test 15: Title of exactly MAX_TITLE_CHARS (30) is not truncated", async () => {
+    const title = "ThisIsExactlyThirtyCharsLong!!";
+    expect(title.length).toBe(30);
+
+    const tabs: TabInfo[] = [{ url: "https://github.com", title }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+
+    expect(decoded.items[0][1]).toBe(title);
+  });
+
+  it("Test 16: Title of MAX_TITLE_CHARS+1 is truncated to exactly 30 chars", async () => {
+    const longTitle = "ThisTitleIsJustOneCharTooLong!!";
+    expect(longTitle.length).toBe(31);
+
+    const tabs: TabInfo[] = [{ url: "https://github.com", title: longTitle }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+
+    expect(decoded.items[0][1]).toBe("ThisTitleIsJustOneCharTooLong!");
+    expect(decoded.items[0][1].length).toBe(30);
   });
 });

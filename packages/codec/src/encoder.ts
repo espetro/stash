@@ -4,10 +4,12 @@ import {
   EXPIRY_HOURS,
   BUDGET_CHARS,
   MAX_TITLE_CHARS,
+  COMPRESSION_THRESHOLD,
   VIEWER_ORIGIN,
   VIEWER_PATH,
 } from "./constants.js";
 import type { SharePayload, TabInfo, EncodingResult, BrotliFunctions } from "./types.js";
+import { normalizeUrl } from "./normalizer.js";
 
 /**
  * Normalize title: trim, collapse whitespace, truncate to MAX_TITLE_CHARS
@@ -41,7 +43,8 @@ export function createPayload(tabs: TabInfo[], expiryHours: number = EXPIRY_HOUR
  * Encode payload using v2 delimiter format:
  * "2" + expiry + "\x1d" + items
  *
- * Compression: brotli quality 11, only if > 50 bytes
+ * Normalization: URLs are normalized (www. and common TLDs stripped) before scheme removal
+ * Compression: brotli quality 11, only if > COMPRESSION_THRESHOLD bytes (currently 500)
  * Prefix: "C" for compressed, "R" for raw
  */
 export async function encodePayload(
@@ -55,9 +58,8 @@ export async function encodePayload(
       return url.startsWith("http://") || url.startsWith("https://");
     })
     .map(([url, title]) => {
-      // Strip scheme from URL
-      const urlWithoutScheme = stripUrlScheme(url);
-      // Item format: url + unit separator + title
+      const normalizedUrl = normalizeUrl(url);
+      const urlWithoutScheme = stripUrlScheme(normalizedUrl);
       return `${urlWithoutScheme}\x1f${title}`;
     });
 
@@ -67,8 +69,8 @@ export async function encodePayload(
   // UTF-8 bytes
   const utf8 = new TextEncoder().encode(packed);
 
-  // Compress only if > 50 bytes
-  const isCompressed = utf8.length > 50;
+  // Compress only if > COMPRESSION_THRESHOLD bytes
+  const isCompressed = utf8.length > COMPRESSION_THRESHOLD;
   const bytes = isCompressed ? brotli.compress(utf8, { quality: 11 }) : utf8;
 
   // Base64 encode and convert to base64url
