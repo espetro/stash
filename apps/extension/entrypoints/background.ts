@@ -1,12 +1,12 @@
-import { defineBackground } from "#imports";
+import { defineBackground } from "wxt/utils/define-background";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import type { TabInfo } from "@stash/codec";
 import { getBrotliFunctions } from "../lib/brotli";
 import { getSettings, settingsItem } from "../lib/settings";
 
 export default defineBackground(() => {
-  settingsItem.watch((newValue, oldValue) => {
-    console.log("Settings changed:", { oldValue, newValue });
+  settingsItem.onChanged((newValue) => {
+    console.log("Settings changed:", newValue);
   });
 
   browser.runtime.onInstalled.addListener(async () => {

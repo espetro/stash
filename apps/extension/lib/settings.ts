@@ -1,4 +1,4 @@
-import { storage } from "#imports";
+import { StorageItem } from "webext-storage";
 import { validateViewerOrigin } from "./validation.js";
 
 export type ExpiryMode = "24h" | "7d" | "30d" | "never";
@@ -21,13 +21,14 @@ export const DEFAULT_SETTINGS: Settings = {
   viewerOrigin: BUILD_TIME_VIEWER_ORIGIN,
 };
 
-export const settingsItem = storage.defineItem<Settings>("sync:stash-settings", {
-  fallback: DEFAULT_SETTINGS,
+export const settingsItem = new StorageItem<Settings>("stash-settings", {
+  area: "sync",
+  defaultValue: DEFAULT_SETTINGS,
 });
 
 export const getSettings = async (): Promise<Settings> => {
   try {
-    return await settingsItem.getValue();
+    return (await settingsItem.get()) ?? DEFAULT_SETTINGS;
   } catch {
     return DEFAULT_SETTINGS;
   }
@@ -45,7 +46,7 @@ export const setSettings = async (
   try {
     const current = await getSettings();
     const merged = { ...current, ...partial };
-    await settingsItem.setValue(merged);
+    await settingsItem.set(merged);
     return { success: true };
   } catch {
     return { success: false, error: "Failed to save settings" };
