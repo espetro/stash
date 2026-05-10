@@ -22,6 +22,7 @@
     "brotli-wasm": "^3.0.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "webext-storage": "^3.1.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -32,7 +33,7 @@
     "@wxt-dev/module-react": "^1.2.1",
     "geist": "^1.7.0",
     "typescript": "^5.9.3",
-    "wxt": "^0.20.19"
+    "wxt": "^0.20.25"
   },
   "engines": {
     "node": ">=18.0.0",

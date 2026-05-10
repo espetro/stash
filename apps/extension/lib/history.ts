@@ -1,4 +1,4 @@
-import { storage } from "#imports";
+import { StorageItem } from "webext-storage";
 
 export interface HistoryEntry {
   id: string;
@@ -11,17 +11,18 @@ export interface HistoryEntry {
 
 const HISTORY_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 
-export const historyItem = storage.defineItem<HistoryEntry[]>("local:stash-history", {
-  fallback: [],
+export const historyItem = new StorageItem<HistoryEntry[]>("stash-history", {
+  area: "local",
+  defaultValue: [],
 });
 
 export async function getHistory(): Promise<HistoryEntry[]> {
   try {
-    const history = await historyItem.getValue();
+    const history = (await historyItem.get()) ?? [];
     const now = Date.now();
     const cleanedHistory = history.filter((entry) => now - entry.createdAt < HISTORY_MAX_AGE_MS);
 
-    await historyItem.setValue(cleanedHistory);
+    await historyItem.set(cleanedHistory);
     return cleanedHistory;
   } catch {
     return [];
@@ -30,14 +31,14 @@ export async function getHistory(): Promise<HistoryEntry[]> {
 
 export async function addToHistory(entry: HistoryEntry): Promise<void> {
   try {
-    const history = await historyItem.getValue();
+    const history = (await historyItem.get()) ?? [];
     const updated = [...history, entry];
-    await historyItem.setValue(updated);
+    await historyItem.set(updated);
   } catch {}
 }
 
 export async function clearHistory(): Promise<void> {
   try {
-    await historyItem.setValue([]);
+    await historyItem.set([]);
   } catch {}
 }
