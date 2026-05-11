@@ -2,7 +2,7 @@ import { StorageItem } from "webext-storage";
 import { validateViewerOrigin } from "./validation.js";
 
 export type ExpiryMode = "24h" | "7d" | "30d" | "never";
-const BUILD_TIME_VIEWER_ORIGIN = import.meta.env.VITE_VIEWER_ORIGIN || "http://localhost:4321";
+const BUILD_TIME_VIEWER_ORIGIN = import.meta.env.VITE_VIEWER_ORIGIN || "https://stash.illo.fyi";
 
 export const EXPIRY_HOURS_MAP: Record<ExpiryMode, number> = {
   "24h": 24,
