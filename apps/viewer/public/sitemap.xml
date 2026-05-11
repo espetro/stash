@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://stash.oxejoq.eu/</loc>
+    <loc>https://stash.illo.fyi/</loc>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://stash.oxejoq.eu/privacy</loc>
+    <loc>https://stash.illo.fyi/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

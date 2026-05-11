@@ -3,7 +3,7 @@ export const EXPIRY_HOURS = 24;
 export const BUDGET_CHARS = 8000;
 export const MAX_TITLE_CHARS = 30;
 export const COMPRESSION_THRESHOLD = 500;
-export const VIEWER_ORIGIN = import.meta.env.VITE_VIEWER_ORIGIN || "http://localhost:4321";
+export const VIEWER_ORIGIN = import.meta.env.VITE_VIEWER_ORIGIN || "https://stash.illo.fyi";
 export const VIEWER_PATH = "/s/";
 export const EXPIRY_HOURS_MAP = {
   "24h": 24,
