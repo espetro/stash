@@ -5,6 +5,7 @@ dist/
 .astro/
 .turbo/
 .sisyphus/
+.osgrep/
 tmp/
 .DS_STORE
 .env
