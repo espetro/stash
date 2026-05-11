@@ -17,17 +17,17 @@
     "validate": "gauge validate specs/"
   },
   "dependencies": {
-    "@getgauge/cli": "^1.6.0",
+    "@getgauge/cli": "^1.6.30",
     "@stash/codec": "workspace:*",
     "brotli-wasm": "^3.0.1",
     "gauge-ts": "^0.3.6",
-    "playwright": "^1.40.0",
+    "playwright": "^1.60.0",
     "pako": "^2.1.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "typescript": "^6.0.3"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0"
+    "@types/node": "^24.12.3"
   },
   "engines": {
     "node": ">=18.0.0",
