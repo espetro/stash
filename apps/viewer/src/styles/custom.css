@@ -1,0 +1,10 @@
+@import 'https://fonts.googleapis.com/css2?family=Geist+Sans:wght@400;500;600;700&display=swap';
+
+:root {
+  --sl-color-accent-hsl: 217 91% 60%;
+  --sl-color-accent-low: 217 91% 40%;
+  --sl-color-accent-high: 217 91% 80%;
+  --sl-color-text-hsl: 225 20% 7%;
+  --sl-font-heading: 'Geist Sans', system-ui, sans-serif;
+  --sl-font-body: 'Geist Sans', system-ui, sans-serif;
+}
