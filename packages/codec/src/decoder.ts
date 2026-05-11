@@ -1,7 +1,8 @@
 import { base64UrlToBase64 } from "./base64.js";
 import { PAYLOAD_VERSION } from "./constants.js";
 import type { BrotliFunctions, DecodedPayload } from "./types.js";
-import { PayloadDecodeError, SharePayload } from "./types.js";
+import { PayloadDecodeError } from "./types.js";
+import type { SharePayload } from "./types.js";
 import { decode } from "@msgpack/msgpack";
 import { TLD_WHITELIST } from "./normalizer.js";
 
