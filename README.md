@@ -1,196 +1,29 @@
-# Stash - Browser Extension
+# Stash
 
-A cross-browser extension that enables users to share snapshots of selected tabs via URL-encoded links.
+Your tabs are your thinking. Stop losing them.
 
-## Overview
+Share your entire browser context as one link — or save it for later. Locally. Privately. No account. No cloud. No noise.
 
-Stash consists of two parts:
+<!-- TODO: Add screenshot or GIF showing extension in action -->
 
-1. **Browser Extension** - Captures tabs and generates share links
-2. **Viewer Site** (Astro) - Renders shared tabs in a centered card UI
+[![Chrome Web Store](https://img.shields.io/badge/Chrome-Web_Store-blue?logo=google-chrome&logoColor=white)](https://chromewebstore.google.com/detail/stash/hmbicgabmfokajcfljebjldnhhefngld)
+[![Firefox Add-ons](https://img.shields.io/badge/Firefox-Add-ons-orange?logo=firefox&logoColor=white)](https://addons.mozilla.org/en-US/firefox/addon/stash/)
 
-## Features
+- 🔄 Share multiple tabs with a single URL
+- 🔒 No server needed — everything is encoded in the link  
+- 📱 Works on any device (just open the link)
+- ⏰ Links auto-expire after 24 hours
+- 🌐 Cross-browser (Chrome, Firefox, Edge)
 
-- Share multiple tabs with a single URL
-- URL budget enforcement (8000 character limit)
-- Automatic expiry after 24 hours
-- Cross-browser support (Chrome, Firefox, Edge)
-- Compressed payload using pako
-- Clean, modern UI with purple gradient theme
+How it works:
 
-## Project Structure
+1. Select the tabs you want to share
+2. Right-click and choose "Share with Stash"  
+3. Copy the link and send it anywhere
 
-```
-stash/
-├── apps/
-│   ├── extension/          # WXT browser extension
-│   │   ├── entrypoints/
-│   │   │   └── background.ts   # Service worker (context menu, clipboard)
-│   │   ├── lib/
-│   │   │   ├── encoder.ts      # Payload encoding + budget enforcement
-│   │   │   ├── types.ts        # Shared TypeScript interfaces
-│   │   │   └── constants.ts    # BUDGET_CHARS, VIEWER_ORIGIN, etc.
-│   │   ├── public/
-│   │   │   ├── icon-16.svg
-│   │   │   ├── icon-48.svg
-│   │   │   └── icon-128.svg
-│   │   ├── wxt.config.ts
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   └── viewer/             # Astro static site
-│       ├── src/
-│       │   ├── pages/
-│       │   │   └── s.astro     # Viewer page at /s/
-│       │   ├── lib/
-│       │   │   ├── decoder.ts  # Payload decoding
-│       │   │   ├── types.ts    # Same as extension
-│       │   │   └── constants.ts # Same as extension
-│       │   └── layouts/
-│       │       └── Layout.astro
-│       ├── astro.config.mjs
-│       ├── package.json
-│       └── tsconfig.json
-│
-├── package.json            # Root workspace config
-└── README.md
-```
+If you find Stash useful, please ⭐ star the repo on GitHub!
 
-## Installation
+Learn more in the [documentation](https://stash.illo.fyi/docs)
+Questions? Check the [FAQ](https://stash.illo.fyi/docs/faq)
 
-### Prerequisites
-
-- Node.js 18+
-- pnpm
-
-### Setup
-
-1. Install dependencies:
-
-```bash
-pnpm install
-```
-
-2. Build the extension:
-
-```bash
-pnpm run build
-```
-
-3. Build the viewer:
-
-```bash
-pnpm run build
-```
-
-## Development
-
-### Local Development
-
-```bash
-# Terminal 1: Run extension in development mode
-pnpm run dev:ext
-
-# Terminal 2: Run viewer in development mode
-pnpm run dev:view
-```
-
-The extension will be available at `chrome://extensions/` (or Firefox equivalent) and the viewer will run at `http://localhost:4321`.
-
-### Testing
-
-1. Install the extension in Chrome (dev mode)
-2. Open 5 tabs (e.g., GitHub, Stack Overflow, MDN, etc.)
-3. Multi-select all tabs (Cmd+Click or Shift+Click)
-4. Right-click on selected tab
-5. Click "Share selected tabs…"
-6. Verify notification: "Link copied! 5 tabs shared"
-7. Open new tab and paste URL
-8. Verify viewer loads with the shared tabs
-
-## Production Deployment
-
-### Before Production
-
-1. Update `VIEWER_ORIGIN` in [`apps/extension/lib/constants.ts`](apps/extension/lib/constants.ts:1)
-2. Update `site` in [`apps/viewer/astro.config.mjs`](apps/viewer/astro.config.mjs:1)
-3. Deploy `apps/viewer/dist/` to static host (Cloudflare Pages, Vercel, Netlify)
-4. Rebuild both packages with production URL: `pnpm run build` (Turborepo builds extension and viewer together)
-5. Create zip: `pnpm --filter stash-extension run zip:chrome` (or `zip:firefox`)
-
-### Chrome Store Submission
-
-1. Build: `pnpm run build`
-2. Zip: `pnpm --filter stash-extension run zip:chrome`
-3. Upload `apps/extension/.output/stash-extension-{version}-chrome.zip` to Chrome Web Store
-4. Provide: Description, icons, screenshots, privacy policy
-
-### Firefox Add-ons Submission
-
-1. Build: `pnpm --filter stash-extension run build:firefox`
-2. Zip: `pnpm --filter stash-extension run zip:firefox`
-3. Upload `apps/extension/.output/stash-extension-{version}-firefox.zip` to Firefox Add-ons
-4. **Source code required:** Run `./scripts/create-sources-zip.sh` and upload the generated sources zip
-5. Provide: Description, icons, screenshots, privacy policy
-
-See [`apps/extension/SOURCES.md`](apps/extension/SOURCES.md) for detailed build instructions required by Mozilla.
-
-## Configuration
-
-### Extension Constants
-
-Edit [`apps/extension/lib/constants.ts`](apps/extension/lib/constants.ts:1):
-
-```typescript
-export const PAYLOAD_VERSION = 1;
-export const EXPIRY_HOURS = 24;
-export const BUDGET_CHARS = 8000;
-export const MAX_TITLE_CHARS = 30;
-export const VIEWER_ORIGIN = "http://localhost:4321"; // Update before production
-export const VIEWER_PATH = "/s/";
-```
-
-### Viewer Config
-
-Edit [`apps/viewer/astro.config.mjs`](apps/viewer/astro.config.mjs:1):
-
-```javascript
-export default defineConfig({
-  site: "http://localhost:4321", // Update before production
-  output: "static",
-  build: {
-    format: "file",
-  },
-});
-```
-
-## How It Works
-
-### Encoding Pipeline (Extension)
-
-1. Normalize titles (30 char max)
-2. Create payload `{v: 1, e: timestamp, i: [[url, title], ...]}`
-3. JSON.stringify (no whitespace)
-4. TextEncoder → UTF-8 bytes
-5. pako.deflate → compressed bytes
-6. btoa + URL-safe replacements → base64url
-7. Build URL: `${VIEWER_ORIGIN}${VIEWER_PATH}#p=${base64url}`
-8. If length > 8000, binary search for max subset
-
-### Decoding Pipeline (Viewer)
-
-1. Extract `#p=...` from URL fragment
-2. Convert base64url → base64 (add padding)
-3. atob → binary string → Uint8Array
-4. pako.inflate → decompressed bytes
-5. TextDecoder → UTF-8 string
-6. JSON.parse → SharePayload
-7. Validate schema version and structure
-8. Check expiry (compare timestamp to now)
-9. Return `{version, expiry, items, isExpired}`
-
-## License
-
-This fork is licensed under the GNU Affero General Public License v3.0 (AGPL‑3.0‑only).
-
-See the [LICENSE](./LICENSE) file for the full license text, or refer to [the LICENSE file](https://github.com/espetro/stash/blob/main/LICENSE).
+Licensed under AGPL-3.0. See [LICENSE](./LICENSE)
