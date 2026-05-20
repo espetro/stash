@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Build extension
+        run: pnpm --filter stash-extension run build
+        env:
+          VITE_VIEWER_ORIGIN: https://stash.illo.fyi
+
+      - name: Find built zip files
+        id: artifacts
+        run: |
+          CHROME_ZIP=$(find apps/extension/.output -name "*.zip" | grep -i chrome | head -1)
+          FIREFOX_ZIP=$(find apps/extension/.output -name "*.zip" | grep -i firefox | head -1)
+          echo "chrome=${CHROME_ZIP#apps/extension/}" >> $GITHUB_OUTPUT
+          echo "firefox=${FIREFOX_ZIP#apps/extension/}" >> $GITHUB_OUTPUT
+          echo "chrome=${CHROME_ZIP#apps/extension/}"
+          echo "firefox=${FIREFOX_ZIP#apps/extension/}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: CHANGELOG.md
+          files: |
+            apps/extension/${{ steps.artifacts.outputs.chrome }}
+            apps/extension/${{ steps.artifacts.outputs.firefox }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
