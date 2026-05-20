@@ -9,7 +9,6 @@ import {
   VIEWER_PATH,
 } from "./constants.js";
 import type { SharePayload, TabInfo, EncodingResult, BrotliFunctions } from "./types.js";
-import { normalizeUrl } from "./normalizer.js";
 
 /**
  * Normalize title: trim, collapse whitespace, truncate to MAX_TITLE_CHARS
@@ -43,7 +42,7 @@ export function createPayload(tabs: TabInfo[], expiryHours: number = EXPIRY_HOUR
  * Encode payload using v2 delimiter format:
  * "2" + expiry + "\x1d" + items
  *
- * Normalization: URLs are normalized (www. and common TLDs stripped) before scheme removal
+ * Normalization: only scheme prefix (https:// or http://) is stripped from URLs
  * Compression: brotli quality 11, only if > COMPRESSION_THRESHOLD bytes (currently 500)
  * Prefix: "C" for compressed, "R" for raw
  */
@@ -58,8 +57,7 @@ export async function encodePayload(
       return url.startsWith("http://") || url.startsWith("https://");
     })
     .map(([url, title]) => {
-      const normalizedUrl = normalizeUrl(url);
-      const urlWithoutScheme = stripUrlScheme(normalizedUrl);
+      const urlWithoutScheme = stripUrlScheme(url);
       return `${urlWithoutScheme}\x1f${title}`;
     });
 

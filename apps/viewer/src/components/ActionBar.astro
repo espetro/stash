@@ -4,7 +4,14 @@
 <div class="actions">
   <button id="open-all" class="btn btn-primary">Open All Tabs</button>
   <button id="copy-urls" class="btn btn-secondary">Copy URLs</button>
+  <button id="new-stash" class="btn btn-secondary">New</button>
 </div>
+
+<script>
+  document.getElementById('new-stash')?.addEventListener('click', () => {
+    window.location.href = '/s/new';
+  });
+</script>
 
 <style>
   .actions {
