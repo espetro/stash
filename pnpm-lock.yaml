@@ -108,6 +108,9 @@ importers:
       geist:
         specifier: ^1.7.0
         version: 1.7.0(next@16.2.6(@babel/core@7.29.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))
+      lean-qr:
+        specifier: ^2.7.1
+        version: 2.7.1
       markdown-escape:
         specifier: ^2.0.0
         version: 2.0.0
@@ -175,6 +178,9 @@ importers:
       '@msgpack/msgpack':
         specifier: ^3.1.3
         version: 3.1.3
+      '@oslojs/encoding':
+        specifier: ^1.1.0
+        version: 1.1.0
     devDependencies:
       '@types/webextension-polyfill':
         specifier: ^0.12.5
@@ -3845,6 +3851,10 @@ packages:
   latest-version@9.0.0:
     resolution: {integrity: sha512-7W0vV3rqv5tokqkBAFV1LbR7HPOWzXQDpDgEuib/aJ1jsZZx6x3c2mBI+TJhJzOhkGeaLbCKEHXEXLfirtG2JA==}
     engines: {node: '>=18'}
+
+  lean-qr@2.7.1:
+    resolution: {integrity: sha512-4WfYs9t1jpiF6nDRxe9LFlWzRhvVeiV3tpsjAkrijHx5dtrF0E4dupvjJX3SUoS18CAaU6QF2gSZILO10z8utA==}
+    hasBin: true
 
   lie@3.3.0:
     resolution: {integrity: sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==}
@@ -9104,6 +9114,8 @@ snapshots:
   latest-version@9.0.0:
     dependencies:
       package-json: 10.0.1
+
+  lean-qr@2.7.1: {}
 
   lie@3.3.0:
     dependencies:

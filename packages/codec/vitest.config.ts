@@ -6,5 +6,6 @@ export default defineConfig({
     alias: {
       "brotli-wasm": path.resolve(__dirname, "node_modules/brotli-wasm/index.node.js"),
     },
+    exclude: ["node_modules", "dist"],
   },
 });

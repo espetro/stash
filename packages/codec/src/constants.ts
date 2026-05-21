@@ -1,4 +1,4 @@
-export const PAYLOAD_VERSION = 2;
+export const PAYLOAD_VERSION = 4;
 export const EXPIRY_HOURS = 24;
 export const BUDGET_CHARS = 8000;
 export const MAX_TITLE_CHARS = 30;
