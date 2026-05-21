@@ -1,7 +1,14 @@
 import * as React from "react";
-import { useState, useEffect, useCallback } from "react";
-import { decodeShareUrl, PayloadDecodeError } from "@stash/codec";
+import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  decodeShareUrl,
+  PayloadDecodeError,
+  encodeTabsToQrUrl,
+  getQrSegments,
+  estimateQrBitLength,
+} from "@stash/codec";
 import { getBrotliFunctions } from "@/lib/brotli";
+import { generate, mode } from "lean-qr";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
@@ -14,6 +21,7 @@ interface DecodedData {
   expiry: number;
   isExpired: boolean;
   items: [string, string][];
+  title?: string;
 }
 
 function getFaviconUrl(url: string): string {
@@ -138,12 +146,89 @@ function MdOutput({ data }: { data: DecodedData }) {
   );
 }
 
+function QrModal({
+  open,
+  onClose,
+  tabs,
+  title,
+}: {
+  open: boolean;
+  onClose: () => void;
+  tabs: TabItem[];
+  title?: string;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    setError(null);
+
+    if (!canvasRef.current) return;
+
+    async function generateQr() {
+      try {
+        const brotli = await getBrotliFunctions();
+        const { qrUrl } = await encodeTabsToQrUrl(tabs, brotli, 24, undefined, title);
+
+        const estimatedBits = estimateQrBitLength(qrUrl);
+        // QR V40 L capacity is 23,648 bits — anything beyond that definitely won't fit
+        if (estimatedBits > 23648) {
+          setError("This stash is too large to fit in a QR code.");
+          return;
+        }
+
+        const { prefix, payload } = getQrSegments(qrUrl);
+        const qr = generate(
+          mode.multi(mode.bytes(new TextEncoder().encode(prefix)), mode.alphaNumeric(payload)),
+        );
+        qr.toCanvas(canvasRef.current!, { pad: 2 });
+      } catch (err) {
+        console.error("Failed to generate QR code:", err);
+        setError("This stash URL is too long to fit in a QR code.");
+      }
+    }
+
+    generateQr();
+  }, [open, tabs, title]);
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="flex w-full max-w-sm flex-col items-center gap-4 rounded-2xl bg-card p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-lg font-semibold text-card-foreground">Share this stash</h2>
+        {error ? (
+          <p className="text-center text-sm text-muted-foreground">{error}</p>
+        ) : (
+          <canvas
+            ref={canvasRef}
+            className="rounded-lg"
+            style={{ width: 240, height: 240, imageRendering: "pixelated" }}
+          />
+        )}
+        <Button onClick={onClose} className="w-full rounded-xl">
+          Close
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function TabViewer() {
   const [state, setState] = useState<
     | { type: "loading" }
     | { type: "error"; message: string }
     | { type: "content"; data: DecodedData; format: string | null }
   >({ type: "loading" });
+
+  const [qrOpen, setQrOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -187,29 +272,13 @@ export default function TabViewer() {
     };
   }, []);
 
-  const openAllTabs = useCallback(() => {
-    if (state.type !== "content") return;
-    state.data.items.forEach(([url]) => {
-      window.open(url, "_blank");
-    });
-  }, [state]);
+  const handleNew = useCallback(() => {
+    window.location.href = "/s/new";
+  }, []);
 
-  const copyUrls = useCallback(async () => {
-    if (state.type !== "content") return;
-
-    const lines = state.data.items.map(([url, title]) => {
-      const escaped = title.replace(/]/g, "\\]").replace(/\[/g, "\\[");
-      return `[${escaped}](${url})`;
-    });
-    const text = lines.join("\n");
-
-    try {
-      await navigator.clipboard.writeText(text);
-      // Could show a toast here if we had one
-    } catch (error) {
-      console.error("Failed to copy URLs:", error);
-    }
-  }, [state]);
+  const handleShareQr = useCallback(() => {
+    setQrOpen(true);
+  }, []);
 
   if (state.type === "loading") {
     return (
@@ -249,45 +318,51 @@ export default function TabViewer() {
   return (
     <div className="flex min-h-screen flex-col items-center bg-background p-3 pt-6 sm:pt-8">
       <Card className="flex w-full max-w-[640px] flex-col rounded-[2rem] border border-border bg-card shadow-xl shadow-black/[0.04] sm:max-h-[75vh]">
-        <CardHeader className="shrink-0 items-center gap-1 pb-2 pt-6 text-center sm:pt-8">
+        <CardHeader className="shrink-0 flex flex-col items-center justify-center gap-1 pb-2 pt-6 text-center sm:pt-8">
           <CardTitle className="text-xl font-semibold tracking-tight text-card-foreground sm:text-2xl">
-            Shared Tabs
+            {data.title ?? "Shared Tabs"}
           </CardTitle>
-          <CardDescription className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          <CardDescription className="leading-none text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             {buildCaption(count, data.expiry)}
           </CardDescription>
         </CardHeader>
 
         <CardContent className="flex flex-col overflow-hidden px-3 pb-3 sm:px-5 sm:pb-5">
-          <div
-            className="custom-scrollbar overflow-y-auto rounded-xl border border-border"
-            style={{ maxHeight: "400px" }}
-          >
-            {data.items.map(([url, title], index) => (
-              <React.Fragment key={url + index}>
-                {index > 0 && <div className="h-px bg-border" />}
-                <TabListItem url={url} title={title} />
-              </React.Fragment>
-            ))}
+          <div className="overflow-hidden rounded-xl border border-border">
+            <div className="custom-scrollbar overflow-y-auto" style={{ maxHeight: "400px" }}>
+              {data.items.map(([url, title], index) => (
+                <React.Fragment key={url + index}>
+                  {index > 0 && <div className="h-px bg-border" />}
+                  <TabListItem url={url} title={title} />
+                </React.Fragment>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="mt-4 flex w-full max-w-[640px] flex-col gap-3">
+      <div className="mt-4 flex w-full max-w-[640px] flex-col gap-3 px-3 sm:px-5">
         <Button
-          onClick={openAllTabs}
-          className="h-14 w-full rounded-2xl bg-primary text-base font-semibold text-primary-foreground hover:bg-primary/90"
+          onClick={handleShareQr}
+          className="h-14 w-full rounded-xl bg-primary text-base font-semibold text-primary-foreground hover:bg-primary/90"
         >
-          Open All Tabs
+          Share as QR
         </Button>
         <Button
           variant="outline"
-          onClick={copyUrls}
-          className="h-14 w-full rounded-2xl border-border bg-card text-base font-semibold text-foreground hover:bg-secondary"
+          onClick={handleNew}
+          className="h-14 w-full rounded-xl border-border bg-card text-base font-semibold text-foreground"
         >
-          Copy URLs
+          New
         </Button>
       </div>
+
+      <QrModal
+        open={qrOpen}
+        onClose={() => setQrOpen(false)}
+        tabs={data.items.map(([url, title]) => ({ url, title }))}
+        title={data.title}
+      />
     </div>
   );
 }

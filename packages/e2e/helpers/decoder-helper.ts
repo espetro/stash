@@ -3,7 +3,6 @@ import brotliWasm from "brotli-wasm";
 import {
   type DecodedPayload,
   PayloadDecodeError,
-  PAYLOAD_VERSION,
 } from "@stash/codec";
 
 export type { DecodedPayload };
@@ -76,7 +75,9 @@ export async function decodeViewerUrl(url: string): Promise<DecodedPayload> {
 export function extractPayloadFromUrl(url: string): string {
   try {
     const urlObj = new URL(url);
-    const match = urlObj.hash.match(/^#p=(.+)$/);
+    const urlMatch = urlObj.hash.match(/^#p=(.+)$/);
+    const qrMatch = urlObj.hash.match(/^#q=(.+)$/);
+    const match = urlMatch || qrMatch;
     if (!match) {
       throw new PayloadDecodeError("No payload found in URL");
     }

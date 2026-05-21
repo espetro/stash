@@ -1,6 +1,5 @@
 export {
   encodeTabsToShareUrl,
-  encodePayload,
   createPayload,
   buildShareUrl,
   normalizeTitle,

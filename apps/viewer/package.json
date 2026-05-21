@@ -23,6 +23,7 @@
     "astro": "^6.3.1",
     "brotli-wasm": "^3.0.1",
     "geist": "^1.7.0",
+    "lean-qr": "^2.7.1",
     "markdown-escape": "^2.0.0",
     "pako": "^2.1.0",
     "radix-ui": "^1.4.3",

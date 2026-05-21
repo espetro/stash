@@ -1,5 +1,9 @@
+import * as fs from "fs";
+import * as path from "path";
 import brotliWasm from "brotli-wasm";
-import { encodeTabsToShareUrl, createPayload, encodePayload, buildShareUrl } from "../encoder.js";
+import { createPayload } from "../encoder.js";
+import { buildShareUrl } from "../adapters/url-adapter.js";
+import { serializePayload } from "../payload.js";
 import type { TabInfo } from "../types.js";
 import type { BrotliFunctions } from "../types.js";
 import { PAYLOAD_VERSION, COMPRESSION_THRESHOLD } from "../constants.js";
@@ -80,10 +84,9 @@ const fiftyTabs: TabInfo[] = [
   { url: "https://planetscale.com", title: "PlanetScale" },
 ];
 
-async function measurePayload(
+async function measureUrlPayload(
   tabs: TabInfo[],
   brotli: BrotliFunctions,
-  compressionThreshold: number,
 ): Promise<{
   payloadName: string;
   serialized_bytes: number;
@@ -95,38 +98,23 @@ async function measurePayload(
   prefix: string;
 }> {
   const payload = createPayload(tabs);
+  const serialized = serializePayload(payload);
+  const isCompressed = serialized.length > COMPRESSION_THRESHOLD;
+  const bytes = isCompressed ? brotli.compress(serialized, { quality: 11 }) : serialized;
 
-  // Build v2 format: version char + expiry + group separator + items
-  const items = payload.i
-    .filter(([url]) => {
-      return url.startsWith("http://") || url.startsWith("https://");
-    })
-    .map(([url, title]) => {
-      const urlWithoutScheme = url.replace(/^https?:\/\//, "");
-      return `${urlWithoutScheme}\x1f${title}`;
-    });
-
-  const packed = `${payload.v}${payload.e}\x1d${items.join("\x1e")}`;
-  const utf8 = new TextEncoder().encode(packed);
-
-  const isCompressed = utf8.length > compressionThreshold;
-  const bytes = isCompressed ? brotli.compress(utf8, { quality: 11 }) : utf8;
-
-  const b64 = btoa(String.fromCharCode(...bytes))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
+  const { uint8ToBase64 } = await import("../base64.js");
+  const b64 = uint8ToBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 
   const prefix = isCompressed ? "C" : "R";
   const encoded = prefix + b64;
   const url = buildShareUrl(encoded);
 
-  const compressionRatio = isCompressed ? bytes.length / utf8.length : 1.0;
+  const compressionRatio = isCompressed ? bytes.length / serialized.length : 1.0;
   const encodingOverhead = b64.length / bytes.length;
 
   return {
     payloadName: `${tabs.length}-tab`,
-    serialized_bytes: utf8.length,
+    serialized_bytes: serialized.length,
     compressed_bytes: bytes.length,
     b64url_chars: b64.length,
     final_url_chars: url.length,
@@ -143,7 +131,7 @@ async function main() {
     decompress: (data) => module.decompress(data),
   };
 
-  console.log("# v2 Baseline Benchmark Results\n");
+  console.log("# v4 Baseline Benchmark Results\n");
   console.log(
     `**Payload Version**: ${PAYLOAD_VERSION}\n` +
       `**Compression**: Brotli quality 11\n` +
@@ -151,7 +139,7 @@ async function main() {
       `**Encoding**: Base64URL\n\n`,
   );
 
-  console.log(`## Standard Payloads (threshold: ${COMPRESSION_THRESHOLD} bytes)\n`);
+  console.log(`## URL Adapter Payloads (threshold: ${COMPRESSION_THRESHOLD} bytes)\n`);
   console.log(
     "| payload | serialized_bytes | compressed_bytes | b64url_chars | final_url_chars | compression_ratio | encoding_overhead | prefix |",
   );
@@ -159,14 +147,15 @@ async function main() {
     "|---------|-----------------|------------------|--------------|-----------------|-------------------|------------------|--------|",
   );
 
-  const standardResults: Array<{ name: string } & Awaited<ReturnType<typeof measurePayload>>> = [];
+  const standardResults: Array<{ name: string } & Awaited<ReturnType<typeof measureUrlPayload>>> =
+    [];
   for (const [name, tabs] of [
     ["1-tab", oneTab],
     ["5-tab", fiveTabs],
     ["10-tab", tenTabs],
     ["50-tab", fiftyTabs],
   ] as [string, TabInfo[]][]) {
-    const result = await measurePayload(tabs, brotli, COMPRESSION_THRESHOLD);
+    const result = await measureUrlPayload(tabs, brotli);
     standardResults.push({ name, ...result });
     console.log(
       `${result.payloadName.padEnd(8)} | ` +
@@ -191,17 +180,28 @@ async function main() {
 
   const thresholds = [50, 100, 200, 500];
   for (const threshold of thresholds) {
-    const result = await measurePayload(fiveTabs, brotli, threshold);
-    const beneficial = result.compressed_bytes < result.serialized_bytes;
+    const payload = createPayload(fiveTabs);
+    const serialized = serializePayload(payload);
+    const isCompressed = serialized.length > threshold;
+    const bytes = isCompressed ? brotli.compress(serialized, { quality: 11 }) : serialized;
+    const { uint8ToBase64 } = await import("../base64.js");
+    const b64 = uint8ToBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+    const prefix = isCompressed ? "C" : "R";
+    const encoded = prefix + b64;
+    const url = buildShareUrl(encoded);
+    const compressionRatio = isCompressed ? bytes.length / serialized.length : 1.0;
+    const encodingOverhead = b64.length / bytes.length;
+    const beneficial = bytes.length < serialized.length;
+
     console.log(
       `${threshold.toString().padStart(9)} | ` +
-        `${result.serialized_bytes.toString().padStart(16)} | ` +
-        `${result.compressed_bytes.toString().padStart(16)} | ` +
-        `${result.b64url_chars.toString().padStart(12)} | ` +
-        `${result.final_url_chars.toString().padStart(15)} | ` +
-        `${result.compression_ratio.toFixed(3).padStart(17)} | ` +
-        `${result.encoding_overhead.toFixed(3).padStart(16)} | ` +
-        `${result.prefix.padStart(6)} | ` +
+        `${serialized.length.toString().padStart(16)} | ` +
+        `${bytes.length.toString().padStart(16)} | ` +
+        `${b64.length.toString().padStart(12)} | ` +
+        `${url.length.toString().padStart(15)} | ` +
+        `${compressionRatio.toFixed(3).padStart(17)} | ` +
+        `${encodingOverhead.toFixed(3).padStart(16)} | ` +
+        `${prefix.padStart(6)} | ` +
         `${beneficial ? "YES ✓" : "NO ✗".padStart(11)} |`,
     );
   }
@@ -220,22 +220,52 @@ async function main() {
 
   console.log("## Recommendations\n");
   console.log(
-    `- **Current threshold (50)**: May be too low for small payloads where Brotli header overhead (10-20 bytes) negates compression benefits\n` +
+    `- **Current threshold (${COMPRESSION_THRESHOLD})**: May be too low for small payloads where Brotli header overhead (10-20 bytes) negates compression benefits\n` +
       `- **Optimal threshold**: Review threshold sweep results to identify crossover point\n` +
       `- **Consider**: Raising threshold to 200-500 bytes based on empirical data\n`,
   );
 
-  const evidencePath = ".sisyphus/evidence/benchmark-results.md";
-  await Bun.write(
+  const evidenceDir = path.join(process.cwd(), ".sisyphus", "evidence");
+  if (!fs.existsSync(evidenceDir)) {
+    fs.mkdirSync(evidenceDir, { recursive: true });
+  }
+  const evidencePath = path.join(evidenceDir, "benchmark-results.md");
+
+  const sweepRows = thresholds.map((threshold) => {
+    const payload = createPayload(fiveTabs);
+    const serialized = serializePayload(payload);
+    const isCompressed = serialized.length > threshold;
+    const bytes = isCompressed ? brotli.compress(serialized, { quality: 11 }) : serialized;
+    const { uint8ToBase64 } = require("../base64.js");
+    const b64 = uint8ToBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+    const prefix = isCompressed ? "C" : "R";
+    const url = buildShareUrl(prefix + b64);
+    const compressionRatio = isCompressed ? bytes.length / serialized.length : 1.0;
+    const encodingOverhead = b64.length / bytes.length;
+    const beneficial = bytes.length < serialized.length;
+    return (
+      `| ${threshold.toString().padStart(9)} | ` +
+      `${serialized.length.toString().padStart(16)} | ` +
+      `${bytes.length.toString().padStart(16)} | ` +
+      `${b64.length.toString().padStart(12)} | ` +
+      `${url.length.toString().padStart(15)} | ` +
+      `${compressionRatio.toFixed(3).padStart(17)} | ` +
+      `${encodingOverhead.toFixed(3).padStart(16)} | ` +
+      `${prefix.padStart(6)} | ` +
+      `${beneficial ? "YES ✓" : "NO ✗".padStart(11)} |`
+    );
+  });
+
+  fs.writeFileSync(
     evidencePath,
-    `# v2 Baseline Benchmark Results
+    `# v4 Baseline Benchmark Results
 
 **Payload Version**: ${PAYLOAD_VERSION}
 **Compression**: Brotli quality 11
 **Current Threshold**: ${COMPRESSION_THRESHOLD} bytes
 **Encoding**: Base64URL
 
-## Standard Payloads (threshold: ${COMPRESSION_THRESHOLD} bytes)
+## URL Adapter Payloads (threshold: ${COMPRESSION_THRESHOLD} bytes)
 
 | payload | serialized_bytes | compressed_bytes | b64url_chars | final_url_chars | compression_ratio | encoding_overhead | prefix |
 |---------|-----------------|------------------|--------------|-----------------|-------------------|------------------|--------|
@@ -259,23 +289,7 @@ ${standardResults
 
 | threshold | serialized_bytes | compressed_bytes | b64url_chars | final_url_chars | compression_ratio | encoding_overhead | prefix | beneficial? |
 |-----------|-----------------|------------------|--------------|-----------------|-------------------|------------------|--------|-------------|
-${await Promise.all(
-  thresholds.map(async (threshold) => {
-    const result = await measurePayload(fiveTabs, brotli, threshold);
-    const beneficial = result.compressed_bytes < result.serialized_bytes;
-    return (
-      `| ${threshold.toString().padStart(9)} | ` +
-      `${result.serialized_bytes.toString().padStart(16)} | ` +
-      `${result.compressed_bytes.toString().padStart(16)} | ` +
-      `${result.b64url_chars.toString().padStart(12)} | ` +
-      `${result.final_url_chars.toString().padStart(15)} | ` +
-      `${result.compression_ratio.toFixed(3).padStart(17)} | ` +
-      `${result.encoding_overhead.toFixed(3).padStart(16)} | ` +
-      `${result.prefix.padStart(6)} | ` +
-      `${beneficial ? "YES ✓" : "NO ✗".padStart(11)} |`
-    );
-  }),
-).then((rows) => rows.join("\n"))}
+${sweepRows.join("\n")}
 
 ## Key Findings
 
@@ -286,7 +300,7 @@ ${await Promise.all(
 
 ## Recommendations
 
-- **Current threshold (50)**: May be too low for small payloads where Brotli header overhead (10-20 bytes) negates compression benefits
+- **Current threshold (${COMPRESSION_THRESHOLD})**: May be too low for small payloads where Brotli header overhead (10-20 bytes) negates compression benefits
 - **Optimal threshold**: Review threshold sweep results to identify crossover point
 - **Consider**: Raising threshold to 200-500 bytes based on empirical data
 `,

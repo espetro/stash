@@ -1,138 +1,92 @@
-import { base64UrlToBase64 } from "./base64.js";
-import { PAYLOAD_VERSION } from "./constants.js";
+import { decodeBase32IgnorePadding, decodeBase64urlIgnorePadding } from "@oslojs/encoding";
+import { deserializePayload } from "./payload.js";
 import type { BrotliFunctions, DecodedPayload } from "./types.js";
 import { PayloadDecodeError } from "./types.js";
-import type { SharePayload } from "./types.js";
-import { decode } from "@msgpack/msgpack";
-import { restoreTldFromIndex } from "./normalizer.js";
 
 /**
- * Decode share URL fragment to payload using v2 format:
- * "C" or "R" prefix + base64url(encoded data)
- *
- * Decoding steps:
- * 1. Detect prefix (C=compressed, R=raw)
- * 2. Base64url decode
- * 3. Decompress if needed (brotli)
- * 4. Parse v2 delimiter format
+ * Decode share URL fragment to v4 payload.
+ * Supports both #p= (base64url) and #q= (base32) fragments.
  */
 export async function decodeShareUrl(
   fragment: string,
   brotli: BrotliFunctions,
 ): Promise<DecodedPayload> {
-  // Extract #p=... from fragment
-  const match = fragment.match(/^#p=(.+)$/);
-  if (!match) {
+  const urlMatch = fragment.match(/^#p=(.+)$/);
+  const qrMatch = fragment.match(/^#q=(.+)$/);
+
+  if (!urlMatch && !qrMatch) {
     throw new PayloadDecodeError("Invalid URL fragment format");
   }
 
-  const encoded = match[1];
+  const encoded = urlMatch ? urlMatch[1] : qrMatch![1];
   if (encoded.length === 0) {
     throw new PayloadDecodeError("Invalid URL fragment format");
   }
 
-  // Detect prefix
   const prefix = encoded[0];
-  if (prefix !== "C" && prefix !== "R" && prefix !== "D" && prefix !== "S") {
-    throw new PayloadDecodeError("Unknown payload prefix");
+  const body = encoded.slice(1);
+
+  let bytes: Uint8Array;
+
+  if (urlMatch) {
+    // URL adapter: base64url alphabet
+    if (prefix !== "C" && prefix !== "R") {
+      throw new PayloadDecodeError("Unknown payload prefix");
+    }
+    try {
+      bytes = decodeBase64urlIgnorePadding(body);
+    } catch {
+      throw new PayloadDecodeError("Invalid base64url encoding");
+    }
+  } else {
+    // QR adapter: base32 alphabet
+    if (prefix !== "D" && prefix !== "S") {
+      throw new PayloadDecodeError("Unknown payload prefix");
+    }
+    try {
+      bytes = decodeBase32IgnorePadding(body);
+    } catch {
+      throw new PayloadDecodeError("Invalid base32 encoding");
+    }
   }
 
-  // Strip prefix and decode base64url
-  const base64url = encoded.slice(1);
-  const base64 = base64UrlToBase64(base64url);
-
-  // Decode base64 to binary string
-  let binaryString: string;
-  try {
-    binaryString = atob(base64);
-  } catch (e) {
-    throw new PayloadDecodeError("Invalid base64 encoding");
-  }
-
-  // Convert binary string to Uint8Array
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-
-  // Decompress if compressed
+  // Decompress if needed
   let decompressed: Uint8Array;
   if (prefix === "C" || prefix === "D") {
     try {
       decompressed = brotli.decompress(bytes);
-    } catch (e) {
+    } catch {
       throw new PayloadDecodeError("Failed to decompress payload");
     }
   } else {
     decompressed = bytes;
   }
 
-  // v3 path: D/S prefixes use MessagePack
-  if (prefix === "D" || prefix === "S") {
-    const msgpackPayload = decode(decompressed) as SharePayload;
-    const { v, e, i } = msgpackPayload;
-    if (!Array.isArray(i)) {
-      throw new PayloadDecodeError("Invalid v3 payload structure");
-    }
-    return {
-      version: v,
-      expiry: e,
-      items: i,
-      isExpired: Date.now() > e,
-    };
+  // Deserialize msgpack
+  let payload;
+  try {
+    payload = deserializePayload(decompressed);
+  } catch {
+    throw new PayloadDecodeError("Invalid payload structure");
   }
 
-  // Decode UTF-8 bytes to string
-  const packed = new TextDecoder().decode(decompressed);
+  const { v, e, i, t } = payload;
 
-  // Validate version prefix
-  if (packed[0] !== "2") {
+  if (v !== 4) {
     throw new PayloadDecodeError("Unsupported payload version");
   }
 
-  // Strip version char and split on group separator
-  const withoutVersion = packed.slice(1);
-  const sepIndex = withoutVersion.indexOf("\x1d");
-  if (sepIndex === -1) {
+  if (!Array.isArray(i)) {
     throw new PayloadDecodeError("Invalid payload structure");
   }
 
-  const header = withoutVersion.slice(0, sepIndex);
-  const itemsBlock = withoutVersion.slice(sepIndex + 1);
-
-  // Parse expiry from header
-  const expiry = parseInt(header, 10);
-  if (!isFinite(expiry)) {
-    throw new PayloadDecodeError("Invalid payload structure");
-  }
-
-  // Split items block on record separator
-  const itemStrings = itemsBlock.split("\x1e").filter((s) => s.length > 0);
-
-  // Parse each item: url + unit separator + title
-  const items: [string, string][] = [];
-  for (const itemStr of itemStrings) {
-    const usIndex = itemStr.indexOf("\x1f");
-    if (usIndex === -1) {
-      throw new PayloadDecodeError("Invalid payload structure");
-    }
-
-    const urlWithoutScheme = itemStr.slice(0, usIndex);
-    const title = itemStr.slice(usIndex + 1);
-
-    const restored = restoreTldFromIndex(urlWithoutScheme);
-    const url = "https://" + restored;
-    items.push([url, title]);
-  }
-
-  // Check expiry
   const now = Math.floor(Date.now() / 1000);
-  const isExpired = expiry < now;
 
   return {
-    version: 2,
-    expiry,
-    items,
-    isExpired,
+    version: v,
+    expiry: e,
+    items: i,
+    isExpired: now > e,
+    title: t,
   };
 }

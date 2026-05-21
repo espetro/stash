@@ -1,15 +1,13 @@
-import { uint8ToBase64 } from "./base64.js";
-import {
-  PAYLOAD_VERSION,
-  EXPIRY_HOURS,
-  BUDGET_CHARS,
-  MAX_TITLE_CHARS,
-  COMPRESSION_THRESHOLD,
-  VIEWER_ORIGIN,
-  VIEWER_PATH,
-} from "./constants.js";
-import type { SharePayload, TabInfo, EncodingResult, BrotliFunctions } from "./types.js";
-import { normalizeUrl } from "./normalizer.js";
+import { encodePayloadToUrl, buildShareUrl } from "./adapters/url-adapter.js";
+import { encodePayloadToQr, buildQrUrl } from "./adapters/qr-adapter.js";
+import { EXPIRY_HOURS, BUDGET_CHARS, MAX_TITLE_CHARS } from "./constants.js";
+import type {
+  SharePayload,
+  TabInfo,
+  EncodingResult,
+  QrEncodingResult,
+  BrotliFunctions,
+} from "./types.js";
 
 /**
  * Normalize title: trim, collapse whitespace, truncate to MAX_TITLE_CHARS
@@ -19,95 +17,51 @@ export function normalizeTitle(title: string): string {
 }
 
 /**
- * Strip https?:// prefix from URL
- */
-function stripUrlScheme(url: string): string {
-  return url.replace(/^https?:\/\//, "");
-}
-
-/**
  * Create payload with expiry timestamp
  */
-export function createPayload(tabs: TabInfo[], expiryHours: number = EXPIRY_HOURS): SharePayload {
+export function createPayload(
+  tabs: TabInfo[],
+  expiryHours: number = EXPIRY_HOURS,
+  title?: string,
+): SharePayload {
   const now = Math.floor(Date.now() / 1000);
   const expiry = now + expiryHours * 3600;
 
-  return {
-    v: PAYLOAD_VERSION,
+  const payload: SharePayload = {
+    v: 4,
     e: expiry,
     i: tabs.map((tab) => [tab.url, normalizeTitle(tab.title)] as [string, string]),
   };
+
+  if (title && title.trim().length > 0) {
+    payload.t = normalizeTitle(title);
+  }
+
+  return payload;
 }
 
 /**
- * Encode payload using v2 delimiter format:
- * "2" + expiry + "\x1d" + items
- *
- * Normalization: URLs are normalized (www. stripped, TLD encoded as $INDEX) before scheme removal
- * Compression: brotli quality 11, only if > COMPRESSION_THRESHOLD bytes (currently 200)
- * Prefix: "C" for compressed, "R" for raw
+ * Find max number of tabs that fit within budget using binary search.
+ * The encoderFn produces the encoded string whose length is checked.
  */
-export async function encodePayload(
-  payload: SharePayload,
-  brotli: BrotliFunctions,
-): Promise<string> {
-  // Build v2 format: version char + expiry + group separator + items
-  const items = payload.i
-    .filter(([url]) => {
-      // Defensive filter: only http:// and https:// URLs
-      return url.startsWith("http://") || url.startsWith("https://");
-    })
-    .map(([url, title]) => {
-      const normalizedUrl = normalizeUrl(url);
-      const urlWithoutScheme = stripUrlScheme(normalizedUrl);
-      return `${urlWithoutScheme}\x1f${title}`;
-    });
-
-  // Full packed: "2" + expiry + "\x1d" + items.join("\x1e")
-  const packed = "2" + payload.e + "\x1d" + items.join("\x1e");
-
-  // UTF-8 bytes
-  const utf8 = new TextEncoder().encode(packed);
-
-  // Compress only if > COMPRESSION_THRESHOLD bytes
-  const isCompressed = utf8.length > COMPRESSION_THRESHOLD;
-  const bytes = isCompressed ? brotli.compress(utf8, { quality: 11 }) : utf8;
-
-  // Base64 encode and convert to base64url
-  const b64 = uint8ToBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
-
-  return (isCompressed ? "C" : "R") + b64;
-}
-
-/**
- * Build share URL from encoded payload
- */
-export function buildShareUrl(encoded: string, viewerOrigin?: string): string {
-  const origin = viewerOrigin ?? VIEWER_ORIGIN;
-  return `${origin}${VIEWER_PATH}#p=${encoded}`;
-}
-
-/**
- * Find max number of tabs that fit within budget using binary search
- */
-export async function findMaxTabsWithinBudget(
+async function _findMaxTabsWithinBudget(
   tabs: TabInfo[],
   brotli: BrotliFunctions,
-  viewerOrigin?: string,
+  encoderFn: (payload: SharePayload, brotli: BrotliFunctions) => Promise<string>,
+  buildUrlFn: (encoded: string) => string,
   expiryHours: number = 24,
+  title?: string,
 ): Promise<number> {
   if (tabs.length === 0) return 0;
 
-  // Check if full set fits
-  const fullPayload = createPayload(tabs, expiryHours);
-  const fullEncoded = await encodePayload(fullPayload, brotli);
-  const fullUrl = buildShareUrl(fullEncoded, viewerOrigin);
+  const fullPayload = createPayload(tabs, expiryHours, title);
+  const fullEncoded = await encoderFn(fullPayload, brotli);
+  const fullUrl = buildUrlFn(fullEncoded);
 
   if (fullUrl.length <= BUDGET_CHARS) {
     return tabs.length;
   }
 
-  // Binary search for max prefix that fits
   let left = 0;
   let right = tabs.length;
   let result = 0;
@@ -121,9 +75,9 @@ export async function findMaxTabsWithinBudget(
       continue;
     }
 
-    const payload = createPayload(subset, expiryHours);
-    const encoded = await encodePayload(payload, brotli);
-    const url = buildShareUrl(encoded, viewerOrigin);
+    const payload = createPayload(subset, expiryHours, title);
+    const encoded = await encoderFn(payload, brotli);
+    const url = buildUrlFn(encoded);
 
     if (url.length <= BUDGET_CHARS) {
       result = mid;
@@ -144,6 +98,7 @@ export async function encodeTabsToShareUrl(
   brotli: BrotliFunctions,
   expiryHours: number = EXPIRY_HOURS,
   viewerOrigin?: string,
+  title?: string,
 ): Promise<EncodingResult> {
   if (tabs.length === 0) {
     return {
@@ -153,9 +108,8 @@ export async function encodeTabsToShareUrl(
     };
   }
 
-  // Try full set first
-  const fullPayload = createPayload(tabs, expiryHours);
-  const fullEncoded = await encodePayload(fullPayload, brotli);
+  const fullPayload = createPayload(tabs, expiryHours, title);
+  const fullEncoded = await encodePayloadToUrl(fullPayload, brotli);
   const fullUrl = buildShareUrl(fullEncoded, viewerOrigin);
 
   if (fullUrl.length <= BUDGET_CHARS) {
@@ -166,8 +120,14 @@ export async function encodeTabsToShareUrl(
     };
   }
 
-  // Find max tabs that fit
-  const maxTabs = await findMaxTabsWithinBudget(tabs, brotli, viewerOrigin, expiryHours);
+  const maxTabs = await _findMaxTabsWithinBudget(
+    tabs,
+    brotli,
+    encodePayloadToUrl,
+    (encoded) => buildShareUrl(encoded, viewerOrigin),
+    expiryHours,
+    title,
+  );
 
   if (maxTabs === 0) {
     return {
@@ -178,12 +138,92 @@ export async function encodeTabsToShareUrl(
   }
 
   const subset = tabs.slice(0, maxTabs);
-  const payload = createPayload(subset, expiryHours);
-  const encoded = await encodePayload(payload, brotli);
+  const payload = createPayload(subset, expiryHours, title);
+  const encoded = await encodePayloadToUrl(payload, brotli);
   const url = buildShareUrl(encoded, viewerOrigin);
 
   return {
     url,
+    itemCount: maxTabs,
+    truncated: true,
+  };
+}
+
+/**
+ * Find max number of tabs that fit within budget using binary search.
+ * Uses the URL adapter for encoding.
+ */
+export async function findMaxTabsWithinBudget(
+  tabs: TabInfo[],
+  brotli: BrotliFunctions,
+  viewerOrigin?: string,
+  expiryHours: number = 24,
+  title?: string,
+): Promise<number> {
+  return _findMaxTabsWithinBudget(
+    tabs,
+    brotli,
+    encodePayloadToUrl,
+    (encoded) => buildShareUrl(encoded, viewerOrigin),
+    expiryHours,
+    title,
+  );
+}
+
+/**
+ * Encode tabs to a QR-optimized share URL with budget enforcement.
+ */
+export async function encodeTabsToQrUrl(
+  tabs: TabInfo[],
+  brotli: BrotliFunctions,
+  expiryHours: number = EXPIRY_HOURS,
+  viewerOrigin?: string,
+  title?: string,
+): Promise<QrEncodingResult> {
+  if (tabs.length === 0) {
+    return {
+      qrUrl: buildQrUrl("", viewerOrigin),
+      itemCount: 0,
+      truncated: false,
+    };
+  }
+
+  const fullPayload = createPayload(tabs, expiryHours, title);
+  const fullEncoded = await encodePayloadToQr(fullPayload, brotli);
+  const fullUrl = buildQrUrl(fullEncoded, viewerOrigin);
+
+  if (fullUrl.length <= BUDGET_CHARS) {
+    return {
+      qrUrl: fullUrl,
+      itemCount: tabs.length,
+      truncated: false,
+    };
+  }
+
+  const maxTabs = await _findMaxTabsWithinBudget(
+    tabs,
+    brotli,
+    encodePayloadToQr,
+    (encoded) => buildQrUrl(encoded, viewerOrigin),
+    expiryHours,
+    title,
+  );
+
+  if (maxTabs === 0) {
+    return {
+      qrUrl: buildQrUrl("", viewerOrigin),
+      itemCount: 0,
+      truncated: true,
+    };
+  }
+
+  const subset = tabs.slice(0, maxTabs);
+  const payload = createPayload(subset, expiryHours, title);
+  const encoded = await encodePayloadToQr(payload, brotli);
+  const qrUrl = buildQrUrl(encoded, viewerOrigin);
+
+  return {
+    qrUrl,
     itemCount: maxTabs,
     truncated: true,
   };

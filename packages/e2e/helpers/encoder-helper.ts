@@ -6,6 +6,7 @@ import {
   type TabInfo,
   type SharePayload,
   type EncodingResult,
+  type QrEncodingResult,
   PAYLOAD_VERSION,
   EXPIRY_HOURS,
   MAX_TITLE_CHARS,
@@ -14,13 +15,13 @@ import {
   VIEWER_PATH,
   normalizeTitle as codecNormalizeTitle,
   createPayload as codecCreatePayload,
-  encodePayload as codecEncodePayload,
-  buildShareUrl,
-  findMaxTabsWithinBudget as codecFindMaxTabsWithinBudget,
   encodeTabsToShareUrl as codecEncodeTabsToShareUrl,
+  encodeTabsToQrUrl as codecEncodeTabsToQrUrl,
+  buildShareUrl,
+  buildQrUrl,
 } from "@stash/codec";
 
-export type { TabInfo, SharePayload, EncodingResult };
+export type { TabInfo, SharePayload, EncodingResult, QrEncodingResult };
 
 let _brotli: BrotliFunctions | null = null;
 let _initPromise: Promise<BrotliFunctions> | null = null;
@@ -69,19 +70,11 @@ export function createPayloadWithExpiry(
 
 /**
  * Encode payload to base64url string using brotli compression
- * NOTE: This is async and uses the codec's v2 encoding with brotli-wasm
  */
 export async function encodePayload(payload: SharePayload): Promise<string> {
   const brotli = await getBrotliFunctions();
-  return codecEncodePayload(payload, brotli);
-}
-
-/**
- * Find max number of tabs that fit within budget using binary search
- */
-export async function findMaxTabsWithinBudget(tabs: TabInfo[]): Promise<number> {
-  const brotli = await getBrotliFunctions();
-  return codecFindMaxTabsWithinBudget(tabs, brotli, VIEWER_ORIGIN, EXPIRY_HOURS);
+  const { encodePayloadToUrl } = await import("@stash/codec");
+  return encodePayloadToUrl(payload, brotli);
 }
 
 /**
@@ -92,6 +85,17 @@ export async function encodeTabsToShareUrl(
 ): Promise<EncodingResult> {
   const brotli = await getBrotliFunctions();
   return codecEncodeTabsToShareUrl(tabs, brotli, EXPIRY_HOURS, VIEWER_ORIGIN);
+}
+
+/**
+ * Encode tabs to QR share URL with budget enforcement
+ */
+export async function encodeTabsToQrUrl(
+  tabs: TabInfo[],
+  title?: string,
+): Promise<QrEncodingResult> {
+  const brotli = await getBrotliFunctions();
+  return codecEncodeTabsToQrUrl(tabs, brotli, EXPIRY_HOURS, VIEWER_ORIGIN, title);
 }
 
 /**
@@ -157,6 +161,14 @@ export async function generateViewerUrlFromFixture(
 export function isValidBase64url(str: string): boolean {
   const base64urlRegex = /^[A-Za-z0-9_-]*$/;
   return base64urlRegex.test(str);
+}
+
+/**
+ * Validate base32 encoding (uppercase, no padding)
+ */
+export function isValidBase32(str: string): boolean {
+  const base32Regex = /^[A-Z2-7]*$/;
+  return base32Regex.test(str);
 }
 
 /**

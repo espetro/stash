@@ -2,6 +2,7 @@ export interface SharePayload {
   v: number; // Schema version
   e: number; // Expiry timestamp (Unix seconds)
   i: [string, string][]; // Items: [url, title][]
+  t?: string; // Optional stash title
 }
 
 export interface TabInfo {
@@ -15,11 +16,18 @@ export interface EncodingResult {
   truncated: boolean;
 }
 
+export interface QrEncodingResult {
+  qrUrl: string;
+  itemCount: number;
+  truncated: boolean;
+}
+
 export interface DecodedPayload {
   version: number;
   expiry: number;
   items: [string, string][];
   isExpired: boolean;
+  title?: string;
 }
 
 export class PayloadDecodeError extends Error {

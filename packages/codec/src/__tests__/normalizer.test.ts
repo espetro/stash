@@ -1,4 +1,4 @@
-import { describe, it, expect } from "bun:test";
+import { describe, it, expect } from "vitest";
 import { normalizeUrl, restoreTldFromIndex, TLD_WHITELIST } from "../normalizer.js";
 
 describe("normalizeUrl", () => {

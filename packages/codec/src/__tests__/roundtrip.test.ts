@@ -1,12 +1,17 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import {
   encodeTabsToShareUrl,
-  encodePayload,
+  encodeTabsToQrUrl,
+  encodePayloadToUrl,
+  encodePayloadToQr,
   createPayload,
   decodeShareUrl,
   normalizeTitle,
-  PayloadDecodeError,
   buildShareUrl,
+  buildQrUrl,
+  getQrSegments,
+  estimateQrBitLength,
+  PayloadDecodeError,
 } from "../index.js";
 import type { TabInfo } from "../index.js";
 import type { BrotliFunctions } from "../types.js";
@@ -39,13 +44,18 @@ const longTitleTabs: TabInfo[] = [
   },
 ];
 
+const titledTabs: TabInfo[] = [
+  { url: "https://github.com", title: "GitHub" },
+  { url: "https://stackoverflow.com", title: "Stack Overflow" },
+];
+
 // Helper to extract fragment from URL
 function getFragment(url: string): string {
   const hashIndex = url.indexOf("#");
   return hashIndex >= 0 ? url.slice(hashIndex) : "";
 }
 
-describe("v2 codec round-trip tests", () => {
+describe("v4 codec round-trip tests (URL adapter)", () => {
   let brotli: BrotliFunctions;
 
   beforeAll(async () => {
@@ -56,33 +66,33 @@ describe("v2 codec round-trip tests", () => {
     };
   });
 
-  it("Test 1: Small payload (1 tab, below 50-byte threshold) → 'R' prefix", async () => {
+  it("Small payload (1 tab) round-trips correctly via URL adapter", async () => {
     const result = await encodeTabsToShareUrl(smallTabs, brotli);
-    expect(result.url).toContain("#p=R");
+    expect(result.url).toContain("#p=");
     expect(result.itemCount).toBe(1);
     expect(result.truncated).toBe(false);
 
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.version).toBe(2);
+    expect(decoded.version).toBe(4);
     expect(decoded.items.length).toBe(1);
     expect(decoded.items[0][0]).toBe("https://github.com");
     expect(decoded.items[0][1]).toBe("GitHub");
   });
 
-  it("Test 2: Medium payload (5 tabs) → 'R' prefix (optimized, no compression needed)", async () => {
+  it("Medium payload (5 tabs) round-trips correctly via URL adapter", async () => {
     const result = await encodeTabsToShareUrl(mediumTabs, brotli);
-    expect(result.url).toContain("#p=R");
+    expect(result.url).toContain("#p=");
     expect(result.itemCount).toBe(5);
     expect(result.truncated).toBe(false);
 
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.version).toBe(2);
+    expect(decoded.version).toBe(4);
     expect(decoded.items.length).toBe(5);
     expect(decoded.items[0][0]).toBe("https://github.com");
     expect(decoded.items[1][0]).toBe("https://stackoverflow.com");
   });
 
-  it("Test 3: Unicode URLs and titles round-trip correctly", async () => {
+  it("Unicode URLs and titles round-trip correctly via URL adapter", async () => {
     const result = await encodeTabsToShareUrl(unicodeTabs, brotli);
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
 
@@ -93,7 +103,7 @@ describe("v2 codec round-trip tests", () => {
     expect(decoded.items[1][1]).toBe("URL with special chars & # ?");
   });
 
-  it("Test 4: Title truncation to 30 chars", async () => {
+  it("Title truncation to 30 chars works correctly", async () => {
     const result = await encodeTabsToShareUrl(longTitleTabs, brotli);
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
 
@@ -101,28 +111,16 @@ describe("v2 codec round-trip tests", () => {
     expect(decoded.items[0][1]).toBe("This is a very long title that");
   });
 
-  it("Test 5: v1-style payload rejected with 'Unsupported payload version' error", async () => {
-    // Create a raw (uncompressed) v1-style JSON payload
-    // v1 format was: {v: 1, e: expiry, i: [[url, title], ...]}
-    const v1Payload = { v: 1, e: 1700000000, i: [["https://example.com", "Example"]] };
-    const json = JSON.stringify(v1Payload);
-    const utf8 = new TextEncoder().encode(json);
-    // Base64 encode
-    const base64 = btoa(String.fromCharCode(...utf8));
-    const base64url = base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
-    // Mark as raw (R prefix) - this will fail version check
-    const fragment = `#p=R${base64url}`;
+  it("Titled payload round-trips title correctly via URL adapter", async () => {
+    const result = await encodeTabsToShareUrl(titledTabs, brotli, 24, undefined, "My Stash");
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
 
-    try {
-      await decodeShareUrl(fragment, brotli);
-      expect(false).toBe(true);
-    } catch (error) {
-      expect(error).toBeInstanceOf(PayloadDecodeError);
-      expect((error as PayloadDecodeError).message).toBe("Unsupported payload version");
-    }
+    expect(decoded.version).toBe(4);
+    expect(decoded.title).toBe("My Stash");
+    expect(decoded.items.length).toBe(2);
   });
 
-  it("Test 6: Empty fragment rejected", async () => {
+  it("Empty fragment rejected", async () => {
     try {
       await decodeShareUrl("#p=", brotli);
       expect(false).toBe(true);
@@ -132,45 +130,14 @@ describe("v2 codec round-trip tests", () => {
     }
   });
 
-  it("Test 7: 'R' prefix (raw) decodes correctly", async () => {
-    const payload = createPayload(smallTabs);
-    const encoded = await encodePayload(payload, brotli);
-    expect(encoded.startsWith("R")).toBe(true);
-
-    const decoded = await decodeShareUrl(`#p=${encoded}`, brotli);
-    expect(decoded.version).toBe(2);
-    expect(decoded.items.length).toBe(1);
-    expect(decoded.items[0][0]).toBe("https://github.com");
-  });
-
-  it("Test 8: Both http:// and https:// URLs stripped on encode, https:// restored on decode", async () => {
-    const mixedTabs: TabInfo[] = [
-      { url: "http://example.com", title: "HTTP Example" },
-      { url: "https://example.org", title: "HTTPS Example" },
-    ];
-
-    const result = await encodeTabsToShareUrl(mixedTabs, brotli);
-    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-
-    expect(decoded.items[0][0]).toBe("https://example.com");
-    expect(decoded.items[1][0]).toBe("https://example.org");
-  });
-
-  it("Test 9: normalizeTitle works correctly", () => {
-    expect(normalizeTitle("  Hello   World  ")).toBe("Hello World");
-    expect(
-      normalizeTitle("This is a very long title that exceeds limits").length,
-    ).toBeLessThanOrEqual(30);
-  });
-
-  it("Test 10: buildShareUrl creates correct URL", () => {
+  it("buildShareUrl creates correct URL", () => {
     const encoded = "Rabc123";
     const url = buildShareUrl(encoded);
     expect(url).toContain("#p=Rabc123");
   });
 });
 
-describe("v2 codec edge-case tests", () => {
+describe("v4 codec round-trip tests (QR adapter)", () => {
   let brotli: BrotliFunctions;
 
   beforeAll(async () => {
@@ -181,35 +148,139 @@ describe("v2 codec edge-case tests", () => {
     };
   });
 
-  it("Test 11: http:// URL is included and restored to https on decode", async () => {
-    const tabs: TabInfo[] = [{ url: "http://github.com/user/repo", title: "HTTP Test" }];
+  it("Small payload round-trips correctly via QR adapter", async () => {
+    const result = await encodeTabsToQrUrl(smallTabs, brotli);
+    expect(result.qrUrl).toContain("#q=");
+    expect(result.itemCount).toBe(1);
+    expect(result.truncated).toBe(false);
+
+    const decoded = await decodeShareUrl(getFragment(result.qrUrl), brotli);
+    expect(decoded.version).toBe(4);
+    expect(decoded.items.length).toBe(1);
+    expect(decoded.items[0][0]).toBe("https://github.com");
+    expect(decoded.items[0][1]).toBe("GitHub");
+  });
+
+  it("Medium payload round-trips correctly via QR adapter", async () => {
+    const result = await encodeTabsToQrUrl(mediumTabs, brotli);
+    expect(result.qrUrl).toContain("#q=");
+    expect(result.itemCount).toBe(5);
+    expect(result.truncated).toBe(false);
+
+    const decoded = await decodeShareUrl(getFragment(result.qrUrl), brotli);
+    expect(decoded.version).toBe(4);
+    expect(decoded.items.length).toBe(5);
+  });
+
+  it("Unicode round-trips correctly via QR adapter", async () => {
+    const result = await encodeTabsToQrUrl(unicodeTabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.qrUrl), brotli);
+
+    expect(decoded.items[0][0]).toBe("https://example.com/日本語/テスト");
+    expect(decoded.items[0][1]).toBe("日本語のページ - Unicode Test");
+  });
+
+  it("Titled payload round-trips title correctly via QR adapter", async () => {
+    const result = await encodeTabsToQrUrl(titledTabs, brotli, 24, undefined, "QR Stash");
+    const decoded = await decodeShareUrl(getFragment(result.qrUrl), brotli);
+
+    expect(decoded.title).toBe("QR Stash");
+    expect(decoded.items.length).toBe(2);
+  });
+
+  it("QR payload always uses D prefix (compressed)", async () => {
+    const payload = createPayload(smallTabs);
+    const encoded = await encodePayloadToQr(payload, brotli);
+    expect(encoded.startsWith("D")).toBe(true);
+  });
+
+  it("buildQrUrl creates correct URL", () => {
+    const encoded = "DAB32";
+    const url = buildQrUrl(encoded);
+    expect(url).toContain("#q=DAB32");
+  });
+});
+
+describe("cross-adapter compatibility", () => {
+  let brotli: BrotliFunctions;
+
+  beforeAll(async () => {
+    const module = await brotliWasm;
+    brotli = {
+      compress: (data, opts) => module.compress(data, opts),
+      decompress: (data) => module.decompress(data),
+    };
+  });
+
+  it("URL-encoded payload can be decoded from QR fragment (and vice versa)", async () => {
+    const payload = createPayload(mediumTabs, 24, "Cross Test");
+
+    const urlEncoded = await encodePayloadToUrl(payload, brotli);
+    const qrEncoded = await encodePayloadToQr(payload, brotli);
+
+    // Both decodings should produce the same payload
+    const decodedFromUrl = await decodeShareUrl(`#p=${urlEncoded}`, brotli);
+    const decodedFromQr = await decodeShareUrl(`#q=${qrEncoded}`, brotli);
+
+    expect(decodedFromUrl.version).toBe(4);
+    expect(decodedFromQr.version).toBe(4);
+    expect(decodedFromUrl.expiry).toBe(decodedFromQr.expiry);
+    expect(decodedFromUrl.title).toBe(decodedFromQr.title);
+    expect(decodedFromUrl.items).toEqual(decodedFromQr.items);
+  });
+});
+
+describe("QR helper functions", () => {
+  it("getQrSegments splits QR URL correctly", () => {
+    const qrUrl = "https://stash.illo.fyi/s/#q=DAB32XYZ";
+    const segments = getQrSegments(qrUrl);
+    expect(segments.prefix).toBe("https://stash.illo.fyi/s/#q=");
+    expect(segments.payload).toBe("DAB32XYZ");
+  });
+
+  it("getQrSegments throws for invalid URL", () => {
+    expect(() => getQrSegments("https://stash.illo.fyi/s/#p=ABC")).toThrow("Invalid QR URL");
+  });
+
+  it("estimateQrBitLength returns positive value for QR URL", () => {
+    const qrUrl = "https://stash.illo.fyi/s/#q=DAB32XYZ";
+    const bits = estimateQrBitLength(qrUrl);
+    expect(bits).toBeGreaterThan(0);
+  });
+
+  it("estimateQrBitLength scales with payload length", () => {
+    const shortUrl = "https://stash.illo.fyi/s/#q=DAB";
+    const longUrl = "https://stash.illo.fyi/s/#q=DAB32XYZAB32XYZAB32XYZ";
+    expect(estimateQrBitLength(longUrl)).toBeGreaterThan(estimateQrBitLength(shortUrl));
+  });
+});
+
+describe("v4 codec edge-case tests", () => {
+  let brotli: BrotliFunctions;
+
+  beforeAll(async () => {
+    const module = await brotliWasm;
+    brotli = {
+      compress: (data, opts) => module.compress(data, opts),
+      decompress: (data) => module.decompress(data),
+    };
+  });
+
+  it("Empty tab list encodes to empty fragment", async () => {
+    const result = await encodeTabsToShareUrl([], brotli);
+    expect(result.itemCount).toBe(0);
+    expect(result.truncated).toBe(false);
+  });
+
+  it("http:// URL preserved as-is (no scheme stripping)", async () => {
+    const tabs: TabInfo[] = [{ url: "http://example.com", title: "HTTP Example" }];
     const result = await encodeTabsToShareUrl(tabs, brotli);
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
 
-    expect(decoded.items[0][0]).toBe("https://github.com/user/repo");
+    expect(decoded.items[0][0]).toBe("http://example.com");
   });
 
-  it("Test 12: URL with .com TLD stripped during encode, restored on decode", async () => {
-    const tabs: TabInfo[] = [{ url: "https://github.com/user/repo", title: "GitHub Repo" }];
-    const result = await encodeTabsToShareUrl(tabs, brotli);
-    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-
-    expect(decoded.items[0][0]).toBe("https://github.com/user/repo");
-  });
-
-  it("Test 13: Payload at exactly COMPRESSION_THRESHOLD bytes uses raw prefix", async () => {
-    const tabs: TabInfo[] = [
-      {
-        url: "https://verylongdomainnametoreachthreshold.com/path",
-        title: "A".repeat(30),
-      },
-    ];
-
-    const result = await encodeTabsToShareUrl(tabs, brotli);
-    expect(result.url).toMatch(/#p=[RC]/);
-  });
-
-  it("Test 14: Empty title after trim still encodes successfully", async () => {
+  it("Empty title after trim still encodes successfully", async () => {
     const tabs: TabInfo[] = [{ url: "https://github.com", title: "   " }];
     const result = await encodeTabsToShareUrl(tabs, brotli);
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
@@ -218,7 +289,7 @@ describe("v2 codec edge-case tests", () => {
     expect(decoded.items[0][0]).toBe("https://github.com");
   });
 
-  it("Test 15: Title of exactly MAX_TITLE_CHARS (30) is not truncated", async () => {
+  it("Title of exactly MAX_TITLE_CHARS (30) is not truncated", async () => {
     const title = "ThisIsExactlyThirtyCharsLong!!";
     expect(title.length).toBe(30);
 
@@ -229,7 +300,7 @@ describe("v2 codec edge-case tests", () => {
     expect(decoded.items[0][1]).toBe(title);
   });
 
-  it("Test 16: Title of MAX_TITLE_CHARS+1 is truncated to exactly 30 chars", async () => {
+  it("Title of MAX_TITLE_CHARS+1 is truncated to exactly 30 chars", async () => {
     const longTitle = "ThisTitleIsJustOneCharTooLong!!";
     expect(longTitle.length).toBe(31);
 
@@ -240,9 +311,16 @@ describe("v2 codec edge-case tests", () => {
     expect(decoded.items[0][1]).toBe("ThisTitleIsJustOneCharTooLong!");
     expect(decoded.items[0][1].length).toBe(30);
   });
+
+  it("normalizeTitle works correctly", () => {
+    expect(normalizeTitle("  Hello   World  ")).toBe("Hello World");
+    expect(
+      normalizeTitle("This is a very long title that exceeds limits").length,
+    ).toBeLessThanOrEqual(30);
+  });
 });
 
-describe("TLD index encoding roundtrip tests", () => {
+describe("v4 decoder error handling", () => {
   let brotli: BrotliFunctions;
 
   beforeAll(async () => {
@@ -253,119 +331,60 @@ describe("TLD index encoding roundtrip tests", () => {
     };
   });
 
-  it("Restores .com TLD ($0) correctly", async () => {
-    const tabs: TabInfo[] = [{ url: "https://github.com/user/repo", title: "GitHub" }];
-    const result = await encodeTabsToShareUrl(tabs, brotli);
-    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.items[0][0]).toBe("https://github.com/user/repo");
+  it("Rejects unknown prefix in URL fragment", async () => {
+    try {
+      await decodeShareUrl("#p=Xinvalid", brotli);
+      expect(false).toBe(true);
+    } catch (error) {
+      expect(error).toBeInstanceOf(PayloadDecodeError);
+      expect((error as PayloadDecodeError).message).toBe("Unknown payload prefix");
+    }
   });
 
-  it("Restores .org TLD ($1) correctly", async () => {
-    const tabs: TabInfo[] = [{ url: "https://developer.mozilla.org/docs", title: "MDN" }];
-    const result = await encodeTabsToShareUrl(tabs, brotli);
-    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.items[0][0]).toBe("https://developer.mozilla.org/docs");
+  it("Rejects unknown prefix in QR fragment", async () => {
+    try {
+      await decodeShareUrl("#q=Xinvalid", brotli);
+      expect(false).toBe(true);
+    } catch (error) {
+      expect(error).toBeInstanceOf(PayloadDecodeError);
+      expect((error as PayloadDecodeError).message).toBe("Unknown payload prefix");
+    }
   });
 
-  it("Restores .net TLD ($2) correctly", async () => {
-    const tabs: TabInfo[] = [{ url: "https://subdomain.example.net/path", title: "Example" }];
-    const result = await encodeTabsToShareUrl(tabs, brotli);
-    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.items[0][0]).toBe("https://subdomain.example.net/path");
+  it("Rejects invalid base64url in URL fragment", async () => {
+    try {
+      await decodeShareUrl("#p=R!!!", brotli);
+      expect(false).toBe(true);
+    } catch (error) {
+      expect(error).toBeInstanceOf(PayloadDecodeError);
+      expect((error as PayloadDecodeError).message).toBe("Invalid base64url encoding");
+    }
   });
 
-  it("Restores .io TLD ($3) correctly", async () => {
-    const tabs: TabInfo[] = [{ url: "https://pagoda.io", title: "Pagoda" }];
-    const result = await encodeTabsToShareUrl(tabs, brotli);
-    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.items[0][0]).toBe("https://pagoda.io");
+  it("Rejects invalid base32 in QR fragment", async () => {
+    try {
+      await decodeShareUrl("#q=D!!!", brotli);
+      expect(false).toBe(true);
+    } catch (error) {
+      expect(error).toBeInstanceOf(PayloadDecodeError);
+      expect((error as PayloadDecodeError).message).toBe("Invalid base32 encoding");
+    }
   });
 
-  it("Restores .dev TLD ($4) correctly", async () => {
-    const tabs: TabInfo[] = [{ url: "https://react.dev", title: "React" }];
-    const result = await encodeTabsToShareUrl(tabs, brotli);
-    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.items[0][0]).toBe("https://react.dev");
-  });
+  it("Rejects unsupported version", async () => {
+    const v2Payload = { v: 2, e: 1700000000, i: [["https://example.com", "Example"]] };
+    const { encode } = await import("@msgpack/msgpack");
+    const bytes = encode(v2Payload);
+    const { encodeBase64urlNoPadding } = await import("@oslojs/encoding");
+    const b64 = encodeBase64urlNoPadding(bytes);
+    const fragment = `#p=R${b64}`;
 
-  it("Restores .app TLD ($5) correctly", async () => {
-    const tabs: TabInfo[] = [{ url: "https://myapp.app", title: "MyApp" }];
-    const result = await encodeTabsToShareUrl(tabs, brotli);
-    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.items[0][0]).toBe("https://myapp.app");
-  });
-
-  it("Restores TLD for non-whitelisted domain unchanged (no stripping)", async () => {
-    const tabs: TabInfo[] = [{ url: "https://example.co.uk/path", title: "Co.uk" }];
-    const result = await encodeTabsToShareUrl(tabs, brotli);
-    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.items[0][0]).toBe("https://example.co.uk/path");
-  });
-
-  it("Restores TLD for unlisted whitelisted domain (e.g. example.info)", async () => {
-    const tabs: TabInfo[] = [{ url: "https://example.info/path", title: "Info" }];
-    const result = await encodeTabsToShareUrl(tabs, brotli);
-    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.items[0][0]).toBe("https://example.info/path");
-  });
-
-  it("Handles www prefix with TLD encoding", async () => {
-    const tabs: TabInfo[] = [{ url: "https://www.example.com/en", title: "Example" }];
-    const result = await encodeTabsToShareUrl(tabs, brotli);
-    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.items[0][0]).toBe("https://example.com/en");
-  });
-
-  it("Restores URL with port number correctly", async () => {
-    const tabs: TabInfo[] = [{ url: "https://localhost:8080/path", title: "Local" }];
-    const result = await encodeTabsToShareUrl(tabs, brotli);
-    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.items[0][0]).toBe("https://localhost:8080/path");
-  });
-
-  it("Restores URL with query string correctly", async () => {
-    const tabs: TabInfo[] = [{ url: "https://github.com/search?q=test", title: "Search" }];
-    const result = await encodeTabsToShareUrl(tabs, brotli);
-    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.items[0][0]).toBe("https://github.com/search?q=test");
-  });
-
-  it("Restores URL with hash fragment correctly", async () => {
-    const tabs: TabInfo[] = [{ url: "https://github.com/user#section", title: "Section" }];
-    const result = await encodeTabsToShareUrl(tabs, brotli);
-    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.items[0][0]).toBe("https://github.com/user#section");
-  });
-
-  it("Multiple tabs with different TLDs all restore correctly", async () => {
-    const tabs: TabInfo[] = [
-      { url: "https://github.com", title: "GitHub .com" },
-      { url: "https://react.dev", title: "React .dev" },
-      { url: "https://pagoda.io", title: "Pagoda .io" },
-      { url: "https://docs.github.com/en", title: "GitHub Docs" },
-    ];
-    const result = await encodeTabsToShareUrl(tabs, brotli);
-    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.items.length).toBe(4);
-    expect(decoded.items[0][0]).toBe("https://github.com");
-    expect(decoded.items[1][0]).toBe("https://react.dev");
-    expect(decoded.items[2][0]).toBe("https://pagoda.io");
-    expect(decoded.items[3][0]).toBe("https://docs.github.com/en");
-  });
-
-  it("Backward compatible with old format (no $N encoding)", async () => {
-    const expiry = Math.floor(Date.now() / 1000) + 86400;
-    const packed = `2${expiry}\x1dstackoverflow.com\x1fStack Overflow`;
-    const utf8 = new TextEncoder().encode(packed);
-    const base64 = btoa(String.fromCharCode(...utf8))
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=/g, "");
-    const fragment = `#p=R${base64}`;
-
-    const decoded = await decodeShareUrl(fragment, brotli);
-    expect(decoded.items.length).toBe(1);
-    expect(decoded.items[0][0]).toBe("https://stackoverflow.com");
-    expect(decoded.items[0][1]).toBe("Stack Overflow");
+    try {
+      await decodeShareUrl(fragment, brotli);
+      expect(false).toBe(true);
+    } catch (error) {
+      expect(error).toBeInstanceOf(PayloadDecodeError);
+      expect((error as PayloadDecodeError).message).toBe("Unsupported payload version");
+    }
   });
 });

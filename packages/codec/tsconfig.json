@@ -10,7 +10,9 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "types": ["vite", "webextension-polyfill"],
+    "rootDir": "src",
+    "outDir": "dist"
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts"],
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules"]
 }
