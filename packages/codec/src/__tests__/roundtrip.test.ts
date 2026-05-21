@@ -241,3 +241,131 @@ describe("v2 codec edge-case tests", () => {
     expect(decoded.items[0][1].length).toBe(30);
   });
 });
+
+describe("TLD index encoding roundtrip tests", () => {
+  let brotli: BrotliFunctions;
+
+  beforeAll(async () => {
+    const module = await brotliWasm;
+    brotli = {
+      compress: (data, opts) => module.compress(data, opts),
+      decompress: (data) => module.decompress(data),
+    };
+  });
+
+  it("Restores .com TLD ($0) correctly", async () => {
+    const tabs: TabInfo[] = [{ url: "https://github.com/user/repo", title: "GitHub" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.items[0][0]).toBe("https://github.com/user/repo");
+  });
+
+  it("Restores .org TLD ($1) correctly", async () => {
+    const tabs: TabInfo[] = [{ url: "https://developer.mozilla.org/docs", title: "MDN" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.items[0][0]).toBe("https://developer.mozilla.org/docs");
+  });
+
+  it("Restores .net TLD ($2) correctly", async () => {
+    const tabs: TabInfo[] = [{ url: "https://subdomain.example.net/path", title: "Example" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.items[0][0]).toBe("https://subdomain.example.net/path");
+  });
+
+  it("Restores .io TLD ($3) correctly", async () => {
+    const tabs: TabInfo[] = [{ url: "https://pagoda.io", title: "Pagoda" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.items[0][0]).toBe("https://pagoda.io");
+  });
+
+  it("Restores .dev TLD ($4) correctly", async () => {
+    const tabs: TabInfo[] = [{ url: "https://react.dev", title: "React" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.items[0][0]).toBe("https://react.dev");
+  });
+
+  it("Restores .app TLD ($5) correctly", async () => {
+    const tabs: TabInfo[] = [{ url: "https://myapp.app", title: "MyApp" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.items[0][0]).toBe("https://myapp.app");
+  });
+
+  it("Restores TLD for non-whitelisted domain unchanged (no stripping)", async () => {
+    const tabs: TabInfo[] = [{ url: "https://example.co.uk/path", title: "Co.uk" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.items[0][0]).toBe("https://example.co.uk/path");
+  });
+
+  it("Restores TLD for unlisted whitelisted domain (e.g. example.info)", async () => {
+    const tabs: TabInfo[] = [{ url: "https://example.info/path", title: "Info" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.items[0][0]).toBe("https://example.info/path");
+  });
+
+  it("Handles subdomain with www prefix and TLD encoding", async () => {
+    const tabs: TabInfo[] = [{ url: "https://www.docs.github.com/en", title: "GitHub Docs" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.items[0][0]).toBe("https://docs.github.com/en");
+  });
+
+  it("Restores URL with port number correctly", async () => {
+    const tabs: TabInfo[] = [{ url: "https://localhost:8080/path", title: "Local" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.items[0][0]).toBe("https://localhost:8080/path");
+  });
+
+  it("Restores URL with query string correctly", async () => {
+    const tabs: TabInfo[] = [{ url: "https://github.com/search?q=test", title: "Search" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.items[0][0]).toBe("https://github.com/search?q=test");
+  });
+
+  it("Restores URL with hash fragment correctly", async () => {
+    const tabs: TabInfo[] = [{ url: "https://github.com/user#section", title: "Section" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.items[0][0]).toBe("https://github.com/user#section");
+  });
+
+  it("Multiple tabs with different TLDs all restore correctly", async () => {
+    const tabs: TabInfo[] = [
+      { url: "https://github.com", title: "GitHub .com" },
+      { url: "https://react.dev", title: "React .dev" },
+      { url: "https://pagoda.io", title: "Pagoda .io" },
+      { url: "https://docs.github.com/en", title: "GitHub Docs" },
+    ];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.items.length).toBe(4);
+    expect(decoded.items[0][0]).toBe("https://github.com");
+    expect(decoded.items[1][0]).toBe("https://react.dev");
+    expect(decoded.items[2][0]).toBe("https://pagoda.io");
+    expect(decoded.items[3][0]).toBe("https://docs.github.com/en");
+  });
+
+  it("Backward compatible with old format (no $N encoding)", async () => {
+    const expiry = Math.floor(Date.now() / 1000) + 86400;
+    const packed = `2${expiry}\x1dstackoverflow.com\x1fStack Overflow`;
+    const utf8 = new TextEncoder().encode(packed);
+    const base64 = btoa(String.fromCharCode(...utf8))
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=/g, "");
+    const fragment = `#p=R${base64}`;
+
+    const decoded = await decodeShareUrl(fragment, brotli);
+    expect(decoded.items.length).toBe(1);
+    expect(decoded.items[0][0]).toBe("https://stackoverflow.com");
+    expect(decoded.items[0][1]).toBe("Stack Overflow");
+  });
+});
