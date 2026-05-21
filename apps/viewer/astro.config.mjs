@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import tailwindcss from '@tailwindcss/vite';
+
 import react from '@astrojs/react';
 import starlight from '@astrojs/starlight';
 import starlightDocsPrefix from './src/integrations/starlight-docs-prefix/index.ts';
@@ -10,7 +10,13 @@ export default defineConfig({
   site: viewerOrigin,
   output: 'static',
   integrations: [
-    react(),
+    react({
+      babel: {
+        plugins: [
+          ['babel-plugin-react-compiler', {}],
+        ],
+      },
+    }),
     starlight({
       title: 'Stash Documentation',
       customCss: ['./src/styles/custom.css'],
@@ -45,9 +51,9 @@ export default defineConfig({
     }),
   ],
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [],
     optimizeDeps: {
       exclude: ['brotli-wasm']
-    }
-  }
+    },
+  },
 });
