@@ -43,8 +43,8 @@ export function createPayload(tabs: TabInfo[], expiryHours: number = EXPIRY_HOUR
  * Encode payload using v2 delimiter format:
  * "2" + expiry + "\x1d" + items
  *
- * Normalization: URLs are normalized (www. and common TLDs stripped) before scheme removal
- * Compression: brotli quality 11, only if > COMPRESSION_THRESHOLD bytes (currently 500)
+ * Normalization: URLs are normalized (www. stripped, TLD encoded as $INDEX) before scheme removal
+ * Compression: brotli quality 11, only if > COMPRESSION_THRESHOLD bytes (currently 200)
  * Prefix: "C" for compressed, "R" for raw
  */
 export async function encodePayload(

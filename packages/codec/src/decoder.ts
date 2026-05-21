@@ -122,7 +122,6 @@ export async function decodeShareUrl(
 
     const restored = restoreTldFromIndex(urlWithoutScheme);
     const url = "https://" + restored;
-
     items.push([url, title]);
   }
 

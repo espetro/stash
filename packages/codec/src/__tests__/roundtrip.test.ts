@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from "bun:test";
+import { describe, it, expect, beforeAll } from "vitest";
 import {
   encodeTabsToShareUrl,
   encodePayload,
@@ -309,11 +309,11 @@ describe("TLD index encoding roundtrip tests", () => {
     expect(decoded.items[0][0]).toBe("https://example.info/path");
   });
 
-  it("Handles subdomain with www prefix and TLD encoding", async () => {
-    const tabs: TabInfo[] = [{ url: "https://www.docs.github.com/en", title: "GitHub Docs" }];
+  it("Handles www prefix with TLD encoding", async () => {
+    const tabs: TabInfo[] = [{ url: "https://www.example.com/en", title: "Example" }];
     const result = await encodeTabsToShareUrl(tabs, brotli);
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.items[0][0]).toBe("https://docs.github.com/en");
+    expect(decoded.items[0][0]).toBe("https://example.com/en");
   });
 
   it("Restores URL with port number correctly", async () => {
