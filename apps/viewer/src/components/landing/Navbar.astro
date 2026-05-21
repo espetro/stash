@@ -151,10 +151,10 @@
   }
 
   .cta-button {
-    background-color: #3981F6;
-    color: #ffffff;
+    background-color: var(--primary);
+    color: var(--primary-foreground);
     padding: 0.5rem 1rem;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 0.875rem;
     font-weight: 600;
     text-decoration: none;
@@ -163,7 +163,7 @@
   }
 
   .cta-button:hover {
-    background-color: #2563EB;
+    background-color: color-mix(in srgb, var(--primary) 85%, transparent);
   }
 
   .cta-button:focus-visible {

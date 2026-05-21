@@ -1,0 +1,36 @@
+---
+import Analytics from '@vercel/analytics/astro';
+
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="dJbisPrLjFw4YbDPfmdhJtV27zFTjh8ZpOqXAFoTzAE" />
+  <title>{title}</title>
+  <Analytics />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    import { initTheme } from '@stash/theme';
+    initTheme(localStorage);
+  </script>
+  <style is:global>
+    @import '@/styles/monochrome.css';
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans, 'Inter', system-ui, sans-serif);
+    }
+  </style>
+</head>
+<body>
+  <slot />
+</body>
+</html>
