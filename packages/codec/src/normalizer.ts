@@ -1,18 +1,10 @@
 /**
- * URL normalizer - strips www. prefix and whitelisted TLDs
+ * URL normalizer - strips www. prefix and encodes whitelisted TLDs as $INDEX
+ * e.g., https://github.com/user → https://github$0/user
  */
 
-/**
- * TLDs that are safe to strip (generic TLDs that won't cause ambiguity)
- */
 export const TLD_WHITELIST = [".com", ".org", ".net", ".io", ".dev", ".app"] as const;
 
-/**
- * Normalize URL by stripping www. prefix and whitelisted TLDs
- *
- * @param url - URL to normalize
- * @returns Normalized URL, or original if parsing fails
- */
 export function normalizeUrl(url: string): string {
   try {
     const parsed = new URL(url);
@@ -22,29 +14,52 @@ export function normalizeUrl(url: string): string {
       hostname = hostname.slice(4);
     }
 
-    for (const tld of TLD_WHITELIST) {
-      if (hostname.endsWith(tld)) {
-        const stripped = hostname.slice(0, -tld.length);
+    let tldIndex = -1;
+    for (let i = 0; i < TLD_WHITELIST.length; i++) {
+      if (hostname.endsWith(TLD_WHITELIST[i])) {
+        const stripped = hostname.slice(0, -TLD_WHITELIST[i].length);
         if (stripped.length > 0) {
           hostname = stripped;
+          tldIndex = i;
         }
         break;
       }
     }
 
-    parsed.hostname = hostname;
-    const normalized = parsed.toString();
+    const encodedHostname = tldIndex >= 0 ? `${hostname}$${tldIndex}` : hostname;
+    const port = parsed.port ? `:${parsed.port}` : "";
+    const path = parsed.pathname + parsed.search + parsed.hash;
 
     const originalHasTrailingSlash = url.endsWith("/");
-    const parsedHasTrailingSlash = normalized.endsWith("/");
-    const isRootPath = parsed.pathname === "/";
+    const isRootPath = path === "/";
 
-    if (!originalHasTrailingSlash && parsedHasTrailingSlash && isRootPath) {
-      return normalized.slice(0, -1);
+    let result = `${parsed.protocol}//${encodedHostname}${port}${path}`;
+
+    if (!originalHasTrailingSlash && isRootPath && result.endsWith("/")) {
+      result = result.slice(0, -1);
     }
 
-    return normalized;
+    return result;
   } catch {
     return url;
   }
+}
+
+export function restoreTldFromIndex(urlPart: string): string {
+  const match = urlPart.match(/^([^\/:\?#]+)/);
+  if (!match) return urlPart;
+
+  const hostname = match[1];
+  const rest = urlPart.slice(hostname.length);
+
+  const dollarIdx = hostname.lastIndexOf("$");
+  if (dollarIdx === -1) return urlPart;
+
+  const base = hostname.slice(0, dollarIdx);
+  const idxStr = hostname.slice(dollarIdx + 1);
+  const idx = parseInt(idxStr, 10);
+
+  if (isNaN(idx) || idx < 0 || idx >= TLD_WHITELIST.length) return urlPart;
+
+  return base + TLD_WHITELIST[idx] + rest;
 }
