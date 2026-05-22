@@ -4,7 +4,7 @@
 
 <footer class="footer">
   <div class="footer-inner">
-    <span class="footer-copy">© 2026 Stash — Made with care for power users.</span>
+    <span class="footer-copy">© 2026 Stash — Made with care for power users. <span class="version">v{import.meta.env.APP_VERSION}</span></span>
     <nav class="footer-links" aria-label="Footer links">
       <a href="https://github.com/espetro/stash" class="footer-link" target="_blank" rel="noopener noreferrer">GitHub</a>
       <a href="/privacy" class="footer-link">Privacy</a>
@@ -58,6 +58,11 @@
     outline: 2px solid var(--ring);
     outline-offset: 2px;
     border-radius: 2px;
+  }
+
+  .version {
+    opacity: 0.6;
+    margin-left: 0.25rem;
   }
 
   @media (max-width: 480px) {

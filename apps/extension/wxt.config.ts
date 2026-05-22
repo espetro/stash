@@ -1,4 +1,10 @@
 import { defineConfig } from "wxt";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const pkg = JSON.parse(
+  readFileSync(resolve(import.meta.dirname, "package.json"), "utf-8"),
+);
 
 export default defineConfig({
   publicDir: "public/",
@@ -8,7 +14,7 @@ export default defineConfig({
     name: "Stash",
     description:
       "Stash lets you save open tabs as a shareable snapshot link. No accounts. No servers. No tracking.",
-    version: "0.3.0",
+    version: pkg.version,
     permissions: ["contextMenus", "tabs", "clipboardWrite", "notifications", "storage"],
     action: { default_popup: "popup/index.html" },
     icons: {
@@ -43,6 +49,9 @@ export default defineConfig({
   vite: () => {
     return {
       envDir: "../../", // Load .env from monorepo root
+      define: {
+        "import.meta.env.APP_VERSION": JSON.stringify(pkg.version),
+      },
       optimizeDeps: {
         exclude: ["brotli-wasm"],
       },
