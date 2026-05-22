@@ -31,6 +31,9 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium
 
+      - name: Ensure version sync
+        run: pnpm run ensure-version-sync
+
       - name: Typecheck extension
         run: pnpm --filter stash-extension exec tsc --noEmit
 

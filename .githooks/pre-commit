@@ -1,0 +1,5 @@
+#!/bin/sh
+# Pre-commit hook: enforce version sync across the monorepo
+# To enable: git config core.hooksPath .githooks
+
+pnpm run ensure-version-sync
