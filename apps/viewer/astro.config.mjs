@@ -1,10 +1,16 @@
 import { defineConfig } from 'astro/config';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 import react from '@astrojs/react';
 import starlight from '@astrojs/starlight';
 import starlightDocsPrefix from './src/integrations/starlight-docs-prefix/index.ts';
 
 const viewerOrigin = (process.env.VITE_VIEWER_ORIGIN || 'http://localhost:4321').replace(/\/$/, '');
+
+const pkg = JSON.parse(
+  readFileSync(resolve(import.meta.dirname, 'package.json'), 'utf-8'),
+);
 
 export default defineConfig({
   site: viewerOrigin,
@@ -51,6 +57,9 @@ export default defineConfig({
     }),
   ],
   vite: {
+    define: {
+      'import.meta.env.APP_VERSION': JSON.stringify(pkg.version),
+    },
     plugins: [],
     optimizeDeps: {
       exclude: ['brotli-wasm']

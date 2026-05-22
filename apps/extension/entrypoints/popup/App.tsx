@@ -166,6 +166,9 @@ export default function App() {
           )}
         </>
       )}
+      <div className="popup-footer">
+        <span className="version">v{import.meta.env.APP_VERSION}</span>
+      </div>
     </div>
   );
 }
