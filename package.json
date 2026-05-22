@@ -5,6 +5,7 @@
     "apps/*",
     "packages/*"
   ],
+  "version": "0.4.0",
   "scripts": {
     "clean": "turbo run clean",
     "dev": "turbo run dev",
@@ -12,7 +13,8 @@
     "tscheck": "turbo run tscheck",
     "lint": "turbo run lint",
     "format": "turbo run format",
-    "screenshots": "tsx scripts/generate-screenshots.ts"
+    "screenshots": "tsx scripts/generate-screenshots.ts",
+    "ensure-version-sync": "tsx scripts/ensure-version-sync.ts"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
