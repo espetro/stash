@@ -6,6 +6,7 @@
     "packages/*"
   ],
   "scripts": {
+    "clean": "turbo run clean",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "tscheck": "turbo run tscheck",

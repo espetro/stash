@@ -4,6 +4,7 @@
   "private": true,
   "description": "Stash browser extension",
   "scripts": {
+    "clean": "rm -rf .output",
     "dev": "wxt",
     "dev:firefox": "wxt -b firefox",
     "build": "pnpm run build:chrome & pnpm run build:firefox",

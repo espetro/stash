@@ -1,8 +1,11 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
+    "clean": {
+      "cache": false
+    },
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "clean"],
       "outputs": [".output/**", "dist/**"],
       "env": ["VITE_VIEWER_ORIGIN"]
     },
