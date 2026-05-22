@@ -5,6 +5,7 @@
   "description": "Stash viewer site",
   "type": "module",
   "scripts": {
+    "clean": "rm -rf dist",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
