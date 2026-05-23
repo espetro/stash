@@ -11,6 +11,8 @@ import { getBrotliFunctions } from "@/lib/brotli";
 import { generate, mode } from "lean-qr";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ShareDrawer } from "./ShareDrawer";
+import { ChevronDown } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -219,6 +221,7 @@ export default function TabViewer() {
   >({ type: "loading" });
 
   const [qrOpen, setQrOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -268,6 +271,15 @@ export default function TabViewer() {
 
   const handleShareQr = useCallback(() => {
     setQrOpen(true);
+  }, []);
+
+  const handleOpenDrawer = useCallback(() => {
+    setQrOpen(false);
+    setDrawerOpen(true);
+  }, []);
+
+  const handleDrawerClose = useCallback(() => {
+    setDrawerOpen(false);
   }, []);
 
   if (state.type === "loading") {
@@ -332,12 +344,20 @@ export default function TabViewer() {
       </Card>
 
       <div className="mt-4 flex w-full max-w-[640px] flex-col gap-3 px-3 sm:px-5">
-        <Button
-          onClick={handleShareQr}
-          className="h-14 w-full rounded-xl bg-primary text-base font-semibold text-primary-foreground hover:bg-primary/90"
-        >
-          Share as QR
-        </Button>
+        <div className="flex h-14 rounded-xl">
+          <Button
+            onClick={handleShareQr}
+            className="flex-1 rounded-r-none bg-primary text-base font-semibold text-primary-foreground hover:bg-primary/90"
+          >
+            Share as QR
+          </Button>
+          <Button
+            onClick={handleOpenDrawer}
+            className="rounded-l-none border-l-0 bg-primary px-3 hover:bg-primary/90"
+          >
+            <ChevronDown className="size-5" />
+          </Button>
+        </div>
         <Button
           variant="outline"
           onClick={handleNew}
@@ -347,12 +367,23 @@ export default function TabViewer() {
         </Button>
       </div>
 
-      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+      <Dialog open={qrOpen} onOpenChange={(open) => { setQrOpen(open); if (open) setDrawerOpen(false); }}>
         <QrDialogContent
           tabs={data.items.map(([url, title]) => ({ url, title }))}
           title={data.title}
         />
       </Dialog>
+
+      <ShareDrawer
+        open={drawerOpen}
+        onClose={handleDrawerClose}
+        data={{
+          expiry: data.expiry,
+          isExpired: data.isExpired,
+          items: data.items,
+          title: data.title,
+        }}
+      />
     </div>
   );
 }
