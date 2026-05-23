@@ -11,6 +11,14 @@ import { getBrotliFunctions } from "@/lib/brotli";
 import { generate, mode } from "lean-qr";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface TabItem {
   url: string;
@@ -146,22 +154,11 @@ function MdOutput({ data }: { data: DecodedData }) {
   );
 }
 
-function QrModal({
-  open,
-  onClose,
-  tabs,
-  title,
-}: {
-  open: boolean;
-  onClose: () => void;
-  tabs: TabItem[];
-  title?: string;
-}) {
+function QrDialogContent({ tabs, title }: { tabs: TabItem[]; title?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!open) return;
     setError(null);
 
     if (!canvasRef.current) return;
@@ -190,34 +187,27 @@ function QrModal({
     }
 
     generateQr();
-  }, [open, tabs, title]);
-
-  if (!open) return null;
+  }, [tabs, title]);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="flex w-full max-w-sm flex-col items-center gap-4 rounded-2xl bg-card p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="text-lg font-semibold text-card-foreground">Share this stash</h2>
-        {error ? (
-          <p className="text-center text-sm text-muted-foreground">{error}</p>
-        ) : (
-          <canvas
-            ref={canvasRef}
-            className="rounded-lg"
-            style={{ width: 240, height: 240, imageRendering: "pixelated" }}
-          />
-        )}
-        <Button onClick={onClose} className="w-full rounded-xl">
-          Close
-        </Button>
-      </div>
-    </div>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Share this stash</DialogTitle>
+        <DialogDescription>Scan this QR code to import the tabs</DialogDescription>
+      </DialogHeader>
+      {error ? (
+        <p className="text-center text-sm text-muted-foreground">{error}</p>
+      ) : (
+        <canvas
+          ref={canvasRef}
+          className="rounded-lg"
+          style={{ width: 240, height: 240, imageRendering: "pixelated" }}
+        />
+      )}
+      <DialogFooter>
+        <Button className="w-full rounded-xl">Close</Button>
+      </DialogFooter>
+    </DialogContent>
   );
 }
 
@@ -357,12 +347,12 @@ export default function TabViewer() {
         </Button>
       </div>
 
-      <QrModal
-        open={qrOpen}
-        onClose={() => setQrOpen(false)}
-        tabs={data.items.map(([url, title]) => ({ url, title }))}
-        title={data.title}
-      />
+      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+        <QrDialogContent
+          tabs={data.items.map(([url, title]) => ({ url, title }))}
+          title={data.title}
+        />
+      </Dialog>
     </div>
   );
 }
