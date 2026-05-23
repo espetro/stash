@@ -13,6 +13,13 @@ const { title } = Astro.props;
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google-site-verification" content="dJbisPrLjFw4YbDPfmdhJtV27zFTjh8ZpOqXAFoTzAE" />
   <title>{title}</title>
+  {/* AI agent consumption — alternate representations of this stash page */}
+  {Astro.url.pathname.startsWith('/s') && (
+    <>
+      <link rel="alternate" type="application/json" href={Astro.url + '?format=json'} title="Stash as JSON" />
+      <link rel="alternate" type="text/markdown" href={Astro.url + '?format=md'} title="Stash as Markdown" />
+    </>
+  )}
   <Analytics />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
