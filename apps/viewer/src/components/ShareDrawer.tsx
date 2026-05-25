@@ -68,7 +68,7 @@ export function ShareDrawer({ open, onClose, data }: ShareDrawerProps) {
 
   return (
     <Drawer open={open} onClose={onClose} direction="bottom">
-      <DrawerContent>
+      <DrawerContent className="sm:max-w-160 sm:mx-auto">
         <DrawerHeader>
           <DrawerTitle>Export Options</DrawerTitle>
           <DrawerDescription>Choose how to format your links</DrawerDescription>
@@ -81,7 +81,7 @@ export function ShareDrawer({ open, onClose, data }: ShareDrawerProps) {
             className="h-auto flex-col items-start py-4"
             onClick={handleCopyJSON}
           >
-            <span className="font-medium">{jsonLabel}</span>
+            <span className="font-medium text-foreground">{jsonLabel}</span>
             <span className="text-xs text-muted-foreground">Raw data format for developers</span>
           </Button>
 
@@ -91,7 +91,7 @@ export function ShareDrawer({ open, onClose, data }: ShareDrawerProps) {
             className="h-auto flex-col items-start py-4"
             onClick={handleCopyMarkdown}
           >
-            <span className="font-medium">{mdLabel}</span>
+            <span className="font-medium text-foreground">{mdLabel}</span>
             <span className="text-xs text-muted-foreground">Formatted list with links</span>
           </Button>
         </div>
