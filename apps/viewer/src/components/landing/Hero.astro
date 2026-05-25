@@ -1,7 +1,8 @@
 ---
 // Main hero section for landing page
 import { FaChrome, FaFirefoxBrowser } from "react-icons/fa6";
-import AppMockup from "./AppMockup.astro";
+import HeroStashPopup from "./HeroStashPopup";
+import type { FunctionComponent } from "react";
 ---
 
 <section class="hero" id="hero">
@@ -14,8 +15,8 @@ import AppMockup from "./AppMockup.astro";
       </h1>
 
       <p class="hero-subheadline">
-        Share your entire browser context as one link — or save it for later.
-        Locally. Privately. No account. No cloud. No noise.
+        Share your entire browser context as one link, or just save it for
+        later. Locally. Privately. No account. No cloud. No noise.
       </p>
 
       <!-- CTA Row -->
@@ -38,19 +39,16 @@ import AppMockup from "./AppMockup.astro";
           Add to Firefox
         </a>
 
-        <a
-          href="/s/new"
-          class="cta-button cta-ghost"
-        >
-          Try in browser →
-        </a>
+        <a href="/s/new" class="cta-button cta-ghost"> Try in browser → </a>
       </div>
 
       <p class="cta-tagline">Free · No account required · Works offline</p>
     </div>
 
-    <!-- Right Column (40%) - Popup Mockup -->
-    <AppMockup />
+    <!-- Right Column (40%) - HeroStashPopup -->
+    <div class="popup-wrapper">
+      <HeroStashPopup client:only="react" />
+    </div>
   </div>
 </section>
 
@@ -196,6 +194,18 @@ import AppMockup from "./AppMockup.astro";
     }
   }
 
+  /* Popup wrapper */
+  .popup-wrapper {
+    max-width: 360px;
+    width: 100%;
+  }
+
+  @media (min-width: 1024px) {
+    .popup-wrapper {
+      max-width: none;
+    }
+  }
+
   /* Mobile adjustments */
   @media (max-width: 640px) {
     .hero {
@@ -219,6 +229,8 @@ import AppMockup from "./AppMockup.astro";
 
     .popup-wrapper {
       margin-top: 2rem;
+      margin-left: auto;
+      margin-right: auto;
     }
   }
 </style>
