@@ -76,22 +76,28 @@ export default function HeroStashPopup() {
   }, [resultUrl]);
 
   const saveLabel =
-    saveState === "generating" ? "Generating..." : saveState === "error" ? "Error" : "Create Stash →";
+    saveState === "generating"
+      ? "Generating..."
+      : saveState === "error"
+        ? "Error"
+        : "Create Stash →";
 
   return (
     <div
-      style={{
-        "--background": "#0B0E15",
-        "--card": "#11151E",
-        "--foreground": "#e4e4e4",
-        "--muted-foreground": "#a4a4a4",
-        "--border": "#1E2438",
-        "--primary": "#5B9DF8",
-        "--primary-foreground": "#fff",
-        "--secondary": "#262626",
-        "--muted": "#11151E",
-        "--radius": "0.375rem",
-      } as React.CSSProperties}
+      style={
+        {
+          "--background": "#0B0E15",
+          "--card": "#11151E",
+          "--foreground": "#e4e4e4",
+          "--muted-foreground": "#a4a4a4",
+          "--border": "#1E2438",
+          "--primary": "#5B9DF8",
+          "--primary-foreground": "#fff",
+          "--secondary": "#262626",
+          "--muted": "#11151E",
+          "--radius": "0.375rem",
+        } as React.CSSProperties
+      }
       className="max-w-[360px]"
     >
       {/* Dark card container */}
@@ -112,10 +118,7 @@ export default function HeroStashPopup() {
           className="flex items-center justify-between px-4 py-3 border-b"
         >
           <div className="flex items-center gap-2">
-            <span
-              style={{ color: "var(--primary)" }}
-              className="text-lg font-bold"
-            >
+            <span style={{ color: "var(--primary)" }} className="text-lg font-bold">
               ●
             </span>
             <span className="text-sm font-semibold">Stash</span>
