@@ -1,6 +1,7 @@
 ---
 // Main hero section for landing page
-import { FaChrome, FaFirefoxBrowser } from 'react-icons/fa6';
+import { FaChrome, FaFirefoxBrowser } from "react-icons/fa6";
+import AppMockup from "./AppMockup.astro";
 ---
 
 <section class="hero" id="hero">
@@ -11,57 +12,38 @@ import { FaChrome, FaFirefoxBrowser } from 'react-icons/fa6';
         <span class="headline-line1">Your tabs are your thinking.</span><br />
         <span class="headline-line2">Stop losing them.</span>
       </h1>
-      
+
       <p class="hero-subheadline">
-        Share your entire browser context as one link — or save it for later. Locally. Privately. No account. No cloud. No noise.
+        Share your entire browser context as one link — or save it for later.
+        Locally. Privately. No account. No cloud. No noise.
       </p>
-      
+
       <!-- CTA Row -->
       <div class="cta-group">
-        <a href="#" class="cta-button cta-primary" aria-label="Add Stash to Chrome">
+        <a
+          href="#"
+          class="cta-button cta-primary"
+          aria-label="Add Stash to Chrome"
+        >
           <FaChrome class="cta-icon" aria-hidden="true" />
           Add to Chrome
         </a>
-        
-        <a href="#" class="cta-button cta-secondary" aria-label="Add Stash to Firefox">
+
+        <a
+          href="#"
+          class="cta-button cta-secondary"
+          aria-label="Add Stash to Firefox"
+        >
           <FaFirefoxBrowser class="cta-icon" aria-hidden="true" />
           Add to Firefox
         </a>
       </div>
-      
-      <p class="cta-tagline">
-        Free · No account required · Works offline
-      </p>
+
+      <p class="cta-tagline">Free · No account required · Works offline</p>
     </div>
-    
+
     <!-- Right Column (40%) - Popup Mockup -->
-    <div class="popup-wrapper">
-      <div class="popup-card">
-        <div class="popup-header">
-          <div class="popup-brand">
-            <img src="/icon-48.png" width="16" height="16" alt="" aria-hidden="true" />
-            <span class="popup-title">Stash</span>
-          </div>
-          <span class="popup-close" aria-hidden="true">×</span>
-        </div>
-        
-        <div class="popup-divider"></div>
-        
-        <div class="popup-tabs">
-          <div class="popup-tab">github.com/espetro/st..</div>
-          <div class="popup-tab">docs.astro.build</div>
-          <div class="popup-tab">tailwindcss.com/docs</div>
-          <div class="popup-tab">mdn.mozilla.org/en-US</div>
-        </div>
-        
-        <div class="popup-divider"></div>
-        
-        <div class="popup-actions">
-          <button class="popup-button">Stash tabs →</button>
-          <a href="#" class="popup-secondary-link">Save session</a>
-        </div>
-      </div>
-    </div>
+    <AppMockup />
   </div>
 </section>
 
@@ -110,7 +92,7 @@ import { FaChrome, FaFirefoxBrowser } from 'react-icons/fa6';
   }
 
   .headline-line2 {
-    color: #3981F6;
+    color: #3981f6;
   }
 
   .hero-subheadline {
@@ -141,7 +123,9 @@ import { FaChrome, FaFirefoxBrowser } from 'react-icons/fa6';
     font-weight: 600;
     text-decoration: none;
     font-family: var(--font-sans);
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
   }
 
   .cta-button:focus-visible {
@@ -150,12 +134,12 @@ import { FaChrome, FaFirefoxBrowser } from 'react-icons/fa6';
   }
 
   .cta-primary {
-    background-color: #3981F6;
+    background-color: #3981f6;
     color: #ffffff;
   }
 
   .cta-primary:hover {
-    background-color: #2563EB;
+    background-color: #2563eb;
   }
 
   .cta-secondary {
@@ -165,7 +149,7 @@ import { FaChrome, FaFirefoxBrowser } from 'react-icons/fa6';
   }
 
   .cta-secondary:hover {
-    border-color: #C0C8D8;
+    border-color: #c0c8d8;
   }
 
   .cta-icon {
@@ -180,105 +164,6 @@ import { FaChrome, FaFirefoxBrowser } from 'react-icons/fa6';
     color: var(--muted-foreground);
     margin: 0;
     width: 100%;
-  }
-
-  /* Right Column - Popup */
-  .popup-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .popup-card {
-    background-color: #11151E;
-    border: 1px solid #1E2438;
-    border-radius: 10px;
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,0,0,0.1);
-    width: 100%;
-    max-width: 320px;
-    margin: 0 auto;
-  }
-
-  .popup-header {
-    padding: 0.875rem 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .popup-brand {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .popup-title {
-    font-family: var(--font-sans);
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #ffffff;
-  }
-
-  .popup-close {
-    color: #8896AD;
-    font-size: 1.25rem;
-    line-height: 1;
-  }
-
-  .popup-divider {
-    border-bottom: 1px solid #1E2438;
-  }
-
-  .popup-tabs {
-    padding: 0.5rem 0;
-  }
-
-  .popup-tab {
-    padding: 0.5rem 1rem;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: #8896AD;
-    border-bottom: 1px solid #1E2438;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  .popup-tab:last-child {
-    border-bottom: none;
-  }
-
-  .popup-actions {
-    padding: 0.875rem 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.625rem;
-  }
-
-  .popup-button {
-    background-color: #3981F6;
-    color: #ffffff;
-    width: 100%;
-    padding: 0.5rem;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-align: center;
-    font-family: var(--font-sans);
-    border: none;
-    cursor: default;
-  }
-
-  .popup-secondary-link {
-    color: #5B9DF8;
-    font-size: 0.8125rem;
-    text-align: center;
-    text-decoration: none;
-    font-family: var(--font-sans);
-  }
-
-  .popup-secondary-link:hover {
-    text-decoration: underline;
   }
 
   /* Desktop: 60/40 split */

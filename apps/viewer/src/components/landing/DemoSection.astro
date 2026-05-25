@@ -1,5 +1,16 @@
 ---
 // Demo section — dark background with browser session mockup
+
+const DEMO_STASH = [
+  "https://github.com/withastro/astro/releases/tag/astro%405.0.0",
+  "https://docs.astro.build/en/guides/upgrade-to/v5/",
+  "https://tailwindcss.com/docs/v4-beta",
+  "https://stackoverflow.com/questions/79124/astro-content-collections-migration",
+  "https://mdn.mozilla.org/en-US/docs/Web/CSS/animation-timeline",
+] as const;
+
+const DEMO_LINK =
+  "https://stash.illo.fyi/s/#p=CG6gBAIzEOCbyIriidu9-w1LA2-0wDZGk-avfX0iEtNBWwTOPkkhrhqDKZ39_E-wD8mxsHHNx2D2kLrd0c9FQRIfOxcPF60XyhrTeBPZHn99fegm13ct043jklvrBgQ5aQXmCJs62QNIc91tvMpiyARtcMyOhhnC9mRgFi9VY6wVaMUrbxzIdwkegBPkU3xYJ1QXKSPNCjfpGURRGwzPkExA09ArAqWg3FaQZgfqkuwcdcL4cjiZNGMDKEwi0gGz4g3Qnq4zMmMmeyXKwYjjuS_TPlr6Nc67FXgTWAXmRNRTolRlJ-j7P8lZNq7Kb07-eAQ";
 ---
 
 <section class="demo-section" id="demo">
@@ -16,7 +27,7 @@
           <span class="dot dot-green"></span>
         </div>
         <div class="browser-url" aria-label="URL bar">
-          stash.illo.fyi/s/#p=CG60BAIyU7hLTLJxTqSYvzOfaATkA0GXUdn7BN3V...
+          {DEMO_LINK.slice(0, 60)}...
         </div>
       </div>
 
@@ -26,37 +37,30 @@
         <p class="session-title">Research: Astro 5 Migration</p>
 
         <div class="tab-list" role="list">
-          <div class="tab-row" role="listitem">
-            <span class="tab-num">1</span>
-            <span class="tab-url">github.com/withastro/astro/releases/tag/astro%405.0.0</span>
-          </div>
-          <div class="tab-row" role="listitem">
-            <span class="tab-num">2</span>
-            <span class="tab-url">docs.astro.build/en/guides/upgrade-to/v5/</span>
-          </div>
-          <div class="tab-row" role="listitem">
-            <span class="tab-num">3</span>
-            <span class="tab-url">tailwindcss.com/docs/v4-beta</span>
-          </div>
-          <div class="tab-row" role="listitem">
-            <span class="tab-num">4</span>
-            <span class="tab-url">stackoverflow.com/questions/79124/astro-content-collections-migration</span>
-          </div>
-          <div class="tab-row" role="listitem">
-            <span class="tab-num">5</span>
-            <span class="tab-url">mdn.mozilla.org/en-US/docs/Web/CSS/animation-timeline</span>
-          </div>
+          {
+            DEMO_STASH.map((href, index) => (
+              <div class="tab-row" role="listitem">
+                <span class="tab-num">{index}</span>
+                <span class="tab-url">{href}</span>
+              </div>
+            ))
+          }
         </div>
       </div>
     </div>
 
-    <a href="https://stash.illo.fyi/s/#p=CG60BAIyU7hLTLJxTqSYvzOfaATkA0GXUdn7BN3VTH5TnaGzrojWw8wUWYphu8-gIuk1D3YiIjvBHbzDtjXvGeNIban7YBK1VX6CdWTdVjk6htPJO5-3_I8WNcHK7Vk2p8Bq4GehboS0SfeQmRzeEfIsAhTS3-aJuSLTK7Vo0ZpjwsLLr2hu48AVAKCR6z13YuHI_N4SZTy_bmpbP5xFp_RFhFphllYQMwDEcv2RNxT4bTsiZc4cYoqWLlPanpYqYCbJUcNko1iNW9m7G76f31de1PuPMdo0THmp1MLMwjUsyFhCoBymOiEdL59UF" class="demo-link" target="_blank" rel="noopener noreferrer">View a live example →</a>
+    <a
+      href={DEMO_LINK}
+      class="demo-link"
+      target="_blank"
+      rel="noopener noreferrer">View a live example →</a
+    >
   </div>
 </section>
 
 <style>
   .demo-section {
-    background-color: #0B0E15;
+    background-color: #0b0e15;
     padding: 5rem 1.5rem;
   }
 
@@ -68,7 +72,7 @@
   .headline {
     font-size: 1.875rem;
     font-weight: 600;
-    color: #EBEEF6;
+    color: #ebeef6;
     letter-spacing: -0.02em;
     margin: 0 0 2.5rem;
     text-align: center;
@@ -76,8 +80,8 @@
 
   /* Browser mockup */
   .browser-mockup {
-    background-color: #11151E;
-    border: 1px solid #1E2438;
+    background-color: #11151e;
+    border: 1px solid #1e2438;
     border-radius: 10px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     overflow: hidden;
@@ -85,9 +89,9 @@
   }
 
   .browser-chrome {
-    background-color: #161B28;
+    background-color: #161b28;
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #1E2438;
+    border-bottom: 1px solid #1e2438;
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -105,19 +109,25 @@
     border-radius: 50%;
   }
 
-  .dot-red    { background-color: #ff5f57; }
-  .dot-yellow { background-color: #ffbd2e; }
-  .dot-green  { background-color: #28c840; }
+  .dot-red {
+    background-color: #ff5f57;
+  }
+  .dot-yellow {
+    background-color: #ffbd2e;
+  }
+  .dot-green {
+    background-color: #28c840;
+  }
 
   .browser-url {
     flex: 1;
-    background-color: #0B0E15;
-    border: 1px solid #1E2438;
+    background-color: #0b0e15;
+    border: 1px solid #1e2438;
     border-radius: 6px;
     padding: 0.25rem 0.75rem;
     font-family: var(--font-mono);
     font-size: 0.75rem;
-    color: #5B9DF8;
+    color: #5b9df8;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -133,7 +143,7 @@
     font-size: 0.6875rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #5B9DF8;
+    color: #5b9df8;
     display: block;
     margin-bottom: 0.5rem;
   }
@@ -141,7 +151,7 @@
   .session-title {
     font-size: 1rem;
     font-weight: 600;
-    color: #EBEEF6;
+    color: #ebeef6;
     margin: 0 0 1.25rem;
   }
 
@@ -155,7 +165,7 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.5rem 0;
-    border-bottom: 1px solid #1E2438;
+    border-bottom: 1px solid #1e2438;
   }
 
   .tab-row:last-child {
@@ -165,7 +175,7 @@
   .tab-num {
     font-family: var(--font-mono);
     font-size: 0.75rem;
-    color: #8896AD;
+    color: #8896ad;
     min-width: 1rem;
     flex-shrink: 0;
   }
@@ -173,7 +183,7 @@
   .tab-url {
     font-family: var(--font-mono);
     font-size: 0.8125rem;
-    color: #8896AD;
+    color: #8896ad;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -183,7 +193,7 @@
   .demo-link {
     display: block;
     margin-top: 1.5rem;
-    color: #5B9DF8;
+    color: #5b9df8;
     font-size: 0.9375rem;
     text-decoration: none;
     transition: text-decoration 0.15s ease;
@@ -195,7 +205,7 @@
   }
 
   .demo-link:focus-visible {
-    outline: 2px solid #5B9DF8;
+    outline: 2px solid #5b9df8;
     outline-offset: 2px;
     border-radius: 2px;
   }

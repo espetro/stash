@@ -1,0 +1,150 @@
+---
+const DEMO_STASH = [
+    "https://github.com/espetro/stash",
+    "https://docs.astro.build/",
+    "https://calca.illo.fyi",
+    "https://ui.land/",
+] as const;
+---
+
+<div class="popup-wrapper">
+    <div class="popup-card">
+        <div class="popup-header">
+            <div class="popup-brand">
+                <img
+                    src="/icon-48.png"
+                    width="16"
+                    height="16"
+                    alt=""
+                    aria-hidden="true"
+                />
+                <span class="popup-title">Stash</span>
+            </div>
+            <span class="popup-close" aria-hidden="true">×</span>
+        </div>
+
+        <div class="popup-divider"></div>
+
+        <div class="popup-tabs">
+            {
+                DEMO_STASH.map((href, index) => (
+                    <div id={`${href.slice(8, 20)}-${index}`} class="popup-tab">
+                        <a href={href} style="color: #8896ad">
+                            {href}
+                        </a>
+                    </div>
+                ))
+            }
+        </div>
+
+        <div class="popup-divider"></div>
+
+        <div class="popup-actions">
+            <button class="popup-button">Stash tabs →</button>
+            <a href="#" class="popup-secondary-link">Save session</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Right Column - Popup */
+    .popup-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .popup-card {
+        background-color: #11151e;
+        border: 1px solid #1e2438;
+        border-radius: 10px;
+        box-shadow:
+            0 25px 50px -12px rgba(0, 0, 0, 0.4),
+            0 0 0 1px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 320px;
+        margin: 0 auto;
+    }
+
+    .popup-header {
+        padding: 0.875rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .popup-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .popup-title {
+        font-family: var(--font-sans);
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #ffffff;
+    }
+
+    .popup-close {
+        color: #8896ad;
+        font-size: 1.25rem;
+        line-height: 1;
+    }
+
+    .popup-divider {
+        border-bottom: 1px solid #1e2438;
+    }
+
+    .popup-tabs {
+        padding: 0.5rem 0;
+    }
+
+    .popup-tab {
+        padding: 0.5rem 1rem;
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+        color: #8896ad;
+        border-bottom: 1px solid #1e2438;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .popup-tab:last-child {
+        border-bottom: none;
+    }
+
+    .popup-actions {
+        padding: 0.875rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+    }
+
+    .popup-button {
+        background-color: #3981f6;
+        color: #ffffff;
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-align: center;
+        font-family: var(--font-sans);
+        border: none;
+        cursor: default;
+    }
+
+    .popup-secondary-link {
+        color: #5b9df8;
+        font-size: 0.8125rem;
+        text-align: center;
+        text-decoration: none;
+        font-family: var(--font-sans);
+    }
+
+    .popup-secondary-link:hover {
+        text-decoration: underline;
+    }
+</style>
