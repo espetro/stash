@@ -5,182 +5,54 @@ import HeroStashPopup from "./HeroStashPopup";
 import type { FunctionComponent } from "react";
 ---
 
-<section class="hero" id="hero">
-  <div class="hero-container">
+<section class="hero relative overflow-hidden bg-background min-h-[85vh] pt-20 pb-16 flex items-center" id="hero">
+  <div class="hero-container relative z-10 max-w-7xl mx-auto px-6 w-full grid grid-cols-1 gap-12">
     <!-- Left Column (60%) -->
-    <div class="hero-content">
-      <h1 class="hero-headline">
-        <span class="headline-line1">Your tabs are your thinking.</span><br />
-        <span class="headline-line2">Stop losing them.</span>
+    <div class="hero-content flex flex-col gap-6">
+      <h1 class="hero-headline font-sans text-[clamp(2.5rem,6vw,4.5rem)] font-bold leading-[1.1] tracking-[-0.03em] m-0">
+        <span class="headline-line1 text-foreground">Your tabs are your thinking.</span><br />
+        <span class="headline-line2 text-[#3981f6]">Stop losing them.</span>
       </h1>
 
-      <p class="hero-subheadline">
+      <p class="hero-subheadline font-sans text-lg leading-[1.6] text-[#a4a4a4] m-0 max-w-md">
         Share your entire browser context as one link, or just save it for
         later. Locally. Privately. No account. No cloud. No noise.
       </p>
 
       <!-- CTA Row -->
-      <div class="cta-group">
+      <div class="cta-group flex flex-wrap gap-3 items-center">
         <a
           href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md"
-          class="cta-button cta-primary"
+          class="cta-button cta-primary inline-flex items-center justify-center gap-2 py-2.5 px-5 rounded-md text-[0.9375rem] font-semibold no-underline font-sans transition-colors duration-200 bg-[#2563eb] text-white"
           aria-label="Add Stash to Chrome"
         >
-          <FaChrome class="cta-icon" aria-hidden="true" />
+          <FaChrome class="cta-icon w-[1.125rem] h-[1.125rem] flex-shrink-0" aria-hidden="true" />
           Add to Chrome
         </a>
 
         <a
           href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md"
-          class="cta-button cta-secondary"
+          class="cta-button cta-secondary inline-flex items-center justify-center gap-2 py-2.5 px-5 rounded-md text-[0.9375rem] font-semibold no-underline font-sans transition-colors duration-200 bg-white text-[#333333] border border-[#e0e0e0]"
           aria-label="Add Stash to Firefox"
         >
-          <FaFirefoxBrowser class="cta-icon" aria-hidden="true" />
+          <FaFirefoxBrowser class="cta-icon w-[1.125rem] h-[1.125rem] flex-shrink-0" aria-hidden="true" />
           Add to Firefox
         </a>
 
-        <a href="/s/new" class="cta-button cta-ghost"> Try in browser → </a>
+        <a href="/s/new" class="cta-button cta-ghost inline-flex items-center justify-center gap-2 py-2.5 px-5 rounded-md text-[0.9375rem] font-semibold no-underline font-sans transition-colors duration-200 text-white/85"> Try in browser → </a>
       </div>
 
-      <p class="cta-tagline">Free · No account required · Works offline</p>
+      <p class="cta-tagline font-mono text-xs text-[#a4a4a4] m-0 w-full">Free · No account required · Works offline</p>
     </div>
 
     <!-- Right Column (40%) - HeroStashPopup -->
-    <div class="popup-wrapper">
+    <div class="popup-wrapper max-w-[360px] w-full">
       <HeroStashPopup client:only="react" />
     </div>
   </div>
 </section>
 
 <style>
-  .hero {
-    min-height: 85vh;
-    padding-top: 5rem;
-    padding-bottom: 4rem;
-    display: flex;
-    align-items: center;
-    background-color: var(--background);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero-container {
-    max-width: 72rem;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 3rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Left Column */
-  .hero-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .hero-headline {
-    font-family: var(--font-sans);
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
-    margin: 0;
-  }
-
-  .headline-line1 {
-    color: var(--foreground);
-  }
-
-  .headline-line2 {
-    color: #3981f6;
-  }
-
-  .hero-subheadline {
-    font-family: var(--font-sans);
-    font-size: 1.125rem;
-    line-height: 1.6;
-    color: var(--muted-foreground);
-    margin: 0;
-    max-width: 28rem;
-  }
-
-  /* CTA Row */
-  .cta-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    align-items: center;
-  }
-
-  .cta-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.25rem;
-    border-radius: 6px;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    text-decoration: none;
-    font-family: var(--font-sans);
-    transition:
-      background-color 0.2s ease,
-      border-color 0.2s ease;
-  }
-
-  .cta-button:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-  }
-
-  .cta-primary {
-    background-color: #3981f6;
-    color: #ffffff;
-  }
-
-  .cta-primary:hover {
-    background-color: #2563eb;
-  }
-
-  .cta-secondary {
-    background-color: #ffffff;
-    color: var(--foreground);
-    border: 1px solid var(--border);
-  }
-
-  .cta-secondary:hover {
-    border-color: #c0c8d8;
-  }
-
-  .cta-ghost {
-    background-color: transparent;
-    color: var(--muted-foreground);
-    border: none;
-  }
-
-  .cta-ghost:hover {
-    color: var(--foreground);
-  }
-
-  .cta-icon {
-    width: 1.125rem;
-    height: 1.125rem;
-    flex-shrink: 0;
-  }
-
-  .cta-tagline {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--muted-foreground);
-    margin: 0;
-    width: 100%;
-  }
-
   /* Desktop: 60/40 split */
   @media (min-width: 1024px) {
     .hero-container {
@@ -204,6 +76,24 @@ import type { FunctionComponent } from "react";
     .popup-wrapper {
       max-width: none;
     }
+  }
+
+  /* Unavoidable focus-visible and hover states */
+  .cta-button:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  .cta-primary:hover {
+    background-color: #2563eb;
+  }
+
+  .cta-secondary:hover {
+    border-color: #c0c8d8;
+  }
+
+  .cta-ghost:hover {
+    color: var(--foreground);
   }
 
   /* Mobile adjustments */

@@ -2,63 +2,19 @@
 // Social Proof Strip — thin bar with company mentions
 ---
 
-<section class="proof-strip">
-  <div class="proof-container">
-    <span class="proof-label">Trusted by engineers at</span>
-    <div class="proof-companies">
-      <span class="company">Vercel</span>
-      <span class="sep">·</span>
-      <span class="company">Stripe</span>
-      <span class="sep">·</span>
-      <span class="company">Figma</span>
-      <span class="sep">·</span>
-      <span class="company">Linear</span>
-      <span class="sep">·</span>
-      <span class="company">Notion</span>
+<section class="proof-strip bg-background border-t border-b border-border py-5 px-6">
+  <div class="proof-container max-w-7xl mx-auto flex items-center justify-center gap-6 flex-wrap">
+    <span class="proof-label font-mono text-[0.8125rem] text-muted-foreground">Trusted by engineers at</span>
+    <div class="proof-companies flex items-center gap-3 flex-wrap">
+      <span class="company font-mono text-sm font-medium text-foreground">Vercel</span>
+      <span class="sep text-border text-sm">·</span>
+      <span class="company font-mono text-sm font-medium text-foreground">Stripe</span>
+      <span class="sep text-border text-sm">·</span>
+      <span class="company font-mono text-sm font-medium text-foreground">Figma</span>
+      <span class="sep text-border text-sm">·</span>
+      <span class="company font-mono text-sm font-medium text-foreground">Linear</span>
+      <span class="sep text-border text-sm">·</span>
+      <span class="company font-mono text-sm font-medium text-foreground">Notion</span>
     </div>
   </div>
 </section>
-
-<style>
-  .proof-strip {
-    background-color: var(--background);
-    padding: 1.25rem 1.5rem;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .proof-container {
-    max-width: 72rem;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-  }
-
-  .proof-label {
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--muted-foreground);
-  }
-
-  .proof-companies {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  .company {
-    font-family: var(--font-mono);
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--foreground);
-  }
-
-  .sep {
-    color: var(--border);
-    font-size: 0.875rem;
-  }
-</style>

@@ -7,10 +7,10 @@ const DEMO_STASH = [
 ] as const;
 ---
 
-<div class="popup-wrapper">
-    <div class="popup-card">
-        <div class="popup-header">
-            <div class="popup-brand">
+<div class="flex justify-center items-center">
+    <div class="bg-[#11151e] border border-[#1e2438] rounded-[10px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4),0_0_0_1px_rgba(0,0,0,0.1)] w-full max-w-[320px] mx-auto">
+        <div class="p-3.5 px-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
                 <img
                     src="/icon-48.png"
                     width="16"
@@ -18,18 +18,18 @@ const DEMO_STASH = [
                     alt=""
                     aria-hidden="true"
                 />
-                <span class="popup-title">Stash</span>
+                <span class="font-sans text-[0.875rem] font-semibold text-white">Stash</span>
             </div>
-            <span class="popup-close" aria-hidden="true">×</span>
+            <span class="text-[#8896ad] text-[1.25rem] leading-[1]" aria-hidden="true">×</span>
         </div>
 
-        <div class="popup-divider"></div>
+        <div class="border-b border-[#1e2438]"></div>
 
-        <div class="popup-tabs">
+        <div class="py-2">
             {
                 DEMO_STASH.map((href, index) => (
-                    <div id={`${href.slice(8, 20)}-${index}`} class="popup-tab">
-                        <a href={href} style="color: #8896ad">
+                    <div id={`${href.slice(8, 20)}-${index}`} class="flex gap-2 p-2 px-4 font-mono text-[0.8125rem] text-[#8896ad] border-b border-[#1e2438] overflow-hidden whitespace-nowrap text-ellipsis last:border-b-0">
+                        <a href={href} class="text-[#8896ad]">
                             {href}
                         </a>
                     </div>
@@ -37,114 +37,11 @@ const DEMO_STASH = [
             }
         </div>
 
-        <div class="popup-divider"></div>
+        <div class="border-b border-[#1e2438]"></div>
 
-        <div class="popup-actions">
-            <button class="popup-button">Stash tabs →</button>
-            <a href="#" class="popup-secondary-link">Save session</a>
+        <div class="p-3.5 px-4 flex flex-col gap-[0.625rem]">
+            <button class="bg-[#3981f6] text-white w-full py-2 rounded-md font-sans text-[0.875rem] font-semibold text-center border-none cursor-default">Stash tabs →</button>
+            <a href="#" class="text-[#5b9df8] text-[0.8125rem] text-center no-underline font-sans hover:underline">Save session</a>
         </div>
     </div>
 </div>
-
-<style>
-    /* Right Column - Popup */
-    .popup-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .popup-card {
-        background-color: #11151e;
-        border: 1px solid #1e2438;
-        border-radius: 10px;
-        box-shadow:
-            0 25px 50px -12px rgba(0, 0, 0, 0.4),
-            0 0 0 1px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 320px;
-        margin: 0 auto;
-    }
-
-    .popup-header {
-        padding: 0.875rem 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .popup-brand {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .popup-title {
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #ffffff;
-    }
-
-    .popup-close {
-        color: #8896ad;
-        font-size: 1.25rem;
-        line-height: 1;
-    }
-
-    .popup-divider {
-        border-bottom: 1px solid #1e2438;
-    }
-
-    .popup-tabs {
-        padding: 0.5rem 0;
-    }
-
-    .popup-tab {
-        padding: 0.5rem 1rem;
-        font-family: var(--font-mono);
-        font-size: 0.8125rem;
-        color: #8896ad;
-        border-bottom: 1px solid #1e2438;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
-
-    .popup-tab:last-child {
-        border-bottom: none;
-    }
-
-    .popup-actions {
-        padding: 0.875rem 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.625rem;
-    }
-
-    .popup-button {
-        background-color: #3981f6;
-        color: #ffffff;
-        width: 100%;
-        padding: 0.5rem;
-        border-radius: 6px;
-        font-size: 0.875rem;
-        font-weight: 600;
-        text-align: center;
-        font-family: var(--font-sans);
-        border: none;
-        cursor: default;
-    }
-
-    .popup-secondary-link {
-        color: #5b9df8;
-        font-size: 0.8125rem;
-        text-align: center;
-        text-decoration: none;
-        font-family: var(--font-sans);
-    }
-
-    .popup-secondary-link:hover {
-        text-decoration: underline;
-    }
-</style>

@@ -2,38 +2,38 @@
 // Sticky navigation bar for landing page
 ---
 
-<nav class="navbar" id="navbar">
+<nav class="navbar fixed top-0 left-0 right-0 z-100 bg-card transition-all duration-300 border-b border-transparent" id="navbar">
   <!-- Sentinel for scroll detection -->
   <div id="nav-sentinel" class="sentinel"></div>
   
-  <div class="navbar-container">
+  <div class="navbar-container max-w-7xl mx-auto px-6 py-3.5 grid grid-cols-[auto_1fr_auto] items-center gap-6">
     <!-- Logo -->
-    <a href="/" class="logo">
-      <img src="/icon-48.png" width="32" height="32" alt="" aria-hidden="true" class="logo-icon" />
-      <span class="logo-text">Stash</span>
+    <a href="/" class="logo flex items-center gap-2 no-underline transition-opacity duration-200 justify-self-start">
+      <img src="/icon-48.png" width="32" height="32" alt="" aria-hidden="true" class="logo-icon block flex-shrink-0" />
+      <span class="logo-text text-lg font-semibold text-foreground tracking-tight">Stash</span>
     </a>
 
     <!-- Nav Links -->
-    <div class="nav-links">
-      <a href="#features" class="nav-link">Features</a>
-      <a href="#how-it-works" class="nav-link">How it works</a>
-      <a href="#demo" class="nav-link">Demo</a>
+    <div class="nav-links flex items-center gap-8 justify-self-center">
+      <a href="#features" class="nav-link text-foreground no-underline text-[0.9375rem] font-medium font-sans relative pb-0.5">Features</a>
+      <a href="#how-it-works" class="nav-link text-foreground no-underline text-[0.9375rem] font-medium font-sans relative pb-0.5">How it works</a>
+      <a href="#demo" class="nav-link text-foreground no-underline text-[0.9375rem] font-medium font-sans relative pb-0.5">Demo</a>
     </div>
 
     <!-- Install Dropdown -->
-    <div class="install-dropdown" id="install-dropdown">
-      <button class="cta-button dropdown-trigger" id="install-trigger" aria-expanded="false" aria-haspopup="true">
+    <div class="install-dropdown justify-self-end relative" id="install-dropdown">
+      <button class="cta-button bg-primary text-primary-foreground py-2 px-4 rounded-md text-[0.875rem] font-semibold no-underline transition-colors duration-200 font-sans dropdown-trigger flex items-center cursor-pointer" id="install-trigger" aria-expanded="false" aria-haspopup="true">
         Install ▾
       </button>
-      <div class="dropdown-menu" id="install-menu" role="menu">
-        <a href="https://chrome.google.com/webstore/detail/stash" class="dropdown-item" role="menuitem">
+      <div class="dropdown-menu absolute top-full right-0 bg-card border border-border rounded-md min-w-48 py-2 mt-2 shadow-md opacity-0 invisible -translate-y-2 transition-all duration-200 z-10" id="install-menu" role="menu">
+        <a href="https://chrome.google.com/webstore/detail/stash" class="dropdown-item block py-2.5 px-4 text-foreground no-underline text-[0.875rem] font-medium font-sans transition-colors duration-150" role="menuitem">
           Add to Chrome
         </a>
-        <a href="https://addons.mozilla.org/firefox/addon/stash" class="dropdown-item" role="menuitem">
+        <a href="https://addons.mozilla.org/firefox/addon/stash" class="dropdown-item block py-2.5 px-4 text-foreground no-underline text-[0.875rem] font-medium font-sans transition-colors duration-150" role="menuitem">
           Add to Firefox
         </a>
-        <div class="dropdown-divider"></div>
-        <a href="/s/new" class="dropdown-item" role="menuitem">
+        <div class="dropdown-divider h-px bg-border my-2"></div>
+        <a href="/s/new" class="dropdown-item block py-2.5 px-4 text-foreground no-underline text-[0.875rem] font-medium font-sans transition-colors duration-150" role="menuitem">
           Try in browser →
         </a>
       </div>
@@ -107,81 +107,14 @@
     pointer-events: none;
   }
 
-  .navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    background-color: var(--card);
-    transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    border-bottom: 1px solid transparent;
-  }
-
   .navbar.scrolled {
     background-color: var(--card);
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow-sm);
   }
 
-  .navbar-container {
-    max-width: 72rem;
-    margin: 0 auto;
-    padding: 0.875rem 1.5rem;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
-  .nav-links {
-    justify-self: center;
-  }
-
-  .install-dropdown {
-    justify-self: end;
-    position: relative;
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    text-decoration: none;
-    transition: opacity 0.2s ease;
-    justify-self: start;
-  }
-
   .logo:hover {
     opacity: 0.85;
-  }
-
-  .logo-icon {
-    display: block;
-    flex-shrink: 0;
-  }
-
-  .logo-text {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--foreground);
-    letter-spacing: -0.02em;
-  }
-
-  .nav-links {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-  }
-
-  .nav-link {
-    color: var(--foreground);
-    text-decoration: none;
-    font-size: 0.9375rem;
-    font-weight: 500;
-    font-family: var(--font-sans);
-    position: relative;
-    padding-bottom: 2px;
   }
 
   .nav-link::after {
@@ -205,18 +138,6 @@
     border-radius: 2px;
   }
 
-  .cta-button {
-    background-color: var(--primary);
-    color: var(--primary-foreground);
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-md);
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background-color 0.2s ease;
-    font-family: var(--font-sans);
-  }
-
   .cta-button:hover {
     background-color: color-mix(in srgb, var(--primary) 85%, transparent);
   }
@@ -226,46 +147,11 @@
     outline-offset: 2px;
   }
 
-  .dropdown-trigger {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-  }
-
-  .dropdown-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background-color: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    min-width: 180px;
-    padding: 0.5rem 0;
-    margin-top: 0.5rem;
-    box-shadow: var(--shadow-md);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-8px);
-    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
-    z-index: 10;
-  }
-
   .install-dropdown:hover .dropdown-menu,
   .install-dropdown.open .dropdown-menu {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
-  }
-
-  .dropdown-item {
-    display: block;
-    padding: 0.625rem 1rem;
-    color: var(--foreground);
-    text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 500;
-    font-family: var(--font-sans);
-    transition: background-color 0.15s ease;
   }
 
   .dropdown-item:hover {
@@ -275,12 +161,6 @@
   .dropdown-item:focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: -2px;
-  }
-
-  .dropdown-divider {
-    height: 1px;
-    background-color: var(--border);
-    margin: 0.5rem 0;
   }
 
   /* Mobile responsive */

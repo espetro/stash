@@ -1,152 +1,162 @@
 ---
-// Footer — minimal single-line bar
+import { Sun, Moon } from '@lucide/astro';
 ---
 
-<footer class="footer">
-  <div class="footer-inner">
-    <span class="footer-copy">© 2026 Stash — Made with care for power users. <span class="version">v{import.meta.env.APP_VERSION}</span></span>
-    <nav class="footer-links" aria-label="Footer links">
-      <a href="https://github.com/espetro/stash" class="footer-link" target="_blank" rel="noopener noreferrer">GitHub</a>
-      <a href="/privacy" class="footer-link">Privacy</a>
-      <a href="/terms" class="footer-link">Terms</a>
-      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
-        <span class="theme-icon" id="theme-icon">◐</span>
+<footer class="footer bg-background border-t border-border">
+  <div class="footer-inner max-w-7xl mx-auto py-5 px-6 grid items-center gap-6" style="grid-template-columns: 1fr auto 1fr">
+    <span class="footer-copy font-mono text-xs text-muted-foreground">© 2026 Stash — Made with care for power users. <span class="opacity-60 ml-1">v{import.meta.env.APP_VERSION}</span></span>
+
+    <div class="theme-switcher" id="theme-switcher" role="group" aria-label="Theme switcher">
+      <div class="switcher-selector" id="switcher-selector"></div>
+      <button class="switcher-btn" id="btn-light" data-theme="light" aria-label="Light theme" aria-pressed="false">
+        <Sun size={16} strokeWidth={1.75} />
       </button>
+      <button class="switcher-btn" id="btn-dark" data-theme="dark" aria-label="Dark theme" aria-pressed="false">
+        <Moon size={16} strokeWidth={1.75} />
+      </button>
+    </div>
+
+    <nav class="flex items-center justify-end gap-6" aria-label="Footer links">
+      <a href="https://github.com/espetro/stash" class="footer-link font-mono text-xs text-muted-foreground no-underline transition-colors duration-150 hover:text-foreground focus-visible:outline focus-visible:outline-ring focus-visible:outline-offset-2 focus-visible:rounded-sm" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="/privacy" class="footer-link font-mono text-xs text-muted-foreground no-underline transition-colors duration-150 hover:text-foreground focus-visible:outline focus-visible:outline-ring focus-visible:outline-offset-2 focus-visible:rounded-sm">Privacy</a>
+      <a href="/terms" class="footer-link font-mono text-xs text-muted-foreground no-underline transition-colors duration-150 hover:text-foreground focus-visible:outline focus-visible:outline-ring focus-visible:outline-offset-2 focus-visible:rounded-sm">Terms</a>
     </nav>
   </div>
 </footer>
 
 <script>
-  import { getTheme, setTheme } from '@stash/theme';
+  import { getTheme, setTheme, getEffectiveTheme } from '@stash/theme';
 
-  const themeToggle = document.getElementById('theme-toggle');
-  const themeIcon = document.getElementById('theme-icon');
+  const selector = document.getElementById('switcher-selector');
+  const btnLight = document.getElementById('btn-light') as HTMLButtonElement | null;
+  const btnDark = document.getElementById('btn-dark') as HTMLButtonElement | null;
 
-  if (themeToggle && themeIcon) {
-    const updateIcon = (theme: string) => {
-      switch (theme) {
-        case 'light':
-          themeIcon.textContent = '☀️';
-          break;
-        case 'dark':
-          themeIcon.textContent = '☾';
-          break;
-        default:
-          themeIcon.textContent = '◐';
-      }
-    };
-
-    const cycleTheme = () => {
-      const current = getTheme(localStorage);
-      let next: string;
-
-      switch (current) {
-        case 'light':
-          next = 'dark';
-          break;
-        case 'dark':
-          next = 'system';
-          break;
-        default:
-          next = 'light';
-      }
-
-      setTheme(next, localStorage);
-      updateIcon(next);
-      document.documentElement.setAttribute('data-theme', next);
-    };
-
-    updateIcon(getTheme(localStorage));
-    themeToggle.addEventListener('click', cycleTheme);
+  function updateUI(effective: 'light' | 'dark', animate = true) {
+    if (!selector || !btnLight || !btnDark) return;
+    const isDark = effective === 'dark';
+    selector.style.transition = animate ? 'left 0.22s cubic-bezier(0.4, 0, 0.2, 1)' : 'none';
+    selector.style.left = isDark ? 'calc(50% - 2px)' : '2px';
+    btnLight.setAttribute('aria-pressed', String(!isDark));
+    btnDark.setAttribute('aria-pressed', String(isDark));
   }
+
+  async function applyTheme(next: 'light' | 'dark', clickX: number, clickY: number) {
+    const apply = () => {
+      setTheme(next, localStorage);
+      updateUI(next);
+    };
+
+    if (!document.startViewTransition) {
+      apply();
+      return;
+    }
+
+    const endRadius = Math.hypot(
+      Math.max(clickX, window.innerWidth - clickX),
+      Math.max(clickY, window.innerHeight - clickY)
+    );
+
+    const transition = document.startViewTransition(apply);
+    await transition.ready;
+
+    document.documentElement.animate(
+      { clipPath: [`circle(0px at ${clickX}px ${clickY}px)`, `circle(${endRadius}px at ${clickX}px ${clickY}px)`] },
+      { duration: 420, easing: 'ease-in-out', pseudoElement: '::view-transition-new(root)' }
+    );
+  }
+
+  updateUI(getEffectiveTheme(), false);
+
+  btnLight?.addEventListener('click', (e) => {
+    if (getEffectiveTheme() === 'light') return;
+    applyTheme('light', (e as MouseEvent).clientX, (e as MouseEvent).clientY);
+  });
+
+  btnDark?.addEventListener('click', (e) => {
+    if (getEffectiveTheme() === 'dark') return;
+    applyTheme('dark', (e as MouseEvent).clientX, (e as MouseEvent).clientY);
+  });
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (getTheme(localStorage) === 'system') updateUI(getEffectiveTheme());
+  });
 </script>
 
 <style>
-  .footer {
+  .theme-switcher {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: var(--muted);
+    border-radius: 999px;
+    padding: 2px;
+  }
+
+  .switcher-selector {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: calc(50% - 2px);
+    height: calc(100% - 4px);
+    border-radius: 999px;
     background-color: var(--background);
-    border-top: 1px solid var(--border);
+    box-shadow:
+      0 1px 4px 0 rgba(0, 0, 0, 0.18),
+      0 0.5px 1.5px 0 rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+    z-index: 0;
   }
 
-  .footer-inner {
-    max-width: 72rem;
-    margin: 0 auto;
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-  }
-
-  .footer-copy {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--muted-foreground);
-  }
-
-  .footer-links {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
-  .footer-link {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--muted-foreground);
-    text-decoration: none;
-    transition: color 0.15s ease;
-  }
-
-  .footer-link:hover {
-    color: var(--foreground);
-  }
-
-  .footer-link:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-    border-radius: 2px;
-  }
-
-  .theme-toggle {
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--muted-foreground);
-    transition: color 0.15s ease;
+  .switcher-btn {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: none;
+    background: none;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--muted-foreground);
+    transition: color 0.18s ease;
+    padding: 0;
   }
 
-  .theme-toggle:hover {
+  .switcher-btn[aria-pressed='true'] {
     color: var(--foreground);
   }
 
-  .theme-toggle:focus-visible {
+  .switcher-btn:hover {
+    color: var(--foreground);
+  }
+
+  .switcher-btn:focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
-    border-radius: 2px;
   }
 
-  .theme-icon {
-    display: inline-block;
-    font-size: 1rem;
-  }
-
-  .version {
-    opacity: 0.6;
-    margin-left: 0.25rem;
-  }
-
-  @media (max-width: 480px) {
+  @media (max-width: 640px) {
     .footer-inner {
-      flex-direction: column;
-      align-items: flex-start;
+      grid-template-columns: 1fr !important;
+      justify-items: center;
       gap: 0.75rem;
     }
+  }
+
+  /* Disable default cross-fade; let clip-path animation drive the transition */
+  :global(::view-transition-old(root)),
+  :global(::view-transition-new(root)) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  :global(::view-transition-new(root)) {
+    z-index: 1;
+  }
+
+  :global(::view-transition-old(root)) {
+    z-index: 0;
   }
 </style>

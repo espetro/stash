@@ -3,153 +3,32 @@
 import { FaChrome, FaFirefoxBrowser } from 'react-icons/fa6';
 ---
 
-<section class="final-cta">
-  <div class="cta-container">
-    <span class="cta-label">FREE BROWSER EXTENSION</span>
+<section class="bg-[#0B0E15] py-32 px-6 text-center lg:py-40 lg:px-8">
+  <div class="max-w-[44rem] mx-auto">
+    <span class="block font-mono text-[0.6875rem] uppercase tracking-[0.15em] text-[#8896AD] mb-5">FREE BROWSER EXTENSION</span>
 
-    <h2 class="cta-headline">Stop losing your context.</h2>
+    <h2 class="text-[clamp(2rem,4vw,3rem)] font-bold leading-[1.1] tracking-[-0.03em] text-[#EBEEF6] m-0 mb-4">Stop losing your context.</h2>
 
-    <p class="cta-subheadline">
+    <p class="text-lg leading-[1.6] text-[#8896AD] m-0 mb-10">
       Add Stash to your browser in 30 seconds.
     </p>
 
-    <div class="cta-group">
-      <a href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md" class="cta-button cta-primary" aria-label="Add Stash to Chrome">
-        <FaChrome class="cta-icon" aria-hidden="true" />
+    <div class="flex flex-wrap gap-3 items-center justify-center">
+      <a href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md" class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-semibold text-[0.9375rem] no-underline bg-[#3981F6] text-white hover:bg-[#2563EB] focus:outline-2 focus:outline-[#5B9DF8] focus:outline-offset-2 transition-colors duration-150" aria-label="Add Stash to Chrome">
+        <FaChrome class="w-[1.125rem] h-[1.125rem] flex-shrink-0" aria-hidden="true" />
         Add to Chrome
       </a>
 
-      <a href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md" class="cta-button cta-secondary" aria-label="Add Stash to Firefox">
-        <FaFirefoxBrowser class="cta-icon" aria-hidden="true" />
+      <a href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md" class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-semibold text-[0.9375rem] no-underline bg-transparent text-[#EBEEF6] border border-[#EBEEF6] hover:border-white hover:bg-white/5 focus:outline-2 focus:outline-[#5B9DF8] focus:outline-offset-2 transition-colors duration-150" aria-label="Add Stash to Firefox">
+        <FaFirefoxBrowser class="w-[1.125rem] h-[1.125rem] flex-shrink-0" aria-hidden="true" />
         Add to Firefox
       </a>
 
-      <a href="/s/new" class="cta-button cta-ghost">
+      <a href="/s/new" class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-semibold text-[0.9375rem] no-underline bg-transparent text-[#8896AD] border-none hover:text-[#EBEEF6] focus:outline-2 focus:outline-[#5B9DF8] focus:outline-offset-2 transition-colors duration-150">
         Try in browser →
       </a>
     </div>
 
-    <p class="cta-footnote">No account · No cloud · Works offline</p>
+    <p class="font-mono text-[0.75rem] text-[#8896AD] mt-5">No account · No cloud · Works offline</p>
   </div>
 </section>
-
-<style>
-  .final-cta {
-    background-color: #0B0E15;
-    padding: 8rem 1.5rem;
-    text-align: center;
-  }
-
-  .cta-container {
-    max-width: 44rem;
-    margin: 0 auto;
-  }
-
-  .cta-label {
-    display: block;
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: #8896AD;
-    margin-bottom: 1.25rem;
-  }
-
-  .cta-headline {
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
-    color: #EBEEF6;
-    margin: 0 0 1rem;
-  }
-
-  .cta-subheadline {
-    font-size: 1.125rem;
-    line-height: 1.6;
-    color: #8896AD;
-    margin: 0 0 2.5rem;
-  }
-
-  .cta-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .cta-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--radius-lg);
-    font-size: 0.9375rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
-  }
-
-  .cta-button:focus-visible {
-    outline: 2px solid #5B9DF8;
-    outline-offset: 2px;
-  }
-
-  .cta-primary {
-    background-color: #3981F6;
-    color: #ffffff;
-  }
-
-  .cta-primary:hover {
-    background-color: #2563EB;
-  }
-
-  .cta-secondary {
-    background-color: transparent;
-    color: #EBEEF6;
-    border: 1px solid #EBEEF6;
-  }
-
-  .cta-secondary:hover {
-    border-color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.05);
-  }
-
-  .cta-ghost {
-    background-color: transparent;
-    color: #8896AD;
-    border: none;
-  }
-
-  .cta-ghost:hover {
-    color: #EBEEF6;
-  }
-
-  .cta-icon {
-    width: 1.125rem;
-    height: 1.125rem;
-    flex-shrink: 0;
-  }
-
-  .cta-footnote {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: #8896AD;
-    margin: 1.25rem 0 0;
-  }
-
-  @media (max-width: 639px) {
-    .cta-button {
-      width: 100%;
-      max-width: 260px;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .final-cta {
-      padding: 10rem 2rem;
-    }
-  }
-</style>
