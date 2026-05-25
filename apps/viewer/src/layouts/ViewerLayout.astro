@@ -1,10 +1,9 @@
 ---
-import Analytics from '@vercel/analytics/astro';
-
 interface Props {
   title: string;
 }
 const { title } = Astro.props;
+const posthogKey = import.meta.env.VITE_POSTHOG_KEY;
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -20,7 +19,30 @@ const { title } = Astro.props;
       <link rel="alternate" type="text/markdown" href={Astro.url + '?format=md'} title="Stash as Markdown" />
     </>
   )}
-  <Analytics />
+  {posthogKey && (
+    <script>
+      window.posthog = window.posthog || {};
+      (function() {
+        const key = '{posthogKey}';
+        if (!key) return;
+
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://us-assets.i.posthog.com/array.js';
+        script.onload = function() {
+          if (window.posthog && typeof window.posthog.init === 'function') {
+            window.posthog.init(key, {
+              api_host: 'https://us.i.posthog.com',
+              persistence: 'memory',
+              autocapture: true,
+              capture_pageview: true,
+            });
+          }
+        };
+        document.head.appendChild(script);
+      })();
+    </script>
+  )}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">

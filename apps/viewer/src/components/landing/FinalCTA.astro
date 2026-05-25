@@ -14,14 +14,18 @@ import { FaChrome, FaFirefoxBrowser } from 'react-icons/fa6';
     </p>
 
     <div class="cta-group">
-      <a href="#" class="cta-button cta-primary" aria-label="Add Stash to Chrome">
+      <a href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md" class="cta-button cta-primary" aria-label="Add Stash to Chrome">
         <FaChrome class="cta-icon" aria-hidden="true" />
         Add to Chrome
       </a>
 
-      <a href="#" class="cta-button cta-secondary" aria-label="Add Stash to Firefox">
+      <a href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md" class="cta-button cta-secondary" aria-label="Add Stash to Firefox">
         <FaFirefoxBrowser class="cta-icon" aria-hidden="true" />
         Add to Firefox
+      </a>
+
+      <a href="/s/new" class="cta-button cta-ghost">
+        Try in browser →
       </a>
     </div>
 
@@ -111,6 +115,16 @@ import { FaChrome, FaFirefoxBrowser } from 'react-icons/fa6';
   .cta-secondary:hover {
     border-color: #ffffff;
     background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .cta-ghost {
+    background-color: transparent;
+    color: #8896AD;
+    border: none;
+  }
+
+  .cta-ghost:hover {
+    color: #EBEEF6;
   }
 
   .cta-icon {

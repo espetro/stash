@@ -7,12 +7,30 @@ Stash is a browser extension that lets you share multiple tabs with a single URL
 
 ## Installation
 
-Choose your browser to get started:
+### Download from GitHub
 
-- [Chrome Web Store](https://chrome.google.com/webstore/detail/stash/...)
-- [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/stash/)
+1. Go to [stash/releases](https://github.com/espetro/stash/releases) and download the latest version for your browser:
+   - **Chrome**: Download `stash-extension-*-chrome.zip`
+   - **Firefox**: Download `stash-extension-*-firefox.zip`
 
-Click "Add to Browser" and follow the installation prompts. After installation, you'll see the Stash icon in your browser's toolbar.
+### Install in Chrome
+1. Unzip the downloaded file
+2. Navigate to `chrome://extensions`
+3. Enable **Developer Mode** (toggle in the top right)
+4. Click **Load unpacked**
+5. Select the unzipped folder and click **Select**
+
+### Install in Firefox
+1. Navigate to `about:debugging`
+2. Click **This Firefox** (on the left sidebar)
+3. Click **Load Temporary Add-on**
+4. Select the downloaded `.zip` file
+
+_We're working on getting Stash listed in the Chrome Web Store and Firefox Add-ons — in the meantime, install directly from the releases page above._
+
+### No extension? Use the web app
+
+Prefer not to install? Try [Stash in your browser](/s/new) — no extension or account required.
 
 ## Quick Start: Share Your First Tabs
 

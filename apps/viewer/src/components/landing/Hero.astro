@@ -21,7 +21,7 @@ import AppMockup from "./AppMockup.astro";
       <!-- CTA Row -->
       <div class="cta-group">
         <a
-          href="#"
+          href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md"
           class="cta-button cta-primary"
           aria-label="Add Stash to Chrome"
         >
@@ -30,12 +30,19 @@ import AppMockup from "./AppMockup.astro";
         </a>
 
         <a
-          href="#"
+          href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md"
           class="cta-button cta-secondary"
           aria-label="Add Stash to Firefox"
         >
           <FaFirefoxBrowser class="cta-icon" aria-hidden="true" />
           Add to Firefox
+        </a>
+
+        <a
+          href="/s/new"
+          class="cta-button cta-ghost"
+        >
+          Try in browser →
         </a>
       </div>
 
@@ -150,6 +157,16 @@ import AppMockup from "./AppMockup.astro";
 
   .cta-secondary:hover {
     border-color: #c0c8d8;
+  }
+
+  .cta-ghost {
+    background-color: transparent;
+    color: var(--muted-foreground);
+    border: none;
+  }
+
+  .cta-ghost:hover {
+    color: var(--foreground);
   }
 
   .cta-icon {
