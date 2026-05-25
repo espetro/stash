@@ -118,9 +118,14 @@ export default function HeroStashPopup() {
           className="flex items-center justify-between px-4 py-3 border-b"
         >
           <div className="flex items-center gap-2">
-            <span style={{ color: "var(--primary)" }} className="text-lg font-bold">
-              ●
-            </span>
+            <img
+              src="/icon-48.png"
+              alt=""
+              width="20"
+              height="20"
+              className="block shrink-0"
+              aria-hidden="true"
+            />
             <span className="text-sm font-semibold">Stash</span>
           </div>
           <a
