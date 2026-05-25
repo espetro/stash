@@ -34,8 +34,8 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: Build extension
-        run: pnpm --filter stash-extension run build
+      - name: Build and zip extension
+        run: pnpm --filter stash-extension run zip
         env:
           VITE_VIEWER_ORIGIN: https://stash.illo.fyi
 

@@ -367,7 +367,13 @@ export default function TabViewer() {
         </Button>
       </div>
 
-      <Dialog open={qrOpen} onOpenChange={(open) => { setQrOpen(open); if (open) setDrawerOpen(false); }}>
+      <Dialog
+        open={qrOpen}
+        onOpenChange={(open) => {
+          setQrOpen(open);
+          if (open) setDrawerOpen(false);
+        }}
+      >
         <QrDialogContent
           tabs={data.items.map(([url, title]) => ({ url, title }))}
           title={data.title}
