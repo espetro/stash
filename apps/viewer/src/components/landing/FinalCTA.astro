@@ -1,34 +1,60 @@
 ---
 // Final CTA — dark #0B0E15 background, centered, generous padding
-import { FaChrome, FaFirefoxBrowser } from 'react-icons/fa6';
+import { FaChrome, FaFirefoxBrowser } from "react-icons/fa6";
 ---
 
-<section class="bg-[#0B0E15] py-32 px-6 text-center lg:py-40 lg:px-8">
-  <div class="max-w-[44rem] mx-auto">
-    <span class="block font-mono text-[0.6875rem] uppercase tracking-[0.15em] text-[#8896AD] mb-5">FREE BROWSER EXTENSION</span>
+<section class="bg-background py-32 px-6 text-center lg:py-40 lg:px-8">
+  <div class="max-w-176 mx-auto">
+    <span
+      class="block font-mono text-[0.6875rem] uppercase tracking-[0.15em] text-muted-foreground mb-5"
+      >FREE BROWSER EXTENSION</span
+    >
 
-    <h2 class="text-[clamp(2rem,4vw,3rem)] font-bold leading-[1.1] tracking-[-0.03em] text-[#EBEEF6] m-0 mb-4">Stop losing your context.</h2>
+    <h2
+      class="text-[clamp(2rem,4vw,3rem)] font-bold leading-[1.1] tracking-[-0.03em] text-foreground m-0 mb-4"
+    >
+      Stop losing your context.
+    </h2>
 
-    <p class="text-lg leading-[1.6] text-[#8896AD] m-0 mb-10">
+    <p class="text-lg leading-[1.6] text-muted-foreground m-0 mb-10">
       Add Stash to your browser in 30 seconds.
     </p>
 
     <div class="flex flex-wrap gap-3 items-center justify-center">
-      <a href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md" class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-semibold text-[0.9375rem] no-underline bg-[#3981F6] text-white hover:bg-[#2563EB] focus:outline-2 focus:outline-[#5B9DF8] focus:outline-offset-2 transition-colors duration-150" aria-label="Add Stash to Chrome">
-        <FaChrome class="w-[1.125rem] h-[1.125rem] flex-shrink-0" aria-hidden="true" />
+      <a
+        href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md"
+        class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-semibold text-[0.9375rem] no-underline bg-primary text-primary-foreground hover:opacity-90 focus:outline-2 focus:outline-primary focus:outline-offset-2 transition-colors duration-150"
+        aria-label="Add Stash to Chrome"
+      >
+        <FaChrome
+          class="w-[1.125rem] h-[1.125rem] flex-shrink-0"
+          aria-hidden="true"
+        />
         Add to Chrome
       </a>
 
-      <a href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md" class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-semibold text-[0.9375rem] no-underline bg-transparent text-[#EBEEF6] border border-[#EBEEF6] hover:border-white hover:bg-white/5 focus:outline-2 focus:outline-[#5B9DF8] focus:outline-offset-2 transition-colors duration-150" aria-label="Add Stash to Firefox">
-        <FaFirefoxBrowser class="w-[1.125rem] h-[1.125rem] flex-shrink-0" aria-hidden="true" />
+      <a
+        href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md"
+        class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-semibold text-[0.9375rem] no-underline bg-transparent text-foreground border border-foreground hover:border-foreground hover:bg-muted focus:outline-2 focus:outline-primary focus:outline-offset-2 transition-colors duration-150"
+        aria-label="Add Stash to Firefox"
+      >
+        <FaFirefoxBrowser
+          class="w-[1.125rem] h-[1.125rem] flex-shrink-0"
+          aria-hidden="true"
+        />
         Add to Firefox
       </a>
 
-      <a href="/s/new" class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-semibold text-[0.9375rem] no-underline bg-transparent text-[#8896AD] border-none hover:text-[#EBEEF6] focus:outline-2 focus:outline-[#5B9DF8] focus:outline-offset-2 transition-colors duration-150">
+      <a
+        href="/s/new"
+        class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-semibold text-[0.9375rem] no-underline bg-transparent text-muted-foreground border-none hover:text-foreground focus:outline-2 focus:outline-primary focus:outline-offset-2 transition-colors duration-150"
+      >
         Try in browser →
       </a>
     </div>
 
-    <p class="font-mono text-[0.75rem] text-[#8896AD] mt-5">No account · No cloud · Works offline</p>
+    <p class="font-mono text-[0.75rem] text-muted-foreground mt-5">
+      No account · No cloud · Works offline
+    </p>
   </div>
 </section>
