@@ -13,35 +13,35 @@ const DEMO_LINK =
   "https://stash.illo.fyi/s/#p=CG6gBAIzEOCbyIriidu9-w1LA2-0wDZGk-avfX0iEtNBWwTOPkkhrhqDKZ39_E-wD8mxsHHNx2D2kLrd0c9FQRIfOxcPF60XyhrTeBPZHn99fegm13ct043jklvrBgQ5aQXmCJs62QNIc91tvMpiyARtcMyOhhnC9mRgFi9VY6wVaMUrbxzIdwkegBPkU3xYJ1QXKSPNCjfpGURRGwzPkExA09ArAqWg3FaQZgfqkuwcdcL4cjiZNGMDKEwi0gGz4g3Qnq4zMmMmeyXKwYjjuS_TPlr6Nc67FXgTWAXmRNRTolRlJ-j7P8lZNq7Kb07-eAQ";
 ---
 
-<section class="demo-section" id="demo">
-  <div class="demo-container">
-    <h2 class="headline">See it in action</h2>
+<section class="bg-[#0b0e15] py-20 px-6 lg:py-28 lg:px-8" id="demo">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="text-3xl font-semibold text-[#ebeef6] tracking-[-0.02em] mb-10 text-center lg:text-2xl lg:mb-12">See it in action</h2>
 
     <!-- Browser session mockup -->
-    <div class="browser-mockup">
+    <div class="bg-[#11151e] border border-[#1e2438] rounded-[10px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden text-left">
       <!-- Chrome bar -->
-      <div class="browser-chrome">
-        <div class="browser-dots" aria-hidden="true">
-          <span class="dot dot-red"></span>
-          <span class="dot dot-yellow"></span>
-          <span class="dot dot-green"></span>
+      <div class="bg-[#161b28] py-3 px-4 border-b border-[#1e2438] flex items-center gap-3">
+        <div class="flex gap-1.5 flex-shrink-0" aria-hidden="true">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#ff5f57]"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-[#28c840]"></span>
         </div>
-        <div class="browser-url" aria-label="URL bar">
+        <div class="flex-1 bg-[#0b0e15] border border-[#1e2438] rounded-md py-1 px-3 font-mono text-[0.75rem] text-[#5b9df8] overflow-hidden whitespace-nowrap text-ellipsis" aria-label="URL bar">
           {DEMO_LINK.slice(0, 60)}...
         </div>
       </div>
 
       <!-- Session content -->
-      <div class="session-body">
-        <span class="session-meta">SAVED SESSION</span>
-        <p class="session-title">Research: Astro 5 Migration</p>
+      <div class="p-5 px-6">
+        <span class="font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-[#5b9df8] block mb-2">SAVED SESSION</span>
+        <p class="text-base font-semibold text-[#ebeef6] m-0 mb-5">Research: Astro 5 Migration</p>
 
-        <div class="tab-list" role="list">
+        <div class="flex flex-col" role="list">
           {
             DEMO_STASH.map((href, index) => (
-              <div class="tab-row" role="listitem">
-                <span class="tab-num">{index}</span>
-                <span class="tab-url">{href}</span>
+              <div class="flex items-center gap-3 py-2 border-b border-[#1e2438] last:border-b-0" role="listitem">
+                <span class="font-mono text-[0.75rem] text-[#8896ad] min-w-[1rem] flex-shrink-0">{index}</span>
+                <span class="font-mono text-[0.8125rem] text-[#8896ad] overflow-hidden whitespace-nowrap text-ellipsis">{href}</span>
               </div>
             ))
           }
@@ -51,173 +51,9 @@ const DEMO_LINK =
 
     <a
       href={DEMO_LINK}
-      class="demo-link"
+      class="block mt-6 text-[#5b9df8] text-[0.9375rem] no-underline hover:underline focus:outline-2 focus:outline-[#5b9df8] focus:outline-offset-2 focus:rounded-sm text-center"
       target="_blank"
       rel="noopener noreferrer">View a live example →</a
     >
   </div>
 </section>
-
-<style>
-  .demo-section {
-    background-color: #0b0e15;
-    padding: 5rem 1.5rem;
-  }
-
-  .demo-container {
-    max-width: 56rem;
-    margin: 0 auto;
-  }
-
-  .headline {
-    font-size: 1.875rem;
-    font-weight: 600;
-    color: #ebeef6;
-    letter-spacing: -0.02em;
-    margin: 0 0 2.5rem;
-    text-align: center;
-  }
-
-  /* Browser mockup */
-  .browser-mockup {
-    background-color: #11151e;
-    border: 1px solid #1e2438;
-    border-radius: 10px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    overflow: hidden;
-    text-align: left;
-  }
-
-  .browser-chrome {
-    background-color: #161b28;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #1e2438;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .browser-dots {
-    display: flex;
-    gap: 0.375rem;
-    flex-shrink: 0;
-  }
-
-  .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-  }
-
-  .dot-red {
-    background-color: #ff5f57;
-  }
-  .dot-yellow {
-    background-color: #ffbd2e;
-  }
-  .dot-green {
-    background-color: #28c840;
-  }
-
-  .browser-url {
-    flex: 1;
-    background-color: #0b0e15;
-    border: 1px solid #1e2438;
-    border-radius: 6px;
-    padding: 0.25rem 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: #5b9df8;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  /* Session body */
-  .session-body {
-    padding: 1.25rem 1.5rem;
-  }
-
-  .session-meta {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #5b9df8;
-    display: block;
-    margin-bottom: 0.5rem;
-  }
-
-  .session-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #ebeef6;
-    margin: 0 0 1.25rem;
-  }
-
-  .tab-list {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .tab-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #1e2438;
-  }
-
-  .tab-row:last-child {
-    border-bottom: none;
-  }
-
-  .tab-num {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: #8896ad;
-    min-width: 1rem;
-    flex-shrink: 0;
-  }
-
-  .tab-url {
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: #8896ad;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  /* Link below mockup */
-  .demo-link {
-    display: block;
-    margin-top: 1.5rem;
-    color: #5b9df8;
-    font-size: 0.9375rem;
-    text-decoration: none;
-    transition: text-decoration 0.15s ease;
-    text-align: center;
-  }
-
-  .demo-link:hover {
-    text-decoration: underline;
-  }
-
-  .demo-link:focus-visible {
-    outline: 2px solid #5b9df8;
-    outline-offset: 2px;
-    border-radius: 2px;
-  }
-
-  @media (min-width: 1024px) {
-    .demo-section {
-      padding: 7rem 2rem;
-    }
-
-    .headline {
-      font-size: 2rem;
-      margin-bottom: 3rem;
-    }
-  }
-</style>
