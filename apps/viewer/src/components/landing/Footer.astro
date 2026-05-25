@@ -9,9 +9,57 @@
       <a href="https://github.com/espetro/stash" class="footer-link" target="_blank" rel="noopener noreferrer">GitHub</a>
       <a href="/privacy" class="footer-link">Privacy</a>
       <a href="/terms" class="footer-link">Terms</a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+        <span class="theme-icon" id="theme-icon">◐</span>
+      </button>
     </nav>
   </div>
 </footer>
+
+<script>
+  import { getTheme, setTheme } from '@stash/theme';
+
+  const themeToggle = document.getElementById('theme-toggle');
+  const themeIcon = document.getElementById('theme-icon');
+
+  if (themeToggle && themeIcon) {
+    const updateIcon = (theme: string) => {
+      switch (theme) {
+        case 'light':
+          themeIcon.textContent = '☀️';
+          break;
+        case 'dark':
+          themeIcon.textContent = '☾';
+          break;
+        default:
+          themeIcon.textContent = '◐';
+      }
+    };
+
+    const cycleTheme = () => {
+      const current = getTheme(localStorage);
+      let next: string;
+
+      switch (current) {
+        case 'light':
+          next = 'dark';
+          break;
+        case 'dark':
+          next = 'system';
+          break;
+        default:
+          next = 'light';
+      }
+
+      setTheme(next, localStorage);
+      updateIcon(next);
+      document.documentElement.setAttribute('data-theme', next);
+    };
+
+    updateIcon(getTheme(localStorage));
+    themeToggle.addEventListener('click', cycleTheme);
+  }
+</script>
 
 <style>
   .footer {
@@ -58,6 +106,35 @@
     outline: 2px solid var(--ring);
     outline-offset: 2px;
     border-radius: 2px;
+  }
+
+  .theme-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    transition: color 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .theme-toggle:hover {
+    color: var(--foreground);
+  }
+
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .theme-icon {
+    display: inline-block;
+    font-size: 1rem;
   }
 
   .version {
