@@ -11,6 +11,9 @@ const posthogKey = import.meta.env.VITE_POSTHOG_KEY;
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google-site-verification" content="dJbisPrLjFw4YbDPfmdhJtV27zFTjh8ZpOqXAFoTzAE" />
+  <link rel="icon" type="image/png" href="/icon-128.png" sizes="128x128" />
+  <link rel="icon" type="image/png" href="/icon-48.png" sizes="48x48" />
+  <link rel="apple-touch-icon" href="/icon-128.png" />
   <title>{title}</title>
   {/* AI agent consumption — alternate representations of this stash page */}
   {Astro.url.pathname.startsWith('/s') && (
@@ -51,7 +54,7 @@ const posthogKey = import.meta.env.VITE_POSTHOG_KEY;
     initTheme(localStorage);
   </script>
   <style is:global>
-    @import '@/styles/monochrome.css';
+    @import '@/styles/global.css';
     * { box-sizing: border-box; }
     body {
       margin: 0;
