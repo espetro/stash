@@ -8,11 +8,10 @@ import {
   estimateQrBitLength,
 } from "@stash/codec";
 import { getBrotliFunctions } from "@/lib/brotli";
-import { generate, mode } from "lean-qr";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { ShareDrawer } from "./ShareDrawer";
-import { ChevronDown } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +20,14 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  SharedCard,
+  SharedCardHeader,
+  SharedCardContent,
+  SharedButtonArea,
+  SplitButtonGroup,
+  OutlineButton,
+} from "@/components/shared";
 
 interface TabItem {
   url: string;
@@ -171,15 +178,18 @@ function QrDialogContent({ tabs, title }: { tabs: TabItem[]; title?: string }) {
         const { qrUrl } = await encodeTabsToQrUrl(tabs, brotli, 24, undefined, title);
 
         const estimatedBits = estimateQrBitLength(qrUrl);
-        // QR V40 L capacity is 23,648 bits — anything beyond that definitely won't fit
         if (estimatedBits > 23648) {
           setError("This stash is too large to fit in a QR code.");
           return;
         }
 
         const { prefix, payload } = getQrSegments(qrUrl);
-        const qr = generate(
-          mode.multi(mode.bytes(new TextEncoder().encode(prefix)), mode.alphaNumeric(payload)),
+        const leanQr = await import("lean-qr");
+        const qr = leanQr.generate(
+          leanQr.mode.multi(
+            leanQr.mode.bytes(new TextEncoder().encode(prefix)),
+            leanQr.mode.alphaNumeric(payload),
+          ),
         );
         qr.toCanvas(canvasRef.current!, { pad: 2 });
       } catch (err) {
@@ -192,9 +202,9 @@ function QrDialogContent({ tabs, title }: { tabs: TabItem[]; title?: string }) {
   }, [tabs, title]);
 
   return (
-    <DialogContent>
+    <DialogContent className="sm:max-w-160">
       <DialogHeader>
-        <DialogTitle>Share this stash</DialogTitle>
+        <DialogTitle className="text-foreground">Share this stash</DialogTitle>
         <DialogDescription>Scan this QR code to import the tabs</DialogDescription>
       </DialogHeader>
       {error ? (
@@ -202,7 +212,7 @@ function QrDialogContent({ tabs, title }: { tabs: TabItem[]; title?: string }) {
       ) : (
         <canvas
           ref={canvasRef}
-          className="rounded-lg"
+          className="rounded-lg bg-white"
           style={{ width: 240, height: 240, imageRendering: "pixelated" }}
         />
       )}
@@ -319,17 +329,13 @@ export default function TabViewer() {
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-background p-3 pt-6 sm:pt-8">
-      <Card className="flex w-full max-w-[640px] flex-col rounded-[2rem] border border-border bg-card shadow-xl shadow-black/[0.04] sm:max-h-[75vh]">
-        <CardHeader className="shrink-0 flex flex-col items-center justify-center gap-1 pb-2 pt-6 text-center sm:pt-8">
-          <CardTitle className="text-xl font-semibold tracking-tight text-card-foreground sm:text-2xl">
-            {data.title ?? "Shared Tabs"}
-          </CardTitle>
-          <CardDescription className="leading-none text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            {buildCaption(count, data.expiry)}
-          </CardDescription>
-        </CardHeader>
+      <SharedCard className="sm:max-h-[75vh]">
+        <SharedCardHeader
+          title={data.title ?? "Shared Tabs"}
+          caption={buildCaption(count, data.expiry)}
+        />
 
-        <CardContent className="flex flex-col overflow-hidden px-3 pb-3 sm:px-5 sm:pb-5">
+        <SharedCardContent className="overflow-hidden px-3 pb-3 sm:px-5 sm:pb-5">
           <div className="overflow-hidden rounded-xl border border-border">
             <div className="custom-scrollbar overflow-y-auto" style={{ maxHeight: "400px" }}>
               {data.items.map(([url, title], index) => (
@@ -340,32 +346,18 @@ export default function TabViewer() {
               ))}
             </div>
           </div>
-        </CardContent>
-      </Card>
+          <ThemeSwitcher />
+        </SharedCardContent>
+      </SharedCard>
 
-      <div className="mt-4 flex w-full max-w-[640px] flex-col gap-3 px-3 sm:px-5">
-        <div className="flex h-14 rounded-xl">
-          <Button
-            onClick={handleShareQr}
-            className="flex-1 rounded-r-none bg-primary text-base font-semibold text-primary-foreground hover:bg-primary/90"
-          >
-            Share as QR
-          </Button>
-          <Button
-            onClick={handleOpenDrawer}
-            className="rounded-l-none border-l-0 bg-primary px-3 hover:bg-primary/90"
-          >
-            <ChevronDown className="size-5" />
-          </Button>
-        </div>
-        <Button
-          variant="outline"
-          onClick={handleNew}
-          className="h-14 w-full rounded-xl border-border bg-card text-base font-semibold text-foreground"
-        >
-          New
-        </Button>
-      </div>
+      <SharedButtonArea>
+        <SplitButtonGroup
+          mainLabel="Share as QR"
+          onMainClick={handleShareQr}
+          onDropdownClick={handleOpenDrawer}
+        />
+        <OutlineButton onClick={handleNew}>New</OutlineButton>
+      </SharedButtonArea>
 
       <Dialog
         open={qrOpen}

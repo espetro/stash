@@ -3,7 +3,15 @@ import { useState, useCallback } from "react";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import { getBrotliFunctions } from "@/lib/brotli";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
+import {
+  SharedCard,
+  SharedCardHeader,
+  SharedCardContent,
+  SharedButtonArea,
+  PrimaryButton,
+  OutlineButton,
+} from "@/components/shared";
 
 const EXPIRY_OPTIONS = [
   { value: "never", label: "Never expires" },
@@ -82,14 +90,10 @@ export default function NewStashForm() {
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-background p-3 pt-6 sm:pt-8">
-      <Card className="flex w-full max-w-[640px] flex-col rounded-[2rem] border border-border bg-card shadow-xl shadow-black/[0.04]">
-        <CardHeader className="shrink-0 flex flex-col items-center justify-center gap-1 pb-2 pt-6 text-center sm:pt-8">
-          <CardTitle className="text-xl font-semibold tracking-tight text-card-foreground sm:text-2xl">
-            Create Stash
-          </CardTitle>
-        </CardHeader>
+      <SharedCard>
+        <SharedCardHeader title="Create Stash" />
 
-        <CardContent className="flex flex-col gap-4 px-3 pb-3 sm:px-5 sm:pb-5">
+        <SharedCardContent>
           <input
             type="text"
             value={stashTitle}
@@ -142,25 +146,16 @@ export default function NewStashForm() {
               </Button>
             </div>
           )}
-        </CardContent>
-      </Card>
+          <ThemeSwitcher />
+        </SharedCardContent>
+      </SharedCard>
 
-      <div className="mt-4 flex w-full max-w-[640px] flex-col gap-3 px-3 sm:px-5">
-        <Button
-          onClick={handleSave}
-          disabled={saveState === "generating"}
-          className="h-14 w-full rounded-xl bg-primary text-base font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
-        >
+      <SharedButtonArea>
+        <PrimaryButton onClick={handleSave} disabled={saveState === "generating"}>
           {saveLabel}
-        </Button>
-        <Button
-          variant="outline"
-          onClick={handleClear}
-          className="h-14 w-full rounded-xl border-border bg-card text-base font-semibold text-foreground"
-        >
-          Clear
-        </Button>
-      </div>
+        </PrimaryButton>
+        <OutlineButton onClick={handleClear}>Clear</OutlineButton>
+      </SharedButtonArea>
     </div>
   );
 }
