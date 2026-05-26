@@ -78,21 +78,21 @@ export function ShareDrawer({ open, onClose, data }: ShareDrawerProps) {
           <Button
             variant="outline"
             size="lg"
-            className="h-auto flex-col items-start py-4"
+            className="group h-auto flex-col items-start py-4"
             onClick={handleCopyJSON}
           >
             <span className="font-medium text-foreground">{jsonLabel}</span>
-            <span className="text-xs text-muted-foreground">Raw data format for developers</span>
+            <span className="text-xs text-muted-foreground group-hover:text-accent-foreground transition-colors">{`Raw data format for developers`}</span>
           </Button>
 
           <Button
             variant="outline"
             size="lg"
-            className="h-auto flex-col items-start py-4"
+            className="group h-auto flex-col items-start py-4"
             onClick={handleCopyMarkdown}
           >
             <span className="font-medium text-foreground">{mdLabel}</span>
-            <span className="text-xs text-muted-foreground">Formatted list with links</span>
+            <span className="text-xs text-muted-foreground group-hover:text-accent-foreground transition-colors">{`Formatted list with links`}</span>
           </Button>
         </div>
 
