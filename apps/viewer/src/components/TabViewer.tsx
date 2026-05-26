@@ -220,7 +220,7 @@ export default function TabViewer() {
 
   if (state.type === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-3">
+      <div className="flex min-h-screen items-center justify-center p-3">
         <p className="text-lg font-medium text-foreground">Loading...</p>
       </div>
     );
@@ -228,7 +228,7 @@ export default function TabViewer() {
 
   if (state.type === "error") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-3">
+      <div className="flex min-h-screen items-center justify-center p-3">
         <p className="text-lg font-medium text-foreground">{state.message}</p>
       </div>
     );
@@ -239,7 +239,7 @@ export default function TabViewer() {
 
   if (format === "json") {
     return (
-      <div className="min-h-screen bg-background p-0">
+      <div className="min-h-screen p-0">
         <JsonOutput data={data} />
       </div>
     );
@@ -247,14 +247,14 @@ export default function TabViewer() {
 
   if (format === "md") {
     return (
-      <div className="min-h-screen bg-background p-0">
+      <div className="min-h-screen p-0">
         <MdOutput data={data} />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-background p-3 pt-6 sm:pt-8">
+    <div className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8">
       <SharedCard className="sm:max-h-[75vh]">
         <SharedCardHeader
           title={data.title ?? "Shared Tabs"}
