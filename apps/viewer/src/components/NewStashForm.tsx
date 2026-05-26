@@ -89,7 +89,7 @@ export default function NewStashForm() {
     saveState === "generating" ? "Generating..." : saveState === "error" ? "Error" : "Save";
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-background p-3 pt-6 sm:pt-8">
+    <div className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8">
       <SharedCard>
         <SharedCardHeader title="Create Stash" />
 
