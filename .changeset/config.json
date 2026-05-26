@@ -3,12 +3,14 @@
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "fixed": [
-    "stash",
-    "stash-extension",
-    "stash-viewer",
-    "@stash/codec",
-    "@stash/theme",
-    "@stash/e2e"
+    [
+      "stash",
+      "stash-extension",
+      "stash-viewer",
+      "@stash/codec",
+      "@stash/theme",
+      "@stash/e2e"
+    ]
   ],
   "linked": [],
   "access": "restricted",
