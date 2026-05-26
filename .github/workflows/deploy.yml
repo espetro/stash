@@ -42,10 +42,3 @@ jobs:
         run: pnpm --filter stash-viewer build
         env:
           VITE_VIEWER_ORIGIN: https://stash.illo.fyi
-
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          command: pages deploy apps/viewer/dist --project-name=stash
