@@ -9,10 +9,6 @@ export default function ThemeSwitcher({ className, ...props }: ThemeSwitcherProp
   const [isDark, setIsDark] = useState(false);
   const selectorRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setIsDark(getEffectiveTheme() === "dark");
-  }, []);
-
   const updateUI = useCallback((dark: boolean, animate = true) => {
     setIsDark(dark);
     if (selectorRef.current) {

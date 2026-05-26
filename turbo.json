@@ -13,9 +13,6 @@
       "cache": false,
       "persistent": true
     },
-    "typecheck": {
-      "dependsOn": ["^typecheck"]
-    },
     "zip": {
       "dependsOn": ["build"],
       "outputs": [".output/**"]
@@ -27,7 +24,10 @@
       "dependsOn": []
     },
     "tscheck": {
-      "dependsOn": []
+      "dependsOn": ["^tscheck"]
+    },
+    "test": {
+      "cache": false
     }
   }
 }

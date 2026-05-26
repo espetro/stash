@@ -1,4 +1,3 @@
-import React from "react";
 import type { PopupTab } from "../types";
 
 interface TabItemProps {

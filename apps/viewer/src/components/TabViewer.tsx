@@ -1,11 +1,12 @@
 import * as React from "react";
-import { useState, useEffect, useCallback } from "react";
-import { decodeShareUrl, PayloadDecodeError } from "@stash/codec";
-import { getBrotliFunctions } from "@/lib/brotli";
+import { useState, useCallback } from "react";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { ShareDrawer } from "./ShareDrawer";
 import { QrDialogContent } from "./QrDialog";
 import { Dialog } from "@/components/ui/dialog";
+import { TabListItem } from "@/components/TabListItem";
+import { useDecodeShareUrl, type DecodedData } from "@/hooks/useDecodeShareUrl";
+import { buildCaption } from "@/lib/format";
 import {
   SharedCard,
   SharedCardHeader,
@@ -14,113 +15,6 @@ import {
   SplitButtonGroup,
   OutlineButton,
 } from "@/components/shared";
-
-interface TabItem {
-  url: string;
-  title: string;
-}
-
-interface DecodedData {
-  expiry: number;
-  isExpired: boolean;
-  items: [string, string][];
-  title?: string;
-}
-
-function getFaviconUrl(url: string): string {
-  try {
-    const domain = new URL(url).hostname;
-    return `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
-  } catch {
-    return `https://www.google.com/s2/favicons?domain=${url}&sz=32`;
-  }
-}
-
-function formatRemainingTime(expiryTimestamp: number): string {
-  const now = Math.floor(Date.now() / 1000);
-  const remainingSeconds = expiryTimestamp - now;
-
-  if (remainingSeconds <= 0) {
-    return "Expired";
-  }
-
-  const TEN_YEARS_SECONDS = 10 * 365 * 24 * 60 * 60;
-  if (remainingSeconds > TEN_YEARS_SECONDS) {
-    return "Never expires";
-  }
-
-  const hours = Math.floor(remainingSeconds / 3600);
-  const minutes = Math.floor((remainingSeconds % 3600) / 60);
-
-  if (hours > 0) {
-    return `Expires in ${hours}h ${minutes}m`;
-  } else if (minutes > 0) {
-    return `Expires in ${minutes}m`;
-  } else {
-    return "Expires in < 1m";
-  }
-}
-
-function formatDateLabel(timestamp: number): string {
-  const date = new Date(timestamp * 1000);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function estimateCreatedAt(expiryTimestamp: number): number {
-  const now = Math.floor(Date.now() / 1000);
-  const DEFAULT_EXPIRY_HOURS = 24;
-  const estimated = expiryTimestamp - DEFAULT_EXPIRY_HOURS * 3600;
-  return Math.min(estimated, now);
-}
-
-function buildCaption(count: number, expiry: number): string {
-  const createdAt = estimateCreatedAt(expiry);
-  const parts = [
-    `${count} tab${count !== 1 ? "s" : ""}`,
-    `Created ${formatDateLabel(createdAt)}`,
-    formatRemainingTime(expiry),
-  ];
-  return parts.join(" · ");
-}
-
-function getFormatParam(): string | null {
-  const raw = new URLSearchParams(window.location.search).get("format");
-  return raw ? raw.toLowerCase() : null;
-}
-
-function TabListItem({ url, title }: TabItem) {
-  const faviconUrl = getFaviconUrl(url);
-  const [faviconError, setFaviconError] = useState(false);
-
-  return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted sm:px-5 sm:py-4"
-    >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
-        {!faviconError ? (
-          <img
-            src={faviconUrl}
-            alt=""
-            className="h-5 w-5 object-contain"
-            onError={() => setFaviconError(true)}
-          />
-        ) : (
-          <span className="text-sm text-muted-foreground">&#128279;</span>
-        )}
-      </div>
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="truncate text-sm font-medium text-foreground">{title}</span>
-        <span className="truncate text-xs text-muted-foreground">{url}</span>
-      </div>
-    </a>
-  );
-}
 
 function JsonOutput({ data }: { data: DecodedData }) {
   const output = {
@@ -150,56 +44,9 @@ function MdOutput({ data }: { data: DecodedData }) {
 }
 
 export default function TabViewer() {
-  const [state, setState] = useState<
-    | { type: "loading" }
-    | { type: "error"; message: string }
-    | { type: "content"; data: DecodedData; format: string | null }
-  >({ type: "loading" });
-
+  const state = useDecodeShareUrl();
   const [qrOpen, setQrOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function init() {
-      try {
-        const format = getFormatParam();
-        const fragment = window.location.hash;
-
-        if (!fragment) {
-          if (!cancelled) setState({ type: "error", message: "No share data found in URL" });
-          return;
-        }
-
-        const brotli = await getBrotliFunctions();
-        const decodedData = await decodeShareUrl(fragment, brotli);
-
-        if (decodedData.isExpired) {
-          if (!cancelled) setState({ type: "error", message: "This share link has expired" });
-          return;
-        }
-
-        if (!cancelled) {
-          setState({ type: "content", data: decodedData, format });
-        }
-      } catch (error) {
-        console.error("Failed to decode share URL:", error);
-        if (!cancelled) {
-          if (error instanceof PayloadDecodeError) {
-            setState({ type: "error", message: error.message });
-          } else {
-            setState({ type: "error", message: "Failed to load shared tabs" });
-          }
-        }
-      }
-    }
-
-    init();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const handleNew = useCallback(() => {
     window.location.href = "/s/new";

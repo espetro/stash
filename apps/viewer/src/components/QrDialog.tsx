@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { encodeTabsToQrUrl, getQrSegments, estimateQrBitLength } from "@stash/codec";
+import {
+  encodeTabsToQrUrl,
+  getQrSegments,
+  estimateQrBitLength,
+  MAX_QR_CAPACITY,
+} from "@stash/codec";
 import { getBrotliFunctions } from "@/lib/brotli";
 import {
   DialogContent,
@@ -8,21 +13,55 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { OutlineButton } from "@/components/shared";
+import { err, ok } from "neverthrow";
+import { generate as generateQr, mode as qrMode } from "lean-qr";
 
 interface TabItem {
   url: string;
   title: string;
 }
 
-export function QrDialogContent({
-  tabs,
-  title,
-  onClose,
-}: {
+interface QrProps {
   tabs: TabItem[];
   title?: string;
+}
+
+const doGenerateQr = async ({ tabs, title }: QrProps) => {
+  try {
+    const brotli = await getBrotliFunctions();
+    const { qrUrl } = await encodeTabsToQrUrl(tabs, brotli, 24, undefined, title);
+
+    const estimatedBits = estimateQrBitLength(qrUrl);
+
+    if (estimatedBits > MAX_QR_CAPACITY) {
+      return err("This stash is too large to fit in a QR code.");
+    }
+
+    const { prefix, payload } = getQrSegments(qrUrl);
+
+    const qr = generateQr(
+      qrMode.multi(
+        //
+        qrMode.bytes(new TextEncoder().encode(prefix)),
+        qrMode.alphaNumeric(payload),
+      ),
+    );
+
+    return ok(qr);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("too large")) {
+      return err("Failed to generate QR code. This stash is too large to fit in a QR code.");
+    }
+
+    return err("Failed to generate QR code. Please try again.");
+  }
+};
+
+interface Props extends QrProps {
   onClose: () => void;
-}) {
+}
+
+export function QrDialogContent({ tabs, title, onClose }: Props) {
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,38 +70,16 @@ export function QrDialogContent({
 
     if (!canvas) return;
 
-    async function generateQr() {
-      try {
-        if (!canvas) return;
-        const brotli = await getBrotliFunctions();
-        const { qrUrl } = await encodeTabsToQrUrl(tabs, brotli, 24, undefined, title);
+    const generateQrFromTabs = async () => {
+      const qr = await doGenerateQr({ tabs, title });
 
-        const estimatedBits = estimateQrBitLength(qrUrl);
-        if (estimatedBits > 23648) {
-          setError("This stash is too large to fit in a QR code.");
-          return;
-        }
+      qr.match(
+        (qrCode) => qrCode.toCanvas(canvas, { pad: 2, off: [255, 255, 255, 255] }),
+        (error) => setError(error),
+      );
+    };
 
-        const { prefix, payload } = getQrSegments(qrUrl);
-        const leanQr = await import("lean-qr");
-        const qr = leanQr.generate(
-          leanQr.mode.multi(
-            leanQr.mode.bytes(new TextEncoder().encode(prefix)),
-            leanQr.mode.alphaNumeric(payload),
-          ),
-        );
-        qr.toCanvas(canvas, { pad: 2, off: [255, 255, 255, 255] });
-      } catch (err) {
-        console.error("Failed to generate QR code:", err);
-        if (err instanceof Error && err.message.includes("too large")) {
-          setError("This stash is too large to fit in a QR code.");
-        } else {
-          setError("Failed to generate QR code. Please try again.");
-        }
-      }
-    }
-
-    generateQr();
+    generateQrFromTabs();
   }, [tabs, title, canvas]);
 
   return (
