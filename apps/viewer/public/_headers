@@ -1,7 +1,6 @@
 # Cache control for static assets
 /_astro/*.css
   Cache-Control: public, max-age=31536000, immutable
-  Content-Type: text/css
 
 /_astro/*.js
   Cache-Control: public, max-age=31536000, immutable
