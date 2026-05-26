@@ -1,4 +1,6 @@
 interface ImportMetaEnv {
+  readonly VITE_PUBLIC_POSTHOG_KEY: string;
+  readonly VITE_PUBLIC_POSTHOG_HOST?: string;
   readonly VITE_VIEWER_ORIGIN: string;
   readonly FIREFOX: boolean;
   readonly CHROME: boolean;
@@ -9,18 +11,8 @@ interface ImportMeta {
 }
 
 declare module "brotli-wasm/pkg.web/brotli_wasm.js" {
-  export type InitInput =
-    | RequestInfo
-    | URL
-    | Response
-    | BufferSource
-    | WebAssembly.Module;
-  export default function init(
-    input?: InitInput | Promise<InitInput>
-  ): Promise<unknown>;
-  export function compress(
-    buf: Uint8Array,
-    options?: { quality?: number }
-  ): Uint8Array;
+  export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
+  export default function init(input?: InitInput | Promise<InitInput>): Promise<unknown>;
+  export function compress(buf: Uint8Array, options?: { quality?: number }): Uint8Array;
   export function decompress(buf: Uint8Array): Uint8Array;
 }
