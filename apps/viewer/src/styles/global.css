@@ -2,6 +2,16 @@
 @import "tw-animate-css";
 @import "@stash/theme/tailwind.css";
 
+@layer base {
+  body {
+    background-color: var(--background);
+    background-image: radial-gradient(circle, var(--border) 1.5px, transparent 1.5px);
+    background-size: 20px 20px;
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

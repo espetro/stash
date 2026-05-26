@@ -86,16 +86,16 @@ export default function HeroStashPopup() {
     <div
       style={
         {
-          "--background": "#0B0E15",
-          "--card": "#11151E",
-          "--foreground": "#e4e4e4",
-          "--muted-foreground": "#a4a4a4",
-          "--border": "#1E2438",
-          "--primary": "#5B9DF8",
-          "--primary-foreground": "#fff",
-          "--secondary": "#262626",
-          "--muted": "#11151E",
-          "--radius": "0.375rem",
+          "--background": "#141414",
+          "--card": "#1C1C1C",
+          "--foreground": "#F0F0F0",
+          "--muted-foreground": "#A3A3A3",
+          "--border": "#2C2C2C",
+          "--primary": "#F0F0F0",
+          "--primary-foreground": "#000000",
+          "--secondary": "#252525",
+          "--muted": "#252525",
+          "--radius": "0.25rem",
         } as React.CSSProperties
       }
       className="max-w-[360px]"
