@@ -1,9 +1,6 @@
 import * as React from "react";
 import { useState, useEffect, useCallback } from "react";
-import {
-  decodeShareUrl,
-  PayloadDecodeError,
-} from "@stash/codec";
+import { decodeShareUrl, PayloadDecodeError } from "@stash/codec";
 import { getBrotliFunctions } from "@/lib/brotli";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { ShareDrawer } from "./ShareDrawer";
@@ -103,9 +100,9 @@ function TabListItem({ url, title }: TabItem) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex items-start gap-3 px-4 py-3 transition-colors hover:bg-[#fafafa] sm:px-5 sm:py-4"
+      className="group flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted sm:px-5 sm:py-4"
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f4f4f5]">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
         {!faviconError ? (
           <img
             src={faviconUrl}

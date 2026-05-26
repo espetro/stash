@@ -11,10 +11,10 @@ import type { FunctionComponent } from "react";
     <div class="hero-content flex flex-col gap-6">
       <h1 class="hero-headline font-sans text-[clamp(2.5rem,6vw,4.5rem)] font-bold leading-[1.1] tracking-[-0.03em] m-0">
         <span class="headline-line1 text-foreground">Your tabs are your thinking.</span><br />
-        <span class="headline-line2 text-[#3981f6]">Stop losing them.</span>
+        <span class="headline-line2 text-primary">Stop losing them.</span>
       </h1>
 
-      <p class="hero-subheadline font-sans text-lg leading-[1.6] text-[#a4a4a4] m-0 max-w-md">
+      <p class="hero-subheadline font-sans text-lg leading-[1.6] text-muted-foreground m-0 max-w-md">
         Share your entire browser context as one link, or just save it for
         later. Locally. Privately. No account. No cloud. No noise.
       </p>
@@ -23,7 +23,7 @@ import type { FunctionComponent } from "react";
       <div class="cta-group flex flex-wrap gap-3 items-center">
         <a
           href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md"
-          class="cta-button cta-primary inline-flex items-center justify-center gap-2 py-2.5 px-5 rounded-md text-[0.9375rem] font-semibold no-underline font-sans transition-colors duration-200 bg-[#2563eb] text-white"
+          class="cta-button cta-primary inline-flex items-center justify-center gap-2 py-2.5 px-5 rounded-md text-[0.9375rem] font-semibold no-underline font-sans transition-colors duration-200 bg-primary text-primary-foreground"
           aria-label="Add Stash to Chrome"
         >
           <FaChrome class="cta-icon w-[1.125rem] h-[1.125rem] flex-shrink-0" aria-hidden="true" />
@@ -32,7 +32,7 @@ import type { FunctionComponent } from "react";
 
         <a
           href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md"
-          class="cta-button cta-secondary inline-flex items-center justify-center gap-2 py-2.5 px-5 rounded-md text-[0.9375rem] font-semibold no-underline font-sans transition-colors duration-200 bg-white text-[#333333] border border-[#e0e0e0]"
+          class="cta-button cta-secondary inline-flex items-center justify-center gap-2 py-2.5 px-5 rounded-md text-[0.9375rem] font-semibold no-underline font-sans transition-colors duration-200 bg-card text-foreground border border-border"
           aria-label="Add Stash to Firefox"
         >
           <FaFirefoxBrowser class="cta-icon w-[1.125rem] h-[1.125rem] flex-shrink-0" aria-hidden="true" />
@@ -42,7 +42,7 @@ import type { FunctionComponent } from "react";
         <a href="/s/new" class="cta-button cta-ghost inline-flex items-center justify-center gap-2 py-2.5 px-5 rounded-md text-[0.9375rem] font-semibold no-underline font-sans transition-colors duration-200 text-muted-foreground"> Try in browser → </a>
       </div>
 
-      <p class="cta-tagline font-mono text-xs text-[#a4a4a4] m-0 w-full">Free · No account required · Works offline</p>
+      <p class="cta-tagline font-mono text-xs text-muted-foreground m-0 w-full">Free · No account required · Works offline</p>
     </div>
 
     <!-- Right Column (40%) - HeroStashPopup -->
@@ -85,11 +85,11 @@ import type { FunctionComponent } from "react";
   }
 
   .cta-primary:hover {
-    background-color: #2563eb;
+    background-color: var(--primary);
   }
 
   .cta-secondary:hover {
-    border-color: #c0c8d8;
+    border-color: var(--border);
   }
 
   .cta-ghost:hover {

@@ -1,9 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  encodeTabsToQrUrl,
-  getQrSegments,
-  estimateQrBitLength,
-} from "@stash/codec";
+import { encodeTabsToQrUrl, getQrSegments, estimateQrBitLength } from "@stash/codec";
 import { getBrotliFunctions } from "@/lib/brotli";
 import {
   DialogContent,
