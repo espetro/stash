@@ -4,7 +4,7 @@ interface Props {
 }
 const { title } = Astro.props;
 const posthogKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
-const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST;
+const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST ?? 'https://eu.posthog.com';
 ---
 <!DOCTYPE html>
 <html lang="en">
