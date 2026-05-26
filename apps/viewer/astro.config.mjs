@@ -57,6 +57,38 @@ export default defineConfig({
     }),
   ],
   vite: {
+    build: {
+      chunkSizeWarningLimit: 25,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) {
+              return 'vendor-react';
+            }
+            if (
+              id.includes('node_modules/radix-ui') ||
+              id.includes('node_modules/@radix-ui') ||
+              id.includes('node_modules/vaul')
+            ) {
+              return 'vendor-radix';
+            }
+            if (
+              id.includes('node_modules/lucide-react') ||
+              id.includes('node_modules/react-icons') ||
+              id.includes('node_modules/@lucide')
+            ) {
+              return 'vendor-icons';
+            }
+            if (
+              id.includes('node_modules/@msgpack') ||
+              id.includes('node_modules/pako')
+            ) {
+              return 'vendor-codec';
+            }
+          },
+        },
+      },
+    },
     define: {
       'import.meta.env.APP_VERSION': JSON.stringify(pkg.version),
     },
