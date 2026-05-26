@@ -1,12 +1,10 @@
 ---
-import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
-
 interface Props {
   title: string;
 }
 const { title } = Astro.props;
-const posthogKey = import.meta.env.VITE_POSTHOG_KEY;
+const posthogKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
+const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST;
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -18,21 +16,18 @@ const posthogKey = import.meta.env.VITE_POSTHOG_KEY;
   <link rel="icon" type="image/png" href="/icon-48.png" sizes="48x48" />
   <link rel="apple-touch-icon" href="/icon-128.png" />
   <title>{title}</title>
-  {posthogKey && (
-    <script>
-      window.posthog = window.posthog || {};
+  {posthogKey && posthogHost && (
+    <script is:inline define:vars={{ posthogKey, posthogHost }}>
       (function() {
-        const key = '{posthogKey}';
-        if (!key) return;
-
-        const script = document.createElement('script');
+        var script = document.createElement('script');
         script.async = true;
-        script.src = 'https://us-assets.i.posthog.com/array.js';
+        script.src = posthogHost + '/array.js';
         script.onload = function() {
           if (window.posthog && typeof window.posthog.init === 'function') {
-            window.posthog.init(key, {
-              api_host: 'https://us.i.posthog.com',
+            window.posthog.init(posthogKey, {
+              api_host: posthogHost,
               persistence: 'memory',
+              disable_cookie: true,
               autocapture: true,
               capture_pageview: true,
             });
