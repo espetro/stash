@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.5.0
+
+### Fixed
+- Fix parallel script execution in build and zip tasks to properly propagate errors
+- Fix changeset baseBranch configuration to use master as default branch
+
 ## 0.4.0
 
 ### Added

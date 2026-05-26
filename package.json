@@ -5,7 +5,7 @@
     "apps/*",
     "packages/*"
   ],
-  "version": "0.4.0",
+  "version": "0.5.0",
   "scripts": {
     "clean": "turbo run clean",
     "dev": "turbo run dev",
