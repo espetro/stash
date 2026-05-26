@@ -1,25 +1,14 @@
 import * as React from "react";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   decodeShareUrl,
   PayloadDecodeError,
-  encodeTabsToQrUrl,
-  getQrSegments,
-  estimateQrBitLength,
 } from "@stash/codec";
 import { getBrotliFunctions } from "@/lib/brotli";
-import { Button } from "@/components/ui/button";
-import { CardContent } from "@/components/ui/card";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { ShareDrawer } from "./ShareDrawer";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { QrDialogContent } from "./QrDialog";
+import { Dialog } from "@/components/ui/dialog";
 import {
   SharedCard,
   SharedCardHeader,
@@ -160,66 +149,6 @@ function MdOutput({ data }: { data: DecodedData }) {
     <pre className="whitespace-pre-wrap break-words p-4 text-sm text-foreground">
       {lines.join("\n")}
     </pre>
-  );
-}
-
-function QrDialogContent({ tabs, title }: { tabs: TabItem[]; title?: string }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setError(null);
-
-    if (!canvasRef.current) return;
-
-    async function generateQr() {
-      try {
-        const brotli = await getBrotliFunctions();
-        const { qrUrl } = await encodeTabsToQrUrl(tabs, brotli, 24, undefined, title);
-
-        const estimatedBits = estimateQrBitLength(qrUrl);
-        if (estimatedBits > 23648) {
-          setError("This stash is too large to fit in a QR code.");
-          return;
-        }
-
-        const { prefix, payload } = getQrSegments(qrUrl);
-        const leanQr = await import("lean-qr");
-        const qr = leanQr.generate(
-          leanQr.mode.multi(
-            leanQr.mode.bytes(new TextEncoder().encode(prefix)),
-            leanQr.mode.alphaNumeric(payload),
-          ),
-        );
-        qr.toCanvas(canvasRef.current!, { pad: 2 });
-      } catch (err) {
-        console.error("Failed to generate QR code:", err);
-        setError("This stash URL is too long to fit in a QR code.");
-      }
-    }
-
-    generateQr();
-  }, [tabs, title]);
-
-  return (
-    <DialogContent className="sm:max-w-160">
-      <DialogHeader>
-        <DialogTitle className="text-foreground">Share this stash</DialogTitle>
-        <DialogDescription>Scan this QR code to import the tabs</DialogDescription>
-      </DialogHeader>
-      {error ? (
-        <p className="text-center text-sm text-muted-foreground">{error}</p>
-      ) : (
-        <canvas
-          ref={canvasRef}
-          className="rounded-lg bg-white"
-          style={{ width: 240, height: 240, imageRendering: "pixelated" }}
-        />
-      )}
-      <DialogFooter>
-        <Button className="w-full rounded-xl">Close</Button>
-      </DialogFooter>
-    </DialogContent>
   );
 }
 
@@ -369,6 +298,7 @@ export default function TabViewer() {
         <QrDialogContent
           tabs={data.items.map(([url, title]) => ({ url, title }))}
           title={data.title}
+          onClose={() => setQrOpen(false)}
         />
       </Dialog>
 
