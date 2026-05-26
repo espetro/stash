@@ -1,11 +1,5 @@
-import { useState, useEffect } from "react";
-import {
-  encodeTabsToQrUrl,
-  getQrSegments,
-  estimateQrBitLength,
-  MAX_QR_CAPACITY,
-} from "@stash/codec";
-import { getBrotliFunctions } from "@/lib/brotli";
+import { useState, useEffect, useRef } from "react";
+import { MAX_QR_CAPACITY } from "@stash/codec";
 import {
   DialogContent,
   DialogHeader,
@@ -13,74 +7,93 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { OutlineButton } from "@/components/shared";
-import { err, ok } from "neverthrow";
 import { generate as generateQr, mode as qrMode } from "lean-qr";
+import QrEncoderWorker from "@/lib/qr-encoder.worker?worker";
 
-interface TabItem {
+export interface TabItem {
   url: string;
   title: string;
 }
 
-interface QrProps {
+interface Props {
   tabs: TabItem[];
   title?: string;
-}
-
-const doGenerateQr = async ({ tabs, title }: QrProps) => {
-  try {
-    const brotli = await getBrotliFunctions();
-    const { qrUrl } = await encodeTabsToQrUrl(tabs, brotli, 24, undefined, title);
-
-    const estimatedBits = estimateQrBitLength(qrUrl);
-
-    if (estimatedBits > MAX_QR_CAPACITY) {
-      return err("This stash is too large to fit in a QR code.");
-    }
-
-    const { prefix, payload } = getQrSegments(qrUrl);
-
-    const qr = generateQr(
-      qrMode.multi(
-        //
-        qrMode.bytes(new TextEncoder().encode(prefix)),
-        qrMode.alphaNumeric(payload),
-      ),
-    );
-
-    return ok(qr);
-  } catch (error) {
-    if (error instanceof Error && error.message.includes("too large")) {
-      return err("Failed to generate QR code. This stash is too large to fit in a QR code.");
-    }
-
-    return err("Failed to generate QR code. Please try again.");
-  }
-};
-
-interface Props extends QrProps {
   onClose: () => void;
 }
 
 export function QrDialogContent({ tabs, title, onClose }: Props) {
-  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const workerRef = useRef<Worker | null>(null);
+  const encodingIdRef = useRef(0);
+  const [isEncoding, setIsEncoding] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setError(null);
+    const worker = new QrEncoderWorker();
+    workerRef.current = worker;
 
-    if (!canvas) return;
+    worker.onmessage = (event) => {
+      const msg = event.data;
 
-    const generateQrFromTabs = async () => {
-      const qr = await doGenerateQr({ tabs, title });
+      if (msg.type === "result") {
+        if (msg.encodingId !== encodingIdRef.current) {
+          return;
+        }
 
-      qr.match(
-        (qrCode) => qrCode.toCanvas(canvas, { pad: 2, off: [255, 255, 255, 255] }),
-        (error) => setError(error),
-      );
+        if (msg.estimatedBits > MAX_QR_CAPACITY) {
+          setError("This stash is too large to fit in a QR code.");
+          setIsEncoding(false);
+          return;
+        }
+
+        const qr = generateQr(
+          qrMode.multi(
+            qrMode.bytes(new TextEncoder().encode(msg.prefix)),
+            qrMode.alphaNumeric(msg.payload),
+          ),
+        );
+
+        const canvas = canvasRef.current;
+        if (canvas) {
+          qr.toCanvas(canvas, {
+            on: [0, 0, 0, 255],
+            off: [255, 255, 255, 255],
+            pad: 4,
+          });
+        }
+
+        setIsEncoding(false);
+      } else if (msg.type === "error") {
+        if (msg.encodingId !== encodingIdRef.current) {
+          return;
+        }
+
+        setError(msg.message);
+        setIsEncoding(false);
+      }
     };
 
-    generateQrFromTabs();
-  }, [tabs, title, canvas]);
+    return () => {
+      worker.terminate();
+      workerRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const worker = workerRef.current;
+    if (!worker) return;
+
+    setIsEncoding(true);
+    setError(null);
+    encodingIdRef.current += 1;
+
+    worker.postMessage({
+      type: "encode",
+      tabs,
+      title,
+      encodingId: encodingIdRef.current,
+    });
+  }, [tabs, title]);
 
   return (
     <DialogContent className="sm:max-w-160">
@@ -90,9 +103,15 @@ export function QrDialogContent({ tabs, title, onClose }: Props) {
       </DialogHeader>
       {error ? (
         <p className="text-center text-sm text-muted-foreground">{error}</p>
+      ) : isEncoding ? (
+        <div className="flex items-center justify-center w-full h-60">
+          <p className="text-sm text-muted-foreground">Generating QR code...</p>
+        </div>
       ) : (
         <canvas
-          ref={setCanvas}
+          ref={canvasRef}
+          width={240}
+          height={240}
           className="mx-auto block rounded-lg bg-white"
           style={{ width: 240, height: 240, imageRendering: "pixelated" }}
         />
