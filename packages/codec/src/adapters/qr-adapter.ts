@@ -65,7 +65,7 @@ export function estimateQrBitLength(qrUrl: string): number {
  * Maximum bits for common QR versions at error-correction level L.
  * Used by capacity preflight checks.
  */
-export const QR_CAPACITY_BITS_L: Record<number, number> = {
+export const QR_CAPACITY_BITS_L = {
   1: 152,
   2: 272,
   3: 440,
@@ -80,4 +80,6 @@ export const QR_CAPACITY_BITS_L: Record<number, number> = {
   20: 5506,
   25: 7456,
   40: 23648,
-};
+} as const;
+
+export const MAX_QR_CAPACITY = QR_CAPACITY_BITS_L[40];

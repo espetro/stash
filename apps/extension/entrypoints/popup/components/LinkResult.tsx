@@ -1,5 +1,3 @@
-import React from "react";
-
 interface LinkResultProps {
   url: string;
   onCopy: () => void;

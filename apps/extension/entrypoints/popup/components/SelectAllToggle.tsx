@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import type { PopupTab } from "../types";
 import { findMaxTabsWithinBudget } from "@stash/codec";
 import type { TabInfo } from "@stash/codec";
@@ -33,11 +33,9 @@ export function SelectAllToggle({ tabs, onSelectAll, onDeselectAll }: SelectAllT
     };
   }, [tabs]);
 
-  async function handleSelectAll() {
-    const brotli = await getBrotliFunctions();
-    const tabInfos: TabInfo[] = tabs.map((t) => ({ url: t.url, title: t.title }));
-    const maxCount = await findMaxTabsWithinBudget(tabInfos, brotli);
-    onSelectAll(maxCount);
+  function handleSelectAll() {
+    if (maxTabCount === null) return;
+    onSelectAll(maxTabCount);
   }
 
   const isTruncated = maxTabCount !== null && maxTabCount < tabs.length;
