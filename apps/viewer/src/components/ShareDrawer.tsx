@@ -78,7 +78,7 @@ export function ShareDrawer({ open, onClose, data }: ShareDrawerProps) {
           <Button
             variant="outline"
             size="lg"
-            className="group h-auto flex-col items-start py-4"
+            className="group h-auto flex-col items-start py-4 rounded-xl"
             onClick={handleCopyJSON}
           >
             <span className="font-medium text-foreground">{jsonLabel}</span>
@@ -88,7 +88,7 @@ export function ShareDrawer({ open, onClose, data }: ShareDrawerProps) {
           <Button
             variant="outline"
             size="lg"
-            className="group h-auto flex-col items-start py-4"
+            className="group h-auto flex-col items-start py-4 rounded-xl"
             onClick={handleCopyMarkdown}
           >
             <span className="font-medium text-foreground">{mdLabel}</span>
