@@ -28,7 +28,17 @@ export function useDecodeShareUrl(): DecodeState {
     async function init() {
       try {
         const format = getFormatParam();
-        const fragment = window.location.hash;
+        const params = new URLSearchParams(window.location.search);
+
+        let fragment = window.location.hash;
+
+        // Fallback: if no fragment, check for ?p= query param
+        if (!fragment) {
+          const pParam = params.get("p");
+          if (pParam) {
+            fragment = `#p=${pParam}`;
+          }
+        }
 
         if (!fragment) {
           if (!cancelled) setState({ type: "error", message: "No share data found in URL" });
@@ -45,6 +55,18 @@ export function useDecodeShareUrl(): DecodeState {
 
         if (!cancelled) {
           setState({ type: "content", data: decodedData, format });
+        }
+
+        // Update alternate link tags with the API endpoint
+        const encoded = fragment.slice("#p=".length);
+        const jsonLink = document.querySelector('link[type="application/json"]');
+        if (jsonLink) {
+          jsonLink.setAttribute("href", `/api/decode?p=${encoded}&format=json`);
+        }
+
+        const mdLink = document.querySelector('link[type="text/markdown"]');
+        if (mdLink) {
+          mdLink.setAttribute("href", `/api/decode?p=${encoded}&format=md`);
         }
       } catch (error) {
         console.error("Failed to decode share URL:", error);
