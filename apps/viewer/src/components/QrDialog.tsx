@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useState, useEffect, useRef } from "react";
 import { MAX_QR_CAPACITY } from "@stash/codec";
 import {
@@ -7,8 +8,16 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { OutlineButton } from "@/components/shared";
-import { generate as generateQr, mode as qrMode } from "lean-qr";
+import { generate as generateQr } from "lean-qr";
+import { toSvgDataURL } from "lean-qr/extras/svg";
+import { makeSyncComponent } from "lean-qr/extras/react";
 import QrEncoderWorker from "@/lib/qr-encoder.worker?worker";
+
+const QrCode = makeSyncComponent(React, generateQr, toSvgDataURL, {
+  on: "#000000",
+  off: "#ffffff",
+  pad: 4,
+});
 
 export interface TabItem {
   url: string;
@@ -22,11 +31,11 @@ interface Props {
 }
 
 export function QrDialogContent({ tabs, title, onClose }: Props) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const workerRef = useRef<Worker | null>(null);
   const encodingIdRef = useRef(0);
   const [isEncoding, setIsEncoding] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const worker = new QrEncoderWorker();
@@ -46,22 +55,7 @@ export function QrDialogContent({ tabs, title, onClose }: Props) {
           return;
         }
 
-        const qr = generateQr(
-          qrMode.multi(
-            qrMode.bytes(new TextEncoder().encode(msg.prefix)),
-            qrMode.alphaNumeric(msg.payload),
-          ),
-        );
-
-        const canvas = canvasRef.current;
-        if (canvas) {
-          qr.toCanvas(canvas, {
-            on: [0, 0, 0, 255],
-            off: [255, 255, 255, 255],
-            pad: 4,
-          });
-        }
-
+        setQrUrl(msg.qrUrl);
         setIsEncoding(false);
       } else if (msg.type === "error") {
         if (msg.encodingId !== encodingIdRef.current) {
@@ -85,6 +79,7 @@ export function QrDialogContent({ tabs, title, onClose }: Props) {
 
     setIsEncoding(true);
     setError(null);
+    setQrUrl(null);
     encodingIdRef.current += 1;
 
     worker.postMessage({
@@ -107,15 +102,14 @@ export function QrDialogContent({ tabs, title, onClose }: Props) {
         <div className="flex items-center justify-center w-full h-60">
           <p className="text-sm text-muted-foreground">Generating QR code...</p>
         </div>
-      ) : (
-        <canvas
-          ref={canvasRef}
-          width={240}
-          height={240}
-          className="mx-auto block rounded-lg bg-white"
-          style={{ width: 240, height: 240, imageRendering: "pixelated" }}
-        />
-      )}
+      ) : qrUrl ? (
+        <div className="mx-auto flex justify-center">
+          <QrCode
+            content={qrUrl}
+            className="rounded-lg"
+          />
+        </div>
+      ) : null}
       <div className="flex justify-center">
         <OutlineButton onClick={onClose} className="w-full">
           Close
