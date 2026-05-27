@@ -61,12 +61,12 @@ export function useDecodeShareUrl(): DecodeState {
         const encoded = fragment.slice("#p=".length);
         const jsonLink = document.querySelector('link[type="application/json"]');
         if (jsonLink) {
-          jsonLink.setAttribute("href", `/api/decode?p=${encoded}&format=json`);
+          jsonLink.setAttribute("href", `/json?p=${encoded}`);
         }
 
         const mdLink = document.querySelector('link[type="text/markdown"]');
         if (mdLink) {
-          mdLink.setAttribute("href", `/api/decode?p=${encoded}&format=md`);
+          mdLink.setAttribute("href", `/md?p=${encoded}`);
         }
       } catch (error) {
         console.error("Failed to decode share URL:", error);

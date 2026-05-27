@@ -8,24 +8,23 @@ export const GET: APIRoute = () => {
       title: "Stash Viewer API",
       version: "1.0.0",
       description:
-        "API documentation for AI agents consuming Stash viewer endpoints. Use /s/?format=json or /s/?format=md for machine-readable output. The URL fragment #p={base64url} contains the compressed payload (client-side only, not a formal parameter).",
+        "API documentation for AI agents consuming Stash viewer endpoints. Use /json or /md to retrieve decoded stash payloads. The p parameter contains the base64url-encoded compressed payload.",
     },
     servers: [{ url: "/" }],
     paths: {
-      "/s/": {
+      "/json": {
         get: {
-          summary: "View shared tabs",
+          summary: "Decode stash payload as JSON",
           description:
-            "Renders shared tabs. The URL fragment #p={base64url} contains the compressed payload (client-side only, not a formal parameter). Use ?format=json or ?format=md for machine-readable output.",
+            "Decodes a stash payload and returns the structured data as JSON. Responses are cached based on the payload's expiry time.",
           parameters: [
             {
-              name: "format",
+              name: "p",
               in: "query",
-              required: false,
+              required: true,
               schema: {
                 type: "string",
-                enum: ["json", "md"],
-                description: "Response format. Omit for HTML.",
+                description: "Base64url-encoded compressed payload",
               },
             },
           ],
@@ -38,22 +37,73 @@ export const GET: APIRoute = () => {
                     $ref: "#/components/schemas/DecodedPayload",
                   },
                 },
+              },
+            },
+            "400": {
+              description: "Invalid or missing payload",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/ErrorResponse",
+                  },
+                },
+              },
+            },
+            "429": {
+              description: "Rate limit exceeded",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/ErrorResponse",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/md": {
+        get: {
+          summary: "Decode stash payload as Markdown",
+          description:
+            "Decodes a stash payload and returns the items as a Markdown link list. Responses are cached based on the payload's expiry time.",
+          parameters: [
+            {
+              name: "p",
+              in: "query",
+              required: true,
+              schema: {
+                type: "string",
+                description: "Base64url-encoded compressed payload",
+              },
+            },
+          ],
+          responses: {
+            "200": {
+              description: "Success",
+              content: {
                 "text/markdown": {
                   schema: {
                     type: "string",
-                  },
-                },
-                "text/html": {
-                  schema: {
-                    type: "string",
+                    description: "Markdown-formatted link list",
                   },
                 },
               },
             },
             "400": {
-              description: "Invalid or expired payload",
+              description: "Invalid or missing payload",
               content: {
-                "text/html": {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/ErrorResponse",
+                  },
+                },
+              },
+            },
+            "429": {
+              description: "Rate limit exceeded",
+              content: {
+                "application/json": {
                   schema: {
                     $ref: "#/components/schemas/ErrorResponse",
                   },
@@ -97,31 +147,37 @@ export const GET: APIRoute = () => {
         },
         DecodedPayload: {
           type: "object",
-          required: ["version", "expiry", "items", "isExpired"],
+          required: ["expiry", "items", "isExpired"],
           properties: {
-            version: {
-              type: "integer",
-              description: "Payload schema version",
+            title: {
+              type: "string",
+              description: "Optional title of the stash",
             },
             expiry: {
               type: "integer",
               description: "Expiry timestamp (Unix seconds)",
             },
-            items: {
-              type: "array",
-              items: {
-                type: "array",
-                items: {
-                  type: "string",
-                },
-                minItems: 2,
-                maxItems: 2,
-              },
-              description: "Array of [url, title] pairs",
-            },
             isExpired: {
               type: "boolean",
               description: "Whether the payload has expired",
+            },
+            items: {
+              type: "array",
+              items: {
+                type: "object",
+                required: ["url", "title"],
+                properties: {
+                  url: {
+                    type: "string",
+                    description: "URL of the item",
+                  },
+                  title: {
+                    type: "string",
+                    description: "Title of the item",
+                  },
+                },
+              },
+              description: "Array of items with url and title",
             },
           },
         },
