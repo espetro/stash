@@ -28,6 +28,9 @@
     },
     "test": {
       "cache": false
+    },
+    "validate": {
+      "cache": false
     }
   }
 }
