@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { PAYLOAD_VERSION, EXPIRY_HOURS } from "@stash/codec";
+// import { PAYLOAD_VERSION, EXPIRY_HOURS } from "@stash/codec";
 
 export const GET: APIRoute = () => {
   const spec = {

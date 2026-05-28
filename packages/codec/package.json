@@ -11,7 +11,7 @@
     "clean": "rm -rf dist",
     "build": "tsc",
     "tscheck": "tsc --noEmit",
-    "lint": "oxlint 'src/**/*.ts'",
+    "lint": "oxlint --fix src",
     "format": "oxfmt --write 'src/**/*.ts'",
     "test": "vitest run"
   },

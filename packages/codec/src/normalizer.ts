@@ -46,7 +46,7 @@ export function normalizeUrl(url: string): string {
 }
 
 export function restoreTldFromIndex(urlPart: string): string {
-  const match = urlPart.match(/^([^\/:\?#]+)/);
+  const match = urlPart.match(/^([^/:?#]+)/);
   if (!match) return urlPart;
 
   const hostname = match[1];
