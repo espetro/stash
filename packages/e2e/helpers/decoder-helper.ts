@@ -1,9 +1,6 @@
 import type { BrotliFunctions } from "@stash/codec";
 import brotliWasm from "brotli-wasm";
-import {
-  type DecodedPayload,
-  PayloadDecodeError,
-} from "@stash/codec";
+import { type DecodedPayload, PayloadDecodeError } from "@stash/codec";
 
 export type { DecodedPayload };
 export { PayloadDecodeError };
@@ -49,11 +46,9 @@ export { getDomain, getFaviconUrl };
 /**
  * Decode share URL fragment to payload
  */
-export async function decodeShareUrl(
-  fragment: string,
-): Promise<DecodedPayload> {
+export async function decodeShareUrl(fragment: string): Promise<DecodedPayload> {
   const brotli = await getBrotliFunctions();
-  return import("@stash/codec").then(codec => codec.decodeShareUrl(fragment, brotli));
+  return import("@stash/codec").then((codec) => codec.decodeShareUrl(fragment, brotli));
 }
 
 /**

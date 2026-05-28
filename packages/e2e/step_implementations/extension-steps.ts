@@ -1,7 +1,7 @@
-import { step, beforeSuite } from '@getgauge/cli';
-import { Page, BrowserContext } from 'playwright';
-import { getBrowserHelper, setCurrentPage, getCurrentPage } from '../helpers/browser-helper';
-import { filterChromeUrls, TabInfo, encodeTabsToShareUrl } from '../helpers/encoder-helper';
+import { step, beforeSuite } from "@getgauge/cli";
+import { Page, BrowserContext } from "playwright";
+import { getBrowserHelper, setCurrentPage, getCurrentPage } from "../helpers/browser-helper";
+import { filterChromeUrls, TabInfo, encodeTabsToShareUrl } from "../helpers/encoder-helper";
 
 /**
  * Extension context
@@ -21,7 +21,7 @@ beforeSuite(async () => {
 /**
  * Launch browser with extension
  */
-step('The browser is launched with the Stash extension loaded', async () => {
+step("The browser is launched with the Stash extension loaded", async () => {
   const browserHelper = getBrowserHelper();
   if (!extensionContext) {
     extensionContext = await browserHelper.launchWithExtension();
@@ -33,29 +33,29 @@ step('The browser is launched with the Stash extension loaded', async () => {
 /**
  * Open a new tab with URL
  */
-step('A new tab is opened with URL <url>', async (url: string) => {
+step("A new tab is opened with URL <url>", async (url: string) => {
   const browserHelper = getBrowserHelper();
   const page = await browserHelper.newPage();
-  await page.goto(url, { waitUntil: 'networkidle' });
+  await page.goto(url, { waitUntil: "networkidle" });
   openedTabs.push(page);
 });
 
 /**
  * Open multiple new tabs with URLs
  */
-step('Multiple new tabs are opened with various URLs', async () => {
+step("Multiple new tabs are opened with various URLs", async () => {
   const urls = [
-    'https://github.com',
-    'https://stackoverflow.com',
-    'https://developer.mozilla.org',
-    'https://www.reddit.com/r/webdev',
-    'https://css-tricks.com'
+    "https://github.com",
+    "https://stackoverflow.com",
+    "https://developer.mozilla.org",
+    "https://www.reddit.com/r/webdev",
+    "https://css-tricks.com",
   ];
-  
+
   for (const url of urls) {
     const browserHelper = getBrowserHelper();
     const page = await browserHelper.newPage();
-    await page.goto(url, { waitUntil: 'networkidle' });
+    await page.goto(url, { waitUntil: "networkidle" });
     openedTabs.push(page);
   }
 });
@@ -63,26 +63,26 @@ step('Multiple new tabs are opened with various URLs', async () => {
 /**
  * Open specified number of new tabs
  */
-step('<count> new tabs are opened with various URLs', async (countStr: string) => {
+step("<count> new tabs are opened with various URLs", async (countStr: string) => {
   const count = parseInt(countStr, 10);
   const baseUrls = [
-    'https://github.com',
-    'https://stackoverflow.com',
-    'https://developer.mozilla.org',
-    'https://www.reddit.com/r/webdev',
-    'https://css-tricks.com',
-    'https://example.com',
-    'https://test.com',
-    'https://demo.com',
-    'https://sample.com',
-    'https://mock.com'
+    "https://github.com",
+    "https://stackoverflow.com",
+    "https://developer.mozilla.org",
+    "https://www.reddit.com/r/webdev",
+    "https://css-tricks.com",
+    "https://example.com",
+    "https://test.com",
+    "https://demo.com",
+    "https://sample.com",
+    "https://mock.com",
   ];
-  
+
   for (let i = 0; i < count; i++) {
     const url = `${baseUrls[i % baseUrls.length]}/${i}`;
     const browserHelper = getBrowserHelper();
     const page = await browserHelper.newPage();
-    await page.goto(url, { waitUntil: 'networkidle' });
+    await page.goto(url, { waitUntil: "networkidle" });
     openedTabs.push(page);
   }
 });
@@ -90,7 +90,7 @@ step('<count> new tabs are opened with various URLs', async (countStr: string) =
 /**
  * Set tab title (simulated via page title)
  */
-step('The tab title is <title>', async (title: string) => {
+step("The tab title is <title>", async (title: string) => {
   const page = getCurrentPage();
   await page.evaluate((t) => {
     document.title = t;
@@ -102,36 +102,36 @@ step('The tab title is <title>', async (title: string) => {
  * Note: Playwright cannot directly interact with browser UI elements like tabs
  * This step simulates the action by preparing the test state
  */
-step('The user right-clicks on the tab', async () => {
+step("The user right-clicks on the tab", async () => {
   // In a real scenario, this would interact with the browser's tab UI
   // For testing purposes, we'll simulate this by noting the intent
-  (global as any)['tabRightClicked'] = true;
+  (global as any)["tabRightClicked"] = true;
 });
 
 /**
  * Right-click on page content
  */
-step('The user right-clicks on the page content', async () => {
+step("The user right-clicks on the page content", async () => {
   const page = getCurrentPage();
   // Simulate right-click on page
-  await page.mouse.click(100, 100, { button: 'right' });
+  await page.mouse.click(100, 100, { button: "right" });
 });
 
 /**
  * Select multiple tabs using Ctrl+Click (simulated)
  */
-step('The user selects multiple tabs using Ctrl+Click', async () => {
+step("The user selects multiple tabs using Ctrl+Click", async () => {
   // In a real scenario, this would interact with the browser's tab UI
   // For testing purposes, we'll simulate this by noting the intent
-  (global as any)['multipleTabsSelected'] = true;
+  (global as any)["multipleTabsSelected"] = true;
 });
 
 /**
  * Select all tabs
  */
-step('The user selects all <count> tabs', async (countStr: string) => {
+step("The user selects all <count> tabs", async (countStr: string) => {
   const count = parseInt(countStr, 10);
-  (global as any)['selectedTabCount'] = count;
+  (global as any)["selectedTabCount"] = count;
 });
 
 /**
@@ -142,19 +142,19 @@ step('The user clicks on "Share selected tabs…" menu item', async () => {
   // For testing purposes, we'll simulate the extension's behavior
   const tabs: TabInfo[] = openedTabs.map((page, index) => ({
     url: page.url(),
-    title: `Tab ${index + 1}`
+    title: `Tab ${index + 1}`,
   }));
-  
+
   // Filter out chrome:// URLs
   const filteredTabs = filterChromeUrls(tabs);
-  
+
   // Encode tabs to share URL
   const result = encodeTabsToShareUrl(filteredTabs);
-  
+
   // Store the result for verification
-  (global as any)['shareLink'] = result.url;
-  (global as any)['itemCount'] = result.itemCount;
-  (global as any)['truncated'] = result.truncated;
+  (global as any)["shareLink"] = result.url;
+  (global as any)["itemCount"] = result.itemCount;
+  (global as any)["truncated"] = result.truncated;
 });
 
 /**
@@ -162,13 +162,13 @@ step('The user clicks on "Share selected tabs…" menu item', async () => {
  */
 step('The user tries to click on "Share selected tabs…" menu item', async () => {
   // Simulate error for empty selection
-  (global as any)['shareError'] = 'No tabs selected';
+  (global as any)["shareError"] = "No tabs selected";
 });
 
 /**
  * Focus on tab
  */
-step('The user focuses on the tab', async () => {
+step("The user focuses on the tab", async () => {
   // Bring the page to focus
   const page = getCurrentPage();
   await page.bringToFront();
@@ -177,32 +177,32 @@ step('The user focuses on the tab', async () => {
 /**
  * Press context menu key
  */
-step('The user presses the context menu key', async () => {
+step("The user presses the context menu key", async () => {
   // Simulate context menu key press
   const page = getCurrentPage();
-  await page.keyboard.press('ContextMenu');
+  await page.keyboard.press("ContextMenu");
 });
 
 /**
  * Try to access tab context menu without selection
  */
-step('The user tries to access the tab context menu without selecting a tab', async () => {
+step("The user tries to access the tab context menu without selecting a tab", async () => {
   // Simulate no selection state
-  (global as any)['noTabSelected'] = true;
+  (global as any)["noTabSelected"] = true;
 });
 
 /**
  * Try to access share functionality without selection
  */
-step('The user tries to access the share functionality', async () => {
+step("The user tries to access the share functionality", async () => {
   // Simulate error for empty selection
-  (global as any)['shareError'] = 'No tabs selected';
+  (global as any)["shareError"] = "No tabs selected";
 });
 
 /**
  * Assert context menu is displayed
  */
-step('The context menu should be displayed', async () => {
+step("The context menu should be displayed", async () => {
   // In a real scenario, this would verify the context menu is visible
   // For testing purposes, we'll assume this step passes
 });
@@ -226,7 +226,7 @@ step('The menu item "Share selected tabs…" should NOT be visible', async () =>
 /**
  * Assert extension is triggered
  */
-step('The extension should be triggered', async () => {
+step("The extension should be triggered", async () => {
   // In a real scenario, this would verify the extension was triggered
   // For testing purposes, we'll assume this step passes
 });
@@ -234,7 +234,7 @@ step('The extension should be triggered', async () => {
 /**
  * Assert notification is displayed
  */
-step('A notification should be displayed', async () => {
+step("A notification should be displayed", async () => {
   // In a real scenario, this would verify a notification is displayed
   // For testing purposes, we'll assume this step passes
 });
@@ -242,20 +242,20 @@ step('A notification should be displayed', async () => {
 /**
  * Assert share link is generated
  */
-step('A share link should be generated', async () => {
-  const shareLink = (global as any)['shareLink'];
+step("A share link should be generated", async () => {
+  const shareLink = (global as any)["shareLink"];
   if (!shareLink) {
-    throw new Error('Share link was not generated');
+    throw new Error("Share link was not generated");
   }
 });
 
 /**
  * Assert share link is copied to clipboard
  */
-step('The link should be copied to clipboard', async () => {
-  const shareLink = (global as any)['shareLink'];
+step("The link should be copied to clipboard", async () => {
+  const shareLink = (global as any)["shareLink"];
   if (!shareLink) {
-    throw new Error('Share link was not copied to clipboard');
+    throw new Error("Share link was not copied to clipboard");
   }
   // In a real scenario, this would verify the clipboard content
 });
@@ -263,8 +263,8 @@ step('The link should be copied to clipboard', async () => {
 /**
  * Assert clipboard content starts with expected value
  */
-step('The clipboard content should start with <prefix>', async (prefix: string) => {
-  const shareLink = (global as any)['shareLink'];
+step("The clipboard content should start with <prefix>", async (prefix: string) => {
+  const shareLink = (global as any)["shareLink"];
   if (!shareLink || !shareLink.startsWith(prefix)) {
     throw new Error(`Clipboard content should start with "${prefix}"`);
   }
@@ -273,103 +273,112 @@ step('The clipboard content should start with <prefix>', async (prefix: string) 
 /**
  * Assert clipboard content contains valid base64url encoding
  */
-step('The clipboard content should contain valid base64url encoding', async () => {
-  const shareLink = (global as any)['shareLink'];
+step("The clipboard content should contain valid base64url encoding", async () => {
+  const shareLink = (global as any)["shareLink"];
   if (!shareLink) {
-    throw new Error('No share link found');
+    throw new Error("No share link found");
   }
-  
+
   // Extract the payload from the URL
   const match = shareLink.match(/#p=([A-Za-z0-9_-]+)$/);
   if (!match) {
-    throw new Error('Invalid share link format');
+    throw new Error("Invalid share link format");
   }
-  
+
   const payload = match[1];
   const base64urlRegex = /^[A-Za-z0-9_-]*$/;
   if (!base64urlRegex.test(payload)) {
-    throw new Error('Clipboard content does not contain valid base64url encoding');
+    throw new Error("Clipboard content does not contain valid base64url encoding");
   }
 });
 
 /**
  * Assert clipboard content contains encoded data for specified number of tabs
  */
-step('The clipboard content should contain encoded data for <count> tabs', async (countStr: string) => {
-  const expectedCount = parseInt(countStr, 10);
-  const actualCount = (global as any)['itemCount'];
-  
-  if (actualCount !== expectedCount) {
-    throw new Error(`Expected encoded data for ${expectedCount} tabs, but got ${actualCount}`);
-  }
-});
+step(
+  "The clipboard content should contain encoded data for <count> tabs",
+  async (countStr: string) => {
+    const expectedCount = parseInt(countStr, 10);
+    const actualCount = (global as any)["itemCount"];
+
+    if (actualCount !== expectedCount) {
+      throw new Error(`Expected encoded data for ${expectedCount} tabs, but got ${actualCount}`);
+    }
+  },
+);
 
 /**
  * Assert clipboard content contains only base64url characters
  */
-step('The clipboard content should contain only base64url characters <chars>', async (chars: string) => {
-  const shareLink = (global as any)['shareLink'];
-  if (!shareLink) {
-    throw new Error('No share link found');
-  }
-  
-  // Extract the payload from the URL
-  const match = shareLink.match(/#p=([A-Za-z0-9_-]+)$/);
-  if (!match) {
-    throw new Error('Invalid share link format');
-  }
-  
-  const payload = match[1];
-  const validChars = new Set(chars.split(''));
-  
-  for (const char of payload) {
-    if (!validChars.has(char)) {
-      throw new Error(`Invalid character "${char}" in base64url encoding`);
+step(
+  "The clipboard content should contain only base64url characters <chars>",
+  async (chars: string) => {
+    const shareLink = (global as any)["shareLink"];
+    if (!shareLink) {
+      throw new Error("No share link found");
     }
-  }
-});
+
+    // Extract the payload from the URL
+    const match = shareLink.match(/#p=([A-Za-z0-9_-]+)$/);
+    if (!match) {
+      throw new Error("Invalid share link format");
+    }
+
+    const payload = match[1];
+    const validChars = new Set(chars.split(""));
+
+    for (const char of payload) {
+      if (!validChars.has(char)) {
+        throw new Error(`Invalid character "${char}" in base64url encoding`);
+      }
+    }
+  },
+);
 
 /**
  * Assert clipboard content does not contain padding characters
  */
-step('The clipboard content should not contain padding characters <padding>', async (padding: string) => {
-  const shareLink = (global as any)['shareLink'];
-  if (!shareLink) {
-    throw new Error('No share link found');
-  }
-  
-  if (shareLink.includes(padding)) {
-    throw new Error(`Clipboard content should not contain "${padding}"`);
-  }
-});
+step(
+  "The clipboard content should not contain padding characters <padding>",
+  async (padding: string) => {
+    const shareLink = (global as any)["shareLink"];
+    if (!shareLink) {
+      throw new Error("No share link found");
+    }
+
+    if (shareLink.includes(padding)) {
+      throw new Error(`Clipboard content should not contain "${padding}"`);
+    }
+  },
+);
 
 /**
  * Assert error notification is displayed
  */
-step('An error notification should be displayed', async () => {
-  const shareError = (global as any)['shareError'];
+step("An error notification should be displayed", async () => {
+  const shareError = (global as any)["shareError"];
   if (!shareError) {
-    throw new Error('No error notification was displayed');
+    throw new Error("No error notification was displayed");
   }
 });
 
 /**
  * Assert error message indicates no tabs selected
  */
-step('The error message should indicate that no tabs are selected', async () => {
-  const shareError = (global as any)['shareError'];
-  if (shareError !== 'No tabs selected') {
-    throw new Error('Error message does not indicate no tabs selected');
+step("The error message should indicate that no tabs are selected", async () => {
+  const shareError = (global as any)["shareError"];
+  if (shareError !== "No tabs selected") {
+    throw new Error("Error message does not indicate no tabs selected");
   }
 });
 
 /**
  * Assert no share link is generated
  */
-step('No share link should be generated', async () => {
-  const shareLink = (global as any)['shareLink'];
+step("No share link should be generated", async () => {
+  const shareLink = (global as any)["shareLink"];
   if (shareLink) {
-    throw new Error('Share link should not have been generated');
+    throw new Error("Share link should not have been generated");
   }
 });
 
@@ -384,36 +393,39 @@ step('The menu item "Share selected tabs…" should be disabled or not visible',
 /**
  * Assert total URL length is less than or equal to budget
  */
-step('The total URL length should be less than or equal to <budget> characters', async (budgetStr: string) => {
-  const budget = parseInt(budgetStr, 10);
-  const shareLink = (global as any)['shareLink'];
-  
-  if (!shareLink) {
-    throw new Error('No share link found');
-  }
-  
-  if (shareLink.length > budget) {
-    throw new Error(`URL length ${shareLink.length} exceeds budget ${budget}`);
-  }
-});
+step(
+  "The total URL length should be less than or equal to <budget> characters",
+  async (budgetStr: string) => {
+    const budget = parseInt(budgetStr, 10);
+    const shareLink = (global as any)["shareLink"];
+
+    if (!shareLink) {
+      throw new Error("No share link found");
+    }
+
+    if (shareLink.length > budget) {
+      throw new Error(`URL length ${shareLink.length} exceeds budget ${budget}`);
+    }
+  },
+);
 
 /**
  * Assert link contains the maximum number of tabs that fit within budget
  */
-step('The link should contain the maximum number of tabs that fit within the budget', async () => {
-  const truncated = (global as any)['truncated'];
-  const itemCount = (global as any)['itemCount'];
-  
+step("The link should contain the maximum number of tabs that fit within the budget", async () => {
+  const truncated = (global as any)["truncated"];
+  const itemCount = (global as any)["itemCount"];
+
   if (!truncated && itemCount > 0) {
     // If not truncated, all tabs fit
     return;
   }
-  
+
   if (truncated) {
     // If truncated, verify that we have the maximum that fits
     // This is a simplified check
     if (itemCount === 0) {
-      throw new Error('No tabs fit within budget');
+      throw new Error("No tabs fit within budget");
     }
   }
 });
@@ -421,13 +433,13 @@ step('The link should contain the maximum number of tabs that fit within the bud
 /**
  * Assert chrome:// pages are excluded
  */
-step('chrome:// pages should be excluded from the share link', async () => {
-  const itemCount = (global as any)['itemCount'];
-  
+step("chrome:// pages should be excluded from the share link", async () => {
+  const itemCount = (global as any)["itemCount"];
+
   // If we had chrome:// pages, they should be filtered out
   // This is a simplified check
   if (itemCount === 0) {
-    throw new Error('All tabs were filtered out');
+    throw new Error("All tabs were filtered out");
   }
 });
 
@@ -437,7 +449,7 @@ step('chrome:// pages should be excluded from the share link', async () => {
 export function getOpenedTabs(): TabInfo[] {
   return openedTabs.map((page, index) => ({
     url: page.url(),
-    title: `Tab ${index + 1}`
+    title: `Tab ${index + 1}`,
   }));
 }
 
