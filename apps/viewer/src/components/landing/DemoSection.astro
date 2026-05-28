@@ -15,33 +15,56 @@ const DEMO_LINK =
 
 <section class="bg-background py-20 px-6 lg:py-28 lg:px-8" id="demo">
   <div class="max-w-4xl mx-auto">
-    <h2 class="text-3xl font-semibold text-foreground tracking-[-0.02em] mb-10 text-center lg:text-2xl lg:mb-12">See it in action</h2>
+    <h2
+      class="text-3xl font-semibold text-foreground tracking-[-0.02em] mb-10 text-center lg:text-2xl lg:mb-12"
+    >
+      See it in action
+    </h2>
 
     <!-- Browser session mockup -->
-    <div class="bg-card border border-border rounded-[10px] shadow-2xl overflow-hidden text-left">
+    <div
+      class="bg-card border border-border rounded-[10px] shadow-2xl overflow-hidden text-left"
+    >
       <!-- Chrome bar -->
-      <div class="bg-muted py-3 px-4 border-b border-border flex items-center gap-3">
+      <div
+        class="bg-muted py-3 px-4 border-b border-border flex items-center gap-3"
+      >
         <div class="flex gap-1.5 flex-shrink-0" aria-hidden="true">
           <span class="w-2.5 h-2.5 rounded-full bg-[#ff5f57]"></span>
           <span class="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]"></span>
           <span class="w-2.5 h-2.5 rounded-full bg-[#28c840]"></span>
         </div>
-        <div class="flex-1 bg-background border border-border rounded-md py-1 px-3 font-mono text-[0.75rem] text-primary overflow-hidden whitespace-nowrap text-ellipsis" aria-label="URL bar">
+        <div
+          class="flex-1 bg-background border border-border rounded-md py-1 px-3 font-mono text-[0.75rem] text-primary overflow-hidden whitespace-nowrap text-ellipsis"
+          aria-label="URL bar"
+        >
           {DEMO_LINK.slice(0, 60)}...
         </div>
       </div>
 
       <!-- Session content -->
       <div class="p-5 px-6">
-        <span class="font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-primary block mb-2">SAVED SESSION</span>
-        <p class="text-base font-semibold text-foreground m-0 mb-5">Research: Astro 5 Migration</p>
+        <span
+          class="font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-primary block mb-2"
+          >SAVED SESSION</span
+        >
+        <p class="text-base font-semibold text-foreground m-0 mb-5">
+          Research: Astro 5 Migration
+        </p>
 
         <div class="flex flex-col" role="list">
           {
             DEMO_STASH.map((href, index) => (
-              <div class="flex items-center gap-3 py-2 border-b border-border last:border-b-0" role="listitem">
-                <span class="font-mono text-[0.75rem] text-muted-foreground min-w-[1rem] flex-shrink-0">{index}</span>
-                <span class="font-mono text-[0.8125rem] text-muted-foreground overflow-hidden whitespace-nowrap text-ellipsis">{href}</span>
+              <div
+                class="flex items-center gap-3 py-2 border-b border-border last:border-b-0"
+                role="listitem"
+              >
+                <span class="font-mono text-[0.75rem] text-muted-foreground min-w-[1rem] flex-shrink-0">
+                  {index}
+                </span>
+                <span class="font-mono text-[0.8125rem] text-muted-foreground overflow-hidden whitespace-nowrap text-ellipsis">
+                  {href}
+                </span>
               </div>
             ))
           }

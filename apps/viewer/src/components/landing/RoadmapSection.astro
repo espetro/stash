@@ -2,55 +2,73 @@
 // Roadmap section with compact grid
 // Displays shipped features, upcoming items, and suggest CTA
 
-import RoadmapCell from './RoadmapCell.astro';
+import RoadmapCell from "./RoadmapCell.astro";
 
 // Done items (shipped features)
 const doneItems = [
-  'AI-first',
-  'Select any tab',
-  'Set expiration time',
-  'Share with a link',
-  'Light/dark theme',
-  'Chrome & Firefox',
-  'Review anywhere',
+  "AI-first",
+  "Select any tab",
+  "Set expiration time",
+  "Share with a link",
+  "Light/dark theme",
+  "Chrome & Firefox",
+  "Review anywhere",
 ];
 
 // Upcoming items
-const upcomingItems = [
-  'More languages (i18n)',
-  'Safari support',
-];
+const upcomingItems = ["More languages (i18n)", "Safari support"];
 
 // Suggest link
-const suggestHref = 'https://github.com/espetro/stash/issues';
+const suggestHref = "https://github.com/espetro/stash/issues";
 ---
 
-<section class="roadmap-section py-16 px-6 bg-background lg:py-20 lg:px-8" id="roadmap">
+<section
+  class="roadmap-section py-16 px-6 bg-background lg:py-20 lg:px-8"
+  id="roadmap"
+>
   <div class="roadmap-container max-w-[56rem] mx-auto text-center">
     <!-- Section header -->
-    <h2 class="section-headline text-foreground text-[1.75rem] font-bold tracking-[-0.025em] m-0 mb-1 lg:text-2xl">Where We Are — And Where We're Going</h2>
-    <p class="section-subheadline text-muted-foreground text-base m-0 mb-10 lg:text-[1.0625rem] lg:mb-12">Transparent development, community-driven priorities</p>
-    
+    <h2
+      class="section-headline text-foreground text-[1.75rem] font-bold tracking-[-0.025em] m-0 mb-1 lg:text-2xl"
+    >
+      Where We Are — And Where We're Going
+    </h2>
+    <p
+      class="section-subheadline text-muted-foreground text-base m-0 mb-10 lg:text-[1.0625rem] lg:mb-12"
+    >
+      Transparent development, community-driven priorities
+    </p>
+
     <!-- Compact grid -->
-    <div class="roadmap-grid grid grid-cols-2 gap-3 mb-8 sm:grid-cols-3 lg:grid-cols-5 lg:gap-4">
-      {doneItems.map((item) => (
-        <RoadmapCell status="done" label={item} />
-      ))}
-      {upcomingItems.map((item) => (
-        <RoadmapCell status="upcoming" label={item} />
-      ))}
-      <RoadmapCell status="suggest" label="Suggest a feature" href={suggestHref} />
+    <div
+      class="roadmap-grid grid grid-cols-2 gap-3 mb-8 sm:grid-cols-3 lg:grid-cols-5 lg:gap-4"
+    >
+      {doneItems.map((item) => <RoadmapCell status="done" label={item} />)}
+      {
+        upcomingItems.map((item) => (
+          <RoadmapCell status="upcoming" label={item} />
+        ))
+      }
+      <RoadmapCell
+        status="suggest"
+        label="Suggest a feature"
+        href={suggestHref}
+      />
     </div>
-    
+
     <!-- Legend -->
     <div class="legend flex items-center justify-center gap-6 flex-wrap">
       <span class="legend-item flex items-center gap-1">
         <span class="legend-badge text-xs">✓</span>
-        <span class="legend-text text-[0.8125rem] text-muted-foreground">Shipped</span>
+        <span class="legend-text text-[0.8125rem] text-muted-foreground"
+          >Shipped</span
+        >
       </span>
       <span class="legend-item flex items-center gap-1">
         <span class="legend-badge text-xs">🕐</span>
-        <span class="legend-text text-[0.8125rem] text-muted-foreground">Coming Soon</span>
+        <span class="legend-text text-[0.8125rem] text-muted-foreground"
+          >Coming Soon</span
+        >
       </span>
     </div>
   </div>

@@ -1,64 +1,83 @@
 ---
 // Features section — 6 cards, 3-column grid, Lucide icons, scroll-reveal
 
-import { Link, Lock, Cpu, WifiOff, Tag, QrCode } from '@lucide/astro';
-import FeatureCard from './FeatureCard.astro';
+import {
+  FaQrcode,
+  FaRegHandPointer,
+  FaToggleOff,
+  FaTag,
+  FaLock,
+  FaLink,
+} from "react-icons/fa6";
+import FeatureCard from "./FeatureCard.astro";
 
 const features = [
   {
-    icon: Link,
-    label: 'SHARING',
-    title: 'One-link context sharing',
-    description: 'Share all open tabs as a single URL. Teammates open it, they see your exact session.',
+    icon: FaLink,
+    label: "SHARING",
+    title: "One-link context sharing",
+    description:
+      "Share all open tabs as a single URL. Teammates open it, they see your exact session.",
   },
   {
-    icon: Lock,
-    label: 'PRIVACY',
-    title: 'Local-first. Always.',
-    description: 'Your data never leaves your machine unless you choose to share. No account. No sync server.',
+    icon: FaLock,
+    label: "PRIVACY",
+    title: "Local-first. Always.",
+    description:
+      "Your data never leaves your machine unless you choose to share. No account. No sync server.",
   },
   {
-    icon: Cpu,
-    label: 'WORKFLOW',
-    title: 'AI-ready context',
-    description: 'Export your current session as structured context for any LLM. Paste your tabs directly into your workflow.',
+    icon: FaRegHandPointer,
+    label: "WORKFLOW",
+    title: "AI-ready context",
+    description:
+      "Export your current session as structured context for any LLM. Paste your tabs directly into your workflow.",
   },
   {
-    icon: WifiOff,
-    label: 'RELIABILITY',
-    title: 'Works offline',
-    description: 'Save sessions even without internet. Read them back anytime.',
+    icon: FaToggleOff,
+    label: "RELIABILITY",
+    title: "Works offline",
+    description: "Save sessions even without internet. Read them back anytime.",
   },
   {
-    icon: Tag,
-    label: 'ORGANIZATION',
-    title: 'Named sessions',
-    description: 'Organize tab groups with names and timestamps. Your context, labeled.',
+    icon: FaTag,
+    label: "ORGANIZATION",
+    title: "Named sessions",
+    description:
+      "Organize tab groups with names and timestamps. Your context, labeled.",
   },
   {
-    icon: QrCode,
-    label: 'MOBILE',
-    title: 'Share as QR code',
-    description: 'Generate a QR from any session and scan it on your phone. Your tabs, anywhere.',
+    icon: FaQrcode,
+    label: "MOBILE",
+    title: "Share as QR code",
+    description:
+      "Generate a QR from any session and scan it on your phone. Your tabs, anywhere.",
   },
 ];
 ---
 
-<section class="bg-background py-20 px-6 border-t border-border lg:py-28 lg:px-8" id="features">
+<section
+  class="bg-background py-20 px-6 border-t border-border lg:py-28 lg:px-8"
+  id="features"
+>
   <div class="max-w-7xl mx-auto">
     <header class="text-center mb-12 lg:mb-14">
-      <h2 class="text-3xl font-semibold text-foreground tracking-tight m-0">Everything you need. Nothing you don't.</h2>
+      <h2 class="text-3xl font-semibold text-foreground tracking-tight m-0">
+        Everything you need. Nothing you don't.
+      </h2>
     </header>
 
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-      {features.map((feature) => (
-        <FeatureCard
-          icon={feature.icon}
-          label={feature.label}
-          title={feature.title}
-          description={feature.description}
-        />
-      ))}
+      {
+        features.map((feature) => (
+          <FeatureCard
+            icon={feature.icon}
+            label={feature.label}
+            title={feature.title}
+            description={feature.description}
+          />
+        ))
+      }
     </div>
   </div>
 </section>
@@ -68,15 +87,15 @@ const features = [
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          entry.target.classList.add('revealed');
+          entry.target.classList.add("revealed");
           observer.unobserve(entry.target);
         }
       });
     },
-    { threshold: 0.1 }
+    { threshold: 0.1 },
   );
 
-  document.querySelectorAll('.feature-card').forEach((card, i) => {
+  document.querySelectorAll(".feature-card").forEach((card, i) => {
     (card as HTMLElement).style.transitionDelay = `${i * 60}ms`;
     observer.observe(card);
   });
