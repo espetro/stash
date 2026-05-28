@@ -9,38 +9,14 @@
     "test:context-menu": "gauge run specs/extension-context-menu.md",
     "test:link-generation": "gauge run specs/extension-link-generation.md",
     "test:popup": "gauge run specs/extension-popup.md",
-    "test:viewer": "gauge run specs/viewer-rendering.md",
+    "test:viewer": "gauge run specs/extension-rendering.md",
     "test:e2e": "gauge run specs/end-to-end-integration.md",
     "test:coverage": "gauge run --tags 'coverage'",
     "test:smoke": "gauge run --tags 'smoke'",
     "docs": "gauge docs specs/",
-    "validate": "gauge validate specs/"
-  },
-  "dependencies": {
-    "@getgauge/cli": "^1.6.30",
-    "@stash/codec": "workspace:*",
-    "brotli-wasm": "^3.0.1",
-    "gauge-ts": "^0.3.6",
-    "playwright": "^1.60.0",
-    "pako": "^2.1.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^6.0.3"
-  },
-  "devDependencies": {
-    "@types/node": "^24.12.3"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
-  },
-  "keywords": [
-    "e2e",
-    "testing",
-    "gauge",
-    "playwright",
-    "browser-extension",
-    "stash"
-  ],
-  "author": "",
-  "license": "AGPL-3.0-only"
+    "tscheck": "tsc --noEmit",
+    "lint": "oxlint --fix step_implementations tests helpers && gauge validate specs/",
+    "format": "oxfmt --write 'step_implementations/**/*.ts' 'tests/**/*.ts' 'helpers/**/*.ts'",
+    "validate": "tsx ../../scripts/validate.ts --cwd packages/e2e"
+  }
 }

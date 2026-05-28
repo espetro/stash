@@ -61,10 +61,7 @@ export function createPayload(tabs: TabInfo[]): SharePayload {
 /**
  * Create payload with custom expiry for testing
  */
-export function createPayloadWithExpiry(
-  tabs: TabInfo[],
-  expiryHours: number,
-): SharePayload {
+export function createPayloadWithExpiry(tabs: TabInfo[], expiryHours: number): SharePayload {
   return codecCreatePayload(tabs, expiryHours);
 }
 
@@ -80,9 +77,7 @@ export async function encodePayload(payload: SharePayload): Promise<string> {
 /**
  * Main entry point: encode tabs to share URL with budget enforcement
  */
-export async function encodeTabsToShareUrl(
-  tabs: TabInfo[],
-): Promise<EncodingResult> {
+export async function encodeTabsToShareUrl(tabs: TabInfo[]): Promise<EncodingResult> {
   const brotli = await getBrotliFunctions();
   return codecEncodeTabsToShareUrl(tabs, brotli, EXPIRY_HOURS, VIEWER_ORIGIN);
 }
@@ -102,15 +97,15 @@ export async function encodeTabsToQrUrl(
  * Filter out chrome:// URLs
  */
 export function filterChromeUrls(tabs: TabInfo[]): TabInfo[] {
-  return tabs.filter(tab => !tab.url.startsWith('chrome://'));
+  return tabs.filter((tab) => !tab.url.startsWith("chrome://"));
 }
 
 /**
  * Load sample tabs from fixtures
  */
 export function loadSampleTabs(datasetName: string): TabInfo[] {
-  const fixturesPath = path.join(process.cwd(), 'fixtures', 'sample-tabs.json');
-  const fixtures = JSON.parse(fs.readFileSync(fixturesPath, 'utf-8'));
+  const fixturesPath = path.join(process.cwd(), "fixtures", "sample-tabs.json");
+  const fixtures = JSON.parse(fs.readFileSync(fixturesPath, "utf-8"));
 
   if (!fixtures[datasetName]) {
     throw new Error(`Dataset "${datasetName}" not found in sample-tabs.json`);
@@ -123,8 +118,8 @@ export function loadSampleTabs(datasetName: string): TabInfo[] {
  * Load payloads from fixtures
  */
 export function loadPayloads(): Record<string, any> {
-  const fixturesPath = path.join(process.cwd(), 'fixtures', 'payloads.json');
-  return JSON.parse(fs.readFileSync(fixturesPath, 'utf-8'));
+  const fixturesPath = path.join(process.cwd(), "fixtures", "payloads.json");
+  return JSON.parse(fs.readFileSync(fixturesPath, "utf-8"));
 }
 
 /**
@@ -139,7 +134,7 @@ export async function encodeFixturePayload(payloadName: string): Promise<string>
   }
 
   if (fixture.fragment) {
-    return fixture.fragment.replace(/^#p=/, '');
+    return fixture.fragment.replace(/^#p=/, "");
   }
 
   return encodePayload(fixture.payload);
@@ -148,9 +143,7 @@ export async function encodeFixturePayload(payloadName: string): Promise<string>
 /**
  * Generate viewer URL from fixture payload (async)
  */
-export async function generateViewerUrlFromFixture(
-  payloadName: string,
-): Promise<string> {
+export async function generateViewerUrlFromFixture(payloadName: string): Promise<string> {
   const encoded = await encodeFixturePayload(payloadName);
   return buildShareUrl(encoded);
 }

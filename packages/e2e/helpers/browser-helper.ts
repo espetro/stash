@@ -1,6 +1,6 @@
-import { chromium, Browser, BrowserContext, Page } from 'playwright';
-import * as path from 'path';
-import * as fs from 'fs';
+import { chromium, Browser, BrowserContext, Page } from "playwright";
+import * as path from "path";
+import * as fs from "fs";
 
 export class BrowserHelper {
   private browser: Browser | null = null;
@@ -9,41 +9,44 @@ export class BrowserHelper {
   private usePersistentContext: boolean;
 
   constructor() {
-    this.extensionPath = process.env.EXTENSION_PATH || 
-      path.join(process.cwd(), '..', '..', 'apps', 'extension', '.output', 'chrome-mv3');
+    this.extensionPath =
+      process.env.EXTENSION_PATH ||
+      path.join(process.cwd(), "..", "..", "apps", "extension", ".output", "chrome-mv3");
     this.usePersistentContext = true;
   }
 
   async launchWithExtension(): Promise<BrowserContext> {
     if (!fs.existsSync(this.extensionPath)) {
-      throw new Error(`Extension not found at ${this.extensionPath}. Build first: pnpm --filter stash-extension run build`);
+      throw new Error(
+        `Extension not found at ${this.extensionPath}. Build first: pnpm --filter stash-extension run build`,
+      );
     }
 
     const absoluteExtensionPath = path.resolve(this.extensionPath);
 
     if (this.usePersistentContext) {
-      this.context = await chromium.launchPersistentContext('', {
-        channel: 'chromium',
+      this.context = await chromium.launchPersistentContext("", {
+        channel: "chromium",
         args: [
           `--disable-extensions-except=${absoluteExtensionPath}`,
           `--load-extension=${absoluteExtensionPath}`,
         ],
-        viewport: { width: 1280, height: 720 }
+        viewport: { width: 1280, height: 720 },
       });
       return this.context;
     }
 
     this.browser = await chromium.launch({
-      headless: process.env.HEADLESS === 'true',
+      headless: process.env.HEADLESS === "true",
       args: [
         `--disable-extensions-except=${absoluteExtensionPath}`,
         `--load-extension=${absoluteExtensionPath}`,
-        '--no-sandbox'
-      ]
+        "--no-sandbox",
+      ],
     });
 
     this.context = await this.browser.newContext({
-      viewport: { width: 1280, height: 720 }
+      viewport: { width: 1280, height: 720 },
     });
 
     return this.context;
@@ -52,11 +55,11 @@ export class BrowserHelper {
   async launch(): Promise<BrowserContext> {
     this.browser = await chromium.launch({
       headless: true,
-      channel: 'chromium',
+      channel: "chromium",
     });
 
     this.context = await this.browser.newContext({
-      viewport: { width: 1280, height: 720 }
+      viewport: { width: 1280, height: 720 },
     });
 
     return this.context;
@@ -64,14 +67,16 @@ export class BrowserHelper {
 
   getContext(): BrowserContext {
     if (!this.context) {
-      throw new Error('Browser context not initialized. Call launch() or launchWithExtension() first.');
+      throw new Error(
+        "Browser context not initialized. Call launch() or launchWithExtension() first.",
+      );
     }
     return this.context;
   }
 
   getBrowser(): Browser {
     if (!this.browser) {
-      throw new Error('Browser not initialized. Call launch() or launchWithExtension() first.');
+      throw new Error("Browser not initialized. Call launch() or launchWithExtension() first.");
     }
     return this.browser;
   }
@@ -104,7 +109,7 @@ export class BrowserHelper {
   async getExtensionBackgroundPage(): Promise<Page | null> {
     const context = this.getContext();
     const backgroundPages = context.backgroundPages();
-    
+
     if (backgroundPages.length > 0) {
       return backgroundPages[0];
     }
@@ -140,7 +145,7 @@ export class BrowserHelper {
   }
 
   async takeScreenshot(page: Page, filename: string): Promise<void> {
-    const screenshotDir = path.join(process.cwd(), 'screenshots');
+    const screenshotDir = path.join(process.cwd(), "screenshots");
     if (!fs.existsSync(screenshotDir)) {
       fs.mkdirSync(screenshotDir, { recursive: true });
     }
