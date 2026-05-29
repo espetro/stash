@@ -9,8 +9,12 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, firefox]
 
     steps:
       - name: Checkout
@@ -30,32 +34,38 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Extract version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
       - name: Build and zip extension
-        run: pnpm --filter stash-extension run zip
+        run: pnpm --filter stash-extension run zip:${{ matrix.browser }}
         env:
           VITE_VIEWER_ORIGIN: https://stash.illo.fyi
 
-      - name: Find built zip files
-        id: artifacts
-        run: |
-          CHROME_ZIP=$(find apps/extension/.output -name "*.zip" | grep -i chrome | head -1)
-          FIREFOX_ZIP=$(find apps/extension/.output -name "*.zip" | grep -i firefox | head -1)
-          echo "chrome=${CHROME_ZIP#apps/extension/}" >> $GITHUB_OUTPUT
-          echo "firefox=${FIREFOX_ZIP#apps/extension/}" >> $GITHUB_OUTPUT
-          echo "chrome=${CHROME_ZIP#apps/extension/}"
-          echo "firefox=${FIREFOX_ZIP#apps/extension/}"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-${{ matrix.browser }}
+          path: apps/extension/.output/*.zip
+          retention-days: 3
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           body_path: CHANGELOG.md
-          files: |
-            apps/extension/${{ steps.artifacts.outputs.chrome }}
-            apps/extension/${{ steps.artifacts.outputs.firefox }}
+          files: artifacts/*.zip
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
