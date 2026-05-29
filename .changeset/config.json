@@ -4,12 +4,12 @@
   "commit": false,
   "fixed": [
     [
-      "stash",
-      "stash-extension",
+      "@stash/extension",
       "stash-viewer",
       "@stash/codec",
       "@stash/theme",
-      "@stash/e2e"
+      "@stash/e2e",
+      "@stash/shared"
     ]
   ],
   "linked": [],
