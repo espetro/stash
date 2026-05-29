@@ -28,7 +28,7 @@
     "wrangler": "^3.90.0",
     "zx": "^8.8.5"
   },
-  "packageManager": "pnpm@10.33.4",
+  "packageManager": "pnpm@11.0.0",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@getgauge/cli",
