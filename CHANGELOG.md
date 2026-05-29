@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.6.1
+
+### Fixed
+- Fix GitHub Release workflow to use exact file paths instead of globs for extension artifact uploads
+
 ## 0.6.0
 
 ### Added
