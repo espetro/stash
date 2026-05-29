@@ -1,6 +1,6 @@
 import { type ComponentProps } from "react";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Sun, Moon } from "lucide-react";
+import { FaSun, FaMoon } from "react-icons/fa6";
 import { getTheme, setTheme, getEffectiveTheme } from "@stash/theme";
 
 interface ThemeSwitcherProps extends ComponentProps<"div"> {}
@@ -113,7 +113,7 @@ export default function ThemeSwitcher({ className, ...props }: ThemeSwitcherProp
             color: !isDark ? "var(--foreground)" : "var(--muted-foreground)",
           }}
         >
-          <Sun size={16} strokeWidth={1.75} />
+          <FaSun size={16} strokeWidth={1.75} />
         </button>
         <button
           onClick={handleDark}
@@ -124,7 +124,7 @@ export default function ThemeSwitcher({ className, ...props }: ThemeSwitcherProp
             color: isDark ? "var(--foreground)" : "var(--muted-foreground)",
           }}
         >
-          <Moon size={16} strokeWidth={1.75} />
+          <FaMoon size={16} strokeWidth={1.75} />
         </button>
       </div>
     </div>

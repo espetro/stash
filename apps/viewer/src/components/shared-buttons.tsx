@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { FaChevronDown } from "react-icons/fa6";
 
 interface PrimaryButtonProps extends React.ComponentProps<typeof Button> {
   children: React.ReactNode;
@@ -73,7 +73,7 @@ export function SplitButtonGroup({
           dropdownClassName,
         )}
       >
-        <ChevronDown className="size-5" />
+        <FaChevronDown className="size-5" />
       </Button>
     </div>
   );
