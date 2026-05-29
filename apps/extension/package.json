@@ -15,7 +15,8 @@
     "zip:firefox": "wxt zip -b firefox",
     "format": "oxfmt --write 'entrypoints/**/*.{ts,tsx}' 'lib/**/*.{ts,tsx}'",
     "lint": "oxlint --fix entrypoints lib --ignore-pattern '**/*.d.ts'",
-    "tscheck": "tsc --noEmit"
+    "tscheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@stash/codec": "workspace:*",
@@ -30,14 +31,20 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/chrome": "^0.1.42",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/webextension-polyfill": "^0.12.5",
+    "@vitejs/plugin-react": "^6.0.2",
     "@wxt-dev/module-react": "^1.2.2",
     "dotenv": "^17.4.2",
     "geist": "^1.7.0",
+    "happy-dom": "^20.9.0",
+    "jsdom": "^29.1.1",
     "typescript": "^6.0.3",
+    "vitest": "^4.1.7",
     "wxt": "^0.20.26"
   },
   "engines": {
