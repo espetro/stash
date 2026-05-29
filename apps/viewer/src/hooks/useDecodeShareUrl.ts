@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { decodeShareUrl, PayloadDecodeError } from "@stash/codec";
-import { getBrotliFunctions } from "@/lib/brotli";
+import { getBrotliFunctions } from "@stash/shared";
 
 export interface DecodedData {
   expiry: number;

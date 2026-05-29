@@ -1,65 +1,16 @@
 import type { HistoryEntry } from "../../../lib/history";
+import { formatDateTime, formatRemainingTime } from "@stash/shared";
 
 interface HistoryItemProps {
   entry: HistoryEntry;
   onClick: () => void;
 }
 
-function formatDate(timestamp: number): string {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const entryDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const diffDays = Math.floor((today.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24));
-
-  const timeStr = date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
-
-  if (diffDays === 0) {
-    return `Today, ${timeStr}`;
-  } else if (diffDays === 1) {
-    return `Yesterday, ${timeStr}`;
-  } else {
-    const dateStr = date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    });
-    return `${dateStr}, ${timeStr}`;
-  }
-}
-
-function formatTimeRemaining(msRemaining: number): string {
-  if (msRemaining <= 0) {
-    return "EXPIRED";
-  }
-
-  const TEN_YEARS_IN_MS = 10 * 365 * 24 * 60 * 60 * 1000;
-  if (msRemaining > TEN_YEARS_IN_MS) {
-    return "No expiration date";
-  }
-
-  const hours = Math.floor(msRemaining / (1000 * 60 * 60));
-  const days = Math.floor(hours / 24);
-  const remainingHours = hours % 24;
-
-  if (days >= 1) {
-    if (remainingHours > 0) {
-      return `Expires in ${days}d ${remainingHours}h`;
-    }
-    return `Expires in ${days}d`;
-  }
-
-  return `Expires in ${hours}h`;
-}
-
 export function HistoryItem({ entry, onClick }: HistoryItemProps) {
   const now = Date.now();
   const isActive = entry.expiresAt > now;
   const msRemaining = entry.expiresAt - now;
-  const timeRemaining = formatTimeRemaining(msRemaining);
+  const timeRemaining = formatRemainingTime(msRemaining);
   const isExpiringSoon = isActive && msRemaining < 24 * 60 * 60 * 1000;
 
   const handleClick = () => {
@@ -81,7 +32,7 @@ export function HistoryItem({ entry, onClick }: HistoryItemProps) {
         ⏰
       </span>
       <div className="history-item-content">
-        <span className="history-item-date">{formatDate(entry.createdAt)}</span>
+        <span className="history-item-date">{formatDateTime(entry.createdAt)}</span>
         <span className="history-item-count">{tabText}</span>
       </div>
       <span

@@ -1,5 +1,5 @@
 import { encodeTabsToQrUrl, getQrSegments, estimateQrBitLength } from "@stash/codec";
-import { getBrotliFunctions } from "./brotli";
+import { getBrotliFunctions } from "@stash/shared";
 import type { TabItem } from "../components/QrDialog";
 
 interface EncodeRequest {

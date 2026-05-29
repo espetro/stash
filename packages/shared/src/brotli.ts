@@ -1,5 +1,5 @@
 import type { BrotliFunctions } from "@stash/codec";
-import * as brotliPromise from "brotli-wasm";
+import brotliWasm from "brotli-wasm";
 
 let _brotli: BrotliFunctions | null = null;
 let _initPromise: Promise<BrotliFunctions> | null = null;
@@ -9,7 +9,9 @@ export async function getBrotliFunctions(): Promise<BrotliFunctions> {
 
   if (!_initPromise) {
     _initPromise = (async () => {
-      const brotliModule = await brotliPromise.default;
+      const raw = await brotliWasm;
+      const brotliModule =
+        "compress" in raw ? raw : (raw as { default: typeof raw }).default;
       _brotli = {
         compress: (data, opts) => brotliModule.compress(data, opts),
         decompress: (data) => brotliModule.decompress(data),
