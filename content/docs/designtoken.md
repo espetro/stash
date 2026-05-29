@@ -1,6 +1,9 @@
-# Design Tokens
+---
+title: Design Tokens
+description: Design tokens for the Stash Viewer application, derived from @stash/theme/tailwind.css.
+---
 
-Design tokens for the Stash Viewer application, derived from `@stash/theme/tailwind.css`.
+# Design Tokens
 
 ## Color Tokens
 
