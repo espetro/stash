@@ -7,5 +7,5 @@ export {
   estimateCreatedAt,
   buildCaption,
 } from "./format";
-export { EXPIRY_OPTIONS, extractTitle, validateExpiryValue } from "./expiry";
+export { EXPIRY_OPTIONS, type ExpiryOption, extractTitle, validateExpiryValue } from "./expiry";
 export { getBrotliFunctions } from "./brotli";
