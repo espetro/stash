@@ -1,6 +1,12 @@
 ---
 // Sticky navigation bar for landing page
 
+interface Props {
+  minimal?: boolean;
+}
+
+const { minimal = false } = Astro.props;
+
 import { INSTALL_CHROME_URL, INSTALL_FIREFOX_URL } from "@/lib/constants";
 ---
 
@@ -35,21 +41,37 @@ import { INSTALL_CHROME_URL, INSTALL_FIREFOX_URL } from "@/lib/constants";
 
     <!-- Nav Links -->
     <div class="nav-links flex items-center gap-8 justify-self-center">
-      <a
-        href="#features"
-        class="nav-link text-foreground no-underline text-[0.9375rem] font-medium font-sans relative pb-0.5"
-        >Features</a
-      >
-      <a
-        href="#how-it-works"
-        class="nav-link text-foreground no-underline text-[0.9375rem] font-medium font-sans relative pb-0.5"
-        >How it works</a
-      >
-      <a
-        href="#demo"
-        class="nav-link text-foreground no-underline text-[0.9375rem] font-medium font-sans relative pb-0.5"
-        >Demo</a
-      >
+      {
+        minimal ? (
+          <a
+            href="/"
+            class="nav-link text-foreground no-underline text-[0.9375rem] font-medium font-sans relative pb-0.5"
+          >
+            Home
+          </a>
+        ) : (
+          <>
+            <a
+              href="#features"
+              class="nav-link text-foreground no-underline text-[0.9375rem] font-medium font-sans relative pb-0.5"
+            >
+              Features
+            </a>
+            <a
+              href="#how-it-works"
+              class="nav-link text-foreground no-underline text-[0.9375rem] font-medium font-sans relative pb-0.5"
+            >
+              How it works
+            </a>
+            <a
+              href="#demo"
+              class="nav-link text-foreground no-underline text-[0.9375rem] font-medium font-sans relative pb-0.5"
+            >
+              Demo
+            </a>
+          </>
+        )
+      }
     </div>
 
     <!-- Install Dropdown -->
