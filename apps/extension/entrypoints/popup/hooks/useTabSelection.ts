@@ -12,15 +12,12 @@ export function useTabSelection() {
   const [tabs, setTabs] = useState<PopupTab[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [windowId, setWindowId] = useState<number | undefined>(undefined);
-
   // Load tabs on mount
   useEffect(() => {
     async function loadTabs() {
       try {
         setIsLoading(true);
         const allTabs = await browser.tabs.query({ currentWindow: true });
-        if (allTabs[0]?.windowId !== undefined) setWindowId(allTabs[0].windowId);
         const highlightedTabs = await browser.tabs.query({
           highlighted: true,
           currentWindow: true,
@@ -48,22 +45,6 @@ export function useTabSelection() {
     loadTabs();
   }, []);
 
-  // Listen for external highlight changes
-  useEffect(() => {
-    function onHighlighted(info: { tabIds: number[]; windowId: number }) {
-      setTabs((prev) =>
-        prev.map((tab) => ({
-          ...tab,
-          isSelected: info.tabIds.includes(tab.id),
-        })),
-      );
-    }
-    browser.tabs.onHighlighted.addListener(onHighlighted);
-    return () => {
-      browser.tabs.onHighlighted.removeListener(onHighlighted);
-    };
-  }, []);
-
   const toggleTab = useCallback(
     async (tabId: number) => {
       const tab = tabs.find((t) => t.id === tabId);
@@ -72,19 +53,8 @@ export function useTabSelection() {
       try {
         const newIsSelected = !tab.isSelected;
 
-        const newSelectedTabs = tabs.map((t) =>
-          t.id === tabId ? { ...t, isSelected: newIsSelected } : t,
-        );
-        const selectedIndices = newSelectedTabs.filter((t) => t.isSelected).map((t) => t.index);
-
-        if (selectedIndices.length > 0) {
-          await browser.tabs.highlight({ windowId, tabs: selectedIndices });
-        } else {
-          // Cannot highlight zero tabs — just update local state
-          setTabs((prev) => prev.map((t) => (t.id === tabId ? { ...t, isSelected: false } : t)));
-          return;
-        }
-
+        // Only update local state — do NOT call browser.tabs.highlight()
+        // to avoid switching focus and closing the popup
         setTabs((prev) =>
           prev.map((t) => (t.id === tabId ? { ...t, isSelected: newIsSelected } : t)),
         );
@@ -93,37 +63,25 @@ export function useTabSelection() {
         setError("Failed to update tab selection");
       }
     },
-    [tabs, windowId],
+    [tabs],
   );
 
   const selectAll = useCallback(
     async (maxCount?: number) => {
       try {
         const tabsToSelect = maxCount !== undefined ? tabs.slice(0, maxCount) : tabs;
-        const indices = tabsToSelect.map((t) => t.index);
-        if (indices.length > 0) {
-          await browser.tabs.highlight({ windowId, tabs: indices });
-          const selectedIds = new Set(tabsToSelect.map((t) => t.id));
-          setTabs((prev) => prev.map((t) => ({ ...t, isSelected: selectedIds.has(t.id) })));
-        }
+        const selectedIds = new Set(tabsToSelect.map((t) => t.id));
+        setTabs((prev) => prev.map((t) => ({ ...t, isSelected: selectedIds.has(t.id) })));
       } catch (err) {
         console.error("selectAll error:", err);
         setError("Failed to select all tabs");
       }
     },
-    [tabs, windowId],
+    [tabs],
   );
 
   const deselectAll = useCallback(async () => {
     try {
-      // Must highlight at least 1 tab — use the active tab
-      const activeTabs = await browser.tabs.query({
-        active: true,
-        currentWindow: true,
-      });
-      if (activeTabs.length > 0) {
-        await browser.tabs.highlight({ windowId, tabs: [activeTabs[0].index] });
-      }
       setTabs((prev) => prev.map((t) => ({ ...t, isSelected: false })));
     } catch (err) {
       console.error("deselectAll error:", err);
