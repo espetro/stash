@@ -28,14 +28,5 @@
     "wrangler": "^3.90.0",
     "zx": "^8.8.5"
   },
-  "packageManager": "pnpm@11.5.0",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@getgauge/cli",
-      "esbuild",
-      "protobufjs",
-      "sharp",
-      "spawn-sync"
-    ]
-  }
+  "packageManager": "pnpm@11.5.0"
 }
