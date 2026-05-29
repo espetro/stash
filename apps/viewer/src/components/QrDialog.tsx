@@ -104,7 +104,7 @@ export function QrDialogContent({ tabs, title, onClose }: Props) {
         </div>
       ) : qrUrl ? (
         <div className="mx-auto flex justify-center">
-          <QrCode content={qrUrl} className="rounded-lg" />
+          <QrCode content={qrUrl} className="size-[180px] rounded-lg" />
         </div>
       ) : null}
       <div className="flex justify-center">

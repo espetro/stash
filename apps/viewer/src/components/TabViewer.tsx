@@ -102,15 +102,15 @@ export default function TabViewer() {
 
   return (
     <div className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8">
-      <SharedCard className="sm:max-h-[75vh]">
+      <SharedCard className="sm:h-[75vh]">
         <SharedCardHeader
           title={data.title ?? "Shared Tabs"}
           caption={buildCaption(count, data.expiry)}
         />
 
-        <SharedCardContent className="overflow-hidden px-3 pb-3 sm:px-5 sm:pb-5">
-          <div className="overflow-hidden rounded-xl border border-border">
-            <div className="custom-scrollbar overflow-y-auto" style={{ maxHeight: "400px" }}>
+        <SharedCardContent className="flex flex-col overflow-hidden px-3 pb-3 sm:px-5 sm:pb-5">
+          <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-border">
+            <div className="custom-scrollbar h-full overflow-y-auto">
               {data.items.map(([url, title], index) => (
                 <React.Fragment key={url + index}>
                   {index > 0 && <div className="h-px bg-border" />}
