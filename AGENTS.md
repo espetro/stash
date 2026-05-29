@@ -1,7 +1,7 @@
 # Guidelines
 
-- Implementation plans are located in `.sisyphus/plans/`
-- When asked to save session progress, prepare a summary of the session and save it at `.sisyphus/sessions/`
+- Implementation plans are located in `.omo/plans/`
+- When asked to save session progress, prepare a summary of the session and save it at `.omo/sessions/`
 
 ## Development Guardrails
 
@@ -47,3 +47,24 @@ pnpm run build    # Ensure builds pass
 > **Note:** `validate` runs TypeScript, Lint, and Format checks and shows a ✅/⚠️/❌ status for each. It acts as a unified "all checks" command that reduces verbosity.
 
 All these commands are orchestrated via Turbo for optimal performance.
+
+## Design Tokens
+
+Design tokens for all apps are centralized at `content/docs/designtoken.md`. All `@apps/*` implementations must follow these tokens for colors, typography, spacing, and shadows.
+
+## Icon Library
+
+Use `react-icons` for all icons in this project:
+
+- **`@apps/viewer`** — FontAwesome 6 icons (`/fa6`)
+- **`@apps/extension`** — Lucide React icons (`/lu`)
+
+Example imports:
+
+```typescript
+// viewer
+import { FaCopy } from 'react-icons/fa6'
+
+// extension
+import { LuCopy } from 'react-icons/lu'
+```
