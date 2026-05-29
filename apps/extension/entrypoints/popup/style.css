@@ -264,6 +264,21 @@ body {
   margin-top: 16px;
 }
 
+/* Export button row */
+.link-export-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Export buttons - compact secondary buttons */
+.link-export-actions .export-btn {
+  flex: 1;
+  padding: 6px 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
 .link-result-header {
   font-size: 0.875rem;
   font-weight: 600;
@@ -298,6 +313,32 @@ body {
   flex: none;
   padding: 8px 16px;
   font-size: 0.75rem;
+}
+
+/* QR code display */
+.qr-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+
+.qr-code {
+  width: 180px;
+  height: 180px;
+  border-radius: var(--radius-lg);
+}
+
+.qr-error {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-top: 12px;
+  margin-bottom: 4px;
+  padding: 8px;
+  background: color-mix(in srgb, var(--destructive) 8%, var(--background));
+  border: 1px solid color-mix(in srgb, var(--destructive) 20%, transparent);
+  border-radius: var(--radius-md);
 }
 
 /* Error message banner */
