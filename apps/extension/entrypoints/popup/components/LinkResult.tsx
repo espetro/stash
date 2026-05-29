@@ -6,8 +6,8 @@ import { toSvgDataURL } from "lean-qr/extras/svg";
 import { makeSyncComponent } from "lean-qr/extras/react";
 
 const QrCode = makeSyncComponent(React, generateQr, toSvgDataURL, {
-  on: "var(--foreground)",
-  off: "var(--background)",
+  on: "#1A1A1A",
+  off: "#FAFAF9",
   pad: 4,
 });
 
@@ -98,16 +98,10 @@ export function LinkResult({
         </button>
       </div>
       <div className="link-export-actions">
-        <button
-          className="btn btn-secondary export-btn"
-          onClick={handleCopyJSON}
-        >
+        <button className="btn btn-secondary export-btn" onClick={handleCopyJSON}>
           {jsonError ? "Error" : jsonCopied ? "Copied!" : "Copy as JSON"}
         </button>
-        <button
-          className="btn btn-secondary export-btn"
-          onClick={handleCopyMarkdown}
-        >
+        <button className="btn btn-secondary export-btn" onClick={handleCopyMarkdown}>
           {mdError ? "Error" : mdCopied ? "Copied!" : "Copy as Markdown"}
         </button>
       </div>

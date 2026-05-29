@@ -1,12 +1,17 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useHistory } from "../hooks/useHistory";
 import { HistoryItem } from "./HistoryItem";
+import { LuClipboardList } from "react-icons/lu";
+import type { HistoryEntry } from "../../../lib/history";
+
+const sortByDateTimeDesc = (a: HistoryEntry, b: HistoryEntry) => b.createdAt - a.createdAt;
 
 interface HistoryViewProps {
   onBack: () => void;
+  onShowLinkResult: (entry: HistoryEntry) => void;
 }
 
-export function HistoryView({ onBack }: HistoryViewProps) {
+export function HistoryView({ onBack, onShowLinkResult }: HistoryViewProps) {
   const { entries, isLoading, error, clear } = useHistory();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -14,21 +19,21 @@ export function HistoryView({ onBack }: HistoryViewProps) {
     if (!searchQuery.trim()) {
       return entries;
     }
+
     const query = searchQuery.toLowerCase();
-    return entries.filter((entry) => entry.url.toLowerCase().includes(query));
+
+    return entries //
+      .filter((_) => _.url.toLowerCase().includes(query))
+      .sort(sortByDateTimeDesc);
   }, [entries, searchQuery]);
 
   const activeCount = useMemo(() => {
     const now = Date.now();
-    return entries.filter((entry) => entry.expiresAt > now).length;
+    return entries.filter((_) => _.expiresAt > now).length;
   }, [entries]);
 
-  const handleEntryClick = async (url: string) => {
-    try {
-      await browser.tabs.create({ url });
-    } catch {
-      // Silently fail if tabs API is unavailable
-    }
+  const handleEntryClick = async (entry: HistoryEntry) => {
+    onShowLinkResult(entry);
   };
 
   const handleClear = async () => {
@@ -77,13 +82,15 @@ export function HistoryView({ onBack }: HistoryViewProps) {
 
       {filteredEntries.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-state-icon">📋</div>
+          <div className="empty-state-icon">
+            <LuClipboardList />
+          </div>
           {entries.length === 0 ? "No history yet" : "No matching entries"}
         </div>
       ) : (
         <div className="history-list">
           {filteredEntries.map((entry) => (
-            <HistoryItem key={entry.id} entry={entry} onClick={() => handleEntryClick(entry.url)} />
+            <HistoryItem key={entry.id} entry={entry} onClick={() => handleEntryClick(entry)} />
           ))}
         </div>
       )}

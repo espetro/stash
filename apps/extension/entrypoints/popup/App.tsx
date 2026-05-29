@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTabSelection } from "./hooks/useTabSelection";
 import { TabList } from "./components/TabList";
 import { SelectAllToggle } from "./components/SelectAllToggle";
 import { LinkResult } from "./components/LinkResult";
 import { ErrorMessage } from "./components/ErrorMessage";
 import { HistoryView } from "./components/HistoryView";
-import { Button } from "../../components/ui/Button";
+import { Button } from "@/components/ui/Button";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import { getBrotliFunctions } from "@stash/shared";
-import { getSettings, type Settings } from "../../lib/settings";
-import { addToHistory } from "../../lib/history";
+import { getSettings, type Settings } from "@/lib/settings";
+import { addToHistory, type HistoryEntry } from "@/lib/history";
+import Header from "./components/Header";
 
 export default function App() {
   const { tabs, isLoading, error, setError, toggleTab, selectAll, deselectAll, selectedCount } =
@@ -22,6 +23,7 @@ export default function App() {
   const [linkTruncated, setLinkTruncated] = useState(false);
   const [linkTabs, setLinkTabs] = useState<Array<{ url: string; title: string }>>([]);
   const [view, setView] = useState<"main" | "history">("main");
+  const [historyLinkResult, setHistoryLinkResult] = useState<HistoryEntry | null>(null);
 
   useEffect(() => {
     getSettings()
@@ -79,19 +81,30 @@ export default function App() {
       await navigator.clipboard.writeText(shareUrl);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
-    } catch (err) {
+    } catch (error) {
+      console.error(error);
       setError("Failed to copy to clipboard");
     }
   }
 
   function handleBack() {
     setShareUrl(null);
+    setHistoryLinkResult(null);
     setIsCopied(false);
     setLinkTabs([]);
   }
 
   function handleSelectAll(maxCount: number) {
     selectAll(maxCount);
+  }
+
+  function handleShowLinkResult(entry: HistoryEntry) {
+    setHistoryLinkResult(entry);
+  }
+
+  function handleBackFromHistory() {
+    setHistoryLinkResult(null);
+    setView("main");
   }
 
   if (isLoading || isSettingsLoading) {
@@ -104,32 +117,34 @@ export default function App() {
 
   return (
     <div className="popup-container">
-      <div className="popup-header">
-        <h1>Stash</h1>
-        <div className="header-buttons">
-          <button
-            className="theme-toggle"
-            onClick={() => setView("history")}
-            aria-label="View history"
-            title="History"
-          >
-            🕐
-          </button>
-          <button
-            className="theme-toggle"
-            onClick={() => browser.runtime.openOptionsPage()}
-            aria-label="Open settings"
-            title="Settings"
-          >
-            ⚙️
-          </button>
-        </div>
-      </div>
+      <Header
+        onClickHistory={() => setView("history")}
+        onClickSettings={() => browser.runtime.openOptionsPage()}
+      />
 
       {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}
 
       {view === "history" ? (
-        <HistoryView onBack={() => setView("main")} />
+        historyLinkResult ? (
+          <>
+            <LinkResult
+              url={historyLinkResult.url}
+              onCopy={handleCopy}
+              isCopied={false}
+              itemCount={historyLinkResult.itemCount}
+              tabs={[]}
+              truncated={historyLinkResult.truncated}
+              totalCount={historyLinkResult.itemCount}
+            />
+            <div className="popup-actions">
+              <Button variant="secondary" onClick={handleBackFromHistory}>
+                ← Back to History
+              </Button>
+            </div>
+          </>
+        ) : (
+          <HistoryView onBack={() => setView("main")} onShowLinkResult={handleShowLinkResult} />
+        )
       ) : (
         <>
           {shareUrl ? (
@@ -158,11 +173,7 @@ export default function App() {
               />
               <TabList tabs={tabs} onToggle={toggleTab} />
               <div className="popup-actions">
-                <Button
-                  variant="primary"
-                  onClick={handleCreateLink}
-                  disabled={selectedCount === 0}
-                >
+                <Button variant="primary" onClick={handleCreateLink} disabled={selectedCount === 0}>
                   Create Link ({selectedCount})
                 </Button>
               </div>
@@ -170,9 +181,6 @@ export default function App() {
           )}
         </>
       )}
-      <div className="popup-footer">
-        <span className="version">v{import.meta.env.APP_VERSION}</span>
-      </div>
     </div>
   );
 }

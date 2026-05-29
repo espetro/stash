@@ -11,7 +11,7 @@ interface SelectAllToggleProps {
 }
 
 export function SelectAllToggle({ tabs, onSelectAll, onDeselectAll }: SelectAllToggleProps) {
-  const selectedCount = tabs.filter((t) => t.isSelected).length;
+  const selectedCount = tabs.filter((_) => _.isSelected).length;
   const allSelected = selectedCount === tabs.length && tabs.length > 0;
   const [maxTabCount, setMaxTabCount] = useState<number | null>(null);
 
@@ -49,7 +49,7 @@ export function SelectAllToggle({ tabs, onSelectAll, onDeselectAll }: SelectAllT
         >
           {allSelected ? "Deselect All" : "Select All"}
         </button>
-        <span className="selected-count">
+        <span className="selected-count" style={{ marginLeft: "1rem" }}>
           {selectedCount} of {tabs.length} selected
         </span>
       </div>

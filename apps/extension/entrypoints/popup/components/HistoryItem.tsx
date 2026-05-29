@@ -1,3 +1,4 @@
+import { LuAlarmClock } from "react-icons/lu";
 import type { HistoryEntry } from "../../../lib/history";
 import { formatDateTime, formatRemainingTime } from "@stash/shared";
 
@@ -29,7 +30,7 @@ export function HistoryItem({ entry, onClick }: HistoryItemProps) {
       tabIndex={isActive ? 0 : undefined}
     >
       <span className={`history-item-icon ${!isActive ? "history-item-icon-expired" : ""}`}>
-        ⏰
+        <LuAlarmClock />
       </span>
       <div className="history-item-content">
         <span className="history-item-date">{formatDateTime(entry.createdAt)}</span>
