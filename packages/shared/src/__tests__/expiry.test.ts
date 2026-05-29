@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { extractTitle, EXPIRY_OPTIONS } from "@/lib/stash-form";
+import { extractTitle, EXPIRY_OPTIONS, validateExpiryValue } from "../expiry";
 import { EXPIRY_HOURS_MAP } from "@stash/codec";
 
 describe("extractTitle", () => {
@@ -44,5 +44,20 @@ describe("EXPIRY_OPTIONS", () => {
       expect(opt.label).toBeTruthy();
       expect(typeof opt.label).toBe("string");
     });
+  });
+});
+
+describe("validateExpiryValue", () => {
+  it("returns true for valid expiry keys", () => {
+    expect(validateExpiryValue("never")).toBe(true);
+    expect(validateExpiryValue("24h")).toBe(true);
+    expect(validateExpiryValue("7d")).toBe(true);
+    expect(validateExpiryValue("30d")).toBe(true);
+  });
+
+  it("returns false for invalid expiry keys", () => {
+    expect(validateExpiryValue("invalid")).toBe(false);
+    expect(validateExpiryValue("")).toBe(false);
+    expect(validateExpiryValue("1h")).toBe(false);
   });
 });

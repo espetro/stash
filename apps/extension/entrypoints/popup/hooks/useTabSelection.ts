@@ -1,21 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { PopupTab } from "../types";
 import type { Tabs } from "webextension-polyfill";
-
-const GOOGLE_FAVICON_URL = "https://www.google.com/s2/favicons?domain=";
-
-function getDomain(url: string): string {
-  try {
-    return new URL(url).hostname;
-  } catch {
-    return url;
-  }
-}
-
-function getFaviconUrl(url: string): string {
-  const domain = getDomain(url);
-  return `${GOOGLE_FAVICON_URL}${domain}&sz=32`;
-}
+import { getDomain, getFaviconUrl } from "@stash/shared";
 
 function isValidTab(tab: Tabs.Tab): boolean {
   // Only allow http:// and https:// URLs

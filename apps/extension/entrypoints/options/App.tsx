@@ -2,16 +2,10 @@ import React, { useState, useEffect } from "react";
 import { getSettings, setSettings } from "../../lib/settings.js";
 import { getTheme, setTheme } from "@stash/theme";
 import { browserStorageAdapter } from "../../lib/browser-storage-adapter.js";
+import { EXPIRY_OPTIONS } from "@stash/shared";
 
 type ExpiryMode = "24h" | "7d" | "30d" | "never";
 type Theme = "light" | "dark" | "system";
-
-const EXPIRY_OPTIONS: { value: ExpiryMode; label: string }[] = [
-  { value: "24h", label: "24 hours" },
-  { value: "7d", label: "7 days" },
-  { value: "30d", label: "30 days" },
-  { value: "never", label: "Never" },
-];
 
 const THEME_OPTIONS: { value: Theme; label: string }[] = [
   { value: "light", label: "Light" },

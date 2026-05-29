@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import type { PopupTab } from "../types";
 import { findMaxTabsWithinBudget } from "@stash/codec";
 import type { TabInfo } from "@stash/codec";
-import { getBrotliFunctions } from "../../../lib/brotli";
+import { getBrotliFunctions } from "@stash/shared";
 
 interface SelectAllToggleProps {
   tabs: PopupTab[];

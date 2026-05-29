@@ -10,7 +10,7 @@ import {
   OutlineButton,
 } from "@/components/shared";
 import { useStashForm } from "@/hooks/useStashForm";
-import { EXPIRY_OPTIONS } from "@/lib/stash-form";
+import { EXPIRY_OPTIONS } from "@stash/shared";
 
 export default function NewStashForm() {
   const {

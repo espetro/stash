@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
-import { getBrotliFunctions } from "@/lib/brotli";
-import { extractTitle } from "@/lib/stash-form";
+import { getBrotliFunctions, extractTitle } from "@stash/shared";
 
 export interface UseStashFormState {
   urls: string;

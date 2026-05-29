@@ -1,7 +1,7 @@
 import { defineBackground } from "wxt/utils/define-background";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import type { TabInfo } from "@stash/codec";
-import { getBrotliFunctions } from "../lib/brotli";
+import { getBrotliFunctions } from "@stash/shared";
 import { getSettings, settingsItem } from "../lib/settings";
 
 export default defineBackground(() => {

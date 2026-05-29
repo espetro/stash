@@ -1,0 +1,23 @@
+{
+  "name": "@stash/shared",
+  "version": "0.5.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "tscheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@stash/codec": "workspace:*",
+    "brotli-wasm": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "vite": "^8.0.12",
+    "vitest": "4.1.7"
+  }
+}

@@ -6,7 +6,7 @@ import { QrDialogContent } from "./QrDialog";
 import { Dialog } from "@/components/ui/dialog";
 import { TabListItem } from "@/components/TabListItem";
 import { useDecodeShareUrl, type DecodedData } from "@/hooks/useDecodeShareUrl";
-import { buildCaption } from "@/lib/format";
+import { buildCaption } from "@stash/shared";
 import {
   SharedCard,
   SharedCardHeader,

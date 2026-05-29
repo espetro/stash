@@ -7,7 +7,7 @@ import { ErrorMessage } from "./components/ErrorMessage";
 import { HistoryView } from "./components/HistoryView";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import type { TabInfo } from "@stash/codec";
-import { getBrotliFunctions } from "../../lib/brotli";
+import { getBrotliFunctions } from "@stash/shared";
 import { getSettings, type Settings } from "../../lib/settings";
 import { addToHistory } from "../../lib/history";
 
