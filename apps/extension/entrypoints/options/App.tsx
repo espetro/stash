@@ -3,15 +3,10 @@ import { getSettings, setSettings } from "../../lib/settings.js";
 import { getTheme, setTheme } from "@stash/theme";
 import { browserStorageAdapter } from "../../lib/browser-storage-adapter.js";
 import { EXPIRY_OPTIONS } from "@stash/shared";
+import ThemeSwitcher from "./components/ThemeSwitcher.js";
 
 type ExpiryMode = "24h" | "7d" | "30d" | "never";
 type Theme = "light" | "dark" | "system";
-
-const THEME_OPTIONS: { value: Theme; label: string }[] = [
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-  { value: "system", label: "System" },
-];
 
 export default function App() {
   const [expiryMode, setExpiryMode] = useState<ExpiryMode>("never");
@@ -38,8 +33,7 @@ export default function App() {
     showSuccessFeedback();
   };
 
-  const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTheme = e.target.value as Theme;
+  const handleThemeChange = (newTheme: Theme) => {
     setThemeState(newTheme);
     setTheme(newTheme, browserStorageAdapter);
     showSuccessFeedback();
@@ -116,23 +110,9 @@ export default function App() {
               Appearance
             </h2>
             <p className="settings-section-description">Choose how Stash looks on your device.</p>
-            <div className="form-group" role="radiogroup" aria-labelledby="theme-heading">
+            <div className="form-group">
               <span className="form-label">Theme</span>
-              <div className="theme-options">
-                {THEME_OPTIONS.map((option) => (
-                  <label key={option.value} className="theme-option">
-                    <input
-                      type="radio"
-                      name="theme"
-                      value={option.value}
-                      checked={theme === option.value}
-                      onChange={handleThemeChange}
-                      aria-label={`${option.label} theme`}
-                    />
-                    <span className="theme-option-label">{option.label}</span>
-                  </label>
-                ))}
-              </div>
+              <ThemeSwitcher value={theme} onChange={handleThemeChange} />
             </div>
           </section>
 

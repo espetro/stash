@@ -22,6 +22,7 @@
     "@stash/shared": "workspace:*",
     "@stash/theme": "workspace:*",
     "brotli-wasm": "^3.0.1",
+    "lean-qr": "^2.7.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "webext-storage": "^3.1.0",

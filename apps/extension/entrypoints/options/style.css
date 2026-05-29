@@ -177,6 +177,67 @@ body {
   color: var(--foreground);
 }
 
+.theme-switcher {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--muted);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  gap: 0;
+  width: 100%;
+  max-width: 320px;
+}
+
+.theme-switcher-selector {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  border-radius: calc(var(--radius-md) - 2px);
+  background: var(--background);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.theme-switcher-button {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: calc(var(--radius-md) - 2px);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  transition: color 0.2s ease;
+  font-family: var(--font-sans);
+}
+
+.theme-switcher-button:hover {
+  color: var(--foreground);
+}
+
+.theme-switcher-button--active {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.theme-switcher-button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.theme-switcher-icon {
+  flex-shrink: 0;
+}
+
 .info-box {
   background: color-mix(in srgb, var(--primary) 10%, var(--background));
   border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);

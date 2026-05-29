@@ -5,8 +5,8 @@ import { SelectAllToggle } from "./components/SelectAllToggle";
 import { LinkResult } from "./components/LinkResult";
 import { ErrorMessage } from "./components/ErrorMessage";
 import { HistoryView } from "./components/HistoryView";
+import { Button } from "../../components/ui/Button";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
-import type { TabInfo } from "@stash/codec";
 import { getBrotliFunctions } from "@stash/shared";
 import { getSettings, type Settings } from "../../lib/settings";
 import { addToHistory } from "../../lib/history";
@@ -20,6 +20,7 @@ export default function App() {
   const [isCopied, setIsCopied] = useState(false);
   const [linkItemCount, setLinkItemCount] = useState(0);
   const [linkTruncated, setLinkTruncated] = useState(false);
+  const [linkTabs, setLinkTabs] = useState<Array<{ url: string; title: string }>>([]);
   const [view, setView] = useState<"main" | "history">("main");
 
   useEffect(() => {
@@ -37,7 +38,7 @@ export default function App() {
       }
 
       const selectedTabs = tabs.filter((t) => t.isSelected);
-      const tabInfos: TabInfo[] = selectedTabs.map((t) => ({ url: t.url, title: t.title }));
+      const tabInfos = selectedTabs.map((t) => ({ url: t.url, title: t.title }));
       const brotli = await getBrotliFunctions();
       const expiryHours = EXPIRY_HOURS_MAP[settings.expiryMode];
       const result = await encodeTabsToShareUrl(
@@ -62,6 +63,7 @@ export default function App() {
       setShareUrl(result.url);
       setLinkItemCount(result.itemCount);
       setLinkTruncated(result.truncated);
+      setLinkTabs(tabInfos);
       setIsCopied(true);
 
       setTimeout(() => setIsCopied(false), 2000);
@@ -85,6 +87,7 @@ export default function App() {
   function handleBack() {
     setShareUrl(null);
     setIsCopied(false);
+    setLinkTabs([]);
   }
 
   function handleSelectAll(maxCount: number) {
@@ -136,13 +139,14 @@ export default function App() {
                 onCopy={handleCopy}
                 isCopied={isCopied}
                 itemCount={linkItemCount}
+                tabs={linkTabs}
                 truncated={linkTruncated}
                 totalCount={tabs.filter((t) => t.isSelected).length}
               />
               <div className="popup-actions">
-                <button className="btn btn-secondary" onClick={handleBack}>
+                <Button variant="secondary" onClick={handleBack}>
                   ← Back to Selection
-                </button>
+                </Button>
               </div>
             </>
           ) : (
@@ -154,13 +158,13 @@ export default function App() {
               />
               <TabList tabs={tabs} onToggle={toggleTab} />
               <div className="popup-actions">
-                <button
-                  className="btn btn-primary"
+                <Button
+                  variant="primary"
                   onClick={handleCreateLink}
                   disabled={selectedCount === 0}
                 >
                   Create Link ({selectedCount})
-                </button>
+                </Button>
               </div>
             </>
           )}
