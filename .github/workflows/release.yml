@@ -35,7 +35,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build and zip extension
-        run: pnpm --filter stash-extension run zip:${{ matrix.browser }}
+        working-directory: apps/extension
+        run: pnpm run zip:${{ matrix.browser }}
         env:
           VITE_VIEWER_ORIGIN: https://stash.illo.fyi
 
