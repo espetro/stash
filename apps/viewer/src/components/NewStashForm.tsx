@@ -1,6 +1,9 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
+import LanguageSelector from "@/components/LanguageSelector";
+import { useLocale } from "@/components/LocaleProvider";
+import { t } from "@/i18n";
 import {
   SharedCard,
   SharedCardHeader,
@@ -13,6 +16,7 @@ import { useStashForm } from "@/hooks/useStashForm";
 import { EXPIRY_OPTIONS } from "@stash/shared";
 
 export default function NewStashForm() {
+  const { lang } = useLocale();
   const {
     urls,
     stashTitle,
@@ -29,26 +33,30 @@ export default function NewStashForm() {
   } = useStashForm();
 
   const saveLabel =
-    saveState === "generating" ? "Generating..." : saveState === "error" ? "Error" : "Save";
+    saveState === "generating"
+      ? t("stash.generating", undefined, lang)
+      : saveState === "error"
+        ? t("stash.error", undefined, lang)
+        : t("stash.save", undefined, lang);
 
   return (
     <div className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8">
       <SharedCard>
-        <SharedCardHeader title="Create Stash" />
+        <SharedCardHeader title={t("stash.create.title", undefined, lang)} />
 
         <SharedCardContent>
           <input
             type="text"
             value={stashTitle}
             onChange={(e) => setStashTitle(e.target.value)}
-            placeholder="Stash title"
+            placeholder={t("stash.title.placeholder", undefined, lang)}
             className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
           />
 
           <textarea
             value={urls}
             onChange={(e) => setUrls(e.target.value)}
-            placeholder="Paste URLs (one per line)..."
+            placeholder={t("stash.urls.placeholder", undefined, lang)}
             className="min-h-[200px] w-full resize-y rounded-xl border border-border bg-muted p-3 font-mono text-sm leading-relaxed text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
           />
 
@@ -85,11 +93,16 @@ export default function NewStashForm() {
                 onClick={handleCopy}
                 className="h-12 w-full rounded-xl border-border bg-card text-sm font-semibold text-foreground hover:bg-secondary"
               >
-                {copyState === "copied" ? "Copied!" : "Copy to clipboard"}
+                {copyState === "copied"
+                  ? t("stash.copy.done", undefined, lang)
+                  : t("stash.copy.idle", undefined, lang)}
               </Button>
             </div>
           )}
-          <ThemeSwitcher />
+          <div className="flex items-center justify-center gap-2">
+            <ThemeSwitcher />
+            <LanguageSelector variant="card" />
+          </div>
         </SharedCardContent>
       </SharedCard>
 
@@ -97,7 +110,7 @@ export default function NewStashForm() {
         <PrimaryButton onClick={handleSave} disabled={saveState === "generating"}>
           {saveLabel}
         </PrimaryButton>
-        <OutlineButton onClick={handleClear}>Clear</OutlineButton>
+        <OutlineButton onClick={handleClear}>{t("stash.clear", undefined, lang)}</OutlineButton>
       </SharedButtonArea>
     </div>
   );

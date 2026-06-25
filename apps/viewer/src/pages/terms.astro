@@ -1,11 +1,11 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Navbar from "../components/landing/Navbar.astro";
+import Navbar from "../components/landing/Navbar";
 import Footer from "../components/landing/Footer.astro";
 ---
 
 <Layout title="Terms of Service — Stash">
-  <Navbar minimal={true} />
+  <Navbar minimal={true} client:load />
   <main class="page-main">
     <div class="page-container">
       <!-- Page header -->
