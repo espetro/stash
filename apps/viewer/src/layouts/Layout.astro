@@ -1,4 +1,6 @@
 ---
+import { LocaleProvider } from "@/components/LocaleProvider";
+
 interface Props {
   title: string;
 }
@@ -51,6 +53,8 @@ const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST ?? 'https://eu.post
   </style>
 </head>
 <body>
-  <slot />
+  <LocaleProvider>
+    <slot />
+  </LocaleProvider>
 </body>
 </html>

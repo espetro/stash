@@ -1,6 +1,9 @@
 import * as React from "react";
 import { useState, useCallback } from "react";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
+import LanguageSelector from "@/components/LanguageSelector";
+import { useLocale } from "@/components/LocaleProvider";
+import { t } from "@/i18n";
 import { ShareDrawer } from "./ShareDrawer";
 import { QrDialogContent } from "./QrDialog";
 import { Dialog } from "@/components/ui/dialog";
@@ -44,6 +47,7 @@ function MdOutput({ data }: { data: DecodedData }) {
 }
 
 export default function TabViewer() {
+  const { lang } = useLocale();
   const state = useDecodeShareUrl();
   const [qrOpen, setQrOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -104,7 +108,7 @@ export default function TabViewer() {
     <div className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8">
       <SharedCard className="sm:h-[75vh]">
         <SharedCardHeader
-          title={data.title ?? "Shared Tabs"}
+          title={data.title ?? t("sharedTabs.title", undefined, lang)}
           caption={buildCaption(count, data.expiry)}
         />
 
@@ -119,17 +123,20 @@ export default function TabViewer() {
               ))}
             </div>
           </div>
-          <ThemeSwitcher />
+          <div className="flex items-center justify-center gap-2">
+            <ThemeSwitcher />
+            <LanguageSelector variant="card" />
+          </div>
         </SharedCardContent>
       </SharedCard>
 
       <SharedButtonArea>
         <SplitButtonGroup
-          mainLabel="Share as QR"
+          mainLabel={t("sharedTabs.shareQr", undefined, lang)}
           onMainClick={handleShareQr}
           onDropdownClick={handleOpenDrawer}
         />
-        <OutlineButton onClick={handleNew}>New</OutlineButton>
+        <OutlineButton onClick={handleNew}>{t("sharedTabs.new", undefined, lang)}</OutlineButton>
       </SharedButtonArea>
 
       <Dialog
