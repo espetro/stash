@@ -22,7 +22,13 @@
     "save": "Guardar",
     "generating": "Generando...",
     "error": "Error",
-    "clear": "Limpiar"
+    "clear": "Limpiar",
+    "meter": {
+      "items": "elementos",
+      "chars": "caracteres",
+      "qrOk": "El código QR aún cabe",
+      "qrTooBig": "QR ya no es posible, el enlace sigue funcionando"
+    }
   },
   "sharedTabs": {
     "title": "Pestañas compartidas",

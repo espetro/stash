@@ -28,7 +28,13 @@
     "save": "Enregistrer",
     "generating": "Génération en cours...",
     "error": "Erreur",
-    "clear": "Effacer"
+    "clear": "Effacer",
+    "meter": {
+      "items": "éléments",
+      "chars": "caractères",
+      "qrOk": "Le code QR tient encore",
+      "qrTooBig": "QR impossible, le lien fonctionne toujours"
+    }
   },
   "sharedTabs": {
     "title": "Onglets partagés",
