@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 interface DecodedData {
   expiry: number;
   isExpired: boolean;
-  items: [string, string][];
+  items: [string, string, ("url" | "note")?][];
   title?: string;
 }
 
