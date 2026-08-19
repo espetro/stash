@@ -12,6 +12,7 @@ import {
   getQrSegments,
   estimateQrBitLength,
   PayloadDecodeError,
+  MAX_TITLE_CHARS,
 } from "../index.js";
 import type { TabInfo } from "../index.js";
 import type { BrotliFunctions } from "../types.js";
@@ -103,12 +104,17 @@ describe("v4 codec round-trip tests (URL adapter)", () => {
     expect(decoded.items[1][1]).toBe("URL with special chars & # ?");
   });
 
-  it("Title truncation to 30 chars works correctly", async () => {
+  it("Title truncation to MAX_TITLE_CHARS works correctly", async () => {
     const result = await encodeTabsToShareUrl(longTitleTabs, brotli);
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
 
-    expect(decoded.items[0][1].length).toBeLessThanOrEqual(30);
-    expect(decoded.items[0][1]).toBe("This is a very long title that");
+    expect(decoded.items[0][1].length).toBeLessThanOrEqual(MAX_TITLE_CHARS);
+    expect(decoded.items[0][1]).toBe(
+      "This is a very long title that exceeds the thirty character limit and should be truncated".slice(
+        0,
+        MAX_TITLE_CHARS,
+      ),
+    );
   });
 
   it("Titled payload round-trips title correctly via URL adapter", async () => {
@@ -289,9 +295,9 @@ describe("v4 codec edge-case tests", () => {
     expect(decoded.items[0][0]).toBe("https://github.com");
   });
 
-  it("Title of exactly MAX_TITLE_CHARS (30) is not truncated", async () => {
-    const title = "ThisIsExactlyThirtyCharsLong!!";
-    expect(title.length).toBe(30);
+  it("Title of exactly MAX_TITLE_CHARS (120) is not truncated", async () => {
+    const title = "ThisIsExactlyThirtyCharsLong!!".padEnd(120, "a");
+    expect(title.length).toBe(120);
 
     const tabs: TabInfo[] = [{ url: "https://github.com", title }];
     const result = await encodeTabsToShareUrl(tabs, brotli);
@@ -300,23 +306,23 @@ describe("v4 codec edge-case tests", () => {
     expect(decoded.items[0][1]).toBe(title);
   });
 
-  it("Title of MAX_TITLE_CHARS+1 is truncated to exactly 30 chars", async () => {
-    const longTitle = "ThisTitleIsJustOneCharTooLong!!";
-    expect(longTitle.length).toBe(31);
+  it("Title of MAX_TITLE_CHARS+1 is truncated to exactly MAX_TITLE_CHARS", async () => {
+    const longTitle = "ThisTitleIsJustOneCharTooLong!!".padEnd(121, "b");
+    expect(longTitle.length).toBe(121);
 
     const tabs: TabInfo[] = [{ url: "https://github.com", title: longTitle }];
     const result = await encodeTabsToShareUrl(tabs, brotli);
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
 
-    expect(decoded.items[0][1]).toBe("ThisTitleIsJustOneCharTooLong!");
-    expect(decoded.items[0][1].length).toBe(30);
+    expect(decoded.items[0][1]).toBe(longTitle.slice(0, 120));
+    expect(decoded.items[0][1].length).toBe(120);
   });
 
   it("normalizeTitle works correctly", () => {
     expect(normalizeTitle("  Hello   World  ")).toBe("Hello World");
     expect(
       normalizeTitle("This is a very long title that exceeds limits").length,
-    ).toBeLessThanOrEqual(30);
+    ).toBeLessThanOrEqual(MAX_TITLE_CHARS);
   });
 });
 

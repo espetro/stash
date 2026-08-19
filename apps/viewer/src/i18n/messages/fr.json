@@ -1,1 +1,66 @@
-{}
+{
+  "nav": {
+    "home": "Accueil",
+    "features": "Fonctionnalités",
+    "howItWorks": "Comment ça fonctionne",
+    "demo": "Démo"
+  },
+  "install": {
+    "trigger": "Installer ▾",
+    "chrome": "Ajouter à Chrome",
+    "firefox": "Ajouter à Firefox",
+    "tryInBrowser": "Essayer dans le navigateur →"
+  },
+  "stash": {
+    "create": {
+      "title": "Créer un Stash"
+    },
+    "title": {
+      "placeholder": "Titre du Stash"
+    },
+    "urls": {
+      "placeholder": "Coller des URLs (une par ligne)..."
+    },
+    "copy": {
+      "idle": "Copier dans le presse-papier",
+      "done": "Copié !"
+    },
+    "save": "Enregistrer",
+    "generating": "Génération en cours...",
+    "error": "Erreur",
+    "clear": "Effacer"
+  },
+  "sharedTabs": {
+    "title": "Onglets partagés",
+    "shareQr": "Partager sous forme de QR",
+    "new": "Nouveau",
+    "selectAll": "Tout sélectionner",
+    "deselectAll": "Tout désélectionner",
+    "openSelected": "Ouvrir la sélection",
+    "removeSelected": "Retirer la sélection",
+    "saveEdited": "Enregistrer le stash modifié",
+    "savedEdited": "Enregistré ! Lien ci-dessous",
+    "editedLink": "Lien du stash modifié",
+    "empty": "Aucun élément restant"
+  },
+  "theme": {
+    "light": "Thème clair",
+    "dark": "Thème sombre",
+    "label": "Changeur de thème"
+  },
+  "language": {
+    "en": "Anglais",
+    "es": "Espagnol",
+    "ru": "Russe",
+    "fr": "Français",
+    "label": "Langue"
+  },
+  "sharedTabs.selectAll": "Tout sélectionner",
+  "sharedTabs.deselectAll": "Tout désélectionner",
+  "sharedTabs.openSelected": "Ouvrir la sélection",
+  "sharedTabs.removeSelected": "Retirer la sélection",
+  "sharedTabs.saveEdited": "Enregistrer le stash modifié",
+  "sharedTabs.savedEdited": "Enregistré ! Lien ci-dessous",
+  "sharedTabs.editedLink": "Lien du stash modifié",
+  "sharedTabs.empty": "Aucun élément restant"
+}

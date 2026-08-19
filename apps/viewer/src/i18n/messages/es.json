@@ -1,1 +1,66 @@
-{}
+{
+  "install": {
+    "chrome": "Agregar a Chrome",
+    "firefox": "Agregar a Firefox",
+    "trigger": "Instalar ▾",
+    "tryInBrowser": "Probar en el navegador →"
+  },
+  "stash": {
+    "create": {
+      "title": "Crear Stash"
+    },
+    "title": {
+      "placeholder": "Título del Stash"
+    },
+    "urls": {
+      "placeholder": "Pegue URLs (una por línea)..."
+    },
+    "copy": {
+      "idle": "Copiar al portapapeles",
+      "done": "¡Copiado!"
+    },
+    "save": "Guardar",
+    "generating": "Generando...",
+    "error": "Error",
+    "clear": "Limpiar"
+  },
+  "sharedTabs": {
+    "title": "Pestañas compartidas",
+    "shareQr": "Compartir como código QR",
+    "new": "Nuevo",
+    "selectAll": "Seleccionar todo",
+    "deselectAll": "Deseleccionar todo",
+    "openSelected": "Abrir seleccionados",
+    "removeSelected": "Quitar seleccionados",
+    "saveEdited": "Guardar stash editado",
+    "savedEdited": "¡Guardado! Enlace abajo",
+    "editedLink": "Enlace del stash editado",
+    "empty": "No quedan elementos"
+  },
+  "nav": {
+    "home": "Inicio",
+    "features": "Características",
+    "howItWorks": "¿Cómo funciona?",
+    "demo": "Demostración"
+  },
+  "theme": {
+    "label": "Switch de tema",
+    "light": "Tema claro",
+    "dark": "Tema oscuro"
+  },
+  "language": {
+    "label": "Idioma",
+    "en": "Inglés",
+    "es": "Español",
+    "ru": "Ruso",
+    "fr": "Francés"
+  },
+  "sharedTabs.selectAll": "Seleccionar todo",
+  "sharedTabs.deselectAll": "Deseleccionar todo",
+  "sharedTabs.openSelected": "Abrir seleccionados",
+  "sharedTabs.removeSelected": "Quitar seleccionados",
+  "sharedTabs.saveEdited": "Guardar stash editado",
+  "sharedTabs.savedEdited": "¡Guardado! Enlace abajo",
+  "sharedTabs.editedLink": "Enlace del stash editado",
+  "sharedTabs.empty": "No quedan elementos"
+}

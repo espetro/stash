@@ -1,1 +1,66 @@
-{}
+{
+  "install": {
+    "trigger": "Установить ▾",
+    "chrome": "Добавить в Chrome",
+    "firefox": "Добавить в Firefox",
+    "tryInBrowser": "Попробовать в браузере →"
+  },
+  "stash": {
+    "create": {
+      "title": "Создать Стэш"
+    },
+    "title": {
+      "placeholder": "Название стэша"
+    },
+    "urls": {
+      "placeholder": "Вставьте ссылки (по одной на строку)..."
+    },
+    "copy": {
+      "idle": "Скопировать в буфер обмена",
+      "done": "Скопировано!"
+    },
+    "save": "Сохранить",
+    "generating": "Генерирование...",
+    "error": "Ошибка",
+    "clear": "Очистить"
+  },
+  "sharedTabs": {
+    "title": "Общие вкладки",
+    "shareQr": "Поделиться как QR",
+    "new": "Новый",
+    "selectAll": "Выбрать все",
+    "deselectAll": "Снять выделение",
+    "openSelected": "Открыть выбранные",
+    "removeSelected": "Убрать выбранные",
+    "saveEdited": "Сохранить изменённый stash",
+    "savedEdited": "Сохранено! Ссылка ниже",
+    "editedLink": "Ссылка на изменённый stash",
+    "empty": "Элементов не осталось"
+  },
+  "theme": {
+    "label": "Переключатель темы",
+    "light": "Светлая тема",
+    "dark": "Тёмная тема"
+  },
+  "language": {
+    "label": "Язык",
+    "en": "Английский",
+    "es": "Испанский",
+    "ru": "Русский",
+    "fr": "Французский"
+  },
+  "nav": {
+    "home": "Главная",
+    "features": "Функции",
+    "howItWorks": "Как это работает",
+    "demo": "Демо"
+  },
+  "sharedTabs.selectAll": "Выбрать все",
+  "sharedTabs.deselectAll": "Снять выделение",
+  "sharedTabs.openSelected": "Открыть выбранные",
+  "sharedTabs.removeSelected": "Убрать выбранные",
+  "sharedTabs.saveEdited": "Сохранить изменённый stash",
+  "sharedTabs.savedEdited": "Сохранено! Ссылка ниже",
+  "sharedTabs.editedLink": "Ссылка на изменённый stash",
+  "sharedTabs.empty": "Элементов не осталось"
+}

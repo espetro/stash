@@ -51,7 +51,16 @@ export function useStashForm(): UseStashFormState & UseStashFormActions {
     setResultUrl(null);
 
     try {
-      const tabs = lines.map((url) => ({ url, title: extractTitle(url) }));
+      const tabs = lines.map((line) => {
+        // "URL | Title" syntax: explicit title for the item
+        const pipeIdx = line.indexOf("|");
+        if (pipeIdx > 0) {
+          const url = line.slice(0, pipeIdx).trim();
+          const title = line.slice(pipeIdx + 1).trim();
+          if (title) return { url, title };
+        }
+        return { url: line, title: extractTitle(line) };
+      });
       const expiryKey = expiry as keyof typeof EXPIRY_HOURS_MAP;
       const expiryHours = EXPIRY_HOURS_MAP[expiryKey];
       const brotli = await getBrotliFunctions();
