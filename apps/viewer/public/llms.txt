@@ -17,22 +17,25 @@ Payload format: one prefix character + body.
 
 ## Endpoints
 
-### /md
-Decode a stash payload and return the items as a Markdown link list.
-Usage: `GET /md?p=<payload>`
+### /json (canonical)
+Decode a stash payload and return structured JSON (version, expiry, items, title).
+**This is the canonical machine-readable endpoint.** Usage: `GET /json?p=<payload>`
 
-### /json
-Decode a stash payload and return structured JSON (expiry, items, title).
-Usage: `GET /json?p=<payload>`
+### /md (alias of /json)
+Same decode, rendered as a Markdown link list. Convenience for prompt-friendly
+plain text. Usage: `GET /md?p=<payload>`
 
-### /s
-The stash viewer page. Supports content negotiation when the payload is passed
-as a query parameter: `GET /s?p=<payload>` with `Accept: text/markdown` or
-`application/json` (or `?format=md|json`, or a `.md`/`.json` suffix on `p`).
-Without negotiation it serves the interactive HTML viewer.
+### /s (alias via content negotiation)
+The stash viewer page. When the payload is passed as a query parameter, it
+supports the same decode via negotiation: `GET /s?p=<payload>` with
+`Accept: text/markdown` or `application/json` (or `?format=md|json`, or a
+`.md`/`.json` suffix on `p`). Without negotiation it serves the interactive
+HTML viewer.
 
 ## Notes for agents
 
+- **Prefer `/json` for all programmatic reads.** `/md` and `/s` negotiation are
+  aliases kept for convenience; output is identical data.
 - Responses are cached until the payload's expiry timestamp.
 - Expired stashes still decode (check `isExpired` in JSON output).
 - A 400 means the payload string was malformed or truncated; re-copy the full
