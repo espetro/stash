@@ -125,7 +125,8 @@ export const GET: APIRoute = () => {
               required: false,
               schema: {
                 type: "string",
-                description: "Payload string from the share URL fragment (optional .json/.md suffix selects format)",
+                description:
+                  "Payload string from the share URL fragment (optional .json/.md suffix selects format)",
               },
             },
             {
@@ -180,7 +181,11 @@ export const GET: APIRoute = () => {
                 prefixItems: [
                   { type: "string", description: "url" },
                   { type: "string", description: "title" },
-                  { type: "string", enum: ["url", "note"], description: "Optional item kind (payload v5)" },
+                  {
+                    type: "string",
+                    enum: ["url", "note"],
+                    description: "Optional item kind (payload v5)",
+                  },
                 ],
                 minItems: 2,
                 maxItems: 3,
