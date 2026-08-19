@@ -2,6 +2,7 @@
 import ViewerLayout from "../layouts/ViewerLayout.astro";
 import TabViewer from "../components/TabViewer";
 ---
+
 <!--
   Agent notice: this page decodes its payload client-side from the URL
   fragment (#p=...), which is invisible to servers. To fetch the contents
@@ -10,7 +11,6 @@ import TabViewer from "../components/TabViewer";
     GET /md?p=<payload>     (alias, Markdown list)
   or content-negotiate /s?p=<payload> with Accept: application/json or text/markdown.
 -->
-
 <ViewerLayout title="Stash Viewer">
   <TabViewer client:only="react" />
 </ViewerLayout>

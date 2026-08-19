@@ -50,18 +50,14 @@ describe("agent-equivalent fetch (no JS execution)", () => {
   });
 
   it("GET /s?p= with Accept: text/markdown renders markdown", async () => {
-    const res = await sHandler(
-      makeContext(`/s?p=${payloadP}`, { Accept: "text/markdown" }),
-    );
+    const res = await sHandler(makeContext(`/s?p=${payloadP}`, { Accept: "text/markdown" }));
     expect(res.status).toBe(200);
     expect(res.headers.get("Content-Type")).toContain("text/markdown");
     expect(await res.text()).toContain("[GitHub](https://github.com)");
   });
 
   it("GET /s?p= with Accept: application/json renders JSON", async () => {
-    const res = await sHandler(
-      makeContext(`/s?p=${payloadP}`, { Accept: "application/json" }),
-    );
+    const res = await sHandler(makeContext(`/s?p=${payloadP}`, { Accept: "application/json" }));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.items).toHaveLength(2);
