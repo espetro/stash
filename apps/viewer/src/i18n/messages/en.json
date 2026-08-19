@@ -9,7 +9,7 @@
   "install.tryInBrowser": "Try in browser →",
   "stash.create.title": "Create Stash",
   "stash.title.placeholder": "Stash title",
-  "stash.urls.placeholder": "Paste URLs (one per line)...",
+  "stash.urls.placeholder": "Paste URLs (one per line). Use 'URL | Title' to name an item...",
   "stash.copy.idle": "Copy to clipboard",
   "stash.copy.done": "Copied!",
   "stash.save": "Save",
@@ -26,5 +26,13 @@
   "language.en": "English",
   "language.es": "Spanish",
   "language.ru": "Russian",
-  "language.fr": "French"
+  "language.fr": "French",
+  "sharedTabs.selectAll": "Select all",
+  "sharedTabs.deselectAll": "Deselect all",
+  "sharedTabs.openSelected": "Open selected",
+  "sharedTabs.removeSelected": "Remove selected",
+  "sharedTabs.saveEdited": "Save edited stash",
+  "sharedTabs.savedEdited": "Saved! Link below",
+  "sharedTabs.editedLink": "Edited stash link",
+  "sharedTabs.empty": "No items left"
 }

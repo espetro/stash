@@ -1,0 +1,761 @@
+{
+  "version": 1,
+  "entries": {
+    "es:install.chrome": {
+      "key": "install.chrome",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Agregar a Chrome",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.066Z"
+    },
+    "es:install.firefox": {
+      "key": "install.firefox",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Agregar a Firefox",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.066Z"
+    },
+    "es:stash.create.title": {
+      "key": "stash.create.title",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Crear Stash",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.066Z"
+    },
+    "es:stash.title.placeholder": {
+      "key": "stash.title.placeholder",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Título del Stash",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.066Z"
+    },
+    "es:stash.urls.placeholder": {
+      "key": "stash.urls.placeholder",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Pegue URLs (una por línea)...",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.066Z"
+    },
+    "es:stash.copy.idle": {
+      "key": "stash.copy.idle",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Copiar al portapapeles",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.066Z"
+    },
+    "es:stash.copy.done": {
+      "key": "stash.copy.done",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "¡Copiado!",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.066Z"
+    },
+    "es:stash.save": {
+      "key": "stash.save",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Guardar",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.067Z"
+    },
+    "es:stash.generating": {
+      "key": "stash.generating",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Generando...",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.067Z"
+    },
+    "es:stash.error": {
+      "key": "stash.error",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Error",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.067Z"
+    },
+    "es:sharedTabs.title": {
+      "key": "sharedTabs.title",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Pestañas compartidas",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.067Z"
+    },
+    "es:sharedTabs.shareQr": {
+      "key": "sharedTabs.shareQr",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Compartir como código QR",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.067Z"
+    },
+    "es:sharedTabs.new": {
+      "key": "sharedTabs.new",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Nuevo",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.067Z"
+    },
+    "ru:install.trigger": {
+      "key": "install.trigger",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Установить ▾",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.763Z"
+    },
+    "ru:install.chrome": {
+      "key": "install.chrome",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Добавить в Chrome",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.766Z"
+    },
+    "ru:install.firefox": {
+      "key": "install.firefox",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Добавить в Firefox",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.766Z"
+    },
+    "ru:stash.create.title": {
+      "key": "stash.create.title",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Создать Стэш",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.767Z"
+    },
+    "ru:stash.title.placeholder": {
+      "key": "stash.title.placeholder",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Название стэша",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.767Z"
+    },
+    "ru:stash.urls.placeholder": {
+      "key": "stash.urls.placeholder",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Вставьте ссылки (по одной на строку)...",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.767Z"
+    },
+    "ru:stash.copy.idle": {
+      "key": "stash.copy.idle",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Скопировать в буфер обмена",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.767Z"
+    },
+    "ru:stash.copy.done": {
+      "key": "stash.copy.done",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Скопировано!",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.767Z"
+    },
+    "ru:stash.save": {
+      "key": "stash.save",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Сохранить",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.767Z"
+    },
+    "ru:stash.generating": {
+      "key": "stash.generating",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Генерирование...",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.767Z"
+    },
+    "ru:sharedTabs.title": {
+      "key": "sharedTabs.title",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Общие вкладки",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.767Z"
+    },
+    "ru:sharedTabs.shareQr": {
+      "key": "sharedTabs.shareQr",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Поделиться как QR",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.768Z"
+    },
+    "ru:sharedTabs.new": {
+      "key": "sharedTabs.new",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Новый",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.768Z"
+    },
+    "ru:theme.label": {
+      "key": "theme.label",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Переключатель темы",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.768Z"
+    },
+    "fr:nav.home": {
+      "key": "nav.home",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Accueil",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:15.992Z"
+    },
+    "fr:nav.features": {
+      "key": "nav.features",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Fonctionnalités",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.007Z"
+    },
+    "fr:nav.howItWorks": {
+      "key": "nav.howItWorks",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Comment ça fonctionne",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.033Z"
+    },
+    "fr:nav.demo": {
+      "key": "nav.demo",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Démo",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.042Z"
+    },
+    "fr:install.trigger": {
+      "key": "install.trigger",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Installer ▾",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.047Z"
+    },
+    "fr:install.chrome": {
+      "key": "install.chrome",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Ajouter à Chrome",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.048Z"
+    },
+    "fr:install.firefox": {
+      "key": "install.firefox",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Ajouter à Firefox",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.051Z"
+    },
+    "fr:install.tryInBrowser": {
+      "key": "install.tryInBrowser",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Essayer dans le navigateur →",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.056Z"
+    },
+    "fr:stash.create.title": {
+      "key": "stash.create.title",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Créer un Stash",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.059Z"
+    },
+    "fr:stash.title.placeholder": {
+      "key": "stash.title.placeholder",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Titre du Stash",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.063Z"
+    },
+    "fr:stash.urls.placeholder": {
+      "key": "stash.urls.placeholder",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Coller des URLs (une par ligne)...",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.064Z"
+    },
+    "fr:stash.copy.idle": {
+      "key": "stash.copy.idle",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Copier dans le presse-papier",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.064Z"
+    },
+    "fr:stash.copy.done": {
+      "key": "stash.copy.done",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Copié !",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.065Z"
+    },
+    "fr:stash.save": {
+      "key": "stash.save",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Enregistrer",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.066Z"
+    },
+    "fr:stash.generating": {
+      "key": "stash.generating",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Génération en cours...",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.066Z"
+    },
+    "fr:stash.error": {
+      "key": "stash.error",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Erreur",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.067Z"
+    },
+    "fr:stash.clear": {
+      "key": "stash.clear",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Effacer",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.070Z"
+    },
+    "fr:sharedTabs.title": {
+      "key": "sharedTabs.title",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Onglets partagés",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.073Z"
+    },
+    "fr:sharedTabs.shareQr": {
+      "key": "sharedTabs.shareQr",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Partager sous forme de QR",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.074Z"
+    },
+    "fr:sharedTabs.new": {
+      "key": "sharedTabs.new",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Nouveau",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.076Z"
+    },
+    "ru:install.tryInBrowser": {
+      "key": "install.tryInBrowser",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Попробовать в браузере →",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.766Z"
+    },
+    "ru:stash.error": {
+      "key": "stash.error",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Ошибка",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.767Z"
+    },
+    "ru:stash.clear": {
+      "key": "stash.clear",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Очистить",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.767Z"
+    },
+    "ru:theme.light": {
+      "key": "theme.light",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Светлая тема",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.768Z"
+    },
+    "ru:theme.dark": {
+      "key": "theme.dark",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Тёмная тема",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.768Z"
+    },
+    "ru:language.label": {
+      "key": "language.label",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Язык",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.768Z"
+    },
+    "ru:language.en": {
+      "key": "language.en",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Английский",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.769Z"
+    },
+    "ru:language.es": {
+      "key": "language.es",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Испанский",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.769Z"
+    },
+    "ru:language.ru": {
+      "key": "language.ru",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Русский",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.773Z"
+    },
+    "ru:language.fr": {
+      "key": "language.fr",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Французский",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.773Z"
+    },
+    "fr:theme.light": {
+      "key": "theme.light",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Thème clair",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.082Z"
+    },
+    "fr:theme.dark": {
+      "key": "theme.dark",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Thème sombre",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.084Z"
+    },
+    "fr:language.en": {
+      "key": "language.en",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Anglais",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.093Z"
+    },
+    "fr:language.es": {
+      "key": "language.es",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Espagnol",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.099Z"
+    },
+    "fr:language.ru": {
+      "key": "language.ru",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Russe",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.100Z"
+    },
+    "fr:language.fr": {
+      "key": "language.fr",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Français",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.103Z"
+    },
+    "ru:nav.home": {
+      "key": "nav.home",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Главная",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.757Z"
+    },
+    "ru:nav.features": {
+      "key": "nav.features",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Функции",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.758Z"
+    },
+    "ru:nav.howItWorks": {
+      "key": "nav.howItWorks",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Как это работает",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.759Z"
+    },
+    "ru:nav.demo": {
+      "key": "nav.demo",
+      "locale": "ru",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Демо",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:56.760Z"
+    },
+    "es:nav.home": {
+      "key": "nav.home",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Inicio",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.053Z"
+    },
+    "es:nav.features": {
+      "key": "nav.features",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Características",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.057Z"
+    },
+    "es:nav.howItWorks": {
+      "key": "nav.howItWorks",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "¿Cómo funciona?",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.058Z"
+    },
+    "es:nav.demo": {
+      "key": "nav.demo",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Demostración",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.065Z"
+    },
+    "es:install.trigger": {
+      "key": "install.trigger",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Instalar ▾",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.065Z"
+    },
+    "es:install.tryInBrowser": {
+      "key": "install.tryInBrowser",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Probar en el navegador →",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.066Z"
+    },
+    "es:stash.clear": {
+      "key": "stash.clear",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Limpiar",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.067Z"
+    },
+    "es:theme.label": {
+      "key": "theme.label",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Switch de tema",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.067Z"
+    },
+    "es:theme.light": {
+      "key": "theme.light",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Tema claro",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.067Z"
+    },
+    "es:theme.dark": {
+      "key": "theme.dark",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Tema oscuro",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.067Z"
+    },
+    "es:language.label": {
+      "key": "language.label",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Idioma",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.067Z"
+    },
+    "es:language.en": {
+      "key": "language.en",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Inglés",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.067Z"
+    },
+    "es:language.es": {
+      "key": "language.es",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Español",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.068Z"
+    },
+    "es:language.ru": {
+      "key": "language.ru",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Ruso",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.068Z"
+    },
+    "es:language.fr": {
+      "key": "language.fr",
+      "locale": "es",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Francés",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:18:37.068Z"
+    },
+    "fr:theme.label": {
+      "key": "theme.label",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Changeur de thème",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.080Z"
+    },
+    "fr:language.label": {
+      "key": "language.label",
+      "locale": "fr",
+      "sourceHash": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "translated": "Langue",
+      "origin": "ai",
+      "model": "jan-v3-4b-base-instruct",
+      "timestamp": "2026-06-25T18:19:16.088Z"
+    }
+  }
+}
