@@ -1,0 +1,45 @@
+# Stash
+
+> URL management for humans and agents. Share groups of links as a single,
+> stateless URL. The stash payload travels inside the URL itself.
+
+## How share URLs work
+
+A share URL looks like `https://stash.illo.fyi/s/#p=<payload>` (or `#q=` for the
+QR/base32 form). The payload lives in the URL **fragment** (`#p=...`), which is
+never sent to servers. To read a stash programmatically, take the payload string
+(everything after `#p=`) and pass it as the `p` **query** parameter to one of the
+decode endpoints below.
+
+Payload format: one prefix character + body.
+- `C` / `R` (base64url, from `#p=`): `C` = brotli-compressed msgpack, `R` = raw msgpack
+- `D` / `S` (base32, from `#q=`): `D` = brotli-compressed msgpack, `S` = raw msgpack
+
+## Endpoints
+
+### /md
+Decode a stash payload and return the items as a Markdown link list.
+Usage: `GET /md?p=<payload>`
+
+### /json
+Decode a stash payload and return structured JSON (expiry, items, title).
+Usage: `GET /json?p=<payload>`
+
+### /s
+The stash viewer page. Supports content negotiation when the payload is passed
+as a query parameter: `GET /s?p=<payload>` with `Accept: text/markdown` or
+`application/json` (or `?format=md|json`, or a `.md`/`.json` suffix on `p`).
+Without negotiation it serves the interactive HTML viewer.
+
+## Notes for agents
+
+- Responses are cached until the payload's expiry timestamp.
+- Expired stashes still decode (check `isExpired` in JSON output).
+- A 400 means the payload string was malformed or truncated; re-copy the full
+  payload from the share URL.
+- Rate limit: ~30 requests/minute per IP, HTTP 429 with `Retry-After: 60`.
+
+## Docs
+
+- Human docs: https://stash.illo.fyi/docs
+- OpenAPI spec: https://stash.illo.fyi/api/openapi.json

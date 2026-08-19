@@ -1,7 +1,9 @@
+export type ShareItem = [url: string, title: string, kind?: "url" | "note"];
+
 export interface SharePayload {
   v: number; // Schema version
   e: number; // Expiry timestamp (Unix seconds)
-  i: [string, string][]; // Items: [url, title][]
+  i: ShareItem[]; // Items: [url, title, kind?][]
   t?: string; // Optional stash title
 }
 
@@ -25,7 +27,7 @@ export interface QrEncodingResult {
 export interface DecodedPayload {
   version: number;
   expiry: number;
-  items: [string, string][];
+  items: ShareItem[];
   isExpired: boolean;
   title?: string;
 }

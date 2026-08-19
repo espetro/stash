@@ -5,7 +5,8 @@ import { getBrotliFunctions } from "@stash/shared";
 export interface DecodedData {
   expiry: number;
   isExpired: boolean;
-  items: [string, string][];
+  version: number;
+  items: [string, string, ("url" | "note")?][];
   title?: string;
 }
 

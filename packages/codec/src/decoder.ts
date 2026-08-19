@@ -4,21 +4,15 @@ import type { BrotliFunctions, DecodedPayload } from "./types.js";
 import { PayloadDecodeError } from "./types.js";
 
 /**
- * Decode share URL fragment to v4 payload.
- * Supports both #p= (base64url) and #q= (base32) fragments.
+ * Decode a bare encoded payload string (without the #p=/#q= wrapper).
+ * Transport is inferred from the prefix:
+ *   C/R = URL adapter (base64url), D/S = QR adapter (base32).
+ * Prefixes: C/D = brotli-compressed, R/S = raw msgpack.
  */
-export async function decodeShareUrl(
-  fragment: string,
+export async function decodeEncodedPayload(
+  encoded: string,
   brotli: BrotliFunctions,
 ): Promise<DecodedPayload> {
-  const urlMatch = fragment.match(/^#p=(.+)$/);
-  const qrMatch = fragment.match(/^#q=(.+)$/);
-
-  if (!urlMatch && !qrMatch) {
-    throw new PayloadDecodeError("Invalid URL fragment format");
-  }
-
-  const encoded = urlMatch ? urlMatch[1] : qrMatch![1];
   if (encoded.length === 0) {
     throw new PayloadDecodeError("Invalid URL fragment format");
   }
@@ -28,26 +22,22 @@ export async function decodeShareUrl(
 
   let bytes: Uint8Array;
 
-  if (urlMatch) {
+  if (prefix === "C" || prefix === "R") {
     // URL adapter: base64url alphabet
-    if (prefix !== "C" && prefix !== "R") {
-      throw new PayloadDecodeError("Unknown payload prefix");
-    }
     try {
       bytes = decodeBase64urlIgnorePadding(body);
     } catch {
       throw new PayloadDecodeError("Invalid base64url encoding");
     }
-  } else {
+  } else if (prefix === "D" || prefix === "S") {
     // QR adapter: base32 alphabet
-    if (prefix !== "D" && prefix !== "S") {
-      throw new PayloadDecodeError("Unknown payload prefix");
-    }
     try {
       bytes = decodeBase32IgnorePadding(body);
     } catch {
       throw new PayloadDecodeError("Invalid base32 encoding");
     }
+  } else {
+    throw new PayloadDecodeError("Unknown payload prefix");
   }
 
   // Decompress if needed
@@ -72,7 +62,7 @@ export async function decodeShareUrl(
 
   const { v, e, i, t } = payload;
 
-  if (v !== 4) {
+  if (v !== 4 && v !== 5) {
     throw new PayloadDecodeError("Unsupported payload version");
   }
 
@@ -89,4 +79,22 @@ export async function decodeShareUrl(
     isExpired: now > e,
     title: t,
   };
+}
+
+/**
+ * Decode share URL fragment to payload.
+ * Supports both #p= (base64url) and #q= (base32) fragments.
+ */
+export async function decodeShareUrl(
+  fragment: string,
+  brotli: BrotliFunctions,
+): Promise<DecodedPayload> {
+  const urlMatch = fragment.match(/^#p=(.+)$/);
+  const qrMatch = fragment.match(/^#q=(.+)$/);
+
+  if (!urlMatch && !qrMatch) {
+    throw new PayloadDecodeError("Invalid URL fragment format");
+  }
+
+  return decodeEncodedPayload((urlMatch ?? qrMatch)![1], brotli);
 }

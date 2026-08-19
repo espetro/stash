@@ -1,4 +1,4 @@
-import { decodeShareUrl, PayloadDecodeError } from "@stash/codec";
+import { decodeEncodedPayload, PayloadDecodeError } from "@stash/codec";
 import type { BrotliFunctions } from "@stash/codec";
 
 let brotliInstance: BrotliFunctions | null = null;
@@ -19,19 +19,20 @@ export interface DecodedPayload {
   title?: string;
   expiry: number;
   isExpired: boolean;
-  items: Array<{ url: string; title: string }>;
+  version: number;
+  items: Array<{ url: string; title: string; kind?: string }>;
 }
 
 export async function decodePayload(p: string): Promise<DecodedPayload> {
   const brotli = await getBrotliFunctions();
-  const fragment = `#p=${p}`;
-  const decoded = await decodeShareUrl(fragment, brotli);
+  const decoded = await decodeEncodedPayload(p, brotli);
 
   return {
     title: decoded.title,
     expiry: decoded.expiry,
     isExpired: decoded.isExpired,
-    items: decoded.items.map(([url, title]) => ({ url, title })),
+    version: decoded.version,
+    items: decoded.items.map(([url, title, kind]) => ({ url, title, kind })),
   };
 }
 
