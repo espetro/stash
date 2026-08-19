@@ -13,7 +13,9 @@ import {
   OutlineButton,
 } from "@/components/shared";
 import { useStashForm } from "@/hooks/useStashForm";
+import { useBudgetMeter } from "@/hooks/useBudgetMeter";
 import { EXPIRY_OPTIONS } from "@stash/shared";
+import { FaCircleCheck, FaTriangleExclamation } from "react-icons/fa6";
 
 export default function NewStashForm() {
   const { lang } = useLocale();
@@ -31,6 +33,10 @@ export default function NewStashForm() {
     handleCopy,
     handleClear,
   } = useStashForm();
+  const meter = useBudgetMeter(urls, stashTitle);
+
+  const urlRatio = meter.itemCount > 0 ? meter.urlChars / meter.budgetChars : 0;
+  const urlFits = meter.urlChars <= meter.budgetChars;
 
   const saveLabel =
     saveState === "generating"
@@ -77,6 +83,48 @@ export default function NewStashForm() {
               </option>
             ))}
           </select>
+
+          {meter.itemCount > 0 && (
+            <div
+              className="rounded-xl border border-border bg-muted p-3"
+              data-testid="budget-meter"
+              aria-live="polite"
+            >
+              <div className="mb-2 flex items-center justify-between text-xs">
+                <span className="font-medium text-foreground">
+                  {meter.itemCount} {t("stash.meter.items", undefined, lang)}
+                </span>
+                <span className={urlFits ? "text-muted-foreground" : "font-semibold text-red-600"}>
+                  {meter.urlChars} / {meter.budgetChars} {t("stash.meter.chars", undefined, lang)}
+                </span>
+              </div>
+              <div className="mb-2 h-1.5 w-full overflow-hidden rounded-full bg-border">
+                <div
+                  className={`h-full rounded-full transition-all ${
+                    urlRatio > 1 ? "bg-red-600" : urlRatio > 0.8 ? "bg-amber-500" : "bg-primary"
+                  }`}
+                  style={{ width: `${Math.min(100, urlRatio * 100)}%` }}
+                />
+              </div>
+              <div className="flex items-center gap-1.5 text-xs">
+                {meter.qrPossible ? (
+                  <>
+                    <FaCircleCheck className="size-3.5 text-primary" />
+                    <span className="text-muted-foreground">
+                      {t("stash.meter.qrOk", undefined, lang)}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <FaTriangleExclamation className="size-3.5 text-amber-500" />
+                    <span className="text-muted-foreground">
+                      {t("stash.meter.qrTooBig", undefined, lang)}
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           {resultUrl && (
             <div className="mt-2 rounded-xl border border-border bg-muted p-4">

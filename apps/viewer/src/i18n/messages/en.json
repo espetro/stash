@@ -34,5 +34,9 @@
   "sharedTabs.saveEdited": "Save edited stash",
   "sharedTabs.savedEdited": "Saved! Link below",
   "sharedTabs.editedLink": "Edited stash link",
-  "sharedTabs.empty": "No items left"
+  "sharedTabs.empty": "No items left",
+  "stash.meter.items": "items",
+  "stash.meter.chars": "chars",
+  "stash.meter.qrOk": "QR code still fits",
+  "stash.meter.qrTooBig": "QR no longer possible, link still works"
 }
