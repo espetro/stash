@@ -11,6 +11,7 @@ import {
   jsonHeaders,
   type Env,
 } from "./store";
+import { handleMcpRequest, serverCardResponse } from "./mcp";
 
 const MAX_PAYLOAD_CHARS = 8000;
 const ID_RE = /^[A-Z2-7]{6}$/;
@@ -29,7 +30,7 @@ function errorResponse(status: number, message: string, extra: Record<string, st
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
     if (request.method === "OPTIONS") {
@@ -128,6 +129,16 @@ export default {
       // HTML: redirect into the viewer SPA with the payload inline (stateless render)
       const viewer = url.searchParams.get("v") ?? `${url.origin}/s`;
       return Response.redirect(`${viewer}#p=${entry.p}`, 302);
+    }
+
+    // MCP: stateless Streamable-HTTP server
+    if (url.pathname === "/mcp" && (request.method === "POST" || request.method === "GET")) {
+      return handleMcpRequest(request, env);
+    }
+
+    // GET /.well-known/mcp-server-card — discovery card
+    if (url.pathname === "/.well-known/mcp-server-card" && request.method === "GET") {
+      return serverCardResponse(url.origin);
     }
 
     // GET /health

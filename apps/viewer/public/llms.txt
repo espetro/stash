@@ -42,6 +42,12 @@ HTML viewer.
   payload from the share URL.
 - Rate limit: ~30 requests/minute per IP, HTTP 429 with `Retry-After: 60`.
 
+## MCP
+
+- MCP server (Streamable-HTTP, stateless): `https://stash.illo.fyi/mcp`
+- Tools: `stash_create` (urls -> short link), `stash_get` (id -> items), `stash_decode` (payload -> items)
+- Discovery card: `https://stash.illo.fyi/.well-known/mcp-server-card`
+
 ## Docs
 
 - Human docs: https://stash.illo.fyi/docs
