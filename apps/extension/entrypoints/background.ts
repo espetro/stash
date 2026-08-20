@@ -3,8 +3,17 @@ import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import type { TabInfo } from "@stash/codec";
 import { getBrotliFunctions } from "@stash/shared";
 import { getSettings, settingsItem } from "../lib/settings";
+import type { RuntimePort } from "../global";
+import { MCP_PORT_NAME, startMcpServerOverPort } from "../lib/mcp/background-server";
 
 export default defineBackground(() => {
+  // MCP server over runtime ports (fresh server + transport per connection)
+  browser.runtime.onConnect.addListener((port) => {
+    if (port.name === MCP_PORT_NAME) {
+      startMcpServerOverPort(port as unknown as RuntimePort);
+    }
+  });
+
   settingsItem.onChanged((newValue) => {
     console.log("Settings changed:", newValue);
   });
