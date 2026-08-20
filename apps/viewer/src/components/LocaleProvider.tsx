@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { DEFAULT_LANG, type Lang, isLang } from "@/i18n";
+import { isLandingRoute } from "@/i18n/url";
 
 const STORAGE_KEY = "stash-locale";
 const CHANGE_EVENT = "stash-locale-change";
@@ -21,7 +22,13 @@ function notify(lang: Lang) {
 
 if (typeof window !== "undefined") {
   currentLang = readStoredLang();
-  document.documentElement.lang = currentLang;
+  // On landing routes (`/`, `/es`, `/fr`, `/ru`), the server-rendered
+  // <html lang> is already correct. Don't clobber it with whatever
+  // localStorage holds (which may be stale from a previous visit) —
+  // that causes an SSR/hydration mismatch on the lang attribute.
+  if (!isLandingRoute(window.location.pathname)) {
+    document.documentElement.lang = currentLang;
+  }
   window.addEventListener("storage", (event) => {
     if (event.key === STORAGE_KEY && event.newValue && isLang(event.newValue)) {
       currentLang = event.newValue;
@@ -38,7 +45,11 @@ function setLang(next: Lang) {
   if (currentLang === next) return;
   currentLang = next;
   window.localStorage.setItem(STORAGE_KEY, next);
-  document.documentElement.lang = next;
+  // Only mutate documentElement.lang on non-landing routes — on landing
+  // routes the URL is the source of truth and a navigation is in flight.
+  if (!isLandingRoute(window.location.pathname)) {
+    document.documentElement.lang = next;
+  }
   window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 

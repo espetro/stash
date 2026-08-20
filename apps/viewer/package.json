@@ -8,7 +8,7 @@
     "clean": "rm -rf dist",
     "dev": "astro dev",
     "build": "astro build",
-    "i18n:fill": "intl-ai fill",
+    "i18n:fill": "intl-ai fill --config $(pwd)/intl-ai.config.ts",
     "preview": "astro preview",
     "format": "oxfmt --write 'src/**/*.{ts,tsx}' && prettier --write 'src/**/*.astro' --plugin prettier-plugin-astro --ignore-path .prettierignore",
     "lint": "oxlint src --ignore-pattern '**/*.d.ts'",
@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@astrojs/react": "^5.0.4",
+    "@astrojs/sitemap": "^3.7.3",
     "@astrojs/starlight": "^0.39.2",
     "@msgpack/msgpack": "^3.1.3",
     "@stash/codec": "workspace:*",

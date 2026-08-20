@@ -1,0 +1,32 @@
+---
+// Extracted landing body so the same JSX renders on `/`, `/es`, `/fr`, `/ru`.
+// `lang` is server-resolved from `Astro.currentLocale` and threaded down to
+// every section so `t()` calls resolve server-side.
+import type { Lang } from "@/i18n";
+import Navbar from "./Navbar";
+import Hero from "./Hero.astro";
+import ProblemStrip from "./ProblemStrip.astro";
+import FeaturesGrid from "./FeaturesGrid.astro";
+import HowItWorks from "./HowItWorks.astro";
+import DemoSection from "./DemoSection.astro";
+import PrivacySection from "./PrivacySection.astro";
+import FinalCTA from "./FinalCTA.astro";
+import Footer from "./Footer.astro";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+---
+
+<Navbar lang={lang} client:load />
+<main>
+  <Hero lang={lang} />
+  <ProblemStrip lang={lang} />
+  <FeaturesGrid lang={lang} />
+  <HowItWorks lang={lang} />
+  <DemoSection lang={lang} />
+  <PrivacySection lang={lang} />
+  <FinalCTA lang={lang} />
+</main>
+<Footer lang={lang} />

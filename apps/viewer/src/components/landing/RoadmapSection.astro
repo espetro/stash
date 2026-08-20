@@ -3,20 +3,26 @@
 // Displays shipped features, upcoming items, and suggest CTA
 
 import RoadmapCell from "./RoadmapCell.astro";
+import { t, type Lang } from "@/i18n";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
 
 // Done items (shipped features)
 const doneItems = [
-  "AI-first",
-  "Select any tab",
-  "Set expiration time",
-  "Share with a link",
-  "Light/dark theme",
-  "Chrome & Firefox",
-  "Review anywhere",
+  "roadmap.done.aiFirst",
+  "roadmap.done.selectAnyTab",
+  "roadmap.done.expiration",
+  "roadmap.done.shareLink",
+  "roadmap.done.theme",
+  "roadmap.done.browsers",
+  "roadmap.done.review",
 ];
 
 // Upcoming items
-const upcomingItems = ["More languages (i18n)", "Safari support"];
+const upcomingItems = ["roadmap.upcoming.languages", "roadmap.upcoming.safari"];
 
 // Suggest link
 const suggestHref = "https://github.com/espetro/stash/issues";
@@ -31,27 +37,31 @@ const suggestHref = "https://github.com/espetro/stash/issues";
     <h2
       class="section-headline text-foreground text-[1.75rem] font-bold tracking-[-0.025em] m-0 mb-1 lg:text-2xl"
     >
-      Where We Are — And Where We're Going
+      {t("roadmap.title", undefined, lang)}
     </h2>
     <p
       class="section-subheadline text-muted-foreground text-base m-0 mb-10 lg:text-[1.0625rem] lg:mb-12"
     >
-      Transparent development, community-driven priorities
+      {t("roadmap.subtitle", undefined, lang)}
     </p>
 
     <!-- Compact grid -->
     <div
       class="roadmap-grid grid grid-cols-2 gap-3 mb-8 sm:grid-cols-3 lg:grid-cols-5 lg:gap-4"
     >
-      {doneItems.map((item) => <RoadmapCell status="done" label={item} />)}
       {
-        upcomingItems.map((item) => (
-          <RoadmapCell status="upcoming" label={item} />
+        doneItems.map((key) => (
+          <RoadmapCell status="done" label={t(key, undefined, lang)} />
+        ))
+      }
+      {
+        upcomingItems.map((key) => (
+          <RoadmapCell status="upcoming" label={t(key, undefined, lang)} />
         ))
       }
       <RoadmapCell
         status="suggest"
-        label="Suggest a feature"
+        label={t("roadmap.suggest", undefined, lang)}
         href={suggestHref}
       />
     </div>
@@ -61,13 +71,13 @@ const suggestHref = "https://github.com/espetro/stash/issues";
       <span class="legend-item flex items-center gap-1">
         <span class="legend-badge text-xs">✓</span>
         <span class="legend-text text-[0.8125rem] text-muted-foreground"
-          >Shipped</span
+          >{t("roadmap.legend.shipped", undefined, lang)}</span
         >
       </span>
       <span class="legend-item flex items-center gap-1">
         <span class="legend-badge text-xs">🕐</span>
         <span class="legend-text text-[0.8125rem] text-muted-foreground"
-          >Coming Soon</span
+          >{t("roadmap.legend.comingSoon", undefined, lang)}</span
         >
       </span>
     </div>

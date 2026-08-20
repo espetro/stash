@@ -1,7 +1,7 @@
 {
   "install": {
-    "chrome": "Agregar a Chrome",
-    "firefox": "Agregar a Firefox",
+    "chrome": "Añadir a Chrome",
+    "firefox": "Añadir a Firefox",
     "trigger": "Instalar ▾",
     "tryInBrowser": "Probar en el navegador →"
   },
@@ -10,10 +10,10 @@
       "title": "Crear Stash"
     },
     "title": {
-      "placeholder": "Título del Stash"
+      "placeholder": "Título de Stash"
     },
     "urls": {
-      "placeholder": "Pegue URLs (una por línea). Use 'URL | Título' para nombrar:\nhttps://google.com | Google"
+      "placeholder": "Pegar URLs (una por línea). Usa 'URL | Título' para nombrar un elemento: https://google.com | Google"
     },
     "copy": {
       "idle": "Copiar al portapapeles",
@@ -22,7 +22,7 @@
     "save": "Guardar",
     "generating": "Generando...",
     "error": "Error",
-    "clear": "Limpiar",
+    "clear": "Borrar",
     "meter": {
       "items": "elementos",
       "chars": "caracteres",
@@ -38,7 +38,7 @@
   },
   "sharedTabs": {
     "title": "Pestañas compartidas",
-    "shareQr": "Compartir como código QR",
+    "shareQr": "Compartir como QR",
     "new": "Nuevo",
     "selectAll": "Seleccionar todo",
     "deselectAll": "Deseleccionar todo",
@@ -53,11 +53,11 @@
   "nav": {
     "home": "Inicio",
     "features": "Características",
-    "howItWorks": "¿Cómo funciona?",
-    "demo": "Demostración"
+    "howItWorks": "Cómo funciona",
+    "demo": "Demo"
   },
   "theme": {
-    "label": "Switch de tema",
+    "label": "Cambiar tema",
     "light": "Tema claro",
     "dark": "Tema oscuro"
   },
@@ -68,12 +68,124 @@
     "ru": "Ruso",
     "fr": "Francés"
   },
-  "sharedTabs.selectAll": "Seleccionar todo",
-  "sharedTabs.deselectAll": "Deseleccionar todo",
-  "sharedTabs.openSelected": "Abrir seleccionados",
-  "sharedTabs.removeSelected": "Quitar seleccionados",
-  "sharedTabs.saveEdited": "Guardar stash editado",
-  "sharedTabs.savedEdited": "¡Guardado! Enlace abajo",
-  "sharedTabs.editedLink": "Enlace del stash editado",
-  "sharedTabs.empty": "No quedan elementos"
+  "hero": {
+    "headline": {
+      "line1": "Tus pestañas son tu pensamiento.",
+      "line2": "Deja de perderlas."
+    },
+    "subheadline": "Comparte todo el contexto de tu navegador como un solo enlace, o simplemente guárdalo para después. Localmente. Privadamente. Sin cuenta. Sin nube. Sin ruido.",
+    "cta": {
+      "chrome": "Añadir a Chrome",
+      "chromeAria": "Añadir Stash a Chrome",
+      "firefox": "Añadir a Firefox",
+      "firefoxAria": "Añadir Stash a Firefox",
+      "tryInBrowser": "Probar en el navegador →"
+    },
+    "tagline": "Gratis · Sin cuenta requerida · Funciona sin conexión"
+  },
+  "proof": {
+    "label": "Usado por equipos de",
+    "company1": "Startups respaldadas por YC",
+    "company2": "Creadores indie"
+  },
+  "features": {
+    "title": "Todo lo que necesitas. Nada más.",
+    "sharing": {
+      "label": "COMPARTIR",
+      "title": "Compartir contexto con un solo enlace",
+      "description": "Comparte todas las pestañas abiertas como una sola URL. Los compañeros la abren y ven tu sesión exacta."
+    },
+    "privacy": {
+      "label": "PRIVACIDAD",
+      "title": "Primero local. Siempre.",
+      "description": "Tus datos nunca abandonan tu máquina a menos que elijas compartir. Sin cuenta. Sin servidor de sincronización."
+    },
+    "workflow": {
+      "label": "FLUJO DE TRABAJO",
+      "title": "Contexto listo para IA",
+      "description": "Exporta tu sesión actual como contexto estructurado para cualquier LLM. Pega tus pestañas directamente en tu flujo de trabajo."
+    },
+    "reliability": {
+      "label": "FIABILIDAD",
+      "title": "Funciona sin conexión",
+      "description": "Guarda sesiones incluso sin internet. Léelas cuando quieras."
+    },
+    "organization": {
+      "label": "ORGANIZACIÓN",
+      "title": "Sesiones nombradas",
+      "description": "Organiza grupos de pestañas con nombres y marcas de tiempo. Tu contexto, etiquetado."
+    },
+    "mobile": {
+      "label": "MOVIL",
+      "title": "Compartir como código QR",
+      "description": "Genera un QR desde cualquier sesión y escanéalo en tu teléfono. Tus pestañas, en cualquier lugar."
+    }
+  },
+  "howItWorks": {
+    "title": "Tres pasos.",
+    "step1": {
+      "title": "Abrir Stash",
+      "body": "Haz clic en el icono de la extensión mientras navegas. Tus pestañas actuales aparecen al instante."
+    },
+    "step2": {
+      "title": "Guardar o compartir",
+      "body": "Haz clic en \"Guardar sesión\" para guardarla localmente, o en \"Copiar enlace\" para compartir tu contexto exacto."
+    },
+    "step3": {
+      "title": "Restaurar en cualquier momento",
+      "body": "Abre cualquier sesión guardada con un solo clic. Las pestañas se reabren exactamente como las dejaste."
+    }
+  },
+  "demo": {
+    "title": "Verlo en acción",
+    "savedSession": "SESIONE GUARDADA",
+    "sessionTitle": "Investigación: Migración de Astro 5",
+    "viewLive": "Ver un ejemplo en vivo →"
+  },
+  "privacy": {
+    "title": "Diseñado para generar confianza.",
+    "subtitle": "Cero telemetría, cero nube, cero compromisos.",
+    "item1": "Sin cuenta requerida. Nunca.",
+    "item2": "Todas las sesiones se almacenan en el almacenamiento local de tu navegador.",
+    "item3": "Compartir es opt-in. Nada sale sin tu acción.",
+    "item4": "Código abierto. Audítalo tú mismo.",
+    "repoLink": "github.com/espetro/stash →"
+  },
+  "finalCta": {
+    "label": "EXTENSIÓN DE NAVEGADOR GRATIS",
+    "title": "Deja de perder tu contexto.",
+    "subtitle": "Añade Stash a tu navegador en 30 segundos.",
+    "chrome": "Añadir a Chrome",
+    "firefox": "Añadir a Firefox",
+    "tryInBrowser": "Probar en el navegador →",
+    "tagline": "Sin cuenta · Sin nube · Funciona sin conexión"
+  },
+  "footer": {
+    "copyright": "© 2026 Stash — Hecho con cuidado para usuarios avanzados.",
+    "github": "GitHub",
+    "privacy": "Privacidad",
+    "terms": "Términos"
+  },
+  "roadmap": {
+    "title": "Donde Estamos — Y A Dónde Vamos",
+    "subtitle": "Desarrollo transparente, prioridades impulsadas por la comunidad",
+    "done": {
+      "aiFirst": "IA primero",
+      "selectAnyTab": "Selecciona cualquier pestaña",
+      "expiration": "Establecer tiempo de expiración",
+      "shareLink": "Compartir con un enlace",
+      "theme": "Tema claro/oscuro",
+      "browsers": "Chrome y Firefox",
+      "review": "Revisar en cualquier lugar"
+    },
+    "upcoming": {
+      "languages": "Más idiomas (i18n)",
+      "safari": "Soporte Safari"
+    },
+    "suggest": "Sugerir una función",
+    "legend": {
+      "shipped": "Enviado",
+      "comingSoon": "Próximamente"
+    }
+  }
 }
