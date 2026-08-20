@@ -28,6 +28,12 @@
       "chars": "caracteres",
       "qrOk": "El código QR aún cabe",
       "qrTooBig": "QR ya no es posible, el enlace sigue funcionando"
+    },
+    "expiry": {
+      "never": "Nunca expira",
+      "24h": "24 horas",
+      "7d": "7 días",
+      "30d": "30 días"
     }
   },
   "sharedTabs": {

@@ -3,16 +3,11 @@
 import * as React from "react";
 import { DEFAULT_LANG, type Lang, isLang } from "@/i18n";
 
-interface LocaleContextValue {
-  lang: Lang;
-  setLang: (lang: Lang) => void;
-}
-
-const defaultValue: LocaleContextValue = { lang: DEFAULT_LANG, setLang: () => {} };
-
-const LocaleContext = React.createContext<LocaleContextValue>(defaultValue);
-
 const STORAGE_KEY = "stash-locale";
+const CHANGE_EVENT = "stash-locale-change";
+
+const listeners = new Set<(lang: Lang) => void>();
+let currentLang: Lang = DEFAULT_LANG;
 
 function readStoredLang(): Lang {
   if (typeof window === "undefined") return DEFAULT_LANG;
@@ -20,39 +15,58 @@ function readStoredLang(): Lang {
   return raw && isLang(raw) ? raw : DEFAULT_LANG;
 }
 
-function updateHtmlLang(lang: Lang) {
-  if (typeof document !== "undefined") {
-    document.documentElement.lang = lang;
-  }
+function notify(lang: Lang) {
+  for (const listener of listeners) listener(lang);
 }
 
-interface LocaleProviderProps {
-  children: React.ReactNode;
-  initialLang?: Lang;
-}
-
-export function LocaleProvider({ children, initialLang }: LocaleProviderProps) {
-  const [lang, setLangState] = React.useState<Lang>(() => initialLang ?? DEFAULT_LANG);
-
-  React.useEffect(() => {
-    const stored = readStoredLang();
-    setLangState(stored);
-    updateHtmlLang(stored);
-  }, []);
-
-  const setLang = React.useCallback((next: Lang) => {
-    setLangState(next);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(STORAGE_KEY, next);
+if (typeof window !== "undefined") {
+  currentLang = readStoredLang();
+  document.documentElement.lang = currentLang;
+  window.addEventListener("storage", (event) => {
+    if (event.key === STORAGE_KEY && event.newValue && isLang(event.newValue)) {
+      currentLang = event.newValue;
+      notify(currentLang);
     }
-    updateHtmlLang(next);
-  }, []);
-
-  const value = React.useMemo(() => ({ lang, setLang }), [lang, setLang]);
-
-  return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
+  });
+  window.addEventListener(CHANGE_EVENT, () => {
+    notify(currentLang);
+  });
 }
 
-export function useLocale(): LocaleContextValue {
-  return React.useContext(LocaleContext);
+function setLang(next: Lang) {
+  if (typeof window === "undefined") return;
+  if (currentLang === next) return;
+  currentLang = next;
+  window.localStorage.setItem(STORAGE_KEY, next);
+  document.documentElement.lang = next;
+  window.dispatchEvent(new Event(CHANGE_EVENT));
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function getSnapshot(): Lang {
+  return currentLang;
+}
+
+function getServerSnapshot(): Lang {
+  return DEFAULT_LANG;
+}
+
+/**
+ * Astro renders each interactive component as an independent React island,
+ * so React context cannot span them. Locale state therefore lives in this
+ * module-level store, synced across islands via a custom event and persisted
+ * in localStorage. LocaleProvider is kept as a pass-through so existing
+ * layouts keep working; useLocale() works in any island regardless.
+ */
+export function LocaleProvider({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
+}
+
+export function useLocale(): { lang: Lang; setLang: (lang: Lang) => void } {
+  const lang = React.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  return { lang, setLang };
 }

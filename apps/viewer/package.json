@@ -8,6 +8,7 @@
     "clean": "rm -rf dist",
     "dev": "astro dev",
     "build": "astro build",
+    "i18n:fill": "intl-ai fill",
     "preview": "astro preview",
     "format": "oxfmt --write 'src/**/*.{ts,tsx}' && prettier --write 'src/**/*.astro' --plugin prettier-plugin-astro --ignore-path .prettierignore",
     "lint": "oxlint src --ignore-pattern '**/*.d.ts'",
@@ -36,7 +37,11 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
+    "@ai-sdk/openai-compatible": "^2.0.51",
     "@cloudflare/workers-types": "^4.20260526.1",
+    "@intl-ai/api": "0.3.0",
+    "@intl-ai/cli": "0.3.0",
+    "@intl-ai/unplugin": "0.3.0",
     "@tailwindcss/postcss": "^4.3.0",
     "@tailwindcss/vite": "^4.3.0",
     "@types/node": "^24.12.3",

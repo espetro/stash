@@ -1,0 +1,11 @@
+{
+  "$schema": "https://www.schemastore.org/intl-ai.json",
+  "defaultLocale": "en",
+  "locales": ["en", "es", "ru", "fr"],
+  "localeDir": "./src/i18n/messages",
+  "provider": "openai",
+  "model": "${OPENROUTER_MODEL_ID}",
+  "apiKey": "${OPENROUTER_API_KEY}",
+  "baseURL": "https://openrouter.ai/api/v1",
+  "processor": "icu"
+}

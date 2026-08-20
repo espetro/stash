@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 import react from "@astrojs/react";
 import starlight from "@astrojs/starlight";
 import starlightDocsPrefix from "./src/integrations/starlight-docs-prefix/index.ts";
+import IntlAi from "@intl-ai/unplugin/vite";
 
 const viewerOrigin = (process.env.VITE_VIEWER_ORIGIN ?? "http://localhost:4321").replace(/\/$/, "");
 
@@ -85,7 +86,7 @@ export default defineConfig({
     define: {
       "import.meta.env.APP_VERSION": JSON.stringify(pkg.version),
     },
-    plugins: [],
+    plugins: [IntlAi()],
     optimizeDeps: {
       exclude: ["brotli-wasm"],
     },

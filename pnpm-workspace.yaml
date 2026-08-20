@@ -6,3 +6,7 @@ allowBuilds:
   sharp: true
   spawn-sync: true
   workerd: true
+minimumReleaseAgeExclude:
+  - '@intl-ai/api@0.3.0'
+  - '@intl-ai/cli@0.3.0'
+  - '@intl-ai/unplugin@0.3.0'
