@@ -12,3 +12,4 @@ tmp/
 # Generated JavaScript files from TypeScript compilation
 *.js
 .opencode/plugins/emdash-notifications.js
+.wrangler/
