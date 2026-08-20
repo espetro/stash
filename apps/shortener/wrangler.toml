@@ -8,8 +8,8 @@ compatibility_date = "2026-08-01"
 # then paste the ids below.
 [[kv_namespaces]]
 binding = "STASH_KV"
-id = "REPLACE_WITH_KV_ID"
-preview_id = "REPLACE_WITH_PREVIEW_KV_ID"
+id = "4778f672faff4aa1899ca0cae42354e6"
+preview_id = "5f672e5317c849f7a7b50ec4aa138607"
 
 # brotli-wasm's "exports" map hides pkg.web; alias to a vendored copy
 # (plain JS + wasm passed to init(), workerd-compatible)
@@ -20,3 +20,4 @@ brotli-wasm-web = "./src/vendor/brotli_wasm.js"
 [[rules]]
 type = "CompiledWasm"
 globs = ["**/*.wasm"]
+fallthrough = false
