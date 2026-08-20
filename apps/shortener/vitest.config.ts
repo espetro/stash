@@ -10,9 +10,12 @@ const brotliDir = path.dirname(require.resolve(path.join(path.dirname(real), "pa
 
 export default defineConfig({
   resolve: {
-    alias: {
-      "brotli-wasm-web": path.join(brotliDir, "pkg.web", "brotli_wasm.js"),
-    },
+    alias: [
+      { find: "brotli-wasm-web", replacement: path.join(brotliDir, "pkg.web", "brotli_wasm.js") },
+      // Node/vite can't consume the CompiledWasm-style .wasm import that
+      // wrangler substitutes; tests use the base64 fallback stub instead.
+      { find: /\.\/vendor\/brotli_wasm_bg\.wasm$/, replacement: path.resolve(__dirname, "src/__tests__/wasm-null-stub.ts") },
+    ],
   },
   test: {
     environment: "node",
