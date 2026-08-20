@@ -43,6 +43,7 @@ export default defineConfig({
           label: "About",
           items: [
             { label: "Privacy & Data", slug: "privacy-and-data" },
+            { label: "Agent Server", slug: "agent-server" },
             { label: "FAQ", slug: "faq" },
           ],
         },
