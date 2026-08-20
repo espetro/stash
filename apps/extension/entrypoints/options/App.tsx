@@ -5,6 +5,7 @@ import { browserStorageAdapter } from "@/lib/browser-storage-adapter.js";
 import { EXPIRY_OPTIONS } from "@stash/shared";
 import OptionsFooter from "./components/OptionsFooter.js";
 import OptionsExpiryForm from "./components/OptionsExpiryForm.js";
+import OptionsExperimentalForm from "./components/OptionsExperimentalForm.js";
 import OptionsThemeForm from "./components/OptionsThemeForm.js";
 import OptionsViewerForm from "./components/OptionsViewerForm.js";
 
@@ -16,6 +17,7 @@ export default function App() {
   const [expiryMode, setExpiryMode] = useState<ExpiryMode>("never");
   const [theme, setThemeState] = useState<Theme>("system");
   const [viewerOrigin, setViewerOrigin] = useState<string>("");
+  const [experimentalServer, setExperimentalServer] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -24,6 +26,7 @@ export default function App() {
       .then((settings) => {
         setExpiryMode(settings.expiryMode);
         setViewerOrigin(settings.viewerOrigin);
+        setExperimentalServer(settings.experimentalServer);
         setThemeState(getTheme(browserStorageAdapter));
       })
       .finally(() => setIsLoading(false));
@@ -33,6 +36,13 @@ export default function App() {
     const newMode = _.target.value as ExpiryMode;
     setExpiryMode(newMode);
     await setSettings({ expiryMode: newMode });
+    showSuccessFeedback();
+  };
+
+  const handleExperimentalChange: ChangeEventHandler<HTMLInputElement> = async (event) => {
+    const checked = event.target.checked;
+    setExperimentalServer(checked);
+    await setSettings({ experimentalServer: checked });
     showSuccessFeedback();
   };
 
@@ -78,6 +88,13 @@ export default function App() {
 
           <section className="settings-section" aria-labelledby="viewer-heading">
             <OptionsViewerForm init={viewerOrigin} onSuccess={() => showSuccessFeedback()} />
+          </section>
+
+          <section className="settings-section" aria-labelledby="experimental-heading">
+            <OptionsExperimentalForm
+              checked={experimentalServer}
+              onChange={handleExperimentalChange}
+            />
           </section>
 
           <OptionsFooter />
