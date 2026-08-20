@@ -1,5 +1,6 @@
 import { decodeEncodedPayload } from "@stash/codec";
-import { getBrotli, PayloadDecodeError } from "./brotli";
+import { PayloadDecodeError } from "@stash/codec";
+import { getBrotli } from "./brotli";
 import {
   createStash,
   getStash,

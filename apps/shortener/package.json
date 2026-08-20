@@ -16,8 +16,8 @@
     "@stash/codec": "workspace:*",
     "brotli-wasm": "^3.0.1",
     "typescript": "^6.0.3",
-    "vitest": "^3.1.0",
-    "wrangler": "^3.114.0"
+    "vitest": "^4.1.7",
+    "wrangler": "^4.124.0"
   },
   "dependencies": {
     "unstorage": "^1.17.5"
