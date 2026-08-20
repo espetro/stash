@@ -39,5 +39,9 @@
   "stash.meter.chars": "chars",
   "stash.meter.qrOk": "QR code still fits",
   "stash.meter.qrTooBig": "QR no longer possible, link still works",
-  "sharedTabs.close": "Close"
+  "sharedTabs.close": "Close",
+  "stash.expiry.never": "Never expires",
+  "stash.expiry.24h": "24 hours",
+  "stash.expiry.7d": "7 days",
+  "stash.expiry.30d": "30 days"
 }

@@ -80,7 +80,7 @@ export default function NewStashForm() {
           >
             {EXPIRY_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
-                {opt.label}
+                {t(`stash.expiry.${opt.value}`, undefined, lang)}
               </option>
             ))}
           </select>
