@@ -1,5 +1,15 @@
 ---
 import { FaSun, FaMoon } from "react-icons/fa6";
+import { t, DEFAULT_LANG, type Lang } from "@/i18n";
+
+interface Props {
+  /**
+   * Server-resolved locale. Optional so unprefixed pages
+   * (`/privacy`, `/terms`) keep working without changes.
+   */
+  lang?: Lang;
+}
+const lang: Lang = Astro.props.lang ?? DEFAULT_LANG;
 ---
 
 <footer class="footer bg-background border-t border-border">
@@ -8,9 +18,8 @@ import { FaSun, FaMoon } from "react-icons/fa6";
     style="grid-template-columns: 1fr auto 1fr"
   >
     <span class="footer-copy font-mono text-xs text-muted-foreground"
-      >© 2026 Stash — Made with care for power users. <span
-        class="opacity-60 ml-1">v{import.meta.env.APP_VERSION}</span
-      ></span
+      >{t("footer.copyright", undefined, lang)}
+      <span class="opacity-60 ml-1">v{import.meta.env.APP_VERSION}</span></span
     >
 
     <div
@@ -45,17 +54,17 @@ import { FaSun, FaMoon } from "react-icons/fa6";
         href="https://github.com/espetro/stash"
         class="footer-link font-mono text-xs text-muted-foreground no-underline transition-colors duration-150 hover:text-foreground focus-visible:outline focus-visible:outline-ring focus-visible:outline-offset-2 focus-visible:rounded-sm"
         target="_blank"
-        rel="noopener noreferrer">GitHub</a
+        rel="noopener noreferrer">{t("footer.github", undefined, lang)}</a
       >
       <a
         href="/privacy"
         class="footer-link font-mono text-xs text-muted-foreground no-underline transition-colors duration-150 hover:text-foreground focus-visible:outline focus-visible:outline-ring focus-visible:outline-offset-2 focus-visible:rounded-sm"
-        >Privacy</a
+        >{t("footer.privacy", undefined, lang)}</a
       >
       <a
         href="/terms"
         class="footer-link font-mono text-xs text-muted-foreground no-underline transition-colors duration-150 hover:text-foreground focus-visible:outline focus-visible:outline-ring focus-visible:outline-offset-2 focus-visible:rounded-sm"
-        >Terms</a
+        >{t("footer.terms", undefined, lang)}</a
       >
     </nav>
   </div>

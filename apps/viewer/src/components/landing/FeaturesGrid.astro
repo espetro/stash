@@ -10,48 +10,49 @@ import {
   FaLink,
 } from "react-icons/fa6";
 import FeatureCard from "./FeatureCard.astro";
+import { t, type Lang } from "@/i18n";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
 
 const features = [
   {
     icon: FaLink,
-    label: "SHARING",
-    title: "One-link context sharing",
-    description:
-      "Share all open tabs as a single URL. Teammates open it, they see your exact session.",
+    labelKey: "features.sharing.label",
+    titleKey: "features.sharing.title",
+    descriptionKey: "features.sharing.description",
   },
   {
     icon: FaLock,
-    label: "PRIVACY",
-    title: "Local-first. Always.",
-    description:
-      "Your data never leaves your machine unless you choose to share. No account. No sync server.",
+    labelKey: "features.privacy.label",
+    titleKey: "features.privacy.title",
+    descriptionKey: "features.privacy.description",
   },
   {
     icon: FaRegHandPointer,
-    label: "WORKFLOW",
-    title: "AI-ready context",
-    description:
-      "Export your current session as structured context for any LLM. Paste your tabs directly into your workflow.",
+    labelKey: "features.workflow.label",
+    titleKey: "features.workflow.title",
+    descriptionKey: "features.workflow.description",
   },
   {
     icon: FaToggleOff,
-    label: "RELIABILITY",
-    title: "Works offline",
-    description: "Save sessions even without internet. Read them back anytime.",
+    labelKey: "features.reliability.label",
+    titleKey: "features.reliability.title",
+    descriptionKey: "features.reliability.description",
   },
   {
     icon: FaTag,
-    label: "ORGANIZATION",
-    title: "Named sessions",
-    description:
-      "Organize tab groups with names and timestamps. Your context, labeled.",
+    labelKey: "features.organization.label",
+    titleKey: "features.organization.title",
+    descriptionKey: "features.organization.description",
   },
   {
     icon: FaQrcode,
-    label: "MOBILE",
-    title: "Share as QR code",
-    description:
-      "Generate a QR from any session and scan it on your phone. Your tabs, anywhere.",
+    labelKey: "features.mobile.label",
+    titleKey: "features.mobile.title",
+    descriptionKey: "features.mobile.description",
   },
 ];
 ---
@@ -63,7 +64,7 @@ const features = [
   <div class="max-w-7xl mx-auto">
     <header class="text-center mb-12 lg:mb-14">
       <h2 class="text-3xl font-semibold text-foreground tracking-tight m-0">
-        Everything you need. Nothing you don't.
+        {t("features.title", undefined, lang)}
       </h2>
     </header>
 
@@ -72,9 +73,9 @@ const features = [
         features.map((feature) => (
           <FeatureCard
             icon={feature.icon}
-            label={feature.label}
-            title={feature.title}
-            description={feature.description}
+            label={t(feature.labelKey, undefined, lang)}
+            title={t(feature.titleKey, undefined, lang)}
+            description={t(feature.descriptionKey, undefined, lang)}
           />
         ))
       }

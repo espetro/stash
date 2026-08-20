@@ -1,6 +1,12 @@
 ---
 // Privacy Statement — two-column trust section
 import { LuBadgeCheck } from "react-icons/lu";
+import { t, type Lang } from "@/i18n";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
 ---
 
 <section
@@ -12,10 +18,10 @@ import { LuBadgeCheck } from "react-icons/lu";
     <!-- Left column -->
     <div class="flex flex-col gap-3 md:flex-[0_0_38%]">
       <h2 class="text-3xl font-semibold text-foreground tracking-tight m-0">
-        Built for trust.
+        {t("privacy.title", undefined, lang)}
       </h2>
       <p class="text-base text-muted-foreground m-0 leading-relaxed">
-        Zero telemetry, zero cloud, zero compromise.
+        {t("privacy.subtitle", undefined, lang)}
       </p>
     </div>
 
@@ -26,25 +32,25 @@ import { LuBadgeCheck } from "react-icons/lu";
           class="flex items-start gap-3 text-[0.9375rem] text-foreground leading-relaxed"
         >
           <LuBadgeCheck className="size-[18px] flex-shrink-0 mt-[3px]" />
-          <span>No account required. Never.</span>
+          <span>{t("privacy.item1", undefined, lang)}</span>
         </li>
         <li
           class="flex items-start gap-3 text-[0.9375rem] text-foreground leading-relaxed"
         >
           <LuBadgeCheck className="size-[18px] flex-shrink-0 mt-[3px]" />
-          <span>All sessions stored in your browser's local storage.</span>
+          <span>{t("privacy.item2", undefined, lang)}</span>
         </li>
         <li
           class="flex items-start gap-3 text-[0.9375rem] text-foreground leading-relaxed"
         >
           <LuBadgeCheck className="size-[18px] flex-shrink-0 mt-[3px]" />
-          <span>Sharing is opt-in. Nothing leaves without your action.</span>
+          <span>{t("privacy.item3", undefined, lang)}</span>
         </li>
         <li
           class="flex items-start gap-3 text-[0.9375rem] text-foreground leading-relaxed"
         >
           <LuBadgeCheck className="size-[18px] flex-shrink-0 mt-[3px]" />
-          <span>Open source. Audit it yourself.</span>
+          <span>{t("privacy.item4", undefined, lang)}</span>
         </li>
       </ul>
 
@@ -54,7 +60,7 @@ import { LuBadgeCheck } from "react-icons/lu";
         target="_blank"
         rel="noopener noreferrer"
       >
-        github.com/espetro/stash →
+        {t("privacy.repoLink", undefined, lang)}
       </a>
     </div>
   </div>
