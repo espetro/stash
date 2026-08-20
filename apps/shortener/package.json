@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
+    "@stash/shared": "workspace:*",
     "unstorage": "^1.17.5",
     "zod": "^4.4.3"
   }

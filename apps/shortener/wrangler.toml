@@ -10,3 +10,13 @@ compatibility_date = "2026-08-01"
 binding = "STASH_KV"
 id = "REPLACE_WITH_KV_ID"
 preview_id = "REPLACE_WITH_PREVIEW_KV_ID"
+
+# brotli-wasm's "exports" map hides pkg.web; alias to a vendored copy
+# (plain JS + wasm passed to init(), workerd-compatible)
+[alias]
+brotli-wasm-web = "./src/vendor/brotli_wasm.js"
+
+# Compile the wasm at build time (workerd forbids runtime wasm compilation)
+[[rules]]
+type = "CompiledWasm"
+globs = ["**/*.wasm"]

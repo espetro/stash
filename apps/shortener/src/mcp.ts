@@ -7,6 +7,7 @@ import {
   decodeEncodedPayload,
   type TabInfo,
 } from "@stash/codec";
+import { parseStashLine } from "@stash/shared";
 import { getBrotli } from "./brotli";
 import { createStash, getStash, isExpired, type Env, type ServerTtl } from "./store";
 
@@ -46,7 +47,10 @@ function buildServer(origin: string, env: Env): McpServer {
     },
     async ({ title, urls, ttlDays }) => {
       const brotli = await getBrotli();
-      const tabs: TabInfo[] = urls.map((url) => ({ url, title: url }));
+      const tabs: TabInfo[] = urls.map((line) => {
+        const { url, title } = parseStashLine(line);
+        return { url, title };
+      });
       const payload = await encodePayloadToUrl(createPayload(tabs, ttlDays * 24, title), brotli);
       const ttl: ServerTtl = `${ttlDays}d` as ServerTtl;
       const { id } = await createStash(env, payload, ttl);
