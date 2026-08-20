@@ -44,9 +44,10 @@ HTML viewer.
 
 ## MCP
 
-- MCP server (Streamable-HTTP, stateless): `https://stash.illo.fyi/mcp`
+- MCP server (Streamable-HTTP, stateless): `https://s.illo.fyi/mcp`
 - Tools: `stash_create` (urls -> short link), `stash_get` (id -> items), `stash_decode` (payload -> items)
-- Discovery card: `https://stash.illo.fyi/.well-known/mcp-server-card`
+- Discovery card: `https://s.illo.fyi/.well-known/mcp-server-card`
+- Short links live on the same host: `https://s.illo.fyi/s/<id>`
 
 ## Docs
 
