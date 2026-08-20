@@ -7,6 +7,10 @@ export interface Env {
   STASH_KV?: KVNamespace;
   /** Test seam: inject an in-memory storage instead of the KV binding */
   TEST_STORAGE?: Storage;
+  /** Workers ratelimit binding — POST /api/stash, 20/min per IP per PoP */
+  RL_STASH?: RateLimit;
+  /** Workers ratelimit binding — POST /mcp, 60/min per IP per PoP */
+  RL_MCP?: RateLimit;
 }
 
 /** Server-stored stashes enforce one of these TTLs; `never` only exists in

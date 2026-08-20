@@ -12,6 +12,7 @@ import {
   type Env,
 } from "./store";
 import { handleMcpRequest, serverCardResponse } from "./mcp";
+import { allowRequest, clientIp, tooManyRequests, mcpTooManyRequests } from "./ratelimit";
 
 const MAX_PAYLOAD_CHARS = 8000;
 const ID_RE = /^[A-Z2-7]{6}$/;
@@ -39,6 +40,7 @@ export default {
 
     // POST /api/stash  { payload, ttl } -> { id, url }
     if (url.pathname === "/api/stash" && request.method === "POST") {
+      if (!(await allowRequest(env.RL_STASH, clientIp(request)))) return tooManyRequests();
       let body: { payload?: string; ttl?: string };
       try {
         body = await request.json();
@@ -133,6 +135,9 @@ export default {
 
     // MCP: stateless Streamable-HTTP server
     if (url.pathname === "/mcp" && (request.method === "POST" || request.method === "GET")) {
+      if (request.method === "POST" && !(await allowRequest(env.RL_MCP, clientIp(request)))) {
+        return mcpTooManyRequests();
+      }
       return handleMcpRequest(request, env);
     }
 
