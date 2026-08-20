@@ -4,13 +4,37 @@ import { getFaviconUrl } from "@stash/shared";
 interface TabItem {
   url: string;
   title: string;
+  kind?: "url" | "note" | string;
   selected?: boolean;
   onToggle?: (shiftKey: boolean) => void;
+  onOpenNote?: () => void;
 }
 
-export function TabListItem({ url, title, selected, onToggle }: TabItem) {
+export function TabListItem({ url, title, kind, selected, onToggle, onOpenNote }: TabItem) {
   const faviconUrl = getFaviconUrl(url);
   const [faviconError, setFaviconError] = useState(false);
+  const isNote = kind === "note";
+
+  const body = (
+    <>
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+        {!isNote && !faviconError ? (
+          <img
+            src={faviconUrl}
+            alt=""
+            className="h-5 w-5 object-contain"
+            onError={() => setFaviconError(true)}
+          />
+        ) : (
+          <span className="text-sm text-muted-foreground">{isNote ? "☰" : "&#128279;"}</span>
+        )}
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="truncate text-sm font-medium text-foreground">{title}</span>
+        <span className="truncate text-xs text-muted-foreground">{isNote ? title : url}</span>
+      </div>
+    </>
+  );
 
   return (
     <div
@@ -41,29 +65,24 @@ export function TabListItem({ url, title, selected, onToggle }: TabItem) {
           )}
         </button>
       )}
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex min-w-0 flex-1 items-start gap-3"
-      >
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
-          {!faviconError ? (
-            <img
-              src={faviconUrl}
-              alt=""
-              className="h-5 w-5 object-contain"
-              onError={() => setFaviconError(true)}
-            />
-          ) : (
-            <span className="text-sm text-muted-foreground">&#128279;</span>
-          )}
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="truncate text-sm font-medium text-foreground">{title}</span>
-          <span className="truncate text-xs text-muted-foreground">{url}</span>
-        </div>
-      </a>
+      {isNote ? (
+        <button
+          type="button"
+          onClick={onOpenNote}
+          className="flex min-w-0 flex-1 cursor-pointer items-start gap-3 text-left"
+        >
+          {body}
+        </button>
+      ) : (
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex min-w-0 flex-1 items-start gap-3"
+        >
+          {body}
+        </a>
+      )}
     </div>
   );
 }

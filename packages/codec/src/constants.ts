@@ -1,4 +1,9 @@
-export const PAYLOAD_VERSION = 4;
+/**
+ * Current payload schema version. v5 is a superset of v4: items gain an
+ * optional third tuple element `kind` ("url" | "note"). v4 remains
+ * decode-only legacy for links already in the wild.
+ */
+export const PAYLOAD_VERSION = 5;
 export const EXPIRY_HOURS = 24;
 export const BUDGET_CHARS = 8000;
 export const MAX_TITLE_CHARS = 120;

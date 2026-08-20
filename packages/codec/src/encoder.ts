@@ -1,8 +1,9 @@
 import { encodePayloadToUrl, buildShareUrl } from "./adapters/url-adapter.js";
 import { encodePayloadToQr, buildQrUrl } from "./adapters/qr-adapter.js";
-import { EXPIRY_HOURS, BUDGET_CHARS, MAX_TITLE_CHARS } from "./constants.js";
+import { EXPIRY_HOURS, BUDGET_CHARS, MAX_TITLE_CHARS, PAYLOAD_VERSION } from "./constants.js";
 import type {
   SharePayload,
+  ShareItem,
   TabInfo,
   EncodingResult,
   QrEncodingResult,
@@ -28,9 +29,13 @@ export function createPayload(
   const expiry = now + expiryHours * 3600;
 
   const payload: SharePayload = {
-    v: 4,
+    v: PAYLOAD_VERSION,
     e: expiry,
-    i: tabs.map((tab) => [tab.url, normalizeTitle(tab.title)] as [string, string]),
+    i: tabs.map((tab) => {
+      const item: ShareItem = [tab.url, normalizeTitle(tab.title)];
+      if (tab.kind === "note") item.push("note");
+      return item;
+    }),
   };
 
   if (title && title.trim().length > 0) {

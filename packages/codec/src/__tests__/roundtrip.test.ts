@@ -74,7 +74,7 @@ describe("v4 codec round-trip tests (URL adapter)", () => {
     expect(result.truncated).toBe(false);
 
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.version).toBe(4);
+    expect(decoded.version).toBe(5);
     expect(decoded.items.length).toBe(1);
     expect(decoded.items[0][0]).toBe("https://github.com");
     expect(decoded.items[0][1]).toBe("GitHub");
@@ -87,7 +87,7 @@ describe("v4 codec round-trip tests (URL adapter)", () => {
     expect(result.truncated).toBe(false);
 
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.version).toBe(4);
+    expect(decoded.version).toBe(5);
     expect(decoded.items.length).toBe(5);
     expect(decoded.items[0][0]).toBe("https://github.com");
     expect(decoded.items[1][0]).toBe("https://stackoverflow.com");
@@ -121,7 +121,7 @@ describe("v4 codec round-trip tests (URL adapter)", () => {
     const result = await encodeTabsToShareUrl(titledTabs, brotli, 24, undefined, "My Stash");
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
 
-    expect(decoded.version).toBe(4);
+    expect(decoded.version).toBe(5);
     expect(decoded.title).toBe("My Stash");
     expect(decoded.items.length).toBe(2);
   });
@@ -161,7 +161,7 @@ describe("v4 codec round-trip tests (QR adapter)", () => {
     expect(result.truncated).toBe(false);
 
     const decoded = await decodeShareUrl(getFragment(result.qrUrl), brotli);
-    expect(decoded.version).toBe(4);
+    expect(decoded.version).toBe(5);
     expect(decoded.items.length).toBe(1);
     expect(decoded.items[0][0]).toBe("https://github.com");
     expect(decoded.items[0][1]).toBe("GitHub");
@@ -174,7 +174,7 @@ describe("v4 codec round-trip tests (QR adapter)", () => {
     expect(result.truncated).toBe(false);
 
     const decoded = await decodeShareUrl(getFragment(result.qrUrl), brotli);
-    expect(decoded.version).toBe(4);
+    expect(decoded.version).toBe(5);
     expect(decoded.items.length).toBe(5);
   });
 
@@ -228,8 +228,8 @@ describe("cross-adapter compatibility", () => {
     const decodedFromUrl = await decodeShareUrl(`#p=${urlEncoded}`, brotli);
     const decodedFromQr = await decodeShareUrl(`#q=${qrEncoded}`, brotli);
 
-    expect(decodedFromUrl.version).toBe(4);
-    expect(decodedFromQr.version).toBe(4);
+    expect(decodedFromUrl.version).toBe(5);
+    expect(decodedFromQr.version).toBe(5);
     expect(decodedFromUrl.expiry).toBe(decodedFromQr.expiry);
     expect(decodedFromUrl.title).toBe(decodedFromQr.title);
     expect(decodedFromUrl.items).toEqual(decodedFromQr.items);
@@ -392,5 +392,75 @@ describe("v4 decoder error handling", () => {
       expect(error).toBeInstanceOf(PayloadDecodeError);
       expect((error as PayloadDecodeError).message).toBe("Unsupported payload version");
     }
+  });
+});
+
+describe("v5 payload tests", () => {
+  let brotli: BrotliFunctions;
+
+  beforeAll(async () => {
+    const m = (await brotliWasm) as any;
+    brotli = {
+      compress: (d, o) => m.compress(d, o),
+      decompress: (d) => m.decompress(d),
+    };
+  });
+
+  it("encoder emits v5", async () => {
+    const tabs: TabInfo[] = [{ url: "https://github.com", title: "GitHub" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.version).toBe(5);
+  });
+
+  it("note items round-trip with kind", async () => {
+    const tabs: TabInfo[] = [
+      { url: "https://github.com", title: "GitHub" },
+      { url: "Remember to check the PR thread", title: "Note", kind: "note" },
+    ];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.version).toBe(5);
+    expect(decoded.items[0]).toEqual(["https://github.com", "GitHub"]);
+    expect(decoded.items[1]).toEqual(["Remember to check the PR thread", "Note", "note"]);
+  });
+
+  it("url items omit kind (2-tuple, not 3-tuple with undefined)", async () => {
+    const tabs: TabInfo[] = [{ url: "https://github.com", title: "GitHub" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.items[0].length).toBe(2);
+  });
+
+  it("v4 payload decodes under v5-aware decoder (v4→v5 legacy)", async () => {
+    // Hand-craft a v4 payload the way old links were encoded
+    const { encode } = await import("@msgpack/msgpack");
+    const { encodeBase64urlNoPadding } = await import("@oslojs/encoding");
+    const { serializePayload } = await import("../payload.js");
+    const raw = serializePayload({
+      v: 4,
+      e: Math.floor(Date.now() / 1000) + 3600,
+      i: [["https://example.com", "Legacy"]],
+    });
+    const body = encodeBase64urlNoPadding(brotli.compress(raw, { quality: 11 }));
+    const decoded = await decodeShareUrl(`#p=C${body}`, brotli);
+    expect(decoded.version).toBe(4);
+    expect(decoded.items[0]).toEqual(["https://example.com", "Legacy"]);
+    expect(decoded.isExpired).toBe(false);
+    // unused imports guard
+    void encode;
+  });
+
+  it("unknown kind values degrade to plain text render (decoder keeps them)", async () => {
+    const { serializePayload } = await import("../payload.js");
+    const { encodeBase32UpperCaseNoPadding } = await import("@oslojs/encoding");
+    const raw = serializePayload({
+      v: 5,
+      e: Math.floor(Date.now() / 1000) + 3600,
+      i: [["https://example.com", "Future kind", "video"]],
+    });
+    const body = encodeBase32UpperCaseNoPadding(brotli.compress(raw, { quality: 11 }));
+    const decoded = await decodeShareUrl(`#q=D${body}`, brotli);
+    expect(decoded.items[0][2]).toBe("video");
   });
 });

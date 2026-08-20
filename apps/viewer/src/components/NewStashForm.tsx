@@ -26,6 +26,7 @@ export default function NewStashForm() {
     resultUrl,
     saveState,
     copyState,
+    lineErrors,
     setUrls,
     setStashTitle,
     setExpiry,
@@ -83,6 +84,20 @@ export default function NewStashForm() {
               </option>
             ))}
           </select>
+
+          {Object.keys(lineErrors).length > 0 && (
+            <ul
+              className="space-y-1 rounded-xl border border-red-300 bg-red-50 p-3 text-xs text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
+              data-testid="line-errors"
+            >
+              {Object.entries(lineErrors).map(([line, error]) => (
+                <li key={line} className="flex gap-2">
+                  <span className="font-mono font-semibold">L{Number(line) + 1}</span>
+                  <span>{error}</span>
+                </li>
+              ))}
+            </ul>
+          )}
 
           {meter.itemCount > 0 && (
             <div

@@ -41,7 +41,8 @@
     "saveEdited": "Guardar stash editado",
     "savedEdited": "¡Guardado! Enlace abajo",
     "editedLink": "Enlace del stash editado",
-    "empty": "No quedan elementos"
+    "empty": "No quedan elementos",
+    "close": "Cerrar"
   },
   "nav": {
     "home": "Inicio",
