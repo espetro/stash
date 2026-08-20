@@ -115,6 +115,31 @@ importers:
         specifier: ^0.20.26
         version: 0.20.26(@types/node@24.12.4)(jiti@2.7.0)(rolldown@1.0.2)(rollup@4.60.4)(tsx@4.22.3)(yaml@2.9.0)
 
+  apps/shortener:
+    dependencies:
+      unstorage:
+        specifier: ^1.17.5
+        version: 1.17.5
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20260526.1
+        version: 4.20260528.1
+      '@stash/codec':
+        specifier: workspace:*
+        version: link:../../packages/codec
+      brotli-wasm:
+        specifier: ^3.0.1
+        version: 3.0.1
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: ^3.1.0
+        version: 3.2.4(@types/debug@4.1.13)(@types/node@24.12.4)(happy-dom@20.9.0)(jiti@2.7.0)(jsdom@29.1.1)(lightningcss@1.32.0)(tsx@4.22.3)(yaml@2.9.0)
+      wrangler:
+        specifier: ^3.114.0
+        version: 3.114.17(@cloudflare/workers-types@4.20260528.1)
+
   apps/viewer:
     dependencies:
       '@astrojs/react':
