@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "@stash/codec": "workspace:*",
-    "brotli-wasm": "^3.0.0"
+    "brotli-wasm": "^3.0.0",
+    "valibot": "^1.4.2"
   },
   "devDependencies": {
     "typescript": "^6.0.3",

@@ -47,7 +47,8 @@
     "saveEdited": "Enregistrer le stash modifié",
     "savedEdited": "Enregistré ! Lien ci-dessous",
     "editedLink": "Lien du stash modifié",
-    "empty": "Aucun élément restant"
+    "empty": "Aucun élément restant",
+    "close": "Fermer"
   },
   "theme": {
     "light": "Thème clair",

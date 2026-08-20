@@ -15,7 +15,27 @@ export const LANGUAGE_LABELS: Record<Lang, string> = {
   fr: "Français",
 };
 
-const bundles: Record<Lang, Record<string, string>> = { en, es, ru, fr };
+function flattenMessages(obj: unknown, prefix = ""): Record<string, string> {
+  const result: Record<string, string> = {};
+  if (obj === null || typeof obj !== "object") return result;
+  if (Array.isArray(obj)) return result;
+  for (const [k, v] of Object.entries(obj)) {
+    const key = prefix ? `${prefix}.${k}` : k;
+    if (typeof v === "string") {
+      result[key] = v;
+    } else if (v !== null && typeof v === "object" && !Array.isArray(v)) {
+      Object.assign(result, flattenMessages(v, key));
+    }
+  }
+  return result;
+}
+
+const bundles: Record<Lang, Record<string, string>> = {
+  en: flattenMessages(en),
+  es: flattenMessages(es),
+  ru: flattenMessages(ru),
+  fr: flattenMessages(fr),
+};
 const formatterCache = new Map<string, IntlMessageFormat>();
 
 function getBundle(lang: Lang): Record<string, string> {

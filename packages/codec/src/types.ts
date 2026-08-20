@@ -10,6 +10,8 @@ export interface SharePayload {
 export interface TabInfo {
   url: string;
   title: string;
+  /** "note" marks the url field as free text; absent means a real URL */
+  kind?: "url" | "note";
 }
 
 export interface EncodingResult {

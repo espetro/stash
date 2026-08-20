@@ -24,6 +24,42 @@ import { FaRegSquare, FaRegSquareCheck } from "react-icons/fa6";
 
 type Item = DecodedData["items"][number];
 
+function NoteDialog({
+  note,
+  title,
+  onClose,
+}: {
+  note: string;
+  title: string;
+  onClose: () => void;
+}) {
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div
+          role="dialog"
+          aria-label={title}
+          className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-xl"
+        >
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+            {title}
+          </h2>
+          <p className="text-sm leading-relaxed break-words whitespace-pre-wrap text-foreground select-text">
+            {note}
+          </p>
+          <button
+            type="button"
+            onClick={onClose}
+            className="mt-5 h-11 w-full rounded-xl border border-border bg-secondary text-sm font-semibold text-foreground hover:bg-muted"
+          >
+            {t("sharedTabs.close", undefined, undefined)}
+          </button>
+        </div>
+      </div>
+    </Dialog>
+  );
+}
+
 function JsonOutput({ data }: { data: DecodedData }) {
   const output = {
     expiry: data.expiry,
@@ -64,6 +100,7 @@ export default function TabViewer() {
   const lastClicked = useRef<number | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [editedUrl, setEditedUrl] = useState<string | null>(null);
+  const [openNote, setOpenNote] = useState<{ text: string; title: string } | null>(null);
 
   const syncItems = useCallback(
     (data: DecodedData) => {
@@ -239,8 +276,10 @@ export default function TabViewer() {
                   <TabListItem
                     url={item[0]}
                     title={item[1]}
+                    kind={item[2]}
                     selected={selected.has(index)}
                     onToggle={(shift) => toggleItem(index, shift)}
+                    onOpenNote={() => setOpenNote({ text: item[0], title: item[1] })}
                   />
                 </React.Fragment>
               ))}
@@ -283,6 +322,10 @@ export default function TabViewer() {
             {editedUrl}
           </a>
         </div>
+      )}
+
+      {openNote && (
+        <NoteDialog note={openNote.text} title={openNote.title} onClose={() => setOpenNote(null)} />
       )}
 
       <Dialog

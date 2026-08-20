@@ -38,5 +38,6 @@
   "stash.meter.items": "items",
   "stash.meter.chars": "chars",
   "stash.meter.qrOk": "QR code still fits",
-  "stash.meter.qrTooBig": "QR no longer possible, link still works"
+  "stash.meter.qrTooBig": "QR no longer possible, link still works",
+  "sharedTabs.close": "Close"
 }

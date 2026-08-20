@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
-import { getBrotliFunctions, extractTitle } from "@stash/shared";
+import { getBrotliFunctions, parseStashLine, validateStashLines } from "@stash/shared";
 
 export interface UseStashFormState {
   urls: string;
@@ -9,6 +9,7 @@ export interface UseStashFormState {
   resultUrl: string | null;
   saveState: "idle" | "generating" | "error";
   copyState: "idle" | "copied";
+  lineErrors: Record<number, string>;
 }
 
 export interface UseStashFormActions {
@@ -51,16 +52,7 @@ export function useStashForm(): UseStashFormState & UseStashFormActions {
     setResultUrl(null);
 
     try {
-      const tabs = lines.map((line) => {
-        // "URL | Title" syntax: explicit title for the item
-        const pipeIdx = line.indexOf("|");
-        if (pipeIdx > 0) {
-          const url = line.slice(0, pipeIdx).trim();
-          const title = line.slice(pipeIdx + 1).trim();
-          if (title) return { url, title };
-        }
-        return { url: line, title: extractTitle(line) };
-      });
+      const tabs = lines.map((line) => parseStashLine(line));
       const expiryKey = expiry as keyof typeof EXPIRY_HOURS_MAP;
       const expiryHours = EXPIRY_HOURS_MAP[expiryKey];
       const brotli = await getBrotliFunctions();
@@ -86,6 +78,12 @@ export function useStashForm(): UseStashFormState & UseStashFormActions {
     }
   }, [resultUrl]);
 
+  // Live per-line validation (recomputed on every input change)
+  const computedErrors: Record<number, string> = {};
+  for (const v of validateStashLines(urls)) {
+    if (!v.ok && v.error) computedErrors[v.line] = v.error;
+  }
+
   return {
     urls,
     stashTitle,
@@ -93,6 +91,7 @@ export function useStashForm(): UseStashFormState & UseStashFormActions {
     resultUrl,
     saveState,
     copyState,
+    lineErrors: computedErrors,
     setUrls,
     setStashTitle,
     setExpiry,
