@@ -20,6 +20,8 @@
     "wrangler": "^4.124.0"
   },
   "dependencies": {
-    "unstorage": "^1.17.5"
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "unstorage": "^1.17.5",
+    "zod": "^4.4.3"
   }
 }

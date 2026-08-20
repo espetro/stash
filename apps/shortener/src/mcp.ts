@@ -1,0 +1,142 @@
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { WebStandardStreamableHTTPServerTransport as StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
+import { z } from "zod";
+import {
+  createPayload,
+  encodePayloadToUrl,
+  decodeEncodedPayload,
+  type TabInfo,
+} from "@stash/codec";
+import { getBrotli } from "./brotli";
+import { createStash, getStash, isExpired, type Env, type ServerTtl } from "./store";
+
+export const MCP_TOOLS = [
+  {
+    name: "stash_create",
+    description:
+      "Create a stash: a short shareable link bundling multiple URLs. Returns the short id and share URL.",
+  },
+  {
+    name: "stash_get",
+    description: "Fetch a stash by its short id and return its title and items.",
+  },
+  {
+    name: "stash_decode",
+    description:
+      "Decode a stash payload string (the ?p= value from a stash share URL) into its title and items.",
+  },
+] as const;
+
+function buildServer(origin: string, env: Env): McpServer {
+  const server = new McpServer(
+    { name: "stash-shortener", version: "0.1.0" },
+    { capabilities: { logging: {} } },
+  );
+
+  server.tool(
+    "stash_create",
+    MCP_TOOLS[0].description,
+    {
+      title: z.string().optional().describe("Optional title for the stash"),
+      urls: z.array(z.string()).min(1).describe("URLs to include in the stash"),
+      ttlDays: z
+        .union([z.literal(1), z.literal(7), z.literal(14), z.literal(30)])
+        .default(7)
+        .describe("TTL in days: 1, 7 (default), 14 or 30"),
+    },
+    async ({ title, urls, ttlDays }) => {
+      const brotli = await getBrotli();
+      const tabs: TabInfo[] = urls.map((url) => ({ url, title: url }));
+      const payload = await encodePayloadToUrl(createPayload(tabs, ttlDays * 24, title), brotli);
+      const ttl: ServerTtl = `${ttlDays}d` as ServerTtl;
+      const { id } = await createStash(env, payload, ttl);
+      return {
+        content: [{ type: "text", text: JSON.stringify({ id, url: `${origin}/s/${id}` }) }],
+      };
+    },
+  );
+
+  server.tool(
+    "stash_get",
+    MCP_TOOLS[1].description,
+    { id: z.string().describe("The 6-character stash id") },
+    async ({ id }) => {
+      const entry = await getStash(env, id.toUpperCase());
+      if (!entry) {
+        return {
+          content: [{ type: "text", text: JSON.stringify({ error: "not_found" }) }],
+          isError: true,
+        };
+      }
+      if (isExpired(entry)) {
+        return {
+          content: [{ type: "text", text: JSON.stringify({ error: "expired" }) }],
+          isError: true,
+        };
+      }
+      const brotli = await getBrotli();
+      const decoded = await decodeEncodedPayload(entry.p, brotli);
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify({ id, title: decoded.title, items: decoded.items }),
+          },
+        ],
+      };
+    },
+  );
+
+  server.tool(
+    "stash_decode",
+    MCP_TOOLS[2].description,
+    { payload: z.string().describe("The encoded payload string (p param value from a share URL)") },
+    async ({ payload }) => {
+      const brotli = await getBrotli();
+      const decoded = await decodeEncodedPayload(payload, brotli);
+      return {
+        content: [
+          { type: "text", text: JSON.stringify({ title: decoded.title, items: decoded.items }) },
+        ],
+      };
+    },
+  );
+
+  return server;
+}
+
+/** Stateless Streamable-HTTP MCP handler. A new server + transport is
+ * created per request (required since SDK 1.26 to avoid cross-client state). */
+export async function handleMcpRequest(request: Request, env: Env): Promise<Response> {
+  const url = new URL(request.url);
+  const server = buildServer(url.origin, env);
+  const transport = new StreamableHTTPServerTransport({
+    sessionIdGenerator: undefined,
+    enableJsonResponse: true,
+  });
+  await server.connect(transport);
+  return transport.handleRequest(request, {
+    parsedBody: await request
+      .clone()
+      .json()
+      .catch(() => undefined),
+  });
+}
+
+/** GET /.well-known/mcp-server-card — agent discovery card. */
+export function serverCardResponse(origin: string): Response {
+  const card = {
+    name: "stash-shortener",
+    url: `${origin}/mcp`,
+    transport: "streamable-http",
+    version: "0.1.0",
+    tools: MCP_TOOLS.map(({ name, description }) => ({ name, description })),
+    docs: `${origin}/llms.txt`,
+  };
+  return new Response(JSON.stringify(card, null, 2), {
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+}
