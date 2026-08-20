@@ -9,7 +9,7 @@
   "install.tryInBrowser": "Try in browser →",
   "stash.create.title": "Create Stash",
   "stash.title.placeholder": "Stash title",
-  "stash.urls.placeholder": "Paste URLs (one per line). Use 'URL | Title' to name an item...",
+  "stash.urls.placeholder": "Paste URLs (one per line). Use 'URL | Title' to name an item:\nhttps://google.com | Google",
   "stash.copy.idle": "Copy to clipboard",
   "stash.copy.done": "Copied!",
   "stash.save": "Save",

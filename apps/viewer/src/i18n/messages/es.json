@@ -13,7 +13,7 @@
       "placeholder": "Título del Stash"
     },
     "urls": {
-      "placeholder": "Pegue URLs (una por línea)..."
+      "placeholder": "Pegue URLs (una por línea). Use 'URL | Título' para nombrar:\nhttps://google.com | Google"
     },
     "copy": {
       "idle": "Copiar al portapapeles",

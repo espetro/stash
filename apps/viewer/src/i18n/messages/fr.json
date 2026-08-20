@@ -19,7 +19,7 @@
       "placeholder": "Titre du Stash"
     },
     "urls": {
-      "placeholder": "Coller des URLs (une par ligne)..."
+      "placeholder": "Coller des URLs (une par ligne). Utilisez 'URL | Titre' :\nhttps://google.com | Google"
     },
     "copy": {
       "idle": "Copier dans le presse-papier",
