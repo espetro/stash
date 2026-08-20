@@ -5,6 +5,33 @@ import { getBrotliFunctions } from "@stash/shared";
 import { getSettings, settingsItem } from "../lib/settings";
 import type { RuntimePort } from "../global";
 import { MCP_PORT_NAME, startMcpServerOverPort } from "../lib/mcp/background-server";
+import { handleBridgeRequest, isBridgeRequest } from "../lib/server/bridge";
+import type { BridgeResponse } from "../lib/server/bridge";
+
+function bridgeErrorResponse(id: number, error: unknown): BridgeResponse {
+  return {
+    type: "stash-bridge-response",
+    id,
+    status: 500,
+    headers: {},
+    body: JSON.stringify({ error: String(error) }),
+  };
+}
+
+/** Handle a bridge request and return the response via sendResponse.
+ *  The listener returns `true` to keep the message channel open for the async
+ *  sendResponse; non-bridge messages return false so other listeners own them. */
+function respondToBridgeRequest(
+  message: unknown,
+  sendResponse: (response: unknown) => void,
+): boolean {
+  if (!isBridgeRequest(message)) return false; // not ours; don't respond
+  const { id } = message;
+  handleBridgeRequest(message)
+    .then(sendResponse)
+    .catch((error) => sendResponse(bridgeErrorResponse(id, error)));
+  return true;
+}
 
 export default defineBackground(() => {
   // MCP server over runtime ports (fresh server + transport per connection)
@@ -13,6 +40,19 @@ export default defineBackground(() => {
       startMcpServerOverPort(port as unknown as RuntimePort);
     }
   });
+
+  // Stash bridge server: external extensions via onMessageExternal,
+  // content-script relay (content.ts) via onMessage.
+  const bridgeListener = (
+    message: unknown,
+    _sender: unknown,
+    sendResponse: (response: unknown) => void,
+  ): true => {
+    respondToBridgeRequest(message, sendResponse);
+    return true; // keep channel open; respondToBridgeRequest no-ops for non-bridge messages
+  };
+  browser.runtime.onMessageExternal.addListener(bridgeListener);
+  browser.runtime.onMessage.addListener(bridgeListener);
 
   settingsItem.onChanged((newValue) => {
     console.log("Settings changed:", newValue);
