@@ -8,16 +8,19 @@ on:
 permissions:
   contents: read
 
-# Required secrets:
-# - CLOUDFLARE_ACCOUNT_ID: Cloudflare account ID
-# - CLOUDFLARE_API_TOKEN: Cloudflare API token with Pages + Workers edit permission
+# The viewer deploys itself via Cloudflare Pages Git integration.
+# This workflow only deploys the shortener Worker.
+#
+# Required secrets (repo Settings → Secrets and variables → Actions):
+# - CLOUDFLARE_ACCOUNT_ID
+# - CLOUDFLARE_API_TOKEN (Workers scripts edit permission)
 
 concurrency:
-  group: cloudflare-deploy
+  group: shortener-deploy
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  deploy-shortener:
     runs-on: ubuntu-latest
 
     steps:
@@ -37,18 +40,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Build viewer
-        run: pnpm --filter stash-viewer build
-        env:
-          VITE_VIEWER_ORIGIN: https://stash.illo.fyi
-
-      - name: Deploy viewer to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          command: pages deploy apps/viewer/dist --project-name=stash
 
       - name: Deploy shortener worker
         uses: cloudflare/wrangler-action@v3
