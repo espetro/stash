@@ -1,10 +1,20 @@
 import { defineConfig } from "vitest/config";
-import path from "path";
+import { createRequire } from "node:module";
+import path from "node:path";
+
+// brotli-wasm's package.json "exports" hides the pkg.web deep paths;
+// alias the entry that conditions DO allow, resolved pnpm-safely.
+const require = createRequire(import.meta.url);
+const real = require.resolve("brotli-wasm");
+const brotliDir = path.dirname(require.resolve(path.join(path.dirname(real), "package.json")));
 
 export default defineConfig({
-  test: {
+  resolve: {
     alias: {
-      "brotli-wasm": path.resolve(__dirname, "../../node_modules/.pnpm/brotli-wasm@3.0.1/node_modules/brotli-wasm/index.node.js"),
+      "brotli-wasm-web": path.join(brotliDir, "pkg.web", "brotli_wasm.js"),
     },
+  },
+  test: {
+    environment: "node",
   },
 });
