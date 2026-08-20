@@ -48,6 +48,7 @@ HTML viewer.
 - Tools: `stash_create` (urls -> short link), `stash_get` (id -> items), `stash_decode` (payload -> items)
 - Discovery card: `https://s.illo.fyi/.well-known/mcp-server-card`
 - Short links live on the same host: `https://s.illo.fyi/s/<id>`
+- Rate limit: ~20 creates/min per IP on `/api/stash`, ~60 req/min on `/mcp`; HTTP 429 with `Retry-After: 60`.
 
 ## Docs
 

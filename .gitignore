@@ -11,5 +11,7 @@ tmp/
 .env
 # Generated JavaScript files from TypeScript compilation
 *.js
+# Vendored sources (plain-JS deps consumed directly)
+!apps/shortener/src/vendor/*.js
 .opencode/plugins/emdash-notifications.js
 .wrangler/
