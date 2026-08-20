@@ -1,0 +1,25 @@
+{
+  "name": "@stash/shortener",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest run",
+    "tscheck": "tsc --noEmit",
+    "format": "oxfmt --write 'src/**/*.ts'",
+    "lint": "oxlint src --ignore-pattern '**/*.d.ts'"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260526.1",
+    "@stash/codec": "workspace:*",
+    "brotli-wasm": "^3.0.1",
+    "typescript": "^6.0.3",
+    "vitest": "^3.1.0",
+    "wrangler": "^3.114.0"
+  },
+  "dependencies": {
+    "unstorage": "^1.17.5"
+  }
+}
