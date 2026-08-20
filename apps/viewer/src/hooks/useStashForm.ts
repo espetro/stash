@@ -52,12 +52,36 @@ export function useStashForm(): UseStashFormState & UseStashFormActions {
     setResultUrl(null);
 
     try {
-      const tabs = lines.map((line) => parseStashLine(line));
+      const tabs = lines.map((line) => ({
+        ...parseStashLine(line),
+        explicit: line.includes("|"),
+      }));
+      // Best-effort auto-title for bare URLs: user-provided "URL | Title" wins;
+      // each lookup has its own timeout so generation never blocks long.
+      await Promise.allSettled(
+        tabs.map(async (tab) => {
+          if (tab.explicit) return;
+          try {
+            const res = await fetch(`/api/title?url=${encodeURIComponent(tab.url)}`, {
+              signal: AbortSignal.timeout(4000),
+            });
+            if (!res.ok) return;
+            const data = (await res.json()) as { title?: string };
+            if (data.title) tab.title = data.title;
+          } catch {
+            // keep hostname fallback
+          }
+        }),
+      );
+      const finalTabs = tabs.map(({ url, title: itemTitle }) => ({
+        url,
+        title: itemTitle,
+      }));
       const expiryKey = expiry as keyof typeof EXPIRY_HOURS_MAP;
       const expiryHours = EXPIRY_HOURS_MAP[expiryKey];
       const brotli = await getBrotliFunctions();
       const title = stashTitle.trim() || "Shared Tabs";
-      const result = await encodeTabsToShareUrl(tabs, brotli, expiryHours, undefined, title);
+      const result = await encodeTabsToShareUrl(finalTabs, brotli, expiryHours, undefined, title);
       setResultUrl(result.url);
       setSaveState("idle");
     } catch (error) {
