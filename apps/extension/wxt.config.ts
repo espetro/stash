@@ -50,7 +50,23 @@ export default defineConfig({
   },
   imports: {
     // @ts-ignore this fixes the issues with 'wxt/storage' and vite
-    exclude: [/[\\/]node_modules[\\/]/, /[\\/]\.git[\\/]/, /[\\/]packages[\\/]/],
+    exclude: [/[\\/]node_modules[\\/]/, /[\\/]?\.[\\/]/, /[\\/]packages[\\/]/],
+  },
+  zip: {
+    excludeSources: ["**/node_modules"],
+    includeSources: [
+      "../../packages/codec/src/**",
+      "../../packages/codec/package.json",
+      "../../packages/codec/tsconfig.json",
+      "../../packages/shared/src/**",
+      "../../packages/shared/package.json",
+      "../../packages/shared/tsconfig.json",
+      "../../packages/server-core/src/**",
+      "../../packages/server-core/package.json",
+      "../../packages/server-core/tsconfig.json",
+      "../../packages/theme/**",
+      "../../packages/theme/package.json",
+    ],
   },
   vite: () => {
     return {
