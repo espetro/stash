@@ -1,159 +1,47 @@
 # Source Code Build Instructions
 
-This document provides step-by-step instructions for building the Stash Firefox extension from source. Required for Mozilla Add-ons (AMO) source code submission.
+This archive contains the complete, human-readable source for the Stash Firefox
+extension, as required by the Mozilla Add-ons review process.
 
-## Build Requirements
+## What's in this archive
 
-| Requirement | Version |
-|-------------|---------|
-| Operating System | macOS, Linux, or Windows |
-| Node.js | v18.0.0 or higher |
-| pnpm | v10.0.0 or higher |
+```
+./                        # apps/extension — extension source (WXT project)
+./../../packages/codec    # URL payload encoding (brotli + msgpack)
+./../../packages/shared   # shared types and helpers
+./../../packages/server-core  # runtime-agnostic stash server logic
+./../../packages/theme    # shared design tokens (CSS)
+```
 
-## Installing Build Tools
+## Build requirements
 
-### Node.js
+- Node.js 24+
+- pnpm 11+ (`corepack enable` or `npm i -g pnpm`)
 
-Install Node.js v18+ from https://nodejs.org/ or via nvm:
+## Building
+
+The extension is part of a pnpm monorepo. From the repository root:
 
 ```bash
-# Using nvm
-nvm install 18
-nvm use 18
-
-# Verify installation
-node --version  # Should show v18.x.x or higher
+pnpm install
+pnpm --filter @stash/extension run zip:firefox
 ```
 
-### pnpm
+Output: `apps/extension/.output/stashextension-<version>-firefox.zip`
+(the submitted package) and `.output/firefox-mv2/` (unpacked).
 
-```bash
-npm install -g pnpm@10
+## Notes for reviewers
 
-# Verify installation
-pnpm --version  # Should show 10.x.x or higher
-```
-
-## Build Instructions
-
-This extension uses a pnpm workspace. The project structure is:
-
-```
-stash/
-├── package.json           # Root workspace config
-├── pnpm-workspace.yaml    # Workspace definition
-├── pnpm-lock.yaml         # Dependency lock file
-├── apps/
-│   ├── extension/         # Browser extension
-│   │   ├── package.json
-│   │   ├── tsconfig.json
-│   │   ├── wxt.config.ts
-│   │   ├── entrypoints/
-│   │   ├── lib/
-│   │   └── public/
-│   └── viewer/            # Astro viewer site
-```
-
-### Steps
-
-1. **Navigate to the workspace root:**
-    ```bash
-    cd stash
-    ```
-
-2. **Install dependencies:**
-   ```bash
-   pnpm install
-   ```
-
-3. **Build the Firefox extension:**
-    ```bash
-    cd apps/extension
-    pnpm run build:firefox
-    ```
-
-4. **Verify the build:**
-   The built extension will be in `.output/firefox-mv2/`
-
-5. **(Optional) Create distributable zip:**
-   ```bash
-   pnpm run zip:firefox
-   ```
-    Output: `.output/stash-extension-{version}-firefox.zip`
-
-## Creating Sources Zip for AMO
-
-Mozilla requires a sources zip for extensions built with bundlers. To create it:
-
-```bash
-# From the workspace root (stash/)
-./scripts/create-sources-zip.sh
-```
-
-Or manually:
-
-```bash
-# Create a temporary directory
-mkdir -p /tmp/stash-sources
-
-# Copy extension source files
-cp -r apps/extension/entrypoints /tmp/tabshare-sources/
-cp -r apps/extension/lib /tmp/tabshare-sources/
-cp -r apps/extension/public /tmp/tabshare-sources/
-cp apps/extension/package.json /tmp/tabshare-sources/
-cp apps/extension/tsconfig.json /tmp/tabshare-sources/
-cp apps/extension/wxt.config.ts /tmp/tabshare-sources/
-cp apps/extension/SOURCES.md /tmp/tabshare-sources/README.md
-
-# Copy workspace files
-cp pnpm-workspace.yaml /tmp/tabshare-sources/
-cp pnpm-lock.yaml /tmp/tabshare-sources/
-cp package.json /tmp/tabshare-sources/root-package.json
-
-# Create the zip
-cd /tmp/stash-sources
-zip -r stash-sources.zip .
-mv stash-sources.zip ~/Downloads/
-```
-
-## Verification
-
-To verify the build produces identical output:
-
-1. Follow the build instructions above
-2. Compare the contents of `.output/firefox-mv2/` with the submitted extension
-3. The manifest.json, background.js, and popup files should match
-
-## Project Structure
-
-```
-extension/
-├── entrypoints/
-│   ├── background.ts           # Service worker (context menu handler)
-│   └── popup/                  # Popup UI (React)
-│       ├── App.tsx             # Main React component
-│       ├── main.tsx            # React entry point
-│       ├── index.html          # HTML template
-│       ├── style.css           # Popup styles
-│       ├── types.ts            # TypeScript interfaces
-│       ├── components/         # React components
-│       │   ├── ErrorMessage.tsx
-│       │   ├── LinkResult.tsx
-│       │   ├── SelectAllToggle.tsx
-│       │   ├── TabItem.tsx
-│       │   └── TabList.tsx
-│       └── hooks/              # React hooks
-│           └── useTabSelection.ts
-├── lib/
-│   ├── constants.ts            # Configuration constants
-│   ├── encoder.ts              # URL encoding/compression logic
-│   └── types.ts                # Shared TypeScript interfaces
-├── public/                     # Static assets
-│   ├── icon-16.png
-│   ├── icon-48.png
-│   └── icon-128.png
-├── wxt.config.ts               # WXT build configuration
-├── tsconfig.json               # TypeScript configuration
-├── package.json                # Dependencies and scripts
-└── SOURCES.md                  # This file
-```
+- **Bundler**: built with [WXT](https://wxt.dev) (Vite-based). Minification,
+  chunking and content hashing are produced by the bundler, not hand-written.
+- **WebAssembly**: `brotli_wasm_bg.wasm` is the unmodified binary from the
+  [`brotli-wasm`](https://www.npmjs.com/package/brotli-wasm) npm package
+  (version pinned in `package.json`). It is loaded from the extension bundle
+  and performs local compression of tab payloads. It is not remotely hosted
+  code.
+- **Workspace packages**: `@stash/codec`, `@stash/shared`,
+  `@stash/server-core` and `@stash/theme` are first-party packages included
+  under `../../packages/` in this archive.
+- The `wasm-unsafe-eval` CSP declaration exists solely to allow instantiation
+  of the bundled Wasm module; no `eval` or `Function` constructor is invoked
+  with runtime-derived strings.
