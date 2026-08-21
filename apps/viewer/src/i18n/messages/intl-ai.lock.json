@@ -1,0 +1,2861 @@
+{
+  "version": 2,
+  "entries": {
+    "es||nav.home": {
+      "key": "nav.home",
+      "locale": "es",
+      "sourceHash": "70f8bb9a8a5393ef080507a89e4b98d139000d65",
+      "translated": "Inicio",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||nav.features": {
+      "key": "nav.features",
+      "locale": "es",
+      "sourceHash": "fc338f87a058158eb824b53705961801516a9460",
+      "translated": "Características",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||nav.howItWorks": {
+      "key": "nav.howItWorks",
+      "locale": "es",
+      "sourceHash": "1dd6a17cb4033f4f74df1bb6912b8a28a8074084",
+      "translated": "Cómo funciona",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||nav.demo": {
+      "key": "nav.demo",
+      "locale": "es",
+      "sourceHash": "e52c854d5631eec7468ba4727b4c77eb745f2965",
+      "translated": "Demo",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||install.trigger": {
+      "key": "install.trigger",
+      "locale": "es",
+      "sourceHash": "eb1a7cfa1457f1c50784750acd218be1a0708f38",
+      "translated": "Instalar ▾",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||install.chrome": {
+      "key": "install.chrome",
+      "locale": "es",
+      "sourceHash": "d1d195f1e7f833cde70e903f396279991b6a4b0f",
+      "translated": "Añadir a Chrome",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||install.firefox": {
+      "key": "install.firefox",
+      "locale": "es",
+      "sourceHash": "1bf14b2c6fc783ed86eea0ad1c7070fa15744c7e",
+      "translated": "Añadir a Firefox",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||install.tryInBrowser": {
+      "key": "install.tryInBrowser",
+      "locale": "es",
+      "sourceHash": "e90ae9146e3246a6f951d517eb191c51455c432f",
+      "translated": "Probar en el navegador →",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.create.title": {
+      "key": "stash.create.title",
+      "locale": "es",
+      "sourceHash": "ef43666e7a7c91884374954279f18429a3f41a8d",
+      "translated": "Crear Stash",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.title.placeholder": {
+      "key": "stash.title.placeholder",
+      "locale": "es",
+      "sourceHash": "ec05b9acb5462a5a21fc9c211287ee440695126c",
+      "translated": "Título de Stash",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.urls.placeholder": {
+      "key": "stash.urls.placeholder",
+      "locale": "es",
+      "sourceHash": "5a4243446bc61595baf78fd241c7dba3b5b03271",
+      "translated": "Pegar URLs (una por línea). Usa 'URL | Título' para nombrar un elemento: https://google.com | Google",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.copy.idle": {
+      "key": "stash.copy.idle",
+      "locale": "es",
+      "sourceHash": "d8f482edf74e07a582e0836096d47a59b3bc03c2",
+      "translated": "Copiar al portapapeles",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.copy.done": {
+      "key": "stash.copy.done",
+      "locale": "es",
+      "sourceHash": "b7c3ca0ee379c7b079b1d6912bf11e5167a1f591",
+      "translated": "¡Copiado!",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.save": {
+      "key": "stash.save",
+      "locale": "es",
+      "sourceHash": "efc007a393f66cdb14d57d385822a3d9e36ef873",
+      "translated": "Guardar",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.generating": {
+      "key": "stash.generating",
+      "locale": "es",
+      "sourceHash": "81362292e8ba662f8692cc03756cdb2e83806220",
+      "translated": "Generando...",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.error": {
+      "key": "stash.error",
+      "locale": "es",
+      "sourceHash": "7f2f6a15cf8da2b27e5a4af47b58e7ad71c0b3d9",
+      "translated": "Error",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.clear": {
+      "key": "stash.clear",
+      "locale": "es",
+      "sourceHash": "719ea396ad92e01b4757ec2b93bb1e5f270f771d",
+      "translated": "Borrar",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||sharedTabs.title": {
+      "key": "sharedTabs.title",
+      "locale": "es",
+      "sourceHash": "37a2334cc739ab23373750ff1d9a636aeca84168",
+      "translated": "Pestañas compartidas",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||sharedTabs.shareQr": {
+      "key": "sharedTabs.shareQr",
+      "locale": "es",
+      "sourceHash": "961eb1bbba1328a701929af9a7ffd0fe9769d5ed",
+      "translated": "Compartir como QR",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||sharedTabs.new": {
+      "key": "sharedTabs.new",
+      "locale": "es",
+      "sourceHash": "6403f2b7eb2aaafe6de34cbf2a029b01afebc512",
+      "translated": "Nuevo",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||theme.label": {
+      "key": "theme.label",
+      "locale": "es",
+      "sourceHash": "a92a777bacb294a7dd81f82bb26d405bf8c20c17",
+      "translated": "Cambiar tema",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||theme.light": {
+      "key": "theme.light",
+      "locale": "es",
+      "sourceHash": "9e5ba0f0f6b52d08b363bdcde46caac8862e4c70",
+      "translated": "Tema claro",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||theme.dark": {
+      "key": "theme.dark",
+      "locale": "es",
+      "sourceHash": "d51c5960ec071d2f7d544efc540c4d3f56821bd5",
+      "translated": "Tema oscuro",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||language.label": {
+      "key": "language.label",
+      "locale": "es",
+      "sourceHash": "89b86ab0e66f527166d98df92ddbcf5416ed58f6",
+      "translated": "Idioma",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||language.en": {
+      "key": "language.en",
+      "locale": "es",
+      "sourceHash": "649df08a448ee3fa90f3746baaf6b0907df42c91",
+      "translated": "Inglés",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||language.es": {
+      "key": "language.es",
+      "locale": "es",
+      "sourceHash": "8df7f1b361b2af42d36011e00d22c0f9891ec0b0",
+      "translated": "Español",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||language.ru": {
+      "key": "language.ru",
+      "locale": "es",
+      "sourceHash": "74ad93cbebf587ac46ab0ef1e3f24139ddd3f535",
+      "translated": "Ruso",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||language.fr": {
+      "key": "language.fr",
+      "locale": "es",
+      "sourceHash": "44389f6a466eaabf5c1db729e369511134e2b03b",
+      "translated": "Francés",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||sharedTabs.selectAll": {
+      "key": "sharedTabs.selectAll",
+      "locale": "es",
+      "sourceHash": "913afff1faf79724f1f685fe8b1e36a729123ca2",
+      "translated": "Seleccionar todo",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||sharedTabs.deselectAll": {
+      "key": "sharedTabs.deselectAll",
+      "locale": "es",
+      "sourceHash": "85cce1e14782f67cb830f74002ebe5603783c674",
+      "translated": "Deseleccionar todo",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||sharedTabs.openSelected": {
+      "key": "sharedTabs.openSelected",
+      "locale": "es",
+      "sourceHash": "bc495ecaae45588002e98cd8538af66176361a5a",
+      "translated": "Abrir seleccionados",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||sharedTabs.removeSelected": {
+      "key": "sharedTabs.removeSelected",
+      "locale": "es",
+      "sourceHash": "f38b8091a8e8f074ec55d65b8503908ad4670e9c",
+      "translated": "Quitar seleccionados",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||sharedTabs.saveEdited": {
+      "key": "sharedTabs.saveEdited",
+      "locale": "es",
+      "sourceHash": "550c0d66e31d4a096ce17b755e610f778a8ee0be",
+      "translated": "Guardar stash editado",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||sharedTabs.savedEdited": {
+      "key": "sharedTabs.savedEdited",
+      "locale": "es",
+      "sourceHash": "20b1e695fb4e394deeef2217562c3bb6487fdce9",
+      "translated": "¡Guardado! Enlace abajo",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||sharedTabs.editedLink": {
+      "key": "sharedTabs.editedLink",
+      "locale": "es",
+      "sourceHash": "be99c6bf56fae21ae6e32f7a2f34bd6bc4d5aadf",
+      "translated": "Enlace del stash editado",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||sharedTabs.empty": {
+      "key": "sharedTabs.empty",
+      "locale": "es",
+      "sourceHash": "9bb92404404f78020aa1d37753af018ab8f19db1",
+      "translated": "No quedan elementos",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.meter.items": {
+      "key": "stash.meter.items",
+      "locale": "es",
+      "sourceHash": "7316c8b2e74870d9d7e9d30bbc28ecf4cdf945ee",
+      "translated": "elementos",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.meter.chars": {
+      "key": "stash.meter.chars",
+      "locale": "es",
+      "sourceHash": "76a91d6ce24fcc03ec2ecbb19e3012b5d5d40e2b",
+      "translated": "caracteres",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.meter.qrOk": {
+      "key": "stash.meter.qrOk",
+      "locale": "es",
+      "sourceHash": "83627951bfef07b118fa75d3313ca60e58a061e6",
+      "translated": "El código QR aún cabe",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.meter.qrTooBig": {
+      "key": "stash.meter.qrTooBig",
+      "locale": "es",
+      "sourceHash": "3fb1d6ecae7216c44253dfacb1fc4c41f4c1b623",
+      "translated": "QR ya no es posible, el enlace sigue funcionando",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||sharedTabs.close": {
+      "key": "sharedTabs.close",
+      "locale": "es",
+      "sourceHash": "bbfa773e5a63a5ea58c9b6207e608ca0120e592a",
+      "translated": "Cerrar",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.expiry.never": {
+      "key": "stash.expiry.never",
+      "locale": "es",
+      "sourceHash": "9d24e31fd08daca24a8177e05760a088121c65d0",
+      "translated": "Nunca expira",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.expiry.24h": {
+      "key": "stash.expiry.24h",
+      "locale": "es",
+      "sourceHash": "cb4780f87455df201d8f17c2e9feb8f0c4f94a7f",
+      "translated": "24 horas",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.expiry.7d": {
+      "key": "stash.expiry.7d",
+      "locale": "es",
+      "sourceHash": "0a8dd6adce7a0dcd996c5a1443464cb702001e8b",
+      "translated": "7 días",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||stash.expiry.30d": {
+      "key": "stash.expiry.30d",
+      "locale": "es",
+      "sourceHash": "7d4278a875900ffd7f62164dd3ede0b42e509644",
+      "translated": "30 días",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||hero.headline.line1": {
+      "key": "hero.headline.line1",
+      "locale": "es",
+      "sourceHash": "7290d08d268ebb431346f77bf9edd7a01c61b696",
+      "translated": "Tus pestañas son tu pensamiento.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||hero.headline.line2": {
+      "key": "hero.headline.line2",
+      "locale": "es",
+      "sourceHash": "e7816676da6df6826672b213c0a5c8a94e136ada",
+      "translated": "Deja de perderlas.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||hero.subheadline": {
+      "key": "hero.subheadline",
+      "locale": "es",
+      "sourceHash": "a8bc0a3d24c4deb41da412057290876c5804b3ef",
+      "translated": "Comparte todo el contexto de tu navegador como un solo enlace, o simplemente guárdalo para después. Localmente. Privadamente. Sin cuenta. Sin nube. Sin ruido.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||hero.cta.chrome": {
+      "key": "hero.cta.chrome",
+      "locale": "es",
+      "sourceHash": "d1d195f1e7f833cde70e903f396279991b6a4b0f",
+      "translated": "Añadir a Chrome",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||hero.cta.chromeAria": {
+      "key": "hero.cta.chromeAria",
+      "locale": "es",
+      "sourceHash": "050e55c44945c204da6a433ab4051abd6540487c",
+      "translated": "Añadir Stash a Chrome",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||hero.cta.firefox": {
+      "key": "hero.cta.firefox",
+      "locale": "es",
+      "sourceHash": "1bf14b2c6fc783ed86eea0ad1c7070fa15744c7e",
+      "translated": "Añadir a Firefox",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||hero.cta.firefoxAria": {
+      "key": "hero.cta.firefoxAria",
+      "locale": "es",
+      "sourceHash": "72ec5d3caefa3a5138c382897f9b274945db2946",
+      "translated": "Añadir Stash a Firefox",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||hero.cta.tryInBrowser": {
+      "key": "hero.cta.tryInBrowser",
+      "locale": "es",
+      "sourceHash": "e90ae9146e3246a6f951d517eb191c51455c432f",
+      "translated": "Probar en el navegador →",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||hero.tagline": {
+      "key": "hero.tagline",
+      "locale": "es",
+      "sourceHash": "3f19378f2b3432e6d4300b15badababed2bc06bd",
+      "translated": "Gratis · Sin cuenta requerida · Funciona sin conexión",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||proof.label": {
+      "key": "proof.label",
+      "locale": "es",
+      "sourceHash": "06e854b047abe96f4227335510de192505c75d8d",
+      "translated": "Usado por equipos de",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||proof.company1": {
+      "key": "proof.company1",
+      "locale": "es",
+      "sourceHash": "fc3ecb549be3c61339621c746422b32e7fa0a96b",
+      "translated": "Startups respaldadas por YC",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||proof.company2": {
+      "key": "proof.company2",
+      "locale": "es",
+      "sourceHash": "a32103d0a0501907e9638ece7592664a210be2f6",
+      "translated": "Creadores indie",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.title": {
+      "key": "features.title",
+      "locale": "es",
+      "sourceHash": "4ebce779bfc3d094e02e661c54002fed9930b2be",
+      "translated": "Todo lo que necesitas. Nada más.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.sharing.label": {
+      "key": "features.sharing.label",
+      "locale": "es",
+      "sourceHash": "f789760ce3b26e8d7bd61267c0921849c5b49e59",
+      "translated": "COMPARTIR",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.sharing.title": {
+      "key": "features.sharing.title",
+      "locale": "es",
+      "sourceHash": "20e65af4621d8b9ac38584a7ccd28d4c90b6841e",
+      "translated": "Compartir contexto con un solo enlace",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.sharing.description": {
+      "key": "features.sharing.description",
+      "locale": "es",
+      "sourceHash": "444029634461d6f8891864c8f0527a87df247675",
+      "translated": "Comparte todas las pestañas abiertas como una sola URL. Los compañeros la abren y ven tu sesión exacta.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.privacy.label": {
+      "key": "features.privacy.label",
+      "locale": "es",
+      "sourceHash": "2f15803450716219ad19b6dfa4114155aa187f18",
+      "translated": "PRIVACIDAD",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.privacy.title": {
+      "key": "features.privacy.title",
+      "locale": "es",
+      "sourceHash": "35a8883a5ab89f83addeb163c792cdfab934b9da",
+      "translated": "Primero local. Siempre.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.privacy.description": {
+      "key": "features.privacy.description",
+      "locale": "es",
+      "sourceHash": "33bef4959c064a365c6ad91016f54bfcfd58ce76",
+      "translated": "Tus datos nunca abandonan tu máquina a menos que elijas compartir. Sin cuenta. Sin servidor de sincronización.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.workflow.label": {
+      "key": "features.workflow.label",
+      "locale": "es",
+      "sourceHash": "59d699973ee78f324b9c59501e8bc45c2308c444",
+      "translated": "FLUJO DE TRABAJO",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.workflow.title": {
+      "key": "features.workflow.title",
+      "locale": "es",
+      "sourceHash": "41d7fba46d2b88a19a4ac9d6d5d266ca265e9295",
+      "translated": "Contexto listo para IA",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.workflow.description": {
+      "key": "features.workflow.description",
+      "locale": "es",
+      "sourceHash": "17fa4dba2225d6b6886082e0055bc0f4d56e53d1",
+      "translated": "Exporta tu sesión actual como contexto estructurado para cualquier LLM. Pega tus pestañas directamente en tu flujo de trabajo.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.reliability.label": {
+      "key": "features.reliability.label",
+      "locale": "es",
+      "sourceHash": "ed4b4a73e077b8cb49d06cb88ec9d79921bba4e9",
+      "translated": "FIABILIDAD",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.reliability.title": {
+      "key": "features.reliability.title",
+      "locale": "es",
+      "sourceHash": "14c6ece2071378c93b8025606573f5c692e3e340",
+      "translated": "Funciona sin conexión",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.reliability.description": {
+      "key": "features.reliability.description",
+      "locale": "es",
+      "sourceHash": "9028ea612c39c883e67d5f63b4fc3b7d2c4853bb",
+      "translated": "Guarda sesiones incluso sin internet. Léelas cuando quieras.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.organization.label": {
+      "key": "features.organization.label",
+      "locale": "es",
+      "sourceHash": "9da72239ddeee345a6b025c468d9817c49cae014",
+      "translated": "ORGANIZACIÓN",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.organization.title": {
+      "key": "features.organization.title",
+      "locale": "es",
+      "sourceHash": "ac79a5cb9489f682718e0810575ad722b3773577",
+      "translated": "Sesiones nombradas",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.organization.description": {
+      "key": "features.organization.description",
+      "locale": "es",
+      "sourceHash": "4ddb3ba6bc4cfde2d8061e90babc01eeb75e5dbc",
+      "translated": "Organiza grupos de pestañas con nombres y marcas de tiempo. Tu contexto, etiquetado.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.mobile.label": {
+      "key": "features.mobile.label",
+      "locale": "es",
+      "sourceHash": "a453e3488ac7a1a478ebfb6abeead801dd5ebc82",
+      "translated": "MOVIL",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.mobile.title": {
+      "key": "features.mobile.title",
+      "locale": "es",
+      "sourceHash": "38f2cb96a904f35d7d7d3a072df60396c092b46e",
+      "translated": "Compartir como código QR",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||features.mobile.description": {
+      "key": "features.mobile.description",
+      "locale": "es",
+      "sourceHash": "e694e8331329e7b06d98ec9e4e6b2e62091d48ea",
+      "translated": "Genera un QR desde cualquier sesión y escanéalo en tu teléfono. Tus pestañas, en cualquier lugar.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||howItWorks.title": {
+      "key": "howItWorks.title",
+      "locale": "es",
+      "sourceHash": "87f42baeb1075f7ada0bc3b851e6a3f792dcdb97",
+      "translated": "Tres pasos.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||howItWorks.step1.title": {
+      "key": "howItWorks.step1.title",
+      "locale": "es",
+      "sourceHash": "57cf0ed4eb11b2d9889efc67de900f7e6d634610",
+      "translated": "Abrir Stash",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||howItWorks.step1.body": {
+      "key": "howItWorks.step1.body",
+      "locale": "es",
+      "sourceHash": "f344e603f67fd79b6148d285d6b77688dd887d20",
+      "translated": "Haz clic en el icono de la extensión mientras navegas. Tus pestañas actuales aparecen al instante.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||howItWorks.step2.title": {
+      "key": "howItWorks.step2.title",
+      "locale": "es",
+      "sourceHash": "e4649c0feacfa07b33740617a1992ee926046692",
+      "translated": "Guardar o compartir",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||howItWorks.step2.body": {
+      "key": "howItWorks.step2.body",
+      "locale": "es",
+      "sourceHash": "138b1e40109656239da232156f4f99c10402d9f7",
+      "translated": "Haz clic en \"Guardar sesión\" para guardarla localmente, o en \"Copiar enlace\" para compartir tu contexto exacto.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||howItWorks.step3.title": {
+      "key": "howItWorks.step3.title",
+      "locale": "es",
+      "sourceHash": "29c262fc5e1a57af1cd5d71a074654454e592d17",
+      "translated": "Restaurar en cualquier momento",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||howItWorks.step3.body": {
+      "key": "howItWorks.step3.body",
+      "locale": "es",
+      "sourceHash": "0f7d61276a74839ec8da7c9e6f426b587a610063",
+      "translated": "Abre cualquier sesión guardada con un solo clic. Las pestañas se reabren exactamente como las dejaste.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||demo.title": {
+      "key": "demo.title",
+      "locale": "es",
+      "sourceHash": "f7bd04bc23d0d8eee5b56955d487fc2585d2855f",
+      "translated": "Verlo en acción",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||demo.savedSession": {
+      "key": "demo.savedSession",
+      "locale": "es",
+      "sourceHash": "b637f396f7cf87b4aab63deeaee928832d283d23",
+      "translated": "SESIONE GUARDADA",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||demo.sessionTitle": {
+      "key": "demo.sessionTitle",
+      "locale": "es",
+      "sourceHash": "c07bd473c0fbfbe42a3188aadf57a906ac696d57",
+      "translated": "Investigación: Migración de Astro 5",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||demo.viewLive": {
+      "key": "demo.viewLive",
+      "locale": "es",
+      "sourceHash": "e204b9c45e342180f080ca659720fdbdcf2df5c1",
+      "translated": "Ver un ejemplo en vivo →",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||privacy.title": {
+      "key": "privacy.title",
+      "locale": "es",
+      "sourceHash": "d1d923694f7a60ab13fa0b7497f059d8cb5379b9",
+      "translated": "Diseñado para generar confianza.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||privacy.subtitle": {
+      "key": "privacy.subtitle",
+      "locale": "es",
+      "sourceHash": "2ce9a0c446947dd149ad0f11aa70089b8b8716e6",
+      "translated": "Cero telemetría, cero nube, cero compromisos.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||privacy.item1": {
+      "key": "privacy.item1",
+      "locale": "es",
+      "sourceHash": "9015039a025fcaa04763fbf2220e6c8df4727703",
+      "translated": "Sin cuenta requerida. Nunca.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||privacy.item2": {
+      "key": "privacy.item2",
+      "locale": "es",
+      "sourceHash": "26f37cbfd7bc92f6ef88d742a6f1d373f0136eb5",
+      "translated": "Todas las sesiones se almacenan en el almacenamiento local de tu navegador.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||privacy.item3": {
+      "key": "privacy.item3",
+      "locale": "es",
+      "sourceHash": "1761de91a743dd6b37499f9f64133e008664686a",
+      "translated": "Compartir es opt-in. Nada sale sin tu acción.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||privacy.item4": {
+      "key": "privacy.item4",
+      "locale": "es",
+      "sourceHash": "afdff091b4eebfdd7913ec02bb771e5c30cfc163",
+      "translated": "Código abierto. Audítalo tú mismo.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||privacy.repoLink": {
+      "key": "privacy.repoLink",
+      "locale": "es",
+      "sourceHash": "84287feda0a92a44a2948a8b1b533fb73f18e15b",
+      "translated": "github.com/espetro/stash →",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||finalCta.label": {
+      "key": "finalCta.label",
+      "locale": "es",
+      "sourceHash": "05c98fb4a057d43c1dd294a9151b1cbf70a30d9c",
+      "translated": "EXTENSIÓN DE NAVEGADOR GRATIS",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||finalCta.title": {
+      "key": "finalCta.title",
+      "locale": "es",
+      "sourceHash": "d88e617587b223f4b7bccfd3d412c85cd9d48344",
+      "translated": "Deja de perder tu contexto.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||finalCta.subtitle": {
+      "key": "finalCta.subtitle",
+      "locale": "es",
+      "sourceHash": "119ecf0e553b90afccd1e87e519e5bea30cd23a9",
+      "translated": "Añade Stash a tu navegador en 30 segundos.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||finalCta.chrome": {
+      "key": "finalCta.chrome",
+      "locale": "es",
+      "sourceHash": "d1d195f1e7f833cde70e903f396279991b6a4b0f",
+      "translated": "Añadir a Chrome",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||finalCta.firefox": {
+      "key": "finalCta.firefox",
+      "locale": "es",
+      "sourceHash": "1bf14b2c6fc783ed86eea0ad1c7070fa15744c7e",
+      "translated": "Añadir a Firefox",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||finalCta.tryInBrowser": {
+      "key": "finalCta.tryInBrowser",
+      "locale": "es",
+      "sourceHash": "e90ae9146e3246a6f951d517eb191c51455c432f",
+      "translated": "Probar en el navegador →",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||finalCta.tagline": {
+      "key": "finalCta.tagline",
+      "locale": "es",
+      "sourceHash": "759e97d15b7b08509fc910df44d5bbb6f0905262",
+      "translated": "Sin cuenta · Sin nube · Funciona sin conexión",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||footer.copyright": {
+      "key": "footer.copyright",
+      "locale": "es",
+      "sourceHash": "e70536aeecb5a446c52e69d521f967c1a91c95a0",
+      "translated": "© 2026 Stash — Hecho con cuidado para usuarios avanzados.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||footer.github": {
+      "key": "footer.github",
+      "locale": "es",
+      "sourceHash": "5442e2b64fa09764b9f593867e59a97292c84059",
+      "translated": "GitHub",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||footer.privacy": {
+      "key": "footer.privacy",
+      "locale": "es",
+      "sourceHash": "cf01481f626d5127ec7732fcbdb29504f08abefd",
+      "translated": "Privacidad",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||footer.terms": {
+      "key": "footer.terms",
+      "locale": "es",
+      "sourceHash": "a55a275aa676930d9258569485d5b38eb1196630",
+      "translated": "Términos",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||roadmap.title": {
+      "key": "roadmap.title",
+      "locale": "es",
+      "sourceHash": "82a40b48692ae431d89b166d793770d8e603b025",
+      "translated": "Donde Estamos — Y A Dónde Vamos",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||roadmap.subtitle": {
+      "key": "roadmap.subtitle",
+      "locale": "es",
+      "sourceHash": "699c220e2a9a4e9db0b9a279f5be20179392c1bc",
+      "translated": "Desarrollo transparente, prioridades impulsadas por la comunidad",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||roadmap.done.aiFirst": {
+      "key": "roadmap.done.aiFirst",
+      "locale": "es",
+      "sourceHash": "8881854e041c8ff2fcd4b7b4f1df7ee02df9ff17",
+      "translated": "IA primero",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||roadmap.done.selectAnyTab": {
+      "key": "roadmap.done.selectAnyTab",
+      "locale": "es",
+      "sourceHash": "8f767d92011a23f8595513363236399217e553de",
+      "translated": "Selecciona cualquier pestaña",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||roadmap.done.expiration": {
+      "key": "roadmap.done.expiration",
+      "locale": "es",
+      "sourceHash": "00ac9a09be38d17579428f44fb62af844a33fb28",
+      "translated": "Establecer tiempo de expiración",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||roadmap.done.shareLink": {
+      "key": "roadmap.done.shareLink",
+      "locale": "es",
+      "sourceHash": "02c43e58537ed0802cb9ef8ccafe81a0d6c36e52",
+      "translated": "Compartir con un enlace",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||roadmap.done.theme": {
+      "key": "roadmap.done.theme",
+      "locale": "es",
+      "sourceHash": "c7ff28591469a462d78b3d0bf65e1c159728a93a",
+      "translated": "Tema claro/oscuro",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||roadmap.done.browsers": {
+      "key": "roadmap.done.browsers",
+      "locale": "es",
+      "sourceHash": "1b5d13ffc7d06e37e0d8bbabff7f4f5bc54f2102",
+      "translated": "Chrome y Firefox",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||roadmap.done.review": {
+      "key": "roadmap.done.review",
+      "locale": "es",
+      "sourceHash": "0ae5971188f45d61083f2a0c31c1f313160f579e",
+      "translated": "Revisar en cualquier lugar",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||roadmap.upcoming.languages": {
+      "key": "roadmap.upcoming.languages",
+      "locale": "es",
+      "sourceHash": "829b7f67948bc6c05117d3c5a19c36d778b81142",
+      "translated": "Más idiomas (i18n)",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||roadmap.upcoming.safari": {
+      "key": "roadmap.upcoming.safari",
+      "locale": "es",
+      "sourceHash": "a86ca3593e4b18a465e39859a78234d2e9e16652",
+      "translated": "Soporte Safari",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||roadmap.suggest": {
+      "key": "roadmap.suggest",
+      "locale": "es",
+      "sourceHash": "b77aa8e17acff2e00b94f853f0b677ad7ef00d3d",
+      "translated": "Sugerir una función",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||roadmap.legend.shipped": {
+      "key": "roadmap.legend.shipped",
+      "locale": "es",
+      "sourceHash": "dec6e3290897314598b50e6a6ce560d19cf815f9",
+      "translated": "Enviado",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "es||roadmap.legend.comingSoon": {
+      "key": "roadmap.legend.comingSoon",
+      "locale": "es",
+      "sourceHash": "04d2fd852a2b48a9a5f2e2930d41488d1dcaea9a",
+      "translated": "Próximamente",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||nav.home": {
+      "key": "nav.home",
+      "locale": "fr",
+      "sourceHash": "70f8bb9a8a5393ef080507a89e4b98d139000d65",
+      "translated": "Accueil",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||nav.features": {
+      "key": "nav.features",
+      "locale": "fr",
+      "sourceHash": "fc338f87a058158eb824b53705961801516a9460",
+      "translated": "Fonctionnalités",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||nav.howItWorks": {
+      "key": "nav.howItWorks",
+      "locale": "fr",
+      "sourceHash": "1dd6a17cb4033f4f74df1bb6912b8a28a8074084",
+      "translated": "Comment ça marche",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||nav.demo": {
+      "key": "nav.demo",
+      "locale": "fr",
+      "sourceHash": "e52c854d5631eec7468ba4727b4c77eb745f2965",
+      "translated": "Démo",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||install.trigger": {
+      "key": "install.trigger",
+      "locale": "fr",
+      "sourceHash": "eb1a7cfa1457f1c50784750acd218be1a0708f38",
+      "translated": "Installer ▾",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||install.chrome": {
+      "key": "install.chrome",
+      "locale": "fr",
+      "sourceHash": "d1d195f1e7f833cde70e903f396279991b6a4b0f",
+      "translated": "Ajouter à Chrome",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||install.firefox": {
+      "key": "install.firefox",
+      "locale": "fr",
+      "sourceHash": "1bf14b2c6fc783ed86eea0ad1c7070fa15744c7e",
+      "translated": "Ajouter à Firefox",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||install.tryInBrowser": {
+      "key": "install.tryInBrowser",
+      "locale": "fr",
+      "sourceHash": "e90ae9146e3246a6f951d517eb191c51455c432f",
+      "translated": "Essayer dans le navigateur →",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.create.title": {
+      "key": "stash.create.title",
+      "locale": "fr",
+      "sourceHash": "ef43666e7a7c91884374954279f18429a3f41a8d",
+      "translated": "Créer Stash",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.title.placeholder": {
+      "key": "stash.title.placeholder",
+      "locale": "fr",
+      "sourceHash": "ec05b9acb5462a5a21fc9c211287ee440695126c",
+      "translated": "Titre de Stash",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.urls.placeholder": {
+      "key": "stash.urls.placeholder",
+      "locale": "fr",
+      "sourceHash": "5a4243446bc61595baf78fd241c7dba3b5b03271",
+      "translated": "Collez les URL (une par ligne). Utilisez 'URL | Titre' pour nommer un élément :\nhttps://google.com | Google",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.copy.idle": {
+      "key": "stash.copy.idle",
+      "locale": "fr",
+      "sourceHash": "d8f482edf74e07a582e0836096d47a59b3bc03c2",
+      "translated": "Copier dans le presse-papiers",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.copy.done": {
+      "key": "stash.copy.done",
+      "locale": "fr",
+      "sourceHash": "b7c3ca0ee379c7b079b1d6912bf11e5167a1f591",
+      "translated": "Copié !",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.save": {
+      "key": "stash.save",
+      "locale": "fr",
+      "sourceHash": "efc007a393f66cdb14d57d385822a3d9e36ef873",
+      "translated": "Enregistrer",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.generating": {
+      "key": "stash.generating",
+      "locale": "fr",
+      "sourceHash": "81362292e8ba662f8692cc03756cdb2e83806220",
+      "translated": "Génération...",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.error": {
+      "key": "stash.error",
+      "locale": "fr",
+      "sourceHash": "7f2f6a15cf8da2b27e5a4af47b58e7ad71c0b3d9",
+      "translated": "Erreur",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.clear": {
+      "key": "stash.clear",
+      "locale": "fr",
+      "sourceHash": "719ea396ad92e01b4757ec2b93bb1e5f270f771d",
+      "translated": "Effacer",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||sharedTabs.title": {
+      "key": "sharedTabs.title",
+      "locale": "fr",
+      "sourceHash": "37a2334cc739ab23373750ff1d9a636aeca84168",
+      "translated": "Onglets partagés",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||sharedTabs.shareQr": {
+      "key": "sharedTabs.shareQr",
+      "locale": "fr",
+      "sourceHash": "961eb1bbba1328a701929af9a7ffd0fe9769d5ed",
+      "translated": "Partager en QR",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||sharedTabs.new": {
+      "key": "sharedTabs.new",
+      "locale": "fr",
+      "sourceHash": "6403f2b7eb2aaafe6de34cbf2a029b01afebc512",
+      "translated": "Nouveau",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||theme.label": {
+      "key": "theme.label",
+      "locale": "fr",
+      "sourceHash": "a92a777bacb294a7dd81f82bb26d405bf8c20c17",
+      "translated": "Commutateur de thème",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||theme.light": {
+      "key": "theme.light",
+      "locale": "fr",
+      "sourceHash": "9e5ba0f0f6b52d08b363bdcde46caac8862e4c70",
+      "translated": "Thème clair",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||theme.dark": {
+      "key": "theme.dark",
+      "locale": "fr",
+      "sourceHash": "d51c5960ec071d2f7d544efc540c4d3f56821bd5",
+      "translated": "Thème sombre",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||language.label": {
+      "key": "language.label",
+      "locale": "fr",
+      "sourceHash": "89b86ab0e66f527166d98df92ddbcf5416ed58f6",
+      "translated": "Langue",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||language.en": {
+      "key": "language.en",
+      "locale": "fr",
+      "sourceHash": "649df08a448ee3fa90f3746baaf6b0907df42c91",
+      "translated": "Anglais",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||language.es": {
+      "key": "language.es",
+      "locale": "fr",
+      "sourceHash": "8df7f1b361b2af42d36011e00d22c0f9891ec0b0",
+      "translated": "Espagnol",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||language.ru": {
+      "key": "language.ru",
+      "locale": "fr",
+      "sourceHash": "74ad93cbebf587ac46ab0ef1e3f24139ddd3f535",
+      "translated": "Russe",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||language.fr": {
+      "key": "language.fr",
+      "locale": "fr",
+      "sourceHash": "44389f6a466eaabf5c1db729e369511134e2b03b",
+      "translated": "Français",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||sharedTabs.selectAll": {
+      "key": "sharedTabs.selectAll",
+      "locale": "fr",
+      "sourceHash": "913afff1faf79724f1f685fe8b1e36a729123ca2",
+      "translated": "Tout sélectionner",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||sharedTabs.deselectAll": {
+      "key": "sharedTabs.deselectAll",
+      "locale": "fr",
+      "sourceHash": "85cce1e14782f67cb830f74002ebe5603783c674",
+      "translated": "Tout désélectionner",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||sharedTabs.openSelected": {
+      "key": "sharedTabs.openSelected",
+      "locale": "fr",
+      "sourceHash": "bc495ecaae45588002e98cd8538af66176361a5a",
+      "translated": "Ouvrir la sélection",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||sharedTabs.removeSelected": {
+      "key": "sharedTabs.removeSelected",
+      "locale": "fr",
+      "sourceHash": "f38b8091a8e8f074ec55d65b8503908ad4670e9c",
+      "translated": "Retirer la sélection",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||sharedTabs.saveEdited": {
+      "key": "sharedTabs.saveEdited",
+      "locale": "fr",
+      "sourceHash": "550c0d66e31d4a096ce17b755e610f778a8ee0be",
+      "translated": "Enregistrer le stash modifié",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||sharedTabs.savedEdited": {
+      "key": "sharedTabs.savedEdited",
+      "locale": "fr",
+      "sourceHash": "20b1e695fb4e394deeef2217562c3bb6487fdce9",
+      "translated": "Enregistré ! Lien ci-dessous",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||sharedTabs.editedLink": {
+      "key": "sharedTabs.editedLink",
+      "locale": "fr",
+      "sourceHash": "be99c6bf56fae21ae6e32f7a2f34bd6bc4d5aadf",
+      "translated": "Lien du stash modifié",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||sharedTabs.empty": {
+      "key": "sharedTabs.empty",
+      "locale": "fr",
+      "sourceHash": "9bb92404404f78020aa1d37753af018ab8f19db1",
+      "translated": "Aucun élément restant",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.meter.items": {
+      "key": "stash.meter.items",
+      "locale": "fr",
+      "sourceHash": "7316c8b2e74870d9d7e9d30bbc28ecf4cdf945ee",
+      "translated": "éléments",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.meter.chars": {
+      "key": "stash.meter.chars",
+      "locale": "fr",
+      "sourceHash": "76a91d6ce24fcc03ec2ecbb19e3012b5d5d40e2b",
+      "translated": "caractères",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.meter.qrOk": {
+      "key": "stash.meter.qrOk",
+      "locale": "fr",
+      "sourceHash": "83627951bfef07b118fa75d3313ca60e58a061e6",
+      "translated": "Le code QR tient encore",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.meter.qrTooBig": {
+      "key": "stash.meter.qrTooBig",
+      "locale": "fr",
+      "sourceHash": "3fb1d6ecae7216c44253dfacb1fc4c41f4c1b623",
+      "translated": "QR impossible, le lien fonctionne toujours",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||sharedTabs.close": {
+      "key": "sharedTabs.close",
+      "locale": "fr",
+      "sourceHash": "bbfa773e5a63a5ea58c9b6207e608ca0120e592a",
+      "translated": "Fermer",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.expiry.never": {
+      "key": "stash.expiry.never",
+      "locale": "fr",
+      "sourceHash": "9d24e31fd08daca24a8177e05760a088121c65d0",
+      "translated": "N’expire jamais",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.expiry.24h": {
+      "key": "stash.expiry.24h",
+      "locale": "fr",
+      "sourceHash": "cb4780f87455df201d8f17c2e9feb8f0c4f94a7f",
+      "translated": "24 heures",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.expiry.7d": {
+      "key": "stash.expiry.7d",
+      "locale": "fr",
+      "sourceHash": "0a8dd6adce7a0dcd996c5a1443464cb702001e8b",
+      "translated": "7 jours",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.expiry.30d": {
+      "key": "stash.expiry.30d",
+      "locale": "fr",
+      "sourceHash": "7d4278a875900ffd7f62164dd3ede0b42e509644",
+      "translated": "30 jours",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||hero.headline.line1": {
+      "key": "hero.headline.line1",
+      "locale": "fr",
+      "sourceHash": "7290d08d268ebb431346f77bf9edd7a01c61b696",
+      "translated": "Vos onglets sont votre réflexion.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||hero.headline.line2": {
+      "key": "hero.headline.line2",
+      "locale": "fr",
+      "sourceHash": "e7816676da6df6826672b213c0a5c8a94e136ada",
+      "translated": "Arrêtez de les perdre.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||hero.subheadline": {
+      "key": "hero.subheadline",
+      "locale": "fr",
+      "sourceHash": "a8bc0a3d24c4deb41da412057290876c5804b3ef",
+      "translated": "Partagez votre contexte complet du navigateur sous forme d'un seul lien, ou enregistrez-le simplement pour plus tard. Localement. Privément. Aucun compte. Aucun cloud. Aucun bruit.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||hero.cta.chrome": {
+      "key": "hero.cta.chrome",
+      "locale": "fr",
+      "sourceHash": "d1d195f1e7f833cde70e903f396279991b6a4b0f",
+      "translated": "Ajouter à Chrome",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||hero.cta.chromeAria": {
+      "key": "hero.cta.chromeAria",
+      "locale": "fr",
+      "sourceHash": "050e55c44945c204da6a433ab4051abd6540487c",
+      "translated": "Ajouter Stash à Chrome",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||hero.cta.firefox": {
+      "key": "hero.cta.firefox",
+      "locale": "fr",
+      "sourceHash": "1bf14b2c6fc783ed86eea0ad1c7070fa15744c7e",
+      "translated": "Ajouter à Firefox",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||hero.cta.firefoxAria": {
+      "key": "hero.cta.firefoxAria",
+      "locale": "fr",
+      "sourceHash": "72ec5d3caefa3a5138c382897f9b274945db2946",
+      "translated": "Ajouter Stash à Firefox",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||hero.cta.tryInBrowser": {
+      "key": "hero.cta.tryInBrowser",
+      "locale": "fr",
+      "sourceHash": "e90ae9146e3246a6f951d517eb191c51455c432f",
+      "translated": "Essayer dans le navigateur →",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||hero.tagline": {
+      "key": "hero.tagline",
+      "locale": "fr",
+      "sourceHash": "3f19378f2b3432e6d4300b15badababed2bc06bd",
+      "translated": "Gratuit · Aucun compte requis · Fonctionne hors ligne",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||proof.label": {
+      "key": "proof.label",
+      "locale": "fr",
+      "sourceHash": "06e854b047abe96f4227335510de192505c75d8d",
+      "translated": "Utilisé par les équipes de",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||proof.company1": {
+      "key": "proof.company1",
+      "locale": "fr",
+      "sourceHash": "fc3ecb549be3c61339621c746422b32e7fa0a96b",
+      "translated": "Startups soutenues par YC",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||proof.company2": {
+      "key": "proof.company2",
+      "locale": "fr",
+      "sourceHash": "a32103d0a0501907e9638ece7592664a210be2f6",
+      "translated": "Indépendants",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.title": {
+      "key": "features.title",
+      "locale": "fr",
+      "sourceHash": "4ebce779bfc3d094e02e661c54002fed9930b2be",
+      "translated": "Tout ce dont vous avez besoin. Rien de plus.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.sharing.label": {
+      "key": "features.sharing.label",
+      "locale": "fr",
+      "sourceHash": "f789760ce3b26e8d7bd61267c0921849c5b49e59",
+      "translated": "PARTAGE",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.sharing.title": {
+      "key": "features.sharing.title",
+      "locale": "fr",
+      "sourceHash": "20e65af4621d8b9ac38584a7ccd28d4c90b6841e",
+      "translated": "Partage de contexte en un lien",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.sharing.description": {
+      "key": "features.sharing.description",
+      "locale": "fr",
+      "sourceHash": "444029634461d6f8891864c8f0527a87df247675",
+      "translated": "Partagez tous les onglets ouverts sous forme d'une seule URL. Vos collègues l'ouvrent, ils voient votre session exacte.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.privacy.label": {
+      "key": "features.privacy.label",
+      "locale": "fr",
+      "sourceHash": "2f15803450716219ad19b6dfa4114155aa187f18",
+      "translated": "CONFIDENTIALITÉ",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.privacy.title": {
+      "key": "features.privacy.title",
+      "locale": "fr",
+      "sourceHash": "35a8883a5ab89f83addeb163c792cdfab934b9da",
+      "translated": "Local d'abord. Toujours.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.privacy.description": {
+      "key": "features.privacy.description",
+      "locale": "fr",
+      "sourceHash": "33bef4959c064a365c6ad91016f54bfcfd58ce76",
+      "translated": "Vos données ne quittent jamais votre machine sauf si vous choisissez de partager. Aucun compte. Aucun serveur de synchronisation.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.workflow.label": {
+      "key": "features.workflow.label",
+      "locale": "fr",
+      "sourceHash": "59d699973ee78f324b9c59501e8bc45c2308c444",
+      "translated": "WORKFLOW",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.workflow.title": {
+      "key": "features.workflow.title",
+      "locale": "fr",
+      "sourceHash": "41d7fba46d2b88a19a4ac9d6d5d266ca265e9295",
+      "translated": "Contexte prêt pour l'IA",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.workflow.description": {
+      "key": "features.workflow.description",
+      "locale": "fr",
+      "sourceHash": "17fa4dba2225d6b6886082e0055bc0f4d56e53d1",
+      "translated": "Exportez votre session actuelle sous forme de contexte structuré pour n'importe quel LLM. Collez vos onglets directement dans votre flux de travail.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.reliability.label": {
+      "key": "features.reliability.label",
+      "locale": "fr",
+      "sourceHash": "ed4b4a73e077b8cb49d06cb88ec9d79921bba4e9",
+      "translated": "FIABILITÉ",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.reliability.title": {
+      "key": "features.reliability.title",
+      "locale": "fr",
+      "sourceHash": "14c6ece2071378c93b8025606573f5c692e3e340",
+      "translated": "Fonctionne hors ligne",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.reliability.description": {
+      "key": "features.reliability.description",
+      "locale": "fr",
+      "sourceHash": "9028ea612c39c883e67d5f63b4fc3b7d2c4853bb",
+      "translated": "Enregistrez des sessions même sans connexion internet. Lisez-les à tout moment.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.organization.label": {
+      "key": "features.organization.label",
+      "locale": "fr",
+      "sourceHash": "9da72239ddeee345a6b025c468d9817c49cae014",
+      "translated": "ORGANISATION",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.organization.title": {
+      "key": "features.organization.title",
+      "locale": "fr",
+      "sourceHash": "ac79a5cb9489f682718e0810575ad722b3773577",
+      "translated": "Sessions nommées",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.organization.description": {
+      "key": "features.organization.description",
+      "locale": "fr",
+      "sourceHash": "4ddb3ba6bc4cfde2d8061e90babc01eeb75e5dbc",
+      "translated": "Organisez vos groupes d'onglets avec des noms et des horodatages. Votre contexte, étiqueté.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.mobile.label": {
+      "key": "features.mobile.label",
+      "locale": "fr",
+      "sourceHash": "a453e3488ac7a1a478ebfb6abeead801dd5ebc82",
+      "translated": "MOBILE",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.mobile.title": {
+      "key": "features.mobile.title",
+      "locale": "fr",
+      "sourceHash": "38f2cb96a904f35d7d7d3a072df60396c092b46e",
+      "translated": "Partager sous forme de code QR",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||features.mobile.description": {
+      "key": "features.mobile.description",
+      "locale": "fr",
+      "sourceHash": "e694e8331329e7b06d98ec9e4e6b2e62091d48ea",
+      "translated": "Générez un code QR à partir de n'importe quelle session et scannez-le sur votre téléphone. Vos onglets, n'importe où.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||howItWorks.title": {
+      "key": "howItWorks.title",
+      "locale": "fr",
+      "sourceHash": "87f42baeb1075f7ada0bc3b851e6a3f792dcdb97",
+      "translated": "Trois étapes.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||howItWorks.step1.title": {
+      "key": "howItWorks.step1.title",
+      "locale": "fr",
+      "sourceHash": "57cf0ed4eb11b2d9889efc67de900f7e6d634610",
+      "translated": "Ouvrir Stash",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||howItWorks.step1.body": {
+      "key": "howItWorks.step1.body",
+      "locale": "fr",
+      "sourceHash": "f344e603f67fd79b6148d285d6b77688dd887d20",
+      "translated": "Cliquez sur l'icône de l'extension pendant que vous naviguez. Vos onglets actuels apparaissent instantanément.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||howItWorks.step2.title": {
+      "key": "howItWorks.step2.title",
+      "locale": "fr",
+      "sourceHash": "e4649c0feacfa07b33740617a1992ee926046692",
+      "translated": "Enregistrer ou partager",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||howItWorks.step2.body": {
+      "key": "howItWorks.step2.body",
+      "locale": "fr",
+      "sourceHash": "138b1e40109656239da232156f4f99c10402d9f7",
+      "translated": "Appuyez sur \"Enregistrer la session\" pour stocker localement, ou \"Copier le lien\" pour partager votre contexte exact.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||howItWorks.step3.title": {
+      "key": "howItWorks.step3.title",
+      "locale": "fr",
+      "sourceHash": "29c262fc5e1a57af1cd5d71a074654454e592d17",
+      "translated": "Restaurer à tout moment",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||howItWorks.step3.body": {
+      "key": "howItWorks.step3.body",
+      "locale": "fr",
+      "sourceHash": "0f7d61276a74839ec8da7c9e6f426b587a610063",
+      "translated": "Ouvrez n'importe quelle session enregistrée d'un seul clic. Les onglets s'ouvrent exactement comme vous les avez laissés.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||demo.title": {
+      "key": "demo.title",
+      "locale": "fr",
+      "sourceHash": "f7bd04bc23d0d8eee5b56955d487fc2585d2855f",
+      "translated": "Voir en action",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||demo.savedSession": {
+      "key": "demo.savedSession",
+      "locale": "fr",
+      "sourceHash": "b637f396f7cf87b4aab63deeaee928832d283d23",
+      "translated": "SESSION ENREGISTRÉE",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||demo.sessionTitle": {
+      "key": "demo.sessionTitle",
+      "locale": "fr",
+      "sourceHash": "c07bd473c0fbfbe42a3188aadf57a906ac696d57",
+      "translated": "Recherche : Migration Astro 5",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||demo.viewLive": {
+      "key": "demo.viewLive",
+      "locale": "fr",
+      "sourceHash": "e204b9c45e342180f080ca659720fdbdcf2df5c1",
+      "translated": "Voir un exemple en direct →",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||privacy.title": {
+      "key": "privacy.title",
+      "locale": "fr",
+      "sourceHash": "d1d923694f7a60ab13fa0b7497f059d8cb5379b9",
+      "translated": "Construit pour la confiance.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||privacy.subtitle": {
+      "key": "privacy.subtitle",
+      "locale": "fr",
+      "sourceHash": "2ce9a0c446947dd149ad0f11aa70089b8b8716e6",
+      "translated": "Zéro télémétrie, zéro cloud, zéro compromis.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||privacy.item1": {
+      "key": "privacy.item1",
+      "locale": "fr",
+      "sourceHash": "9015039a025fcaa04763fbf2220e6c8df4727703",
+      "translated": "Aucun compte requis. Jamais.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||privacy.item2": {
+      "key": "privacy.item2",
+      "locale": "fr",
+      "sourceHash": "26f37cbfd7bc92f6ef88d742a6f1d373f0136eb5",
+      "translated": "Toutes les sessions sont stockées dans le stockage local de votre navigateur.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||privacy.item3": {
+      "key": "privacy.item3",
+      "locale": "fr",
+      "sourceHash": "1761de91a743dd6b37499f9f64133e008664686a",
+      "translated": "Le partage est facultatif. Rien ne quitte sans votre action.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||privacy.item4": {
+      "key": "privacy.item4",
+      "locale": "fr",
+      "sourceHash": "afdff091b4eebfdd7913ec02bb771e5c30cfc163",
+      "translated": "Open source. Auditez-le vous-même.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||privacy.repoLink": {
+      "key": "privacy.repoLink",
+      "locale": "fr",
+      "sourceHash": "84287feda0a92a44a2948a8b1b533fb73f18e15b",
+      "translated": "github.com/espetro/stash →",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||finalCta.label": {
+      "key": "finalCta.label",
+      "locale": "fr",
+      "sourceHash": "05c98fb4a057d43c1dd294a9151b1cbf70a30d9c",
+      "translated": "EXTENSION DE NAVIGATEUR GRATUITE",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||finalCta.title": {
+      "key": "finalCta.title",
+      "locale": "fr",
+      "sourceHash": "d88e617587b223f4b7bccfd3d412c85cd9d48344",
+      "translated": "Arrêtez de perdre votre contexte.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||finalCta.subtitle": {
+      "key": "finalCta.subtitle",
+      "locale": "fr",
+      "sourceHash": "119ecf0e553b90afccd1e87e519e5bea30cd23a9",
+      "translated": "Ajoutez Stash à votre navigateur en 30 secondes.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||finalCta.chrome": {
+      "key": "finalCta.chrome",
+      "locale": "fr",
+      "sourceHash": "d1d195f1e7f833cde70e903f396279991b6a4b0f",
+      "translated": "Ajouter à Chrome",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||finalCta.firefox": {
+      "key": "finalCta.firefox",
+      "locale": "fr",
+      "sourceHash": "1bf14b2c6fc783ed86eea0ad1c7070fa15744c7e",
+      "translated": "Ajouter à Firefox",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||finalCta.tryInBrowser": {
+      "key": "finalCta.tryInBrowser",
+      "locale": "fr",
+      "sourceHash": "e90ae9146e3246a6f951d517eb191c51455c432f",
+      "translated": "Essayer dans le navigateur →",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||finalCta.tagline": {
+      "key": "finalCta.tagline",
+      "locale": "fr",
+      "sourceHash": "759e97d15b7b08509fc910df44d5bbb6f0905262",
+      "translated": "Aucun compte · Aucun cloud · Fonctionne hors ligne",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||footer.copyright": {
+      "key": "footer.copyright",
+      "locale": "fr",
+      "sourceHash": "e70536aeecb5a446c52e69d521f967c1a91c95a0",
+      "translated": "© 2026 Stash — Conçu avec soin pour les power users.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||footer.github": {
+      "key": "footer.github",
+      "locale": "fr",
+      "sourceHash": "5442e2b64fa09764b9f593867e59a97292c84059",
+      "translated": "GitHub",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||footer.privacy": {
+      "key": "footer.privacy",
+      "locale": "fr",
+      "sourceHash": "cf01481f626d5127ec7732fcbdb29504f08abefd",
+      "translated": "Confidentialité",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||footer.terms": {
+      "key": "footer.terms",
+      "locale": "fr",
+      "sourceHash": "a55a275aa676930d9258569485d5b38eb1196630",
+      "translated": "Conditions",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||roadmap.title": {
+      "key": "roadmap.title",
+      "locale": "fr",
+      "sourceHash": "82a40b48692ae431d89b166d793770d8e603b025",
+      "translated": "Où nous sommes — Et où nous allons",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||roadmap.subtitle": {
+      "key": "roadmap.subtitle",
+      "locale": "fr",
+      "sourceHash": "699c220e2a9a4e9db0b9a279f5be20179392c1bc",
+      "translated": "Développement transparent, priorités communautaires",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||roadmap.done.aiFirst": {
+      "key": "roadmap.done.aiFirst",
+      "locale": "fr",
+      "sourceHash": "8881854e041c8ff2fcd4b7b4f1df7ee02df9ff17",
+      "translated": "IA en premier",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||roadmap.done.selectAnyTab": {
+      "key": "roadmap.done.selectAnyTab",
+      "locale": "fr",
+      "sourceHash": "8f767d92011a23f8595513363236399217e553de",
+      "translated": "Sélectionner n'importe quel onglet",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||roadmap.done.expiration": {
+      "key": "roadmap.done.expiration",
+      "locale": "fr",
+      "sourceHash": "00ac9a09be38d17579428f44fb62af844a33fb28",
+      "translated": "Définir le temps d'expiration",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||roadmap.done.shareLink": {
+      "key": "roadmap.done.shareLink",
+      "locale": "fr",
+      "sourceHash": "02c43e58537ed0802cb9ef8ccafe81a0d6c36e52",
+      "translated": "Partager avec un lien",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||roadmap.done.theme": {
+      "key": "roadmap.done.theme",
+      "locale": "fr",
+      "sourceHash": "c7ff28591469a462d78b3d0bf65e1c159728a93a",
+      "translated": "Thème clair/sombre",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||roadmap.done.browsers": {
+      "key": "roadmap.done.browsers",
+      "locale": "fr",
+      "sourceHash": "1b5d13ffc7d06e37e0d8bbabff7f4f5bc54f2102",
+      "translated": "Chrome & Firefox",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||roadmap.done.review": {
+      "key": "roadmap.done.review",
+      "locale": "fr",
+      "sourceHash": "0ae5971188f45d61083f2a0c31c1f313160f579e",
+      "translated": "Revoir n'importe où",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||roadmap.upcoming.languages": {
+      "key": "roadmap.upcoming.languages",
+      "locale": "fr",
+      "sourceHash": "829b7f67948bc6c05117d3c5a19c36d778b81142",
+      "translated": "Plus de langues (i18n)",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||roadmap.upcoming.safari": {
+      "key": "roadmap.upcoming.safari",
+      "locale": "fr",
+      "sourceHash": "a86ca3593e4b18a465e39859a78234d2e9e16652",
+      "translated": "Support Safari",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||roadmap.suggest": {
+      "key": "roadmap.suggest",
+      "locale": "fr",
+      "sourceHash": "b77aa8e17acff2e00b94f853f0b677ad7ef00d3d",
+      "translated": "Suggérer une fonctionnalité",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||roadmap.legend.shipped": {
+      "key": "roadmap.legend.shipped",
+      "locale": "fr",
+      "sourceHash": "dec6e3290897314598b50e6a6ce560d19cf815f9",
+      "translated": "Expédié",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||roadmap.legend.comingSoon": {
+      "key": "roadmap.legend.comingSoon",
+      "locale": "fr",
+      "sourceHash": "04d2fd852a2b48a9a5f2e2930d41488d1dcaea9a",
+      "translated": "Bientôt disponible",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||nav.home": {
+      "key": "nav.home",
+      "locale": "ru",
+      "sourceHash": "70f8bb9a8a5393ef080507a89e4b98d139000d65",
+      "translated": "Главная",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||nav.features": {
+      "key": "nav.features",
+      "locale": "ru",
+      "sourceHash": "fc338f87a058158eb824b53705961801516a9460",
+      "translated": "Функции",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||nav.howItWorks": {
+      "key": "nav.howItWorks",
+      "locale": "ru",
+      "sourceHash": "1dd6a17cb4033f4f74df1bb6912b8a28a8074084",
+      "translated": "Как это работает",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||nav.demo": {
+      "key": "nav.demo",
+      "locale": "ru",
+      "sourceHash": "e52c854d5631eec7468ba4727b4c77eb745f2965",
+      "translated": "Демо",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||install.trigger": {
+      "key": "install.trigger",
+      "locale": "ru",
+      "sourceHash": "eb1a7cfa1457f1c50784750acd218be1a0708f38",
+      "translated": "Установить ▾",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||install.chrome": {
+      "key": "install.chrome",
+      "locale": "ru",
+      "sourceHash": "d1d195f1e7f833cde70e903f396279991b6a4b0f",
+      "translated": "Добавить в Chrome",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||install.firefox": {
+      "key": "install.firefox",
+      "locale": "ru",
+      "sourceHash": "1bf14b2c6fc783ed86eea0ad1c7070fa15744c7e",
+      "translated": "Добавить в Firefox",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||install.tryInBrowser": {
+      "key": "install.tryInBrowser",
+      "locale": "ru",
+      "sourceHash": "e90ae9146e3246a6f951d517eb191c51455c432f",
+      "translated": "Попробовать в браузере →",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.create.title": {
+      "key": "stash.create.title",
+      "locale": "ru",
+      "sourceHash": "ef43666e7a7c91884374954279f18429a3f41a8d",
+      "translated": "Создать Stash",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.title.placeholder": {
+      "key": "stash.title.placeholder",
+      "locale": "ru",
+      "sourceHash": "ec05b9acb5462a5a21fc9c211287ee440695126c",
+      "translated": "Заголовок Stash",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.urls.placeholder": {
+      "key": "stash.urls.placeholder",
+      "locale": "ru",
+      "sourceHash": "5a4243446bc61595baf78fd241c7dba3b5b03271",
+      "translated": "Вставьте URL-адреса (по одному на строку). Используйте 'URL | Title' для названия элемента:/nhttps://google.com | Google",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.copy.idle": {
+      "key": "stash.copy.idle",
+      "locale": "ru",
+      "sourceHash": "d8f482edf74e07a582e0836096d47a59b3bc03c2",
+      "translated": "Скопировать в буфер обмена",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.copy.done": {
+      "key": "stash.copy.done",
+      "locale": "ru",
+      "sourceHash": "b7c3ca0ee379c7b079b1d6912bf11e5167a1f591",
+      "translated": "Скопировано!",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.save": {
+      "key": "stash.save",
+      "locale": "ru",
+      "sourceHash": "efc007a393f66cdb14d57d385822a3d9e36ef873",
+      "translated": "Сохранить",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.generating": {
+      "key": "stash.generating",
+      "locale": "ru",
+      "sourceHash": "81362292e8ba662f8692cc03756cdb2e83806220",
+      "translated": "Генерация...",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.error": {
+      "key": "stash.error",
+      "locale": "ru",
+      "sourceHash": "7f2f6a15cf8da2b27e5a4af47b58e7ad71c0b3d9",
+      "translated": "Ошибка",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.clear": {
+      "key": "stash.clear",
+      "locale": "ru",
+      "sourceHash": "719ea396ad92e01b4757ec2b93bb1e5f270f771d",
+      "translated": "Очистить",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||sharedTabs.title": {
+      "key": "sharedTabs.title",
+      "locale": "ru",
+      "sourceHash": "37a2334cc739ab23373750ff1d9a636aeca84168",
+      "translated": "Общие вкладки",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||sharedTabs.shareQr": {
+      "key": "sharedTabs.shareQr",
+      "locale": "ru",
+      "sourceHash": "961eb1bbba1328a701929af9a7ffd0fe9769d5ed",
+      "translated": "Поделиться как QR",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||sharedTabs.new": {
+      "key": "sharedTabs.new",
+      "locale": "ru",
+      "sourceHash": "6403f2b7eb2aaafe6de34cbf2a029b01afebc512",
+      "translated": "Новый",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||theme.label": {
+      "key": "theme.label",
+      "locale": "ru",
+      "sourceHash": "a92a777bacb294a7dd81f82bb26d405bf8c20c17",
+      "translated": "Переключатель темы",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||theme.light": {
+      "key": "theme.light",
+      "locale": "ru",
+      "sourceHash": "9e5ba0f0f6b52d08b363bdcde46caac8862e4c70",
+      "translated": "Светлая тема",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||theme.dark": {
+      "key": "theme.dark",
+      "locale": "ru",
+      "sourceHash": "d51c5960ec071d2f7d544efc540c4d3f56821bd5",
+      "translated": "Тёмная тема",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||language.label": {
+      "key": "language.label",
+      "locale": "ru",
+      "sourceHash": "89b86ab0e66f527166d98df92ddbcf5416ed58f6",
+      "translated": "Язык",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||language.en": {
+      "key": "language.en",
+      "locale": "ru",
+      "sourceHash": "649df08a448ee3fa90f3746baaf6b0907df42c91",
+      "translated": "Английский",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||language.es": {
+      "key": "language.es",
+      "locale": "ru",
+      "sourceHash": "8df7f1b361b2af42d36011e00d22c0f9891ec0b0",
+      "translated": "Испанский",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||language.ru": {
+      "key": "language.ru",
+      "locale": "ru",
+      "sourceHash": "74ad93cbebf587ac46ab0ef1e3f24139ddd3f535",
+      "translated": "Русский",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||language.fr": {
+      "key": "language.fr",
+      "locale": "ru",
+      "sourceHash": "44389f6a466eaabf5c1db729e369511134e2b03b",
+      "translated": "Французский",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||sharedTabs.selectAll": {
+      "key": "sharedTabs.selectAll",
+      "locale": "ru",
+      "sourceHash": "913afff1faf79724f1f685fe8b1e36a729123ca2",
+      "translated": "Выбрать все",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||sharedTabs.deselectAll": {
+      "key": "sharedTabs.deselectAll",
+      "locale": "ru",
+      "sourceHash": "85cce1e14782f67cb830f74002ebe5603783c674",
+      "translated": "Снять выделение",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||sharedTabs.openSelected": {
+      "key": "sharedTabs.openSelected",
+      "locale": "ru",
+      "sourceHash": "bc495ecaae45588002e98cd8538af66176361a5a",
+      "translated": "Открыть выбранные",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||sharedTabs.removeSelected": {
+      "key": "sharedTabs.removeSelected",
+      "locale": "ru",
+      "sourceHash": "f38b8091a8e8f074ec55d65b8503908ad4670e9c",
+      "translated": "Убрать выбранные",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||sharedTabs.saveEdited": {
+      "key": "sharedTabs.saveEdited",
+      "locale": "ru",
+      "sourceHash": "550c0d66e31d4a096ce17b755e610f778a8ee0be",
+      "translated": "Сохранить изменённый stash",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||sharedTabs.savedEdited": {
+      "key": "sharedTabs.savedEdited",
+      "locale": "ru",
+      "sourceHash": "20b1e695fb4e394deeef2217562c3bb6487fdce9",
+      "translated": "Сохранено! Ссылка ниже",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||sharedTabs.editedLink": {
+      "key": "sharedTabs.editedLink",
+      "locale": "ru",
+      "sourceHash": "be99c6bf56fae21ae6e32f7a2f34bd6bc4d5aadf",
+      "translated": "Ссылка на изменённый stash",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||sharedTabs.empty": {
+      "key": "sharedTabs.empty",
+      "locale": "ru",
+      "sourceHash": "9bb92404404f78020aa1d37753af018ab8f19db1",
+      "translated": "Элементов не осталось",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.meter.items": {
+      "key": "stash.meter.items",
+      "locale": "ru",
+      "sourceHash": "7316c8b2e74870d9d7e9d30bbc28ecf4cdf945ee",
+      "translated": "элементов",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.meter.chars": {
+      "key": "stash.meter.chars",
+      "locale": "ru",
+      "sourceHash": "76a91d6ce24fcc03ec2ecbb19e3012b5d5d40e2b",
+      "translated": "символов",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.meter.qrOk": {
+      "key": "stash.meter.qrOk",
+      "locale": "ru",
+      "sourceHash": "83627951bfef07b118fa75d3313ca60e58a061e6",
+      "translated": "QR-код всё ещё помещается",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.meter.qrTooBig": {
+      "key": "stash.meter.qrTooBig",
+      "locale": "ru",
+      "sourceHash": "3fb1d6ecae7216c44253dfacb1fc4c41f4c1b623",
+      "translated": "QR больше невозможен, ссылка всё ещё работает",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||sharedTabs.close": {
+      "key": "sharedTabs.close",
+      "locale": "ru",
+      "sourceHash": "bbfa773e5a63a5ea58c9b6207e608ca0120e592a",
+      "translated": "Закрыть",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.expiry.never": {
+      "key": "stash.expiry.never",
+      "locale": "ru",
+      "sourceHash": "9d24e31fd08daca24a8177e05760a088121c65d0",
+      "translated": "Никогда не истекает",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.expiry.24h": {
+      "key": "stash.expiry.24h",
+      "locale": "ru",
+      "sourceHash": "cb4780f87455df201d8f17c2e9feb8f0c4f94a7f",
+      "translated": "24 часа",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.expiry.7d": {
+      "key": "stash.expiry.7d",
+      "locale": "ru",
+      "sourceHash": "0a8dd6adce7a0dcd996c5a1443464cb702001e8b",
+      "translated": "7 дней",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||stash.expiry.30d": {
+      "key": "stash.expiry.30d",
+      "locale": "ru",
+      "sourceHash": "7d4278a875900ffd7f62164dd3ede0b42e509644",
+      "translated": "30 дней",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||hero.headline.line1": {
+      "key": "hero.headline.line1",
+      "locale": "ru",
+      "sourceHash": "7290d08d268ebb431346f77bf9edd7a01c61b696",
+      "translated": "Твои вкладки — это твоё мышление.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||hero.headline.line2": {
+      "key": "hero.headline.line2",
+      "locale": "ru",
+      "sourceHash": "e7816676da6df6826672b213c0a5c8a94e136ada",
+      "translated": "Перестань их терять.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||hero.subheadline": {
+      "key": "hero.subheadline",
+      "locale": "ru",
+      "sourceHash": "a8bc0a3d24c4deb41da412057290876c5804b3ef",
+      "translated": "Делись всем контекстом браузера одной ссылкой или просто сохраняй на потом. Локально. Приватно. Без аккаунта. Без облака. Без шума.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||hero.cta.chrome": {
+      "key": "hero.cta.chrome",
+      "locale": "ru",
+      "sourceHash": "d1d195f1e7f833cde70e903f396279991b6a4b0f",
+      "translated": "Добавить в Chrome",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||hero.cta.chromeAria": {
+      "key": "hero.cta.chromeAria",
+      "locale": "ru",
+      "sourceHash": "050e55c44945c204da6a433ab4051abd6540487c",
+      "translated": "Добавить Stash в Chrome",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||hero.cta.firefox": {
+      "key": "hero.cta.firefox",
+      "locale": "ru",
+      "sourceHash": "1bf14b2c6fc783ed86eea0ad1c7070fa15744c7e",
+      "translated": "Добавить в Firefox",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||hero.cta.firefoxAria": {
+      "key": "hero.cta.firefoxAria",
+      "locale": "ru",
+      "sourceHash": "72ec5d3caefa3a5138c382897f9b274945db2946",
+      "translated": "Добавить Stash в Firefox",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||hero.cta.tryInBrowser": {
+      "key": "hero.cta.tryInBrowser",
+      "locale": "ru",
+      "sourceHash": "e90ae9146e3246a6f951d517eb191c51455c432f",
+      "translated": "Попробовать в браузере →",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||hero.tagline": {
+      "key": "hero.tagline",
+      "locale": "ru",
+      "sourceHash": "3f19378f2b3432e6d4300b15badababed2bc06bd",
+      "translated": "Бесплатно · Без аккаунта · Работает офлайн",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||proof.label": {
+      "key": "proof.label",
+      "locale": "ru",
+      "sourceHash": "06e854b047abe96f4227335510de192505c75d8d",
+      "translated": "Используется командами в",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||proof.company1": {
+      "key": "proof.company1",
+      "locale": "ru",
+      "sourceHash": "fc3ecb549be3c61339621c746422b32e7fa0a96b",
+      "translated": "Стартапы с поддержкой YC",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||proof.company2": {
+      "key": "proof.company2",
+      "locale": "ru",
+      "sourceHash": "a32103d0a0501907e9638ece7592664a210be2f6",
+      "translated": "Инди-разработчики",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.title": {
+      "key": "features.title",
+      "locale": "ru",
+      "sourceHash": "4ebce779bfc3d094e02e661c54002fed9930b2be",
+      "translated": "Всё, что нужно. Ничего лишнего.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.sharing.label": {
+      "key": "features.sharing.label",
+      "locale": "ru",
+      "sourceHash": "f789760ce3b26e8d7bd61267c0921849c5b49e59",
+      "translated": "ОБМЕН",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.sharing.title": {
+      "key": "features.sharing.title",
+      "locale": "ru",
+      "sourceHash": "20e65af4621d8b9ac38584a7ccd28d4c90b6841e",
+      "translated": "Шеринг контекста одной ссылкой",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.sharing.description": {
+      "key": "features.sharing.description",
+      "locale": "ru",
+      "sourceHash": "444029634461d6f8891864c8f0527a87df247675",
+      "translated": "Поделитесь всеми открытыми вкладками одним URL. Коллеги откроют его и увидят вашу сессию в точности.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.privacy.label": {
+      "key": "features.privacy.label",
+      "locale": "ru",
+      "sourceHash": "2f15803450716219ad19b6dfa4114155aa187f18",
+      "translated": "ПРИВАТНОСТЬ",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.privacy.title": {
+      "key": "features.privacy.title",
+      "locale": "ru",
+      "sourceHash": "35a8883a5ab89f83addeb163c792cdfab934b9da",
+      "translated": "Локально. Всегда.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.privacy.description": {
+      "key": "features.privacy.description",
+      "locale": "ru",
+      "sourceHash": "33bef4959c064a365c6ad91016f54bfcfd58ce76",
+      "translated": "Ваши данные не покидают устройство, пока вы сами не решите поделиться. Без аккаунта. Без сервера синхронизации.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.workflow.label": {
+      "key": "features.workflow.label",
+      "locale": "ru",
+      "sourceHash": "59d699973ee78f324b9c59501e8bc45c2308c444",
+      "translated": "РАБОЧИЙ ПРОЦЕСС",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.workflow.title": {
+      "key": "features.workflow.title",
+      "locale": "ru",
+      "sourceHash": "41d7fba46d2b88a19a4ac9d6d5d266ca265e9295",
+      "translated": "Контекст, готовый для ИИ",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.workflow.description": {
+      "key": "features.workflow.description",
+      "locale": "ru",
+      "sourceHash": "17fa4dba2225d6b6886082e0055bc0f4d56e53d1",
+      "translated": "Экспортируйте текущую сессию как структурированный контекст для любой LLM. Вставляйте вкладки прямо в свой рабочий процесс.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.reliability.label": {
+      "key": "features.reliability.label",
+      "locale": "ru",
+      "sourceHash": "ed4b4a73e077b8cb49d06cb88ec9d79921bba4e9",
+      "translated": "НАДЁЖНОСТЬ",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.reliability.title": {
+      "key": "features.reliability.title",
+      "locale": "ru",
+      "sourceHash": "14c6ece2071378c93b8025606573f5c692e3e340",
+      "translated": "Работает офлайн",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.reliability.description": {
+      "key": "features.reliability.description",
+      "locale": "ru",
+      "sourceHash": "9028ea612c39c883e67d5f63b4fc3b7d2c4853bb",
+      "translated": "Сохраняйте сессии даже без интернета. Открывайте их в любой момент.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.organization.label": {
+      "key": "features.organization.label",
+      "locale": "ru",
+      "sourceHash": "9da72239ddeee345a6b025c468d9817c49cae014",
+      "translated": "ОРГАНИЗАЦИЯ",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.organization.title": {
+      "key": "features.organization.title",
+      "locale": "ru",
+      "sourceHash": "ac79a5cb9489f682718e0810575ad722b3773577",
+      "translated": "Именованные сессии",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.organization.description": {
+      "key": "features.organization.description",
+      "locale": "ru",
+      "sourceHash": "4ddb3ba6bc4cfde2d8061e90babc01eeb75e5dbc",
+      "translated": "Группируйте вкладки по именам и меткам времени. Ваш контекст, подписанный.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.mobile.label": {
+      "key": "features.mobile.label",
+      "locale": "ru",
+      "sourceHash": "a453e3488ac7a1a478ebfb6abeead801dd5ebc82",
+      "translated": "МОБИЛЬНОСТЬ",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.mobile.title": {
+      "key": "features.mobile.title",
+      "locale": "ru",
+      "sourceHash": "38f2cb96a904f35d7d7d3a072df60396c092b46e",
+      "translated": "Поделиться QR-кодом",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||features.mobile.description": {
+      "key": "features.mobile.description",
+      "locale": "ru",
+      "sourceHash": "e694e8331329e7b06d98ec9e4e6b2e62091d48ea",
+      "translated": "Сгенерируйте QR из любой сессии и отсканируйте его телефоном. Ваши вкладки, где угодно.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||howItWorks.title": {
+      "key": "howItWorks.title",
+      "locale": "ru",
+      "sourceHash": "87f42baeb1075f7ada0bc3b851e6a3f792dcdb97",
+      "translated": "Три шага.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||howItWorks.step1.title": {
+      "key": "howItWorks.step1.title",
+      "locale": "ru",
+      "sourceHash": "57cf0ed4eb11b2d9889efc67de900f7e6d634610",
+      "translated": "Откройте Stash",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||howItWorks.step1.body": {
+      "key": "howItWorks.step1.body",
+      "locale": "ru",
+      "sourceHash": "f344e603f67fd79b6148d285d6b77688dd887d20",
+      "translated": "Нажмите на иконку расширения во время сёрфинга. Текущие вкладки появятся мгновенно.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||howItWorks.step2.title": {
+      "key": "howItWorks.step2.title",
+      "locale": "ru",
+      "sourceHash": "e4649c0feacfa07b33740617a1992ee926046692",
+      "translated": "Сохраните или поделитесь",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||howItWorks.step2.body": {
+      "key": "howItWorks.step2.body",
+      "locale": "ru",
+      "sourceHash": "138b1e40109656239da232156f4f99c10402d9f7",
+      "translated": "Нажмите «Сохранить сессию» для локального хранения или «Скопировать ссылку», чтобы поделиться контекстом.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||howItWorks.step3.title": {
+      "key": "howItWorks.step3.title",
+      "locale": "ru",
+      "sourceHash": "29c262fc5e1a57af1cd5d71a074654454e592d17",
+      "translated": "Восстановите в любой момент",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||howItWorks.step3.body": {
+      "key": "howItWorks.step3.body",
+      "locale": "ru",
+      "sourceHash": "0f7d61276a74839ec8da7c9e6f426b587a610063",
+      "translated": "Откройте любую сохранённую сессию одним кликом. Вкладки откроются ровно в том виде, в котором вы их оставили.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||demo.title": {
+      "key": "demo.title",
+      "locale": "ru",
+      "sourceHash": "f7bd04bc23d0d8eee5b56955d487fc2585d2855f",
+      "translated": "Посмотрите в деле",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||demo.savedSession": {
+      "key": "demo.savedSession",
+      "locale": "ru",
+      "sourceHash": "b637f396f7cf87b4aab63deeaee928832d283d23",
+      "translated": "СОХРАНЁННАЯ СЕССИЯ",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||demo.sessionTitle": {
+      "key": "demo.sessionTitle",
+      "locale": "ru",
+      "sourceHash": "c07bd473c0fbfbe42a3188aadf57a906ac696d57",
+      "translated": "Исследование: миграция на Astro 5",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||demo.viewLive": {
+      "key": "demo.viewLive",
+      "locale": "ru",
+      "sourceHash": "e204b9c45e342180f080ca659720fdbdcf2df5c1",
+      "translated": "Живой пример →",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||privacy.title": {
+      "key": "privacy.title",
+      "locale": "ru",
+      "sourceHash": "d1d923694f7a60ab13fa0b7497f059d8cb5379b9",
+      "translated": "Создано для доверия.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||privacy.subtitle": {
+      "key": "privacy.subtitle",
+      "locale": "ru",
+      "sourceHash": "2ce9a0c446947dd149ad0f11aa70089b8b8716e6",
+      "translated": "Ноль телеметрии, ноль облака, ноль компромиссов.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||privacy.item1": {
+      "key": "privacy.item1",
+      "locale": "ru",
+      "sourceHash": "9015039a025fcaa04763fbf2220e6c8df4727703",
+      "translated": "Аккаунт не требуется. Никогда.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||privacy.item2": {
+      "key": "privacy.item2",
+      "locale": "ru",
+      "sourceHash": "26f37cbfd7bc92f6ef88d742a6f1d373f0136eb5",
+      "translated": "Все сессии хранятся в локальном хранилище вашего браузера.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||privacy.item3": {
+      "key": "privacy.item3",
+      "locale": "ru",
+      "sourceHash": "1761de91a743dd6b37499f9f64133e008664686a",
+      "translated": "Шеринг по желанию. Ничего не уходит без вашего действия.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||privacy.item4": {
+      "key": "privacy.item4",
+      "locale": "ru",
+      "sourceHash": "afdff091b4eebfdd7913ec02bb771e5c30cfc163",
+      "translated": "Открытый исходный код. Проверьте сами.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||privacy.repoLink": {
+      "key": "privacy.repoLink",
+      "locale": "ru",
+      "sourceHash": "84287feda0a92a44a2948a8b1b533fb73f18e15b",
+      "translated": "github.com/espetro/stash →",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||finalCta.label": {
+      "key": "finalCta.label",
+      "locale": "ru",
+      "sourceHash": "05c98fb4a057d43c1dd294a9151b1cbf70a30d9c",
+      "translated": "БЕСПЛАТНОЕ РАСШИРЕНИЕ ДЛЯ БРАУЗЕРА",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||finalCta.title": {
+      "key": "finalCta.title",
+      "locale": "ru",
+      "sourceHash": "d88e617587b223f4b7bccfd3d412c85cd9d48344",
+      "translated": "Перестаньте терять контекст.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||finalCta.subtitle": {
+      "key": "finalCta.subtitle",
+      "locale": "ru",
+      "sourceHash": "119ecf0e553b90afccd1e87e519e5bea30cd23a9",
+      "translated": "Добавьте Stash в свой браузер за 30 секунд.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||finalCta.chrome": {
+      "key": "finalCta.chrome",
+      "locale": "ru",
+      "sourceHash": "d1d195f1e7f833cde70e903f396279991b6a4b0f",
+      "translated": "Добавить в Chrome",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||finalCta.firefox": {
+      "key": "finalCta.firefox",
+      "locale": "ru",
+      "sourceHash": "1bf14b2c6fc783ed86eea0ad1c7070fa15744c7e",
+      "translated": "Добавить в Firefox",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||finalCta.tryInBrowser": {
+      "key": "finalCta.tryInBrowser",
+      "locale": "ru",
+      "sourceHash": "e90ae9146e3246a6f951d517eb191c51455c432f",
+      "translated": "Попробовать в браузере →",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||finalCta.tagline": {
+      "key": "finalCta.tagline",
+      "locale": "ru",
+      "sourceHash": "759e97d15b7b08509fc910df44d5bbb6f0905262",
+      "translated": "Без аккаунта · Без облака · Работает офлайн",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||footer.copyright": {
+      "key": "footer.copyright",
+      "locale": "ru",
+      "sourceHash": "e70536aeecb5a446c52e69d521f967c1a91c95a0",
+      "translated": "© 2026 Stash — Сделано с заботой для опытных пользователей.",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||footer.github": {
+      "key": "footer.github",
+      "locale": "ru",
+      "sourceHash": "5442e2b64fa09764b9f593867e59a97292c84059",
+      "translated": "GitHub",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||footer.privacy": {
+      "key": "footer.privacy",
+      "locale": "ru",
+      "sourceHash": "cf01481f626d5127ec7732fcbdb29504f08abefd",
+      "translated": "Приватность",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||footer.terms": {
+      "key": "footer.terms",
+      "locale": "ru",
+      "sourceHash": "a55a275aa676930d9258569485d5b38eb1196630",
+      "translated": "Условия",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||roadmap.title": {
+      "key": "roadmap.title",
+      "locale": "ru",
+      "sourceHash": "82a40b48692ae431d89b166d793770d8e603b025",
+      "translated": "Где мы — и куда идём",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||roadmap.subtitle": {
+      "key": "roadmap.subtitle",
+      "locale": "ru",
+      "sourceHash": "699c220e2a9a4e9db0b9a279f5be20179392c1bc",
+      "translated": "Прозрачная разработка, приоритеты от сообщества",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||roadmap.done.aiFirst": {
+      "key": "roadmap.done.aiFirst",
+      "locale": "ru",
+      "sourceHash": "8881854e041c8ff2fcd4b7b4f1df7ee02df9ff17",
+      "translated": "AI-first",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||roadmap.done.selectAnyTab": {
+      "key": "roadmap.done.selectAnyTab",
+      "locale": "ru",
+      "sourceHash": "8f767d92011a23f8595513363236399217e553de",
+      "translated": "Выбор любой вкладки",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||roadmap.done.expiration": {
+      "key": "roadmap.done.expiration",
+      "locale": "ru",
+      "sourceHash": "00ac9a09be38d17579428f44fb62af844a33fb28",
+      "translated": "Настройка срока жизни",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||roadmap.done.shareLink": {
+      "key": "roadmap.done.shareLink",
+      "locale": "ru",
+      "sourceHash": "02c43e58537ed0802cb9ef8ccafe81a0d6c36e52",
+      "translated": "Шеринг по ссылке",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||roadmap.done.theme": {
+      "key": "roadmap.done.theme",
+      "locale": "ru",
+      "sourceHash": "c7ff28591469a462d78b3d0bf65e1c159728a93a",
+      "translated": "Светлая/тёмная тема",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||roadmap.done.browsers": {
+      "key": "roadmap.done.browsers",
+      "locale": "ru",
+      "sourceHash": "1b5d13ffc7d06e37e0d8bbabff7f4f5bc54f2102",
+      "translated": "Chrome и Firefox",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||roadmap.done.review": {
+      "key": "roadmap.done.review",
+      "locale": "ru",
+      "sourceHash": "0ae5971188f45d61083f2a0c31c1f313160f579e",
+      "translated": "Просмотр где угодно",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||roadmap.upcoming.languages": {
+      "key": "roadmap.upcoming.languages",
+      "locale": "ru",
+      "sourceHash": "829b7f67948bc6c05117d3c5a19c36d778b81142",
+      "translated": "Больше языков (i18n)",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||roadmap.upcoming.safari": {
+      "key": "roadmap.upcoming.safari",
+      "locale": "ru",
+      "sourceHash": "a86ca3593e4b18a465e39859a78234d2e9e16652",
+      "translated": "Поддержка Safari",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||roadmap.suggest": {
+      "key": "roadmap.suggest",
+      "locale": "ru",
+      "sourceHash": "b77aa8e17acff2e00b94f853f0b677ad7ef00d3d",
+      "translated": "Предложить функцию",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||roadmap.legend.shipped": {
+      "key": "roadmap.legend.shipped",
+      "locale": "ru",
+      "sourceHash": "dec6e3290897314598b50e6a6ce560d19cf815f9",
+      "translated": "Выпущено",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "ru||roadmap.legend.comingSoon": {
+      "key": "roadmap.legend.comingSoon",
+      "locale": "ru",
+      "sourceHash": "04d2fd852a2b48a9a5f2e2930d41488d1dcaea9a",
+      "translated": "Скоро",
+      "origin": "human",
+      "timestamp": "2026-08-21T20:26:46.115Z"
+    }
+  }
+}

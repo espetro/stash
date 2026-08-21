@@ -3,6 +3,8 @@
 // `process.loadEnvFile()` built-in (no extra dep needed).
 process.loadEnvFile?.("../../.env");
 
+import { icuProcessor } from "@intl-ai/api/internal";
+
 /** @type {import("@intl-ai/api").IntlAiConfig} */
 export default {
   defaultLocale: "en",
@@ -12,5 +14,5 @@ export default {
   model: process.env.OPENROUTER_MODEL_ID ?? "openai/gpt-4o-mini",
   apiKey: process.env.OPENROUTER_API_KEY ?? "",
   baseURL: "https://openrouter.ai/api/v1",
-  processor: "icu",
+  processor: icuProcessor,
 };
