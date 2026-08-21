@@ -14,11 +14,13 @@ export const EXPIRY_HOURS_MAP: Record<ExpiryMode, number> = {
 export interface Settings {
   expiryMode: ExpiryMode;
   viewerOrigin: string;
+  experimentalServer: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   expiryMode: "never",
   viewerOrigin: BUILD_TIME_VIEWER_ORIGIN,
+  experimentalServer: false,
 };
 
 export const settingsItem = new StorageItem<Settings>("stash-settings", {

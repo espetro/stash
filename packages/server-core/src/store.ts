@@ -1,17 +1,6 @@
-import { createStorage, type Storage } from "unstorage";
-import cloudflareKVBindingDriver from "unstorage/drivers/cloudflare-kv-binding";
-import memoryDriver from "unstorage/drivers/memory";
+import type { Storage } from "unstorage";
 import type { DecodedPayload } from "@stash/codec";
 
-export interface Env {
-  STASH_KV?: KVNamespace;
-  /** Test seam: inject an in-memory storage instead of the KV binding */
-  TEST_STORAGE?: Storage;
-  /** Workers ratelimit binding — POST /api/stash, 20/min per IP per PoP */
-  RL_STASH?: RateLimit;
-  /** Workers ratelimit binding — POST /mcp, 60/min per IP per PoP */
-  RL_MCP?: RateLimit;
-}
 
 /** Server-stored stashes enforce one of these TTLs; `never` only exists in
  *  URL-payload mode. */
@@ -50,22 +39,11 @@ export interface StoredEntry {
   t?: string;
 }
 
-const KV_PREFIX = "stash:";
-
-function storageFor(env: Env): Storage {
-  if (env.TEST_STORAGE) return env.TEST_STORAGE;
-  if (!env.STASH_KV) throw new Error("STASH_KV binding missing");
-  return createStorage({
-    driver: cloudflareKVBindingDriver({ binding: env.STASH_KV, base: KV_PREFIX }),
-  });
-}
-
 export async function createStash(
-  env: Env,
+  storage: Storage,
   payload: string,
   ttl: ServerTtl,
 ): Promise<{ id: string; entry: StoredEntry }> {
-  const storage = storageFor(env);
   const now = Math.floor(Date.now() / 1000);
   const ttlSeconds = SERVER_TTL_HOURS[ttl] * 3600;
   const expiry = now + ttlSeconds;
@@ -81,11 +59,10 @@ export async function createStash(
   throw new Error("id-collision");
 }
 
-export async function getStash(env: Env, id: string): Promise<StoredEntry | null> {
-  const storage = storageFor(env);
+export async function getStash(storage: Storage, id: string): Promise<StoredEntry | null> {
   const raw = await storage.getItem<StoredEntry | string>(id);
   if (raw === null || raw === undefined) return null;
-  // cloudflare-kv-binding returns the stored string; memory driver returns the object
+  // some drivers return the stored string, others the parsed object
   return typeof raw === "string" ? (JSON.parse(raw) as StoredEntry) : raw;
 }
 
@@ -117,5 +94,3 @@ export function jsonHeaders(extra: Record<string, string> = {}): Record<string, 
     ...extra,
   };
 }
-
-export { memoryDriver };

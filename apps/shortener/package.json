@@ -14,6 +14,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260526.1",
     "@stash/codec": "workspace:*",
+    "@stash/server-core": "workspace:*",
     "brotli-wasm": "^3.0.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.7",

@@ -1,6 +1,7 @@
 import { step, beforeSuite } from "@getgauge/cli";
 import { Page, BrowserContext } from "playwright";
-import { getBrowserHelper, setCurrentPage, getCurrentPage } from "../helpers/browser-helper";
+import { getBrowserHelper } from "../helpers/browser-helper";
+import { setCurrentPage, getCurrentPage } from "./common-steps";
 import {
   decodeShareUrl,
   getDomain,
@@ -104,7 +105,7 @@ step(
     }
     viewerPage = await viewerContext.newPage();
 
-    const url = generateViewerUrlFromFixture("special-chars");
+    const url = await generateViewerUrlFromFixture("special-chars");
 
     await viewerPage.goto(url, { waitUntil: "networkidle" });
     setCurrentPage(viewerPage);
@@ -123,7 +124,7 @@ step(
     }
     viewerPage = await viewerContext.newPage();
 
-    const url = generateViewerUrlFromFixture("special-chars");
+    const url = await generateViewerUrlFromFixture("special-chars");
 
     await viewerPage.goto(url, { waitUntil: "networkidle" });
     setCurrentPage(viewerPage);
@@ -140,7 +141,7 @@ step("The browser is navigated to the viewer URL with an expired payload", async
   }
   viewerPage = await viewerContext.newPage();
 
-  const url = generateViewerUrlFromFixture("expired");
+  const url = await generateViewerUrlFromFixture("expired");
 
   await viewerPage.goto(url, { waitUntil: "networkidle" });
   setCurrentPage(viewerPage);
@@ -215,7 +216,7 @@ step("The browser is navigated to the viewer URL with an empty items array", asy
   }
   viewerPage = await viewerContext.newPage();
 
-  const url = generateViewerUrlFromFixture("empty-items");
+  const url = await generateViewerUrlFromFixture("empty-items");
 
   await viewerPage.goto(url, { waitUntil: "networkidle" });
   setCurrentPage(viewerPage);
@@ -233,7 +234,7 @@ step(
     }
     viewerPage = await viewerContext.newPage();
 
-    const url = generateViewerUrlFromFixture("long-title");
+    const url = await generateViewerUrlFromFixture("long-title");
 
     await viewerPage.goto(url, { waitUntil: "networkidle" });
     setCurrentPage(viewerPage);

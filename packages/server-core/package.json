@@ -1,0 +1,26 @@
+{
+  "name": "@stash/server-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "tscheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@stash/codec": "workspace:*",
+    "@stash/shared": "workspace:*",
+    "unstorage": "^1.17.5",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "vite": "^8.0.12",
+    "vitest": "4.1.7"
+  }
+}

@@ -58,6 +58,8 @@ Stash has minimal server infrastructure:
 - **No processing**: No server-side data manipulation
 - **Static hosting**: Viewer site is static files with no dynamic processing
 
+There is one opt-in exception: the experimental server mode runs a small server inside the extension that stores stashes locally in `browser.storage.local` on your machine. It never sends data to an external server and is disabled by default (see [Agent Server](/agent-server)).
+
 ### Link Security
 Shared links are designed for security:
 

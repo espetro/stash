@@ -1,19 +1,17 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "commonjs",
+    "module": "ESNext",
     "lib": ["ES2020", "DOM"],
-    "moduleResolution": "node10",
-    "types": ["node", "chrome"],
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "ignoreDeprecations": "6.0",
+    "types": ["vite/client", "node"],
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true
   },
-  "include": ["**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "__tests__/**/*.ts"],
   "exclude": ["node_modules"]
 }
