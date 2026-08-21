@@ -15,3 +15,9 @@ tmp/
 !apps/shortener/src/vendor/*.js
 .opencode/plugins/emdash-notifications.js
 .wrangler/
+# Playwright test artifacts
+packages/e2e/test-results/
+packages/e2e/playwright-report/
+packages/e2e/blob-report/
+packages/e2e/playwright/.cache/
+packages/e2e/screenshots/

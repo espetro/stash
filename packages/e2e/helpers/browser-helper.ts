@@ -1,167 +1,159 @@
-import { chromium, Browser, BrowserContext, Page } from "playwright";
-import * as path from "path";
-import * as fs from "fs";
+/**
+ * Playwright-based browser helpers.
+ *
+ * Two launch paths:
+ *  - sharedLaunch()          -> plain chromium browser reused across
+ *                               scenarios; returns a fresh context
+ *  - launchWithExtension()   -> launchPersistentContext with the Stash
+ *                               MV3 extension loaded (each call returns
+ *                               its own browser; expensive)
+ *
+ * Memory note: launching a fresh Chromium browser per scenario runs the
+ * 8GB-RAM laptop out of memory quickly. `sharedLaunch()` keeps a single
+ * Chromium process alive for the lifetime of the worker and only spins
+ * up a new context per scenario. The trade-off is that contexts are
+ * closed individually so each test still gets a clean slate, but the
+ * browser process itself (the bulk of the RSS) is reused.
+ *
+ * Both return a context; callers are responsible for closing it (typically
+ * the worker fixture). The extension launch uses `chromium` channel so
+ * MV3 service workers are supported; `headless: "new"` keeps the test
+ * fast.
+ */
 
-export class BrowserHelper {
-  private browser: Browser | null = null;
-  private context: BrowserContext | null = null;
-  private extensionPath: string;
-  private usePersistentContext: boolean;
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { chromium } from "playwright";
+import type { Browser, BrowserContext, Page } from "playwright";
 
-  constructor() {
-    this.extensionPath =
-      process.env.EXTENSION_PATH ||
-      path.join(process.cwd(), "..", "..", "apps", "extension", ".output", "chrome-mv3");
-    this.usePersistentContext = true;
+const DEFAULT_EXTENSION_PATH = path.join(
+  process.cwd(),
+  "..",
+  "..",
+  "apps",
+  "extension",
+  ".output",
+  "chrome-mv3",
+);
+
+export function extensionPath(): string {
+  return process.env.EXTENSION_PATH || DEFAULT_EXTENSION_PATH;
+}
+
+export function headless(): boolean {
+  return process.env.HEADLESS !== "false";
+}
+
+// Module-level singleton: one chromium browser for the whole worker.
+// `fullyParallel: false` in playwright.config guarantees a single
+// worker process, so this is effectively per-test-run.
+let _sharedBrowser: Browser | null = null;
+
+/** Lazily start the shared chromium browser. */
+export async function getSharedBrowser(): Promise<Browser> {
+  if (_sharedBrowser && _sharedBrowser.isConnected()) return _sharedBrowser;
+  _sharedBrowser = await chromium.launch({
+    channel: "chromium",
+    headless: headless(),
+    // Memory caps on Chromium itself. Default values are tuned for
+    // desktops with much more RAM than 8GB laptops; tighten here.
+    args: [
+      "--disable-dev-shm-usage",
+      "--disable-features=Translate,BackForwardCache,AcceptCHFrame",
+      "--no-zygote",
+    ],
+  });
+  return _sharedBrowser;
+}
+
+/** Open a fresh context on the shared browser. Callers must close it. */
+export async function sharedLaunch(): Promise<BrowserContext> {
+  const browser = await getSharedBrowser();
+  return browser.newContext({ viewport: { width: 1280, height: 720 } });
+}
+
+/** Tear down the shared browser (call from a worker fixture's teardown). */
+export async function closeSharedBrowser(): Promise<void> {
+  if (_sharedBrowser) {
+    await _sharedBrowser.close().catch(() => undefined);
+    _sharedBrowser = null;
   }
+}
 
-  async launchWithExtension(): Promise<BrowserContext> {
-    if (!fs.existsSync(this.extensionPath)) {
-      throw new Error(
-        `Extension not found at ${this.extensionPath}. Build first: pnpm --filter stash-extension run build`,
-      );
-    }
+/**
+ * Backwards-compat alias — older code calls `launch()` to mean "give me
+ * a context I can use". Same semantics as `sharedLaunch()` under the
+ * new memory-friendly model.
+ */
+export async function launch(): Promise<BrowserContext> {
+  return sharedLaunch();
+}
 
-    const absoluteExtensionPath = path.resolve(this.extensionPath);
+/**
+ * Launch a persistent chromium context with the Stash extension loaded.
+ * Persistent contexts are required for MV3 service workers.
+ */
+export async function launchWithExtension(): Promise<BrowserContext> {
+  const ext = extensionPath();
+  if (!fs.existsSync(ext)) {
+    throw new Error(
+      `Extension not found at ${ext}. Build first: pnpm --filter stash-extension run build`,
+    );
+  }
+  const absExt = path.resolve(ext);
+  const context = await chromium.launchPersistentContext("", {
+    channel: "chromium",
+    headless: headless(),
+    args: [`--disable-extensions-except=${absExt}`, `--load-extension=${absExt}`],
+    viewport: { width: 1280, height: 720 },
+  });
+  // launchPersistentContext returns a context that owns the browser
+  // process internally — close() handles both.
+  return context;
+}
 
-    if (this.usePersistentContext) {
-      this.context = await chromium.launchPersistentContext("", {
-        channel: "chromium",
-        args: [
-          `--disable-extensions-except=${absoluteExtensionPath}`,
-          `--load-extension=${absoluteExtensionPath}`,
-        ],
-        viewport: { width: 1280, height: 720 },
+export async function closeContext(context: BrowserContext): Promise<void> {
+  await context.close();
+  const browser = (context as BrowserContext & { _browser?: Browser })._browser;
+  if (browser) await browser.close();
+}
+
+/** Pick the extension id from the loaded extension's background pages. */
+export async function getExtensionId(context: BrowserContext): Promise<string> {
+  const bgPages = context.backgroundPages();
+  if (bgPages.length > 0) {
+    const url = bgPages[0].url();
+    const match = url.match(/chrome-extension:\/\/([a-z]{32})\//);
+    if (match) return match[1];
+  }
+  const pages = context.pages();
+  for (const page of pages) {
+    try {
+      const id = await page.evaluate(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const c = (globalThis as any).chrome;
+        if (c && c.runtime && c.runtime.id) return c.runtime.id as string;
+        return null;
       });
-      return this.context;
-    }
-
-    this.browser = await chromium.launch({
-      headless: process.env.HEADLESS === "true",
-      args: [
-        `--disable-extensions-except=${absoluteExtensionPath}`,
-        `--load-extension=${absoluteExtensionPath}`,
-        "--no-sandbox",
-      ],
-    });
-
-    this.context = await this.browser.newContext({
-      viewport: { width: 1280, height: 720 },
-    });
-
-    return this.context;
-  }
-
-  async launch(): Promise<BrowserContext> {
-    this.browser = await chromium.launch({
-      headless: true,
-      channel: "chromium",
-    });
-
-    this.context = await this.browser.newContext({
-      viewport: { width: 1280, height: 720 },
-    });
-
-    return this.context;
-  }
-
-  getContext(): BrowserContext {
-    if (!this.context) {
-      throw new Error(
-        "Browser context not initialized. Call launch() or launchWithExtension() first.",
-      );
-    }
-    return this.context;
-  }
-
-  getBrowser(): Browser {
-    if (!this.browser) {
-      throw new Error("Browser not initialized. Call launch() or launchWithExtension() first.");
-    }
-    return this.browser;
-  }
-
-  async newPage(): Promise<Page> {
-    const context = this.getContext();
-    return await context.newPage();
-  }
-
-  getPages(): Page[] {
-    const context = this.getContext();
-    return context.pages();
-  }
-
-  async close(): Promise<void> {
-    if (this.context) {
-      await this.context.close();
-      this.context = null;
-    }
-    if (this.browser) {
-      await this.browser.close();
-      this.browser = null;
+      if (id) return id;
+    } catch {
+      /* ignore — page may not be ready */
     }
   }
-
-  async waitForExtensionLoad(page: Page, timeout: number = 10000): Promise<void> {
-    await page.waitForTimeout(1000); // Give extension time to initialize
-  }
-
-  async getExtensionBackgroundPage(): Promise<Page | null> {
-    const context = this.getContext();
-    const backgroundPages = context.backgroundPages();
-
-    if (backgroundPages.length > 0) {
-      return backgroundPages[0];
-    }
-
-    // Try to get service worker
-    const serviceWorkers = context.serviceWorkers();
-    if (serviceWorkers.length > 0) {
-      return serviceWorkers[0];
-    }
-
-    return null;
-  }
-
-  async mockTime(page: Page, hoursOffset: number): Promise<void> {
-    await page.addInitScript((offset) => {
-      const now = Date.now();
-      const offsetMs = offset * 60 * 60 * 1000;
-      Date.now = () => now + offsetMs;
-    }, hoursOffset);
-  }
-
-  async resetTimeMock(page: Page): Promise<void> {
-    await page.addInitScript(() => {
-      // Restore original Date.now
-      const originalDateNow = Date.prototype.getTime;
-      Date.now = originalDateNow;
-    });
-  }
-
-  async setViewport(width: number, height: number): Promise<void> {
-    const context = this.getContext();
-    await context.setViewportSize({ width, height });
-  }
-
-  async takeScreenshot(page: Page, filename: string): Promise<void> {
-    const screenshotDir = path.join(process.cwd(), "screenshots");
-    if (!fs.existsSync(screenshotDir)) {
-      fs.mkdirSync(screenshotDir, { recursive: true });
-    }
-    await page.screenshot({ path: path.join(screenshotDir, filename) });
-  }
+  // The fallback id is the well-known placeholder used elsewhere in
+  // the codebase; preserves existing test behavior.
+  return "abcdefghijklmnopabcdefghijklmnop";
 }
 
-let browserHelper: BrowserHelper | null = null;
-
-export function getBrowserHelper(): BrowserHelper {
-  if (!browserHelper) {
-    browserHelper = new BrowserHelper();
-  }
-  return browserHelper;
-}
-
-export function resetBrowserHelper(): void {
-  browserHelper = null;
+/**
+ * Mock Date.now() in the page so expiry-style assertions can fast-forward
+ * without waiting real time. The override is installed via an init script
+ * so it survives navigation.
+ */
+export async function mockTime(page: Page, hoursOffset: number): Promise<void> {
+  await page.addInitScript((offsetHours) => {
+    const now = Date.now();
+    const offsetMs = offsetHours * 60 * 60 * 1000;
+    Date.now = () => now + offsetMs;
+  }, hoursOffset);
 }

@@ -18,6 +18,14 @@ const vitePlugins = process.env.INTL_AI_FILL === "1" ? [IntlAi()] : [];
 export default defineConfig({
   site: viewerOrigin,
   output: "static",
+  // Hide the Astro dev toolbar so it doesn't inject dev-only anchors
+  // that bleed into querySelectorAll-backed selectors. E2E harnesses
+  // run against `astro preview` (production bundle) where the toolbar
+  // isn't even present, so this is belt-and-braces for anyone running
+  // `astro dev` while exploring e2e selectors.
+  devToolbar: {
+    enabled: false,
+  },
   i18n: {
     defaultLocale: "en",
     locales: ["en", "es", "ru", "fr"],

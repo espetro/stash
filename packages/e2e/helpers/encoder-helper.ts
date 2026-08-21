@@ -1,5 +1,16 @@
 import type { BrotliFunctions } from "@stash/codec";
-import brotliWasm from "brotli-wasm";
+// brotli-wasm's package.json "exports" field maps ESM imports to the
+// web bundle, which calls `fetch()` at init and fails under Node.
+// Load it through CommonJS via createRequire to pick the Node entry,
+// which is synchronous and works under both loaders. The Node CJS
+// entry exposes the brotli API directly (not as a Promise), so we
+// wrap it once at module load time.
+import { createRequire } from "node:module";
+const nodeRequire = createRequire(import.meta.url);
+const nodeBrotli = nodeRequire("brotli-wasm") as {
+  compress: (data: Uint8Array, opts: { quality: number }) => Uint8Array;
+  decompress: (data: Uint8Array) => Uint8Array;
+};
 import * as fs from "fs";
 import * as path from "path";
 import {
@@ -11,40 +22,52 @@ import {
   EXPIRY_HOURS,
   MAX_TITLE_CHARS,
   BUDGET_CHARS,
-  VIEWER_ORIGIN,
-  VIEWER_PATH,
   normalizeTitle as codecNormalizeTitle,
   createPayload as codecCreatePayload,
   encodeTabsToShareUrl as codecEncodeTabsToShareUrl,
   encodeTabsToQrUrl as codecEncodeTabsToQrUrl,
-  buildShareUrl,
-  buildQrUrl,
+  buildShareUrl as codecBuildShareUrl,
+  buildQrUrl as codecBuildQrUrl,
 } from "@stash/codec";
 
 export type { TabInfo, SharePayload, EncodingResult, QrEncodingResult };
-export { buildShareUrl } from "@stash/codec";
-
-let _brotli: BrotliFunctions | null = null;
-let _initPromise: Promise<BrotliFunctions> | null = null;
 
 /**
- * Get brotli functions (cached)
+ * Local viewer origin. Defaults to the dev server on `localhost:4321`
+ * so generated share URLs point at the viewer Astro server actually
+ * running in front of the tests. Override with `VIEWER_ORIGIN` env var
+ * (e.g. when running against a deployed preview).
+ */
+export const VIEWER_ORIGIN: string = process.env.VIEWER_ORIGIN || "http://localhost:4321";
+export const VIEWER_PATH = "/s/";
+
+/**
+ * Build a full share URL, swapping the codec default origin for the
+ * locally-configured one. Thin wrapper around `codec.buildShareUrl`
+ * that always threads our `VIEWER_ORIGIN` through.
+ */
+export function buildShareUrl(encoded: string): string {
+  return codecBuildShareUrl(encoded, VIEWER_ORIGIN);
+}
+
+export function buildQrUrl(encoded: string): string {
+  return codecBuildQrUrl(encoded, VIEWER_ORIGIN);
+}
+
+let _brotli: BrotliFunctions | null = null;
+
+/**
+ * Get brotli functions (cached). Backed by brotli-wasm's Node CJS entry,
+ * which is synchronous and resolves immediately on load.
  */
 export async function getBrotliFunctions(): Promise<BrotliFunctions> {
-  if (_brotli) return _brotli;
-
-  if (!_initPromise) {
-    _initPromise = (async () => {
-      const brotliModule = await brotliWasm;
-      _brotli = {
-        compress: (data, opts) => brotliModule.compress(data, opts),
-        decompress: (data) => brotliModule.decompress(data),
-      };
-      return _brotli;
-    })();
+  if (!_brotli) {
+    _brotli = {
+      compress: (data, opts) => nodeBrotli.compress(data, opts),
+      decompress: (data) => nodeBrotli.decompress(data),
+    };
   }
-
-  return _initPromise;
+  return _brotli;
 }
 
 /**
@@ -119,8 +142,15 @@ export function loadSampleTabs(datasetName: string): TabInfo[] {
  * Load payloads from fixtures
  */
 export function loadPayloads(): Record<string, any> {
+  // The committed fixture file is an array for reviewability. Consumers
+  // look up by `name`, so re-key it on read.
   const fixturesPath = path.join(process.cwd(), "fixtures", "payloads.json");
-  return JSON.parse(fs.readFileSync(fixturesPath, "utf-8"));
+  const arr = JSON.parse(fs.readFileSync(fixturesPath, "utf-8")) as Array<{
+    name: string;
+  }>;
+  const out: Record<string, unknown> = {};
+  for (const entry of arr) out[entry.name] = entry;
+  return out as Record<string, any>;
 }
 
 /**
@@ -171,3 +201,9 @@ export function isValidBase32(str: string): boolean {
 export function isUrlWithinBudget(url: string): boolean {
   return url.length <= BUDGET_CHARS;
 }
+
+// Suppress unused-import warnings for symbols retained for parity
+// with the codec public surface (used by step implementations).
+void PAYLOAD_VERSION;
+void MAX_TITLE_CHARS;
+void VIEWER_PATH;

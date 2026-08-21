@@ -1,28 +1,32 @@
 {
   "name": "@stash/e2e",
   "version": "0.7.0",
-  "description": "E2E tests for Stash browser extension and viewer using Gauge and Playwright",
+  "type": "module",
+  "description": "E2E tests for Stash browser extension and viewer using Playwright + markdown loader",
   "scripts": {
-    "test": "gauge run",
-    "test:spec": "gauge run specs/",
-    "test:parallel": "gauge run --parallel -n 2",
-    "test:context-menu": "gauge run specs/extension-context-menu.md",
-    "test:link-generation": "gauge run specs/extension-link-generation.md",
-    "test:popup": "gauge run specs/extension-popup.md",
-    "test:viewer": "gauge run specs/extension-rendering.md",
-    "test:e2e": "gauge run specs/end-to-end-integration.md",
-    "test:coverage": "gauge run --tags 'coverage'",
-    "test:smoke": "gauge run --tags 'smoke'",
-    "docs": "gauge docs specs/",
-    "lint": "oxlint --fix step_implementations tests helpers && gauge validate specs/",
-    "format": "oxfmt --write 'step_implementations/**/*.ts' 'tests/**/*.ts' 'helpers/**/*.ts'",
+    "test": "playwright test",
+    "test:spec": "playwright test --grep",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:extension": "playwright test --grep-invert 'no extension'",
+    "test:viewer": "playwright test viewer-rendering",
+    "test:e2e": "playwright test end-to-end-integration",
+    "test:link": "playwright test extension-link-generation",
+    "test:ui": "playwright test --ui",
+    "tscheck": "tsc --noEmit",
+    "lint": "oxlint --fix step_implementations helpers lib specs.spec.ts",
+    "format": "oxfmt --write 'step_implementations/**/*.ts' 'helpers/**/*.ts' 'lib/**/*.ts' 'specs.spec.ts'",
+    "validate:steps": "tsx lib/dry-run.ts",
     "validate": "tsx ../../scripts/validate.ts --cwd packages/e2e"
   },
+  "dependencies": {
+    "@stash/codec": "workspace:*",
+    "brotli-wasm": "^3.0.1",
+    "playwright": "^1.62.1"
+  },
   "devDependencies": {
-    "@getgauge/cli": "^1.6.35",
     "@playwright/test": "^1.62.1",
     "@types/chrome": "^0.2.6",
-    "gauge-ts": "^0.3.6",
-    "ts-node": "^10.9.2"
+    "@types/node": "^24.12.4",
+    "typescript": "^7.0.2"
   }
 }
