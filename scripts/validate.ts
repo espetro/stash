@@ -102,7 +102,7 @@ const main = async () => {
             }
 
             if (result?.errors) {
-              throw new Error(`Failed with exit code 1`);
+              throw new Error(`Failed with exit code 1:\n${result.errors}`);
             }
           }),
         ),

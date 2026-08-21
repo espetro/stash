@@ -37,7 +37,7 @@ export default defineConfig({
     browser_specific_settings: {
       gecko: {
         id: "stash@stash-extension",
-        strict_min_version: "109.0",
+        strict_min_version: "140.0",
         // @ts-ignore - WXT doesn't support this field yet (https://github.com/wxt-dev/wxt/issues/1975)
         data_collection_permissions: {
           required: ["none"],
