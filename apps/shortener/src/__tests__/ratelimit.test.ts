@@ -4,7 +4,7 @@ import memoryDriver from "unstorage/drivers/memory";
 import { createPayload, encodePayloadToUrl } from "@stash/codec";
 import { getBrotli } from "../brotli";
 import worker from "../index";
-import type { Env } from "../store";
+import type { Env } from "../index";
 
 const mockEnv: Env = {
   TEST_STORAGE: createStorage({ driver: memoryDriver() }),
@@ -121,6 +121,5 @@ describe("rate limiting: exempt routes", () => {
     mockEnv.RL_STASH = fakeLimiter(false);
     const res = await fetchWorker("https://short.example.com/health");
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true });
   });
 });

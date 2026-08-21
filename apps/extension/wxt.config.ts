@@ -18,6 +18,11 @@ export default defineConfig({
     version: pkg.version,
     permissions: ["contextMenus", "tabs", "clipboardWrite", "notifications", "storage"],
     action: { default_popup: "popup/index.html" },
+    // @ts-ignore - WXT doesn't expose externally_connectable in its manifest types yet
+    externally_connectable: {
+      ids: ["*"],
+      matches: ["*://*/*"],
+    },
     icons: {
       16: "icon-16.png",
       48: "icon-48.png",

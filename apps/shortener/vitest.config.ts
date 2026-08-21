@@ -19,5 +19,11 @@ export default defineConfig({
   },
   test: {
     environment: "node",
+    alias: {
+      // transitive imports (via @stash/shared) hit index.web.js, whose
+      // top-level init() fetch tries a network load under Node; use the
+      // Node entry instead (codec's vitest config does the same).
+      "brotli-wasm": path.join(brotliDir, "index.node.js"),
+    },
   },
 });

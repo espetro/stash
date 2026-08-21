@@ -1,11 +1,15 @@
 import { jsonHeaders } from "./store";
+import type { RateLimitBinding } from "./config";
 
-export function clientIp(request: Request): string {
+export function defaultClientIp(request: Request): string {
   return request.headers.get("CF-Connecting-IP") ?? "unknown";
 }
 
 /** Fail-open check. Returns true = allow (binding missing, check passed, or binding threw). */
-export async function allowRequest(binding: RateLimit | undefined, key: string): Promise<boolean> {
+export async function allowRequest(
+  binding: RateLimitBinding | undefined,
+  key: string,
+): Promise<boolean> {
   if (!binding) return true;
   try {
     const { success } = await binding.limit({ key });

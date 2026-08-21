@@ -8,7 +8,7 @@ Here are answers to common questions about Stash.
 ## General Questions
 
 ### Q: Do my tabs get stored on a server?
-**A:** No. Stash works entirely in your browser. Tab information is encoded directly into the share link itself—nothing is sent to or stored on any server.
+**A:** No. Stash works entirely in your browser. Tab information is encoded directly into the share link itself—nothing is sent to or stored on any server. (The optional experimental server mode stores data locally in your browser, never on an external server; see [Agent Server](/agent-server).)
 
 ### Q: What happens when the link expires?
 **A:** The link stops working and shows an "expired" message. Expired links cannot be used to access the shared tabs. This is enforced client-side in the viewer.

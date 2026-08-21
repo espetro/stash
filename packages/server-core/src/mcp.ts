@@ -6,10 +6,11 @@ import {
   encodePayloadToUrl,
   decodeEncodedPayload,
   type TabInfo,
+  type BrotliFunctions,
 } from "@stash/codec";
 import { parseStashLine } from "@stash/shared";
-import { getBrotli } from "./brotli";
-import { createStash, getStash, isExpired, type Env, type ServerTtl } from "./store";
+import { createStash, getStash, isExpired, type ServerTtl } from "./store";
+import type { StashServerDeps } from "./config";
 
 export const MCP_TOOLS = [
   {
@@ -28,7 +29,7 @@ export const MCP_TOOLS = [
   },
 ] as const;
 
-function buildServer(origin: string, env: Env): McpServer {
+export function buildServer(origin: string, deps: StashServerDeps): McpServer {
   const server = new McpServer(
     { name: "stash-shortener", version: "0.1.0" },
     { capabilities: { logging: {} } },
@@ -46,14 +47,14 @@ function buildServer(origin: string, env: Env): McpServer {
         .describe("TTL in days: 1, 7 (default), 14 or 30"),
     },
     async ({ title, urls, ttlDays }) => {
-      const brotli = await getBrotli();
+      const brotli = await deps.getBrotli();
       const tabs: TabInfo[] = urls.map((line) => {
         const { url, title } = parseStashLine(line);
         return { url, title };
       });
       const payload = await encodePayloadToUrl(createPayload(tabs, ttlDays * 24, title), brotli);
       const ttl: ServerTtl = `${ttlDays}d` as ServerTtl;
-      const { id } = await createStash(env, payload, ttl);
+      const { id } = await createStash(deps.storage, payload, ttl);
       return {
         content: [{ type: "text", text: JSON.stringify({ id, url: `${origin}/s/${id}` }) }],
       };
@@ -65,7 +66,7 @@ function buildServer(origin: string, env: Env): McpServer {
     MCP_TOOLS[1].description,
     { id: z.string().describe("The 6-character stash id") },
     async ({ id }) => {
-      const entry = await getStash(env, id.toUpperCase());
+      const entry = await getStash(deps.storage, id.toUpperCase());
       if (!entry) {
         return {
           content: [{ type: "text", text: JSON.stringify({ error: "not_found" }) }],
@@ -78,7 +79,7 @@ function buildServer(origin: string, env: Env): McpServer {
           isError: true,
         };
       }
-      const brotli = await getBrotli();
+      const brotli = await deps.getBrotli();
       const decoded = await decodeEncodedPayload(entry.p, brotli);
       return {
         content: [
@@ -96,7 +97,7 @@ function buildServer(origin: string, env: Env): McpServer {
     MCP_TOOLS[2].description,
     { payload: z.string().describe("The encoded payload string (p param value from a share URL)") },
     async ({ payload }) => {
-      const brotli = await getBrotli();
+      const brotli = await deps.getBrotli();
       const decoded = await decodeEncodedPayload(payload, brotli);
       return {
         content: [
@@ -111,9 +112,9 @@ function buildServer(origin: string, env: Env): McpServer {
 
 /** Stateless Streamable-HTTP MCP handler. A new server + transport is
  * created per request (required since SDK 1.26 to avoid cross-client state). */
-export async function handleMcpRequest(request: Request, env: Env): Promise<Response> {
+export async function handleMcpRequest(request: Request, deps: StashServerDeps): Promise<Response> {
   const url = new URL(request.url);
-  const server = buildServer(url.origin, env);
+  const server = buildServer(url.origin, deps);
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
     enableJsonResponse: true,

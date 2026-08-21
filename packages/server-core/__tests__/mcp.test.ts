@@ -2,19 +2,20 @@ import { describe, it, expect } from "vitest";
 import { createStorage } from "unstorage";
 import memoryDriver from "unstorage/drivers/memory";
 import { createPayload, encodePayloadToUrl } from "@stash/codec";
-import { getBrotli } from "../brotli";
-import worker from "../index";
-import type { Env } from "../store";
-
-const mockEnv: Env = {
-  TEST_STORAGE: createStorage({ driver: memoryDriver() }),
-};
+import { getTestBrotli as getBrotliFunctions } from "./brotli";
+import { createStashServer } from "../src/index";
 
 const ORIGIN = "https://short.example.com";
 const ACCEPT = "application/json, text/event-stream";
 
+const server = createStashServer({
+  storage: createStorage({ driver: memoryDriver() }),
+  origin: ORIGIN,
+  getBrotli: getBrotliFunctions,
+});
+
 async function rpc(method: string, params?: unknown, id: number | string = 1): Promise<any> {
-  const res = await worker.fetch(
+  const res = await server.handle(
     new Request(`${ORIGIN}/mcp`, {
       method: "POST",
       headers: {
@@ -23,9 +24,6 @@ async function rpc(method: string, params?: unknown, id: number | string = 1): P
       },
       body: JSON.stringify({ jsonrpc: "2.0", id, method, params }),
     }),
-    mockEnv,
-    // minimal ctx stub: SDK may call waitUntil
-    { waitUntil() {}, passThroughOnException() {} } as unknown as ExecutionContext,
   );
   expect(res.status).toBe(200);
   const body: any = await res.json();
@@ -69,7 +67,7 @@ describe("MCP /mcp", () => {
   });
 
   it("stash_decode decodes a codec payload", async () => {
-    const brotli = await getBrotli();
+    const brotli = await getBrotliFunctions();
     const payload = await encodePayloadToUrl(
       createPayload(
         [
@@ -90,10 +88,7 @@ describe("MCP /mcp", () => {
 
 describe("GET /.well-known/mcp-server-card", () => {
   it("returns discovery card", async () => {
-    const res = await worker.fetch(new Request(`${ORIGIN}/.well-known/mcp-server-card`), mockEnv, {
-      waitUntil() {},
-      passThroughOnException() {},
-    } as unknown as ExecutionContext);
+    const res = await server.handle(new Request(`${ORIGIN}/.well-known/mcp-server-card`));
     expect(res.status).toBe(200);
     expect(res.headers.get("Content-Type")).toContain("application/json");
     expect(res.headers.get("Access-Control-Allow-Origin")).toBe("*");
