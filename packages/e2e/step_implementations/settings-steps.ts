@@ -257,7 +257,7 @@ step("The link expiry should be approximately <hours> hours from now", async (ho
     throw new Error("No share link available");
   }
 
-  const decodedPayload = decodeShareUrl(shareLink);
+  const decodedPayload = await decodeShareUrl(shareLink);
 
   const now = Math.floor(Date.now() / 1000);
   const expectedExpiry = now + hours * 3600;
@@ -278,7 +278,7 @@ step("The link expiry should be greater than <hours> hours from now", async (hou
     throw new Error("No share link available");
   }
 
-  const decodedPayload = decodeShareUrl(shareLink);
+  const decodedPayload = await decodeShareUrl(shareLink);
 
   const now = Math.floor(Date.now() / 1000);
   const minimumExpiry = now + hours * 3600;
