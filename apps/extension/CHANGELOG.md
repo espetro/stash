@@ -1,5 +1,18 @@
 # @stash/extension
 
+## 0.7.0
+
+### Minor Changes
+
+- 551bcb0: Experimental in-extension agent server via `@stash/server-core`: the extension background can host the stash server + MCP bridge locally. The shortener worker is now a thin adapter over the same runtime-agnostic server package, with per-IP rate limiting (RL_STASH/RL_MCP, fail-open) ported into server-core.
+
+### Patch Changes
+
+- @stash/codec@0.7.0
+- @stash/theme@0.7.0
+- @stash/shared@0.7.0
+- @stash/server-core@0.1.1
+
 ## 0.6.0
 
 ### Minor Changes
