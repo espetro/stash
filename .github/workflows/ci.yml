@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   build:
@@ -37,10 +37,21 @@ jobs:
       - name: Typecheck viewer
         run: pnpm --filter stash-viewer exec tsc --noEmit
 
+      - name: Validate (tscheck + lint + format)
+        run: pnpm run validate
+
       - name: Build
         run: pnpm build
         env:
           VITE_VIEWER_ORIGIN: https://stash.illo.fyi
+
+      - name: Validate e2e steps (dry-run)
+        run: pnpm --filter @stash/e2e run validate:steps
+
+      - name: Run e2e tests
+        run: pnpm --filter @stash/e2e exec playwright test --reporter=list
+        env:
+          CI: 'true'
 
       - name: Upload extension artifact
         uses: actions/upload-artifact@v4
@@ -55,3 +66,11 @@ jobs:
           name: viewer-build
           path: apps/viewer/dist/
           if-no-files-found: warn
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: packages/e2e/playwright-report/
+          if-no-files-found: ignore

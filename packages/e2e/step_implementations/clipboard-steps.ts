@@ -1,53 +1,46 @@
-import { step } from "@getgauge/cli";
-import { getCurrentPage } from "./common-steps";
-import {
-  decodeShareUrl,
-  extractPayloadFromUrl,
-  PayloadDecodeError,
-} from "../helpers/decoder-helper";
+import { step } from "../lib/step-registry";
+import { getActiveState } from "../lib/scenario-state";
+import { decodeShareUrl, extractPayloadFromUrl } from "../helpers/decoder-helper";
 import { isValidBase64url } from "../helpers/encoder-helper";
 
 /**
- * Read clipboard content
- * Note: Playwright cannot directly read clipboard content for security reasons
- * This step simulates clipboard operations for testing purposes
+ * The clipboard in headless Chromium is awkward to read. The harness
+ * stores clipboard content on the active state and the encoder step
+ * writes the share link there. Tests then read the "clipboard" through
+ * the state, mirroring the prior gauge implementation.
  */
+
+function getClipboard(): string {
+  const state = getActiveState();
+  return state.clipboard ?? state.shareLink ?? "";
+}
+
 step("Read clipboard content", async () => {
-  // In a real scenario, we would read from the clipboard
-  // For testing purposes, we'll use a global variable
-  const clipboardContent = (global as any)["shareLink"];
+  const clipboardContent = getClipboard();
   if (!clipboardContent) {
     throw new Error("No clipboard content available");
   }
-  (global as any)["clipboardContent"] = clipboardContent;
+  getActiveState().clipboard = clipboardContent;
 });
 
-/**
- * Verify URL format and structure
- */
 step("Verify URL format and structure", async () => {
-  const clipboardContent = (global as any)["clipboardContent"];
+  const clipboardContent = getClipboard();
 
   if (!clipboardContent) {
     throw new Error("No clipboard content available");
   }
 
-  // Verify URL structure
   if (!clipboardContent.startsWith("http://localhost:4321/s/#p=")) {
     throw new Error("URL does not start with expected prefix");
   }
 
-  // Verify fragment parameter exists
   if (!clipboardContent.includes("#p=")) {
     throw new Error("URL does not contain fragment parameter");
   }
 });
 
-/**
- * Decode URL fragment
- */
 step("Decode URL fragment", async () => {
-  const clipboardContent = (global as any)["clipboardContent"];
+  const clipboardContent = getClipboard();
 
   if (!clipboardContent) {
     throw new Error("No clipboard content available");
@@ -55,36 +48,25 @@ step("Decode URL fragment", async () => {
 
   try {
     const payload = await decodeShareUrl(clipboardContent);
-    (global as any)["decodedPayload"] = payload;
+    getActiveState().decodedPayload = payload;
   } catch (e) {
     throw new Error(`Failed to decode URL fragment: ${e}`);
   }
 });
 
-/**
- * Store decoded payload for assertions
- */
 step("Store decoded payload for assertions", async () => {
-  const decodedPayload = (global as any)["decodedPayload"];
-
-  if (!decodedPayload) {
+  if (!getActiveState().decodedPayload) {
     throw new Error("No decoded payload available");
   }
-
-  // Payload is already stored in global variable
 });
 
-/**
- * Verify base64url encoding validity
- */
 step("Verify base64url encoding validity", async () => {
-  const clipboardContent = (global as any)["clipboardContent"];
+  const clipboardContent = getClipboard();
 
   if (!clipboardContent) {
     throw new Error("No clipboard content available");
   }
 
-  // Extract payload from URL
   const match = clipboardContent.match(/#p=([A-Za-z0-9_-]+)$/);
   if (!match) {
     throw new Error("Invalid URL format");
@@ -97,11 +79,8 @@ step("Verify base64url encoding validity", async () => {
   }
 });
 
-/**
- * Assert clipboard content is a valid URL
- */
 step("The clipboard content should be a valid URL", async () => {
-  const clipboardContent = (global as any)["clipboardContent"];
+  const clipboardContent = getClipboard();
 
   if (!clipboardContent) {
     throw new Error("No clipboard content available");
@@ -114,59 +93,43 @@ step("The clipboard content should be a valid URL", async () => {
   }
 });
 
-/**
- * Assert clipboard content contains only base64url characters
- */
-step(
-  "The clipboard content should contain only base64url characters <chars>",
-  async (chars: string) => {
-    const clipboardContent = (global as any)["clipboardContent"];
+step("The clipboard content should contain only base64url characters <chars>", async (chars) => {
+  const clipboardContent = getClipboard();
 
-    if (!clipboardContent) {
-      throw new Error("No clipboard content available");
+  if (!clipboardContent) {
+    throw new Error("No clipboard content available");
+  }
+
+  const match = clipboardContent.match(/#p=([A-Za-z0-9_-]+)$/);
+  if (!match) {
+    throw new Error("Invalid URL format");
+  }
+
+  const payload = match[1];
+  const validChars = new Set(chars.split(""));
+
+  for (const char of payload) {
+    if (!validChars.has(char)) {
+      throw new Error(`Invalid character "${char}" in base64url encoding`);
     }
+  }
+});
 
-    // Extract payload from URL
-    const match = clipboardContent.match(/#p=([A-Za-z0-9_-]+)$/);
-    if (!match) {
-      throw new Error("Invalid URL format");
-    }
+step("The clipboard content should not contain padding characters <padding>", async (padding) => {
+  const clipboardContent = getClipboard();
 
-    const payload = match[1];
-    const validChars = new Set(chars.split(""));
+  if (!clipboardContent) {
+    throw new Error("No clipboard content available");
+  }
 
-    for (const char of payload) {
-      if (!validChars.has(char)) {
-        throw new Error(`Invalid character "${char}" in base64url encoding`);
-      }
-    }
-  },
-);
+  if (clipboardContent.includes(padding)) {
+    throw new Error(`Clipboard content should not contain "${padding}"`);
+  }
+});
 
-/**
- * Assert clipboard content does not contain padding characters
- */
-step(
-  "The clipboard content should not contain padding characters <padding>",
-  async (padding: string) => {
-    const clipboardContent = (global as any)["clipboardContent"];
-
-    if (!clipboardContent) {
-      throw new Error("No clipboard content available");
-    }
-
-    if (clipboardContent.includes(padding)) {
-      throw new Error(`Clipboard content should not contain "${padding}"`);
-    }
-  },
-);
-
-/**
- * Assert decoded payload has specified version
- */
-step('The decoded payload should have version "v": <version>', async (versionStr: string) => {
+step('The decoded payload should have version "v": <version>', async (versionStr) => {
   const version = parseInt(versionStr, 10);
-  const decodedPayload = (global as any)["decodedPayload"];
+  const decodedPayload = getActiveState().decodedPayload as { version?: number } | undefined;
 
   if (!decodedPayload) {
     throw new Error("No decoded payload available");
@@ -177,11 +140,126 @@ step('The decoded payload should have version "v": <version>', async (versionStr
   }
 });
 
-/**
- * Assert decoded payload has future expiry
- */
+step("The decoded payload version should be <version>", async (versionStr) => {
+  const version = parseInt(versionStr, 10);
+  const decodedPayload = getActiveState().decodedPayload as { version?: number } | undefined;
+  if (!decodedPayload) throw new Error("No decoded payload available");
+  if (decodedPayload.version !== version) {
+    throw new Error(`Expected version ${version}, got ${decodedPayload.version}`);
+  }
+});
+
+step("The decoded payload expiry should be in the future", async () => {
+  const decodedPayload = getActiveState().decodedPayload as { expiry?: number } | undefined;
+  if (!decodedPayload) throw new Error("No decoded payload available");
+  const now = Math.floor(Date.now() / 1000);
+  if (decodedPayload.expiry !== undefined && decodedPayload.expiry < now) {
+    throw new Error(`Expiry ${decodedPayload.expiry} is in the past (now ${now})`);
+  }
+});
+
+step("The decoded payload should have <n> item", async (countStr) => {
+  const n = parseInt(countStr, 10);
+  const decodedPayload = getActiveState().decodedPayload as { items: unknown[] } | undefined;
+  if (!decodedPayload) throw new Error("No decoded payload available");
+  if (decodedPayload.items.length !== n) {
+    throw new Error(`Expected ${n} item(s), got ${decodedPayload.items.length}`);
+  }
+});
+
+step("The decoded payload should have <n> items", async (countStr) => {
+  const n = parseInt(countStr, 10);
+  const decodedPayload = getActiveState().decodedPayload as { items: unknown[] } | undefined;
+  if (!decodedPayload) throw new Error("No decoded payload available");
+  if (decodedPayload.items.length !== n) {
+    throw new Error(`Expected ${n} items, got ${decodedPayload.items.length}`);
+  }
+});
+
+step("The decoded payload item count should be less than <n>", async (countStr) => {
+  const max = parseInt(countStr, 10);
+  const decodedPayload = getActiveState().decodedPayload as { items: unknown[] } | undefined;
+  if (!decodedPayload) throw new Error("No decoded payload available");
+  if (decodedPayload.items.length >= max) {
+    throw new Error(`Expected < ${max} items, got ${decodedPayload.items.length}`);
+  }
+});
+
+step("The decoded title should be <max> characters or less", async (maxStr) => {
+  const max = parseInt(maxStr, 10);
+  const decodedPayload = getActiveState().decodedPayload as
+    | { items: Array<[string, string]> }
+    | undefined;
+  if (!decodedPayload) throw new Error("No decoded payload available");
+  for (const [, title] of decodedPayload.items) {
+    if (title.length > max) {
+      throw new Error(`Title "${title}" exceeds ${max} chars`);
+    }
+  }
+});
+
+step("The decoded item URL should be <url>", async (url) => {
+  const decodedPayload = getActiveState().decodedPayload as
+    | { items: Array<[string, string]> }
+    | undefined;
+  if (!decodedPayload) throw new Error("No decoded payload available");
+  // Canonicalize both sides — Chromium appends a slash to host-only
+  // URLs after navigation, so `https://github.com` shows up as
+  // `https://github.com/` in the encoded payload.
+  const canonical = (s: string) => {
+    try {
+      const u = new URL(s);
+      if (u.pathname === "/" && !u.search && !u.hash) u.pathname = "";
+      return u.toString();
+    } catch {
+      return s;
+    }
+  };
+  const wanted = canonical(url);
+  const found = decodedPayload.items.some(([u]) => canonical(u) === wanted);
+  if (!found) throw new Error(`URL "${url}" not found in decoded items`);
+});
+
+step("The encoded fragment should match base64url pattern", async () => {
+  const state = getActiveState();
+  const url = state.shareLink ?? state.clipboard;
+  if (!url) throw new Error("No share URL");
+  const match = url.match(/#p=([A-Za-z0-9_-]+)/);
+  if (!match) throw new Error("URL has no #p= fragment");
+  const fragment = match[1];
+  if (!/^[A-Za-z0-9_-]+$/.test(fragment)) {
+    throw new Error(`Fragment "${fragment}" is not base64url`);
+  }
+});
+
+step("The share link should contain encoded data", async () => {
+  const state = getActiveState();
+  if (!state.shareLink || !state.shareLink.includes("#p=")) {
+    throw new Error("No #p= fragment on share link");
+  }
+});
+
+step("The share link should contain the fragment parameter <param>", async (param) => {
+  const state = getActiveState();
+  const url = state.shareLink ?? state.clipboard;
+  if (!url || !url.includes(param)) {
+    throw new Error(`Share link should contain "${param}"`);
+  }
+});
+
+step("The link should be marked as valid base64url", async () => {
+  const state = getActiveState();
+  const url = state.shareLink ?? state.clipboard;
+  if (!url) throw new Error("No share link");
+  const match = url.match(/#p=([A-Za-z0-9_-]+)/);
+  if (!match) throw new Error("No #p= fragment");
+  if (!/^[A-Za-z0-9_-]+$/.test(match[1])) {
+    throw new Error("Fragment is not valid base64url");
+  }
+});
+
 step("The decoded payload should have an expiry timestamp in the future", async () => {
-  const decodedPayload = (global as any)["decodedPayload"];
+  const decodedPayload = getActiveState().decodedPayload as { expiry?: number } | undefined;
 
   if (!decodedPayload) {
     throw new Error("No decoded payload available");
@@ -189,17 +267,14 @@ step("The decoded payload should have an expiry timestamp in the future", async 
 
   const now = Math.floor(Date.now() / 1000);
 
-  if (decodedPayload.expiry < now) {
+  if (decodedPayload.expiry === undefined || decodedPayload.expiry < now) {
     throw new Error("Expiry timestamp is in the past");
   }
 });
 
-/**
- * Assert expiry is approximately specified hours from now
- */
-step("The expiry should be approximately <hours> hours from now", async (hoursStr: string) => {
+step("The expiry should be approximately <hours> hours from now", async (hoursStr) => {
   const hours = parseInt(hoursStr, 10);
-  const decodedPayload = (global as any)["decodedPayload"];
+  const decodedPayload = getActiveState().decodedPayload as { expiry?: number } | undefined;
 
   if (!decodedPayload) {
     throw new Error("No decoded payload available");
@@ -207,27 +282,25 @@ step("The expiry should be approximately <hours> hours from now", async (hoursSt
 
   const now = Math.floor(Date.now() / 1000);
   const expectedExpiry = now + hours * 3600;
-  const tolerance = 60; // 1 minute tolerance
+  const tolerance = 60;
 
-  const difference = Math.abs(decodedPayload.expiry - expectedExpiry);
+  const difference = Math.abs((decodedPayload.expiry ?? 0) - expectedExpiry);
 
   if (difference > tolerance) {
     throw new Error(`Expiry timestamp is not approximately ${hours} hours from now`);
   }
 });
 
-/**
- * Assert decoded URL preserves special characters
- */
 step("The decoded URL should preserve special characters", async () => {
-  const decodedPayload = (global as any)["decodedPayload"];
+  const decodedPayload = getActiveState().decodedPayload as
+    | { items: Array<[string, string]> }
+    | undefined;
 
   if (!decodedPayload) {
     throw new Error("No decoded payload available");
   }
 
-  // Check if any URL contains special characters
-  const hasSpecialChars = decodedPayload.items.some((item: [string, string]) => {
+  const hasSpecialChars = decodedPayload.items.some((item) => {
     const url = item[0];
     return url.includes("&") || url.includes("#") || url.includes("?");
   });
@@ -237,18 +310,16 @@ step("The decoded URL should preserve special characters", async () => {
   }
 });
 
-/**
- * Assert decoded title preserves special characters
- */
 step("The decoded title should preserve special characters", async () => {
-  const decodedPayload = (global as any)["decodedPayload"];
+  const decodedPayload = getActiveState().decodedPayload as
+    | { items: Array<[string, string]> }
+    | undefined;
 
   if (!decodedPayload) {
     throw new Error("No decoded payload available");
   }
 
-  // Check if any title contains special characters
-  const hasSpecialChars = decodedPayload.items.some((item: [string, string]) => {
+  const hasSpecialChars = decodedPayload.items.some((item) => {
     const title = item[1];
     return title.includes("&") || title.includes("#") || title.includes("?");
   });
@@ -258,18 +329,16 @@ step("The decoded title should preserve special characters", async () => {
   }
 });
 
-/**
- * Assert decoded URL preserves Unicode characters
- */
 step("The decoded URL should preserve Unicode characters", async () => {
-  const decodedPayload = (global as any)["decodedPayload"];
+  const decodedPayload = getActiveState().decodedPayload as
+    | { items: Array<[string, string]> }
+    | undefined;
 
   if (!decodedPayload) {
     throw new Error("No decoded payload available");
   }
 
-  // Check if any URL contains Unicode characters
-  const hasUnicode = decodedPayload.items.some((item: [string, string]) => {
+  const hasUnicode = decodedPayload.items.some((item) => {
     const url = item[0];
     for (const char of url) {
       if (char.charCodeAt(0) > 127) {
@@ -284,18 +353,16 @@ step("The decoded URL should preserve Unicode characters", async () => {
   }
 });
 
-/**
- * Assert decoded title preserves Unicode characters
- */
 step("The decoded title should preserve Unicode characters", async () => {
-  const decodedPayload = (global as any)["decodedPayload"];
+  const decodedPayload = getActiveState().decodedPayload as
+    | { items: Array<[string, string]> }
+    | undefined;
 
   if (!decodedPayload) {
     throw new Error("No decoded payload available");
   }
 
-  // Check if any title contains Unicode characters
-  const hasUnicode = decodedPayload.items.some((item: [string, string]) => {
+  const hasUnicode = decodedPayload.items.some((item) => {
     const title = item[1];
     for (const char of title) {
       if (char.charCodeAt(0) > 127) {
@@ -310,20 +377,18 @@ step("The decoded title should preserve Unicode characters", async () => {
   }
 });
 
-/**
- * Assert decoded title is truncated to 30 characters or less
- */
 step(
   "The decoded title should be truncated to <maxChars> characters or less",
-  async (maxCharsStr: string) => {
+  async (maxCharsStr) => {
     const maxChars = parseInt(maxCharsStr, 10);
-    const decodedPayload = (global as any)["decodedPayload"];
+    const decodedPayload = getActiveState().decodedPayload as
+      | { items: Array<[string, string]> }
+      | undefined;
 
     if (!decodedPayload) {
       throw new Error("No decoded payload available");
     }
 
-    // Check if all titles are within the character limit
     for (const item of decodedPayload.items) {
       const title = item[1];
       if (title.length > maxChars) {
@@ -333,12 +398,9 @@ step(
   },
 );
 
-/**
- * Assert decoded payload contains specified number of items
- */
-step("The decoded payload should contain <count> items", async (countStr: string) => {
+step("The decoded payload should contain <count> items", async (countStr) => {
   const count = parseInt(countStr, 10);
-  const decodedPayload = (global as any)["decodedPayload"];
+  const decodedPayload = getActiveState().decodedPayload as { items: unknown[] } | undefined;
 
   if (!decodedPayload) {
     throw new Error("No decoded payload available");
@@ -349,49 +411,40 @@ step("The decoded payload should contain <count> items", async (countStr: string
   }
 });
 
-/**
- * Assert decoded payload contains specified URL
- */
-step("The decoded payload should contain URL <url>", async (url: string) => {
-  const decodedPayload = (global as any)["decodedPayload"];
+step("The decoded payload should contain URL <url>", async (url) => {
+  const decodedPayload = getActiveState().decodedPayload as
+    | { items: Array<[string, string]> }
+    | undefined;
 
   if (!decodedPayload) {
     throw new Error("No decoded payload available");
   }
 
-  const hasUrl = decodedPayload.items.some((item: [string, string]) => {
-    return item[0] === url;
-  });
+  const hasUrl = decodedPayload.items.some((item) => item[0] === url);
 
   if (!hasUrl) {
     throw new Error(`URL "${url}" not found in decoded payload`);
   }
 });
 
-/**
- * Assert decoded payload contains specified title
- */
-step("The decoded payload should contain title <title>", async (title: string) => {
-  const decodedPayload = (global as any)["decodedPayload"];
+step("The decoded payload should contain title <title>", async (title) => {
+  const decodedPayload = getActiveState().decodedPayload as
+    | { items: Array<[string, string]> }
+    | undefined;
 
   if (!decodedPayload) {
     throw new Error("No decoded payload available");
   }
 
-  const hasTitle = decodedPayload.items.some((item: [string, string]) => {
-    return item[1] === title;
-  });
+  const hasTitle = decodedPayload.items.some((item) => item[1] === title);
 
   if (!hasTitle) {
     throw new Error(`Title "${title}" not found in decoded payload`);
   }
 });
 
-/**
- * Assert decoded payload items are [url, title] tuples
- */
 step("The decoded payload items should be [url, title] tuples", async () => {
-  const decodedPayload = (global as any)["decodedPayload"];
+  const decodedPayload = getActiveState().decodedPayload as { items: unknown[] } | undefined;
 
   if (!decodedPayload) {
     throw new Error("No decoded payload available");
@@ -407,11 +460,8 @@ step("The decoded payload items should be [url, title] tuples", async () => {
   }
 });
 
-/**
- * Assert clipboard content starts with expected prefix
- */
-step("The clipboard content should start with <prefix>", async (prefix: string) => {
-  const clipboardContent = (global as any)["clipboardContent"];
+step("The clipboard content should start with <prefix>", async (prefix) => {
+  const clipboardContent = getClipboard();
 
   if (!clipboardContent) {
     throw new Error("No clipboard content available");
@@ -422,98 +472,73 @@ step("The clipboard content should start with <prefix>", async (prefix: string) 
   }
 });
 
-/**
- * Assert clipboard content contains fragment parameter
- */
-step(
-  "The clipboard content should contain the fragment parameter <param>",
-  async (param: string) => {
-    const clipboardContent = (global as any)["clipboardContent"];
-
-    if (!clipboardContent) {
-      throw new Error("No clipboard content available");
-    }
-
-    if (!clipboardContent.includes(param)) {
-      throw new Error(`Clipboard content should contain "${param}"`);
-    }
-  },
-);
-
-/**
- * Assert clipboard content contains encoded data
- */
-step("The clipboard content should contain encoded data", async () => {
-  const clipboardContent = (global as any)["clipboardContent"];
+step("The clipboard content should contain the fragment parameter <param>", async (param) => {
+  const clipboardContent = getClipboard();
 
   if (!clipboardContent) {
     throw new Error("No clipboard content available");
   }
 
-  // Check if URL contains encoded payload
+  if (!clipboardContent.includes(param)) {
+    throw new Error(`Clipboard content should contain "${param}"`);
+  }
+});
+
+step("The clipboard content should contain encoded data", async () => {
+  const clipboardContent = getClipboard();
+
+  if (!clipboardContent) {
+    throw new Error("No clipboard content available");
+  }
+
   const match = clipboardContent.match(/#p=[A-Za-z0-9_-]+$/);
   if (!match) {
     throw new Error("Clipboard content does not contain encoded data");
   }
 });
 
-/**
- * Assert clipboard content contains encoded data for specified number of tabs
- */
-step(
-  "The clipboard content should contain encoded data for <count> tabs",
-  async (countStr: string) => {
-    const count = parseInt(countStr, 10);
+step("The clipboard content should contain encoded data for <count> tabs", async (countStr) => {
+  const count = parseInt(countStr, 10);
 
-    // Decode the payload to verify the number of tabs
-    const clipboardContent = (global as any)["clipboardContent"];
-
-    if (!clipboardContent) {
-      throw new Error("No clipboard content available");
-    }
-
-    try {
-      const decoded = await decodeShareUrl(clipboardContent);
-
-      if (decoded.items.length !== count) {
-        throw new Error(`Expected encoded data for ${count} tabs, but got ${decoded.items.length}`);
-      }
-    } catch (e) {
-      throw new Error(`Failed to decode clipboard content: ${e}`);
-    }
-  },
-);
-
-/**
- * Store clipboard content as variable
- */
-step("Store clipboard content as <variableName>", async (variableName: string) => {
-  const clipboardContent = (global as any)["clipboardContent"];
+  const clipboardContent = getClipboard();
 
   if (!clipboardContent) {
     throw new Error("No clipboard content available");
   }
 
-  (global as any)[variableName] = clipboardContent;
+  try {
+    const decoded = await decodeShareUrl(clipboardContent);
+
+    if (decoded.items.length !== count) {
+      throw new Error(`Expected encoded data for ${count} tabs, but got ${decoded.items.length}`);
+    }
+  } catch (e) {
+    throw new Error(`Failed to decode clipboard content: ${e}`);
+  }
 });
 
-/**
- * Assert variable equals clipboard content
- */
-step("Variable <variableName> should equal clipboard content", async (variableName: string) => {
-  const variableValue = (global as any)[variableName];
-  const clipboardContent = (global as any)["clipboardContent"];
+step("Store clipboard content as <variableName>", async (variableName) => {
+  const clipboardContent = getClipboard();
+
+  if (!clipboardContent) {
+    throw new Error("No clipboard content available");
+  }
+
+  getActiveState().variables[variableName] = clipboardContent;
+});
+
+step("Variable <variableName> should equal clipboard content", async (variableName) => {
+  const state = getActiveState();
+  const variableValue = state.variables[variableName];
+  const clipboardContent = getClipboard();
 
   if (variableValue !== clipboardContent) {
     throw new Error(`Variable "${variableName}" should equal clipboard content`);
   }
 });
 
-/**
- * Extract payload from URL
- */
 step("Extract payload from URL", async () => {
-  const clipboardContent = (global as any)["clipboardContent"];
+  const clipboardContent = getClipboard();
 
   if (!clipboardContent) {
     throw new Error("No clipboard content available");
@@ -521,17 +546,14 @@ step("Extract payload from URL", async () => {
 
   try {
     const payload = extractPayloadFromUrl(clipboardContent);
-    (global as any)["extractedPayload"] = payload;
+    getActiveState().variables["extractedPayload"] = payload;
   } catch (e) {
     throw new Error(`Failed to extract payload from URL: ${e}`);
   }
 });
 
-/**
- * Assert extracted payload is valid base64url
- */
 step("The extracted payload should be valid base64url", async () => {
-  const extractedPayload = (global as any)["extractedPayload"];
+  const extractedPayload = getActiveState().variables["extractedPayload"] as string | undefined;
 
   if (!extractedPayload) {
     throw new Error("No extracted payload available");
@@ -542,48 +564,33 @@ step("The extracted payload should be valid base64url", async () => {
   }
 });
 
-/**
- * Assert clipboard content length is less than or equal to budget
- */
-step(
-  "The clipboard content length should be less than or equal to <budget>",
-  async (budgetStr: string) => {
-    const budget = parseInt(budgetStr, 10);
-    const clipboardContent = (global as any)["clipboardContent"];
-
-    if (!clipboardContent) {
-      throw new Error("No clipboard content available");
-    }
-
-    if (clipboardContent.length > budget) {
-      throw new Error(
-        `Clipboard content length ${clipboardContent.length} exceeds budget ${budget}`,
-      );
-    }
-  },
-);
-
-/**
- * Assert clipboard content is a valid viewer URL
- */
-step("The clipboard content should be a valid viewer URL", async () => {
-  const clipboardContent = (global as any)["clipboardContent"];
+step("The clipboard content length should be less than or equal to <budget>", async (budgetStr) => {
+  const budget = parseInt(budgetStr, 10);
+  const clipboardContent = getClipboard();
 
   if (!clipboardContent) {
     throw new Error("No clipboard content available");
   }
 
-  // Verify URL structure
+  if (clipboardContent.length > budget) {
+    throw new Error(`Clipboard content length ${clipboardContent.length} exceeds budget ${budget}`);
+  }
+});
+
+step("The clipboard content should be a valid viewer URL", async () => {
+  const clipboardContent = getClipboard();
+
+  if (!clipboardContent) {
+    throw new Error("No clipboard content available");
+  }
+
   if (!clipboardContent.startsWith("http://localhost:4321/s/#p=")) {
     throw new Error("Clipboard content is not a valid viewer URL");
   }
 });
 
-/**
- * Assert clipboard content contains no chrome:// URLs
- */
 step("The clipboard content should contain no chrome:// URLs", async () => {
-  const clipboardContent = (global as any)["clipboardContent"];
+  const clipboardContent = getClipboard();
 
   if (!clipboardContent) {
     throw new Error("No clipboard content available");
@@ -592,7 +599,7 @@ step("The clipboard content should contain no chrome:// URLs", async () => {
   try {
     const decoded = await decodeShareUrl(clipboardContent);
 
-    const hasChromeUrl = decoded.items.some((item: [string, string]) => {
+    const hasChromeUrl = decoded.items.some((item) => {
       return item[0].startsWith("chrome://");
     });
 
@@ -604,17 +611,15 @@ step("The clipboard content should contain no chrome:// URLs", async () => {
   }
 });
 
-/**
- * Assert decoded payload has valid structure
- */
 step("The decoded payload should have valid structure", async () => {
-  const decodedPayload = (global as any)["decodedPayload"];
+  const decodedPayload = getActiveState().decodedPayload as
+    | { version?: unknown; expiry?: unknown; items?: unknown }
+    | undefined;
 
   if (!decodedPayload) {
     throw new Error("No decoded payload available");
   }
 
-  // Verify required fields
   if (typeof decodedPayload.version !== "number") {
     throw new Error("Payload missing version field");
   }
@@ -628,11 +633,8 @@ step("The decoded payload should have valid structure", async () => {
   }
 });
 
-/**
- * Assert decoded payload is not expired
- */
 step("The decoded payload should not be expired", async () => {
-  const decodedPayload = (global as any)["decodedPayload"];
+  const decodedPayload = getActiveState().decodedPayload as { isExpired?: boolean } | undefined;
 
   if (!decodedPayload) {
     throw new Error("No decoded payload available");
@@ -643,11 +645,8 @@ step("The decoded payload should not be expired", async () => {
   }
 });
 
-/**
- * Assert decoded payload is expired
- */
 step("The decoded payload should be expired", async () => {
-  const decodedPayload = (global as any)["decodedPayload"];
+  const decodedPayload = getActiveState().decodedPayload as { isExpired?: boolean } | undefined;
 
   if (!decodedPayload) {
     throw new Error("No decoded payload available");
