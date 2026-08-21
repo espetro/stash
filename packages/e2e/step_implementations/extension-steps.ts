@@ -1,6 +1,7 @@
 import { step, beforeSuite } from "@getgauge/cli";
 import { Page, BrowserContext } from "playwright";
-import { getBrowserHelper, setCurrentPage, getCurrentPage } from "../helpers/browser-helper";
+import { getBrowserHelper } from "../helpers/browser-helper";
+import { setCurrentPage, getCurrentPage } from "./common-steps";
 import { filterChromeUrls, TabInfo, encodeTabsToShareUrl } from "../helpers/encoder-helper";
 
 /**
@@ -149,7 +150,7 @@ step('The user clicks on "Share selected tabs…" menu item', async () => {
   const filteredTabs = filterChromeUrls(tabs);
 
   // Encode tabs to share URL
-  const result = encodeTabsToShareUrl(filteredTabs);
+  const result = await encodeTabsToShareUrl(filteredTabs);
 
   // Store the result for verification
   (global as any)["shareLink"] = result.url;

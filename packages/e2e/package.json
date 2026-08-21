@@ -17,5 +17,12 @@
     "lint": "oxlint --fix step_implementations tests helpers && gauge validate specs/",
     "format": "oxfmt --write 'step_implementations/**/*.ts' 'tests/**/*.ts' 'helpers/**/*.ts'",
     "validate": "tsx ../../scripts/validate.ts --cwd packages/e2e"
+  },
+  "devDependencies": {
+    "@getgauge/cli": "^1.6.35",
+    "@playwright/test": "^1.62.1",
+    "@types/chrome": "^0.2.6",
+    "gauge-ts": "^0.3.6",
+    "ts-node": "^10.9.2"
   }
 }

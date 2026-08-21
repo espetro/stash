@@ -54,7 +54,7 @@ step("Decode URL fragment", async () => {
   }
 
   try {
-    const payload = decodeShareUrl(clipboardContent);
+    const payload = await decodeShareUrl(clipboardContent);
     (global as any)["decodedPayload"] = payload;
   } catch (e) {
     throw new Error(`Failed to decode URL fragment: ${e}`);
@@ -473,7 +473,7 @@ step(
     }
 
     try {
-      const decoded = decodeShareUrl(clipboardContent);
+      const decoded = await decodeShareUrl(clipboardContent);
 
       if (decoded.items.length !== count) {
         throw new Error(`Expected encoded data for ${count} tabs, but got ${decoded.items.length}`);
@@ -590,7 +590,7 @@ step("The clipboard content should contain no chrome:// URLs", async () => {
   }
 
   try {
-    const decoded = decodeShareUrl(clipboardContent);
+    const decoded = await decodeShareUrl(clipboardContent);
 
     const hasChromeUrl = decoded.items.some((item: [string, string]) => {
       return item[0].startsWith("chrome://");
