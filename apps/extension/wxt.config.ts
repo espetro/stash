@@ -21,7 +21,7 @@ export default defineConfig({
     // @ts-ignore - WXT doesn't expose externally_connectable in its manifest types yet
     externally_connectable: {
       ids: ["*"],
-      matches: ["*://*/*"],
+      matches: ["https://stash.illo.fyi/*"],
     },
     icons: {
       16: "icon-16.png",
@@ -31,7 +31,7 @@ export default defineConfig({
     web_accessible_resources: [
       {
         resources: ["fonts/*.woff2"],
-        matches: ["<all_urls>"],
+        matches: ["https://stash.illo.fyi/*"],
       },
     ],
     browser_specific_settings: {
