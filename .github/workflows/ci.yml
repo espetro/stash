@@ -29,7 +29,7 @@ jobs:
         run: pnpm install
 
       - name: Install Playwright browsers
-        run: npx playwright install chromium
+        run: pnpm --filter @stash/e2e exec playwright install chromium
 
       - name: Typecheck extension
         run: pnpm --filter @stash/extension run tscheck
