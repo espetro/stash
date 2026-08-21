@@ -22,6 +22,7 @@ let _initPromise: Promise<BrotliFunctions> | null = null;
 export async function getBrotli(): Promise<BrotliFunctions> {
   if (_brotli) return _brotli;
   if (!_initPromise) {
+    // Test stub (null) and missing module both fall back to the base64 bytes.
     const mod =
       wasmModule instanceof WebAssembly.Module
         ? wasmModule
