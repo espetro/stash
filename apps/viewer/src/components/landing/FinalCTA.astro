@@ -1,60 +1,66 @@
 ---
 // Final CTA — dark #0B0E15 background, centered, generous padding
 import { FaChrome, FaFirefoxBrowser } from "react-icons/fa6";
+import { t, type Lang } from "@/i18n";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
 ---
 
 <section class="bg-background py-32 px-6 text-center lg:py-40 lg:px-8">
   <div class="max-w-176 mx-auto">
     <span
       class="block font-mono text-[0.6875rem] uppercase tracking-[0.15em] text-muted-foreground mb-5"
-      >FREE BROWSER EXTENSION</span
+      >{t("finalCta.label", undefined, lang)}</span
     >
 
     <h2
       class="text-[clamp(2rem,4vw,3rem)] font-bold leading-[1.1] tracking-[-0.03em] text-foreground m-0 mb-4"
     >
-      Stop losing your context.
+      {t("finalCta.title", undefined, lang)}
     </h2>
 
     <p class="text-lg leading-[1.6] text-muted-foreground m-0 mb-10">
-      Add Stash to your browser in 30 seconds.
+      {t("finalCta.subtitle", undefined, lang)}
     </p>
 
     <div class="flex flex-wrap gap-3 items-center justify-center">
       <a
         href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md"
         class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-semibold text-[0.9375rem] no-underline bg-accent text-accent-foreground hover:opacity-90 focus:outline-2 focus:outline-accent focus:outline-offset-2 transition-colors duration-150"
-        aria-label="Add Stash to Chrome"
+        aria-label={t("hero.cta.chromeAria", undefined, lang)}
       >
         <FaChrome
           className="w-[1.125rem] h-[1.125rem] flex-shrink-0"
           aria-hidden="true"
         />
-        Add to Chrome
+        {t("finalCta.chrome", undefined, lang)}
       </a>
 
       <a
         href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md"
         class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-semibold text-[0.9375rem] no-underline bg-transparent text-foreground border border-foreground hover:border-foreground hover:bg-muted focus:outline-2 focus:outline-primary focus:outline-offset-2 transition-colors duration-150"
-        aria-label="Add Stash to Firefox"
+        aria-label={t("hero.cta.firefoxAria", undefined, lang)}
       >
         <FaFirefoxBrowser
           className="w-[1.125rem] h-[1.125rem] flex-shrink-0"
           aria-hidden="true"
         />
-        Add to Firefox
+        {t("finalCta.firefox", undefined, lang)}
       </a>
 
       <a
         href="/s/new"
         class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-semibold text-[0.9375rem] no-underline bg-transparent text-muted-foreground border-none hover:text-foreground focus:outline-2 focus:outline-primary focus:outline-offset-2 transition-colors duration-150"
       >
-        Try in browser →
+        {t("finalCta.tryInBrowser", undefined, lang)}
       </a>
     </div>
 
     <p class="font-mono text-[0.75rem] text-accent mt-5">
-      No account · No cloud · Works offline
+      {t("finalCta.tagline", undefined, lang)}
     </p>
   </div>
 </section>

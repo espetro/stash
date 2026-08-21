@@ -2,7 +2,7 @@
   "nav": {
     "home": "Accueil",
     "features": "Fonctionnalités",
-    "howItWorks": "Comment ça fonctionne",
+    "howItWorks": "Comment ça marche",
     "demo": "Démo"
   },
   "install": {
@@ -13,20 +13,20 @@
   },
   "stash": {
     "create": {
-      "title": "Créer un Stash"
+      "title": "Créer Stash"
     },
     "title": {
-      "placeholder": "Titre du Stash"
+      "placeholder": "Titre de Stash"
     },
     "urls": {
-      "placeholder": "Coller des URLs (une par ligne). Utilisez 'URL | Titre' :\nhttps://google.com | Google"
+      "placeholder": "Collez les URL (une par ligne). Utilisez 'URL | Titre' pour nommer un élément :\nhttps://google.com | Google"
     },
     "copy": {
-      "idle": "Copier dans le presse-papier",
+      "idle": "Copier dans le presse-papiers",
       "done": "Copié !"
     },
     "save": "Enregistrer",
-    "generating": "Génération en cours...",
+    "generating": "Génération...",
     "error": "Erreur",
     "clear": "Effacer",
     "meter": {
@@ -44,7 +44,7 @@
   },
   "sharedTabs": {
     "title": "Onglets partagés",
-    "shareQr": "Partager sous forme de QR",
+    "shareQr": "Partager en QR",
     "new": "Nouveau",
     "selectAll": "Tout sélectionner",
     "deselectAll": "Tout désélectionner",
@@ -59,7 +59,7 @@
   "theme": {
     "light": "Thème clair",
     "dark": "Thème sombre",
-    "label": "Changeur de thème"
+    "label": "Commutateur de thème"
   },
   "language": {
     "en": "Anglais",
@@ -68,12 +68,124 @@
     "fr": "Français",
     "label": "Langue"
   },
-  "sharedTabs.selectAll": "Tout sélectionner",
-  "sharedTabs.deselectAll": "Tout désélectionner",
-  "sharedTabs.openSelected": "Ouvrir la sélection",
-  "sharedTabs.removeSelected": "Retirer la sélection",
-  "sharedTabs.saveEdited": "Enregistrer le stash modifié",
-  "sharedTabs.savedEdited": "Enregistré ! Lien ci-dessous",
-  "sharedTabs.editedLink": "Lien du stash modifié",
-  "sharedTabs.empty": "Aucun élément restant"
+  "hero": {
+    "headline": {
+      "line1": "Vos onglets sont votre réflexion.",
+      "line2": "Arrêtez de les perdre."
+    },
+    "subheadline": "Partagez votre contexte complet du navigateur sous forme d'un seul lien, ou enregistrez-le simplement pour plus tard. Localement. Privément. Aucun compte. Aucun cloud. Aucun bruit.",
+    "cta": {
+      "chrome": "Ajouter à Chrome",
+      "chromeAria": "Ajouter Stash à Chrome",
+      "firefox": "Ajouter à Firefox",
+      "firefoxAria": "Ajouter Stash à Firefox",
+      "tryInBrowser": "Essayer dans le navigateur →"
+    },
+    "tagline": "Gratuit · Aucun compte requis · Fonctionne hors ligne"
+  },
+  "proof": {
+    "label": "Utilisé par les équipes de",
+    "company1": "Startups soutenues par YC",
+    "company2": "Indépendants"
+  },
+  "features": {
+    "title": "Tout ce dont vous avez besoin. Rien de plus.",
+    "sharing": {
+      "label": "PARTAGE",
+      "title": "Partage de contexte en un lien",
+      "description": "Partagez tous les onglets ouverts sous forme d'une seule URL. Vos collègues l'ouvrent, ils voient votre session exacte."
+    },
+    "privacy": {
+      "label": "CONFIDENTIALITÉ",
+      "title": "Local d'abord. Toujours.",
+      "description": "Vos données ne quittent jamais votre machine sauf si vous choisissez de partager. Aucun compte. Aucun serveur de synchronisation."
+    },
+    "workflow": {
+      "label": "WORKFLOW",
+      "title": "Contexte prêt pour l'IA",
+      "description": "Exportez votre session actuelle sous forme de contexte structuré pour n'importe quel LLM. Collez vos onglets directement dans votre flux de travail."
+    },
+    "reliability": {
+      "label": "FIABILITÉ",
+      "title": "Fonctionne hors ligne",
+      "description": "Enregistrez des sessions même sans connexion internet. Lisez-les à tout moment."
+    },
+    "organization": {
+      "label": "ORGANISATION",
+      "title": "Sessions nommées",
+      "description": "Organisez vos groupes d'onglets avec des noms et des horodatages. Votre contexte, étiqueté."
+    },
+    "mobile": {
+      "label": "MOBILE",
+      "title": "Partager sous forme de code QR",
+      "description": "Générez un code QR à partir de n'importe quelle session et scannez-le sur votre téléphone. Vos onglets, n'importe où."
+    }
+  },
+  "howItWorks": {
+    "title": "Trois étapes.",
+    "step1": {
+      "title": "Ouvrir Stash",
+      "body": "Cliquez sur l'icône de l'extension pendant que vous naviguez. Vos onglets actuels apparaissent instantanément."
+    },
+    "step2": {
+      "title": "Enregistrer ou partager",
+      "body": "Appuyez sur \"Enregistrer la session\" pour stocker localement, ou \"Copier le lien\" pour partager votre contexte exact."
+    },
+    "step3": {
+      "title": "Restaurer à tout moment",
+      "body": "Ouvrez n'importe quelle session enregistrée d'un seul clic. Les onglets s'ouvrent exactement comme vous les avez laissés."
+    }
+  },
+  "demo": {
+    "title": "Voir en action",
+    "savedSession": "SESSION ENREGISTRÉE",
+    "sessionTitle": "Recherche : Migration Astro 5",
+    "viewLive": "Voir un exemple en direct →"
+  },
+  "privacy": {
+    "title": "Construit pour la confiance.",
+    "subtitle": "Zéro télémétrie, zéro cloud, zéro compromis.",
+    "item1": "Aucun compte requis. Jamais.",
+    "item2": "Toutes les sessions sont stockées dans le stockage local de votre navigateur.",
+    "item3": "Le partage est facultatif. Rien ne quitte sans votre action.",
+    "item4": "Open source. Auditez-le vous-même.",
+    "repoLink": "github.com/espetro/stash →"
+  },
+  "finalCta": {
+    "label": "EXTENSION DE NAVIGATEUR GRATUITE",
+    "title": "Arrêtez de perdre votre contexte.",
+    "subtitle": "Ajoutez Stash à votre navigateur en 30 secondes.",
+    "chrome": "Ajouter à Chrome",
+    "firefox": "Ajouter à Firefox",
+    "tryInBrowser": "Essayer dans le navigateur →",
+    "tagline": "Aucun compte · Aucun cloud · Fonctionne hors ligne"
+  },
+  "footer": {
+    "copyright": "© 2026 Stash — Conçu avec soin pour les power users.",
+    "github": "GitHub",
+    "privacy": "Confidentialité",
+    "terms": "Conditions"
+  },
+  "roadmap": {
+    "title": "Où nous sommes — Et où nous allons",
+    "subtitle": "Développement transparent, priorités communautaires",
+    "done": {
+      "aiFirst": "IA en premier",
+      "selectAnyTab": "Sélectionner n'importe quel onglet",
+      "expiration": "Définir le temps d'expiration",
+      "shareLink": "Partager avec un lien",
+      "theme": "Thème clair/sombre",
+      "browsers": "Chrome & Firefox",
+      "review": "Revoir n'importe où"
+    },
+    "upcoming": {
+      "languages": "Plus de langues (i18n)",
+      "safari": "Support Safari"
+    },
+    "suggest": "Suggérer une fonctionnalité",
+    "legend": {
+      "shipped": "Expédié",
+      "comingSoon": "Bientôt disponible"
+    }
+  }
 }

@@ -10,6 +10,12 @@ import {
 } from "./store";
 import { handleMcpRequest, serverCardResponse } from "./mcp";
 import { cors, ID_RE, MAX_PAYLOAD_CHARS } from "./constants";
+import {
+  allowRequest,
+  defaultClientIp,
+  tooManyRequests,
+  mcpTooManyRequests,
+} from "./ratelimit";
 import type { StashServerDeps } from "./config";
 
 function errorResponse(status: number, message: string, extra: Record<string, string> = {}) {
@@ -30,6 +36,16 @@ export async function handleRequest(request: Request, deps: StashServerDeps): Pr
 
   // POST /api/stash  { payload, ttl } -> { id, url }
   if (url.pathname === "/api/stash" && request.method === "POST") {
+    const limiter = deps.rateLimiter;
+    if (
+      limiter &&
+      !(await allowRequest(
+        limiter.stash,
+        (limiter.clientIp ?? defaultClientIp)(request),
+      ))
+    ) {
+      return tooManyRequests();
+    }
     let body: { payload?: string; ttl?: string };
     try {
       body = await request.json();
@@ -124,6 +140,17 @@ export async function handleRequest(request: Request, deps: StashServerDeps): Pr
 
   // MCP: stateless Streamable-HTTP server
   if (url.pathname === "/mcp" && (request.method === "POST" || request.method === "GET")) {
+    const limiter = deps.rateLimiter;
+    if (
+      request.method === "POST" &&
+      limiter &&
+      !(await allowRequest(
+        limiter.mcp,
+        (limiter.clientIp ?? defaultClientIp)(request),
+      ))
+    ) {
+      return mcpTooManyRequests();
+    }
     return handleMcpRequest(request, deps);
   }
 
