@@ -8,6 +8,7 @@
     "clean": "rm -rf dist",
     "dev": "astro dev",
     "build": "astro build",
+    "sync": "astro sync",
     "i18n:fill": "INTL_AI_FILL=1 intl-ai fill --config $(pwd)/intl-ai.config.ts",
     "preview": "astro preview",
     "format": "oxfmt --write 'src/**/*.{ts,tsx}' && prettier --write 'src/**/*.astro' --plugin prettier-plugin-astro --ignore-path .prettierignore",
