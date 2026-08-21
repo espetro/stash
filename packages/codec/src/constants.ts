@@ -8,7 +8,9 @@ export const EXPIRY_HOURS = 24;
 export const BUDGET_CHARS = 8000;
 export const MAX_TITLE_CHARS = 120;
 export const COMPRESSION_THRESHOLD = 200;
-export const VIEWER_ORIGIN = import.meta.env?.VITE_VIEWER_ORIGIN || "https://stash.illo.fyi";
+export const VIEWER_ORIGIN =
+  (import.meta as ImportMeta & { env?: { VITE_VIEWER_ORIGIN?: string } }).env?.VITE_VIEWER_ORIGIN ||
+  "https://stash.illo.fyi";
 export const VIEWER_PATH = "/s/";
 export const EXPIRY_HOURS_MAP = {
   "24h": 24,

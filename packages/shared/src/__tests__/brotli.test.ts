@@ -22,7 +22,7 @@ describe("getBrotliFunctions", () => {
     const brotli = await getBrotliFunctions();
     const input = new TextEncoder().encode("hello stash");
 
-    const compressed = brotli.compress(input);
+    const compressed = brotli.compress(input, { quality: 11 });
     expect(compressed.length).toBeGreaterThan(0);
 
     const decompressed = brotli.decompress(compressed);
