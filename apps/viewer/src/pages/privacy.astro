@@ -14,8 +14,9 @@ import { LuBadgeCheck } from "react-icons/lu";
         <span class="page-label">PRIVACY POLICY</span>
         <h1 class="page-title">Privacy-First by Design</h1>
         <p class="page-subtitle">
-          We collect anonymous engagement data to improve Stash, but never your
-          tab content. Here's exactly what happens — and what doesn't.
+          Stash is local-first: your tabs stay on your device unless you choose
+          to create a shareable link. Here's exactly what happens — and what
+          doesn't.
         </p>
       </header>
 
@@ -38,15 +39,20 @@ import { LuBadgeCheck } from "react-icons/lu";
         <li class="policy-item">
           <LuBadgeCheck className="size-[18px] flex-shrink-0 mt-[3px]" />
           <div>
-            <strong>No personal data is transmitted to external servers.</strong
-            > The only thing sent is the share link you choose to send.
+            <strong>Default share links contain data only in the URL.</strong>
+            Tab URLs and titles are compressed and encoded into the link itself and
+            decoded in the visitor's browser; our servers never see them.
           </div>
         </li>
         <li class="policy-item">
           <LuBadgeCheck className="size-[18px] flex-shrink-0 mt-[3px]" />
           <div>
-            <strong>Shared links contain only tab URLs and titles.</strong> These
-            are user-selected and encoded directly into the link itself.
+            <strong
+              >Short links are stored server-side only when you choose that
+              mode.</strong
+            > The tab URLs and titles you selected are stored encrypted-in-transit
+            in Cloudflare KV under a random id, never linked to you, and deleted automatically
+            when the link expires (1–30 days).
           </div>
         </li>
         <li class="policy-item">
@@ -59,10 +65,20 @@ import { LuBadgeCheck } from "react-icons/lu";
         <li class="policy-item">
           <LuBadgeCheck className="size-[18px] flex-shrink-0 mt-[3px]" />
           <div>
-            <strong>We use PostHog (cookieless mode) for analytics.</strong> We collect
-            anonymous page views and clicks only—no cookies, no persistent identifiers.
-            Your tab URLs and titles live entirely in the share link and are never
-            seen or processed by us.
+            <strong>The browser extension collects nothing.</strong> The Chrome and
+            Firefox extensions run entirely on your device: snapshots are encoded
+            locally and preferences are stored in local browser storage. No analytics
+            run inside the extension.
+          </div>
+        </li>
+        <li class="policy-item">
+          <LuBadgeCheck className="size-[18px] flex-shrink-0 mt-[3px]" />
+          <div>
+            <strong
+              >This website uses PostHog (cookieless) for analytics.</strong
+            >
+            We collect anonymous page views and clicks only—no cookies, no persistent
+            identifiers, no tab content.
           </div>
         </li>
       </ul>
