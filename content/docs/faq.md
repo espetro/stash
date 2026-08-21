@@ -28,7 +28,7 @@ Here are answers to common questions about Stash.
 ## Installation & Setup
 
 ### Q: How do I install Stash?
-**A:** Get it from the [Chrome Web Store](https://chrome.google.com/webstore/detail/stash/...) or [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/stash/). Click "Add to Browser" and follow the prompts.
+**A:** Get it from the [Chrome Web Store](https://chrome.google.com/webstore/detail/stash/...) or [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/stash-snapshot-tabs/). Click "Add to Browser" and follow the prompts.
 
 ### Q: What browsers are supported?
 **A:** Stash works on Chrome, Firefox, Edge, and other Chromium-based browsers. Mobile browsers work for viewing shared links but not for the extension itself.
