@@ -20,6 +20,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Get extension version
+        id: pkg
+        run: echo "version=$(node -p "require('./apps/extension/package.json').version")" >> $GITHUB_OUTPUT
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -30,10 +34,6 @@ jobs:
         with:
           node-version: '24'
           cache: 'pnpm'
-
-      - name: Get extension version
-        id: pkg
-        run: echo "version=$(node -p "require('./apps/extension/package.json').version")" >> $GITHUB_OUTPUT
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -59,6 +59,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history so the previous tag resolve works
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -66,10 +68,30 @@ jobs:
           path: artifacts
           merge-multiple: true
 
+      - name: Build release notes for this version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          # Extract only this version's section from the changelog:
+          # from "## <version>" up to (not including) the next "## " heading.
+          awk -v ver="$VERSION" '
+            $0 ~ "^## " ver "$" { in_section = 1; next }
+            in_section && /^## / { exit }
+            in_section { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "No changelog section for $VERSION; falling back to generated notes." >&2
+          fi
+          PREV_TAG=$(git tag --sort=-v:refname | grep -v "^${GITHUB_REF_NAME}$" | head -1)
+          {
+            cat release-notes.md
+            echo ""
+            echo "**Full changelog**: https://github.com/${GITHUB_REPOSITORY}/compare/${PREV_TAG}...${GITHUB_REF_NAME}"
+          } > final-notes.md
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          body_path: CHANGELOG.md
+          body_path: final-notes.md
           files: artifacts/*.zip
           generate_release_notes: true
         env:
