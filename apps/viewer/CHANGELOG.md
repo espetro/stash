@@ -1,5 +1,13 @@
 # stash-viewer
 
+## 0.7.1
+
+### Patch Changes
+
+- @stash/codec@0.7.1
+- @stash/theme@0.7.1
+- @stash/shared@0.7.1
+
 ## 0.7.0
 
 ### Minor Changes
