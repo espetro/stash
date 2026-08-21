@@ -13,7 +13,7 @@
     "preview": "astro preview",
     "format": "oxfmt --write 'src/**/*.{ts,tsx}' && prettier --write 'src/**/*.astro' --plugin prettier-plugin-astro --ignore-path .prettierignore",
     "lint": "oxlint src --ignore-pattern '**/*.d.ts'",
-    "tscheck": "tsc --noEmit",
+    "tscheck": "astro sync && tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
