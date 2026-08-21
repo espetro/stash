@@ -1,5 +1,11 @@
 ---
 // How It Works — 3-step horizontal flow
+import { t, type Lang } from "@/i18n";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
 ---
 
 <section
@@ -9,7 +15,7 @@
   <div class="max-w-7xl mx-auto">
     <header class="mb-12">
       <h2 class="text-3xl font-semibold text-foreground tracking-tight m-0">
-        Three steps.
+        {t("howItWorks.title", undefined, lang)}
       </h2>
     </header>
 
@@ -26,13 +32,12 @@
         >
         </div>
         <h3 class="text-lg font-semibold text-foreground m-0 tracking-tight">
-          Open Stash
+          {t("howItWorks.step1.title", undefined, lang)}
         </h3>
         <p
           class="text-[0.9375rem] text-muted-foreground leading-relaxed m-0 max-w-[22rem] lg:max-w-none"
         >
-          Click the extension icon while browsing. Your current tabs appear
-          instantly.
+          {t("howItWorks.step1.body", undefined, lang)}
         </p>
       </div>
 
@@ -48,13 +53,12 @@
         >
         </div>
         <h3 class="text-lg font-semibold text-foreground m-0 tracking-tight">
-          Save or share
+          {t("howItWorks.step2.title", undefined, lang)}
         </h3>
         <p
           class="text-[0.9375rem] text-muted-foreground leading-relaxed m-0 max-w-[22rem] lg:max-w-none"
         >
-          Hit "Save session" to store locally, or "Copy link" to share your
-          exact context.
+          {t("howItWorks.step2.body", undefined, lang)}
         </p>
       </div>
 
@@ -65,13 +69,12 @@
           >03</span
         >
         <h3 class="text-lg font-semibold text-foreground m-0 tracking-tight">
-          Restore anytime
+          {t("howItWorks.step3.title", undefined, lang)}
         </h3>
         <p
           class="text-[0.9375rem] text-muted-foreground leading-relaxed m-0 max-w-[22rem] lg:max-w-none"
         >
-          Open any saved session with one click. Tabs reopen exactly as you left
-          them.
+          {t("howItWorks.step3.body", undefined, lang)}
         </p>
       </div>
     </div>

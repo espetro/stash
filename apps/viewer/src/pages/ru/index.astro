@@ -1,16 +1,16 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import LandingPage from "@/components/landing/LandingPage.astro";
-import { isLang, DEFAULT_LANG } from "@/i18n";
+import { isLang, DEFAULT_LANG, type Lang } from "@/i18n";
 
 const raw = Astro.currentLocale ?? DEFAULT_LANG;
-const lang = isLang(raw) ? raw : DEFAULT_LANG;
+const lang: Lang = isLang(raw) ? raw : DEFAULT_LANG;
 ---
 
 <Layout
-  title="Stash — Your tabs are your thinking."
+  title="Stash — Твои вкладки — это твоё мышление."
   lang={lang}
-  localizedPath="/"
+  localizedPath="/ru"
 >
   <LandingPage lang={lang} />
 </Layout>

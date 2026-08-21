@@ -457,7 +457,7 @@ describe("v5 payload tests", () => {
     const raw = serializePayload({
       v: 5,
       e: Math.floor(Date.now() / 1000) + 3600,
-      i: [["https://example.com", "Future kind", "video"]],
+      i: [["https://example.com", "Future kind", "video" as "url"]],
     });
     const body = encodeBase32UpperCaseNoPadding(brotli.compress(raw, { quality: 11 }));
     const decoded = await decodeShareUrl(`#q=D${body}`, brotli);

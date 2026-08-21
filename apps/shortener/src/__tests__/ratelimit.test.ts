@@ -11,7 +11,10 @@ const mockEnv: Env = {
 };
 
 function fetchWorker(url: string, init?: RequestInit): Promise<Response> {
-  return worker.fetch(new Request(url, init), mockEnv);
+  return worker.fetch(new Request(url, init), mockEnv, {
+    passThroughOnException: () => {},
+    props: {},
+  } as unknown as ExecutionContext);
 }
 
 function fakeLimiter(shouldSucceed = true) {

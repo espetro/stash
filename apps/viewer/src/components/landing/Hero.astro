@@ -3,6 +3,12 @@
 import { FaChrome, FaFirefoxBrowser } from "react-icons/fa6";
 import HeroStashPopup from "./HeroStashPopup";
 import { INSTALL_CHROME_URL, INSTALL_FIREFOX_URL } from "@/lib/constants";
+import { t, type Lang } from "@/i18n";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
 ---
 
 <section
@@ -18,16 +24,17 @@ import { INSTALL_CHROME_URL, INSTALL_FIREFOX_URL } from "@/lib/constants";
         class="hero-headline font-sans text-[clamp(2.5rem,6vw,4.5rem)] font-bold leading-[1.1] tracking-[-0.03em] m-0"
       >
         <span class="headline-line1 text-foreground"
-          >Your tabs are your thinking.</span
+          >{t("hero.headline.line1", undefined, lang)}</span
         ><br />
-        <span class="headline-line2 text-accent">Stop losing them.</span>
+        <span class="headline-line2 text-accent"
+          >{t("hero.headline.line2", undefined, lang)}</span
+        >
       </h1>
 
       <p
         class="hero-subheadline font-sans text-lg leading-[1.6] text-muted-foreground m-0 max-w-md"
       >
-        Share your entire browser context as one link, or just save it for
-        later. Locally. Privately. No account. No cloud. No noise.
+        {t("hero.subheadline", undefined, lang)}
       </p>
 
       <!-- CTA Row -->
@@ -35,37 +42,37 @@ import { INSTALL_CHROME_URL, INSTALL_FIREFOX_URL } from "@/lib/constants";
         <a
           href={INSTALL_CHROME_URL}
           class="cta-button cta-primary inline-flex items-center justify-center gap-2 py-2.5 px-5 rounded-md text-[0.9375rem] font-semibold no-underline font-sans transition-colors duration-200 bg-accent text-accent-foreground"
-          aria-label="Add Stash to Chrome"
+          aria-label={t("hero.cta.chromeAria", undefined, lang)}
         >
           <FaChrome
             className="cta-icon w-[1.125rem] h-[1.125rem] flex-shrink-0"
             aria-hidden="true"
           />
-          Add to Chrome
+          {t("hero.cta.chrome", undefined, lang)}
         </a>
 
         <a
           href={INSTALL_FIREFOX_URL}
           class="cta-button cta-secondary inline-flex items-center justify-center gap-2 py-2.5 px-5 rounded-md text-[0.9375rem] font-semibold no-underline font-sans transition-colors duration-200 bg-card text-foreground border border-border"
-          aria-label="Add Stash to Firefox"
+          aria-label={t("hero.cta.firefoxAria", undefined, lang)}
         >
           <FaFirefoxBrowser
             className="cta-icon w-[1.125rem] h-[1.125rem] flex-shrink-0"
             aria-hidden="true"
           />
-          Add to Firefox
+          {t("hero.cta.firefox", undefined, lang)}
         </a>
 
         <a
           href="/s/new"
           class="cta-button cta-ghost inline-flex items-center justify-center gap-2 py-2.5 px-5 rounded-md text-[0.9375rem] font-semibold no-underline font-sans transition-colors duration-200 text-muted-foreground"
         >
-          Try in browser →
+          {t("hero.cta.tryInBrowser", undefined, lang)}
         </a>
       </div>
 
       <p class="cta-tagline font-mono text-xs text-accent m-0 w-full">
-        Free · No account required · Works offline
+        {t("hero.tagline", undefined, lang)}
       </p>
     </div>
 

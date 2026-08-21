@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import react from "@astrojs/react";
+import sitemap from "@astrojs/sitemap";
 import starlight from "@astrojs/starlight";
 import starlightDocsPrefix from "./src/integrations/starlight-docs-prefix/index.ts";
 import IntlAi from "@intl-ai/unplugin/vite";
@@ -14,11 +15,30 @@ const pkg = JSON.parse(readFileSync(resolve(import.meta.dirname, "package.json")
 export default defineConfig({
   site: viewerOrigin,
   output: "static",
+  i18n: {
+    defaultLocale: "en",
+    locales: ["en", "es", "ru", "fr"],
+    routing: {
+      prefixDefaultLocale: false,
+    },
+  },
   integrations: [
     react({
       babel: {
         plugins: [["babel-plugin-react-compiler", {}]],
       },
+    }),
+    sitemap({
+      i18n: {
+        defaultLocale: "en",
+        locales: {
+          en: "en",
+          es: "es",
+          ru: "ru",
+          fr: "fr",
+        },
+      },
+      filter: (page) => !page.includes("/docs/"),
     }),
     starlight({
       title: "Stash Documentation",
