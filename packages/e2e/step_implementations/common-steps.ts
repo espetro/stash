@@ -1,66 +1,36 @@
-import { beforeSuite, afterSuite, step } from "@getgauge/cli";
-import { Page } from "playwright";
-import { getBrowserHelper, resetBrowserHelper } from "../helpers/browser-helper";
+import { step } from "../lib/step-registry";
+import { getActiveState } from "../lib/scenario-state";
+import type { Page } from "playwright";
 
 /**
- * Global page reference
- */
-let currentPage: Page | null = null;
-
-/**
- * Set the current page
+ * Set the current page on the active scenario state.
  */
 export function setCurrentPage(page: Page): void {
-  currentPage = page;
+  getActiveState().currentPage = page;
 }
 
 /**
- * Get the current page
+ * Get the current page from the active scenario state.
  */
 export function getCurrentPage(): Page {
-  if (!currentPage) {
+  const page = getActiveState().currentPage;
+  if (!page) {
     throw new Error("No current page. Initialize a page first.");
   }
-  return currentPage;
+  return page;
 }
 
-/**
- * Before suite: Initialize browser
- */
-beforeSuite(async () => {
-  const browserHelper = getBrowserHelper();
-  // Browser will be launched in specific step implementations
-});
-
-/**
- * After suite: Cleanup browser
- */
-afterSuite(async () => {
-  const browserHelper = getBrowserHelper();
-  await browserHelper.close();
-  resetBrowserHelper();
-});
-
-/**
- * Wait for element to be visible
- */
-step("Wait for element <selector> to be visible", async (selector: string) => {
+step("Wait for element <selector> to be visible", async (selector) => {
   const page = getCurrentPage();
   await page.waitForSelector(selector, { state: "visible", timeout: 10000 });
 });
 
-/**
- * Wait for element to be attached
- */
-step("Wait for element <selector> to be attached", async (selector: string) => {
+step("Wait for element <selector> to be attached", async (selector) => {
   const page = getCurrentPage();
   await page.waitForSelector(selector, { state: "attached", timeout: 10000 });
 });
 
-/**
- * Assert text content
- */
-step("Element <selector> should contain text <text>", async (selector: string, text: string) => {
+step("Element <selector> should contain text <text>", async (selector, text) => {
   const page = getCurrentPage();
   const element = await page.waitForSelector(selector, { state: "visible" });
   const elementText = await element.textContent();
@@ -71,10 +41,7 @@ step("Element <selector> should contain text <text>", async (selector: string, t
   }
 });
 
-/**
- * Assert exact text content
- */
-step("Element <selector> should have text <text>", async (selector: string, text: string) => {
+step("Element <selector> should have text <text>", async (selector, text) => {
   const page = getCurrentPage();
   const element = await page.waitForSelector(selector, { state: "visible" });
   const elementText = await element.textContent();
@@ -85,25 +52,16 @@ step("Element <selector> should have text <text>", async (selector: string, text
   }
 });
 
-/**
- * Count elements
- */
-step(
-  "Count of elements <selector> should be <count>",
-  async (selector: string, countStr: string) => {
-    const page = getCurrentPage();
-    const count = parseInt(countStr, 10);
-    const elements = await page.locator(selector).count();
-    if (elements !== count) {
-      throw new Error(`Expected ${count} elements matching "${selector}", but found ${elements}`);
-    }
-  },
-);
+step("Count of elements <selector> should be <count>", async (selector, countStr) => {
+  const page = getCurrentPage();
+  const count = parseInt(countStr, 10);
+  const elements = await page.locator(selector).count();
+  if (elements !== count) {
+    throw new Error(`Expected ${count} elements matching "${selector}", but found ${elements}`);
+  }
+});
 
-/**
- * Assert element is visible
- */
-step("Element <selector> should be visible", async (selector: string) => {
+step("Element <selector> should be visible", async (selector) => {
   const page = getCurrentPage();
   const element = await page.waitForSelector(selector, { state: "visible" });
   if (!element) {
@@ -111,10 +69,7 @@ step("Element <selector> should be visible", async (selector: string) => {
   }
 });
 
-/**
- * Assert element is not visible
- */
-step("Element <selector> should not be visible", async (selector: string) => {
+step("Element <selector> should not be visible", async (selector) => {
   const page = getCurrentPage();
   const elements = await page.locator(selector).count();
   if (elements > 0) {
@@ -125,73 +80,50 @@ step("Element <selector> should not be visible", async (selector: string) => {
   }
 });
 
-/**
- * Wait for specified time
- */
-step("Wait for <duration> milliseconds", async (durationStr: string) => {
+step("Wait for <duration> milliseconds", async (durationStr) => {
   const duration = parseInt(durationStr, 10);
   await new Promise((resolve) => setTimeout(resolve, duration));
 });
 
-/**
- * Wait for specified seconds
- */
-step("Wait for <duration> seconds", async (durationStr: string) => {
+step("Wait for <duration> seconds", async (durationStr) => {
   const duration = parseFloat(durationStr);
   await new Promise((resolve) => setTimeout(resolve, duration * 1000));
 });
 
-/**
- * Navigate to URL
- */
-step("Navigate to <url>", async (url: string) => {
+step("Navigate to <url>", async (url) => {
   const page = getCurrentPage();
   await page.goto(url, { waitUntil: "networkidle" });
 });
 
-/**
- * Click on element
- */
-step("Click on element <selector>", async (selector: string) => {
+step("Click on element <selector>", async (selector) => {
   const page = getCurrentPage();
   await page.click(selector);
 });
 
-/**
- * Type text into element
- */
-step("Type <text> into element <selector>", async (text: string, selector: string) => {
+step("Type <text> into element <selector>", async (text, selector) => {
   const page = getCurrentPage();
   await page.fill(selector, text);
 });
 
-/**
- * Get text content from element
- */
 step(
   "Get text from element <selector> and store as <variableName>",
-  async (selector: string, variableName: string) => {
+  async (selector, variableName) => {
     const page = getCurrentPage();
     const element = await page.waitForSelector(selector, { state: "visible" });
     const text = await element.textContent();
-    (global as any)[variableName] = text;
+    getActiveState().variables[variableName] = text;
   },
 );
 
-/**
- * Store value in global variable
- */
-step("Store <value> as <variableName>", async (value: string, variableName: string) => {
-  (global as any)[variableName] = value;
+step("Store <value> as <variableName>", async (value, variableName) => {
+  getActiveState().variables[variableName] = value;
 });
 
-/**
- * Assert global variable equals value
- */
 step(
   "Variable <variableName> should equal <expectedValue>",
-  async (variableName: string, expectedValue: string) => {
-    const actualValue = (global as any)[variableName];
+  async (variableName, expectedValue) => {
+    const state = getActiveState();
+    const actualValue = state.variables[variableName];
     if (actualValue !== expectedValue) {
       throw new Error(
         `Expected variable "${variableName}" to be "${expectedValue}", but got "${actualValue}"`,
@@ -200,14 +132,12 @@ step(
   },
 );
 
-/**
- * Assert global variable contains value
- */
 step(
   "Variable <variableName> should contain <expectedValue>",
-  async (variableName: string, expectedValue: string) => {
-    const actualValue = (global as any)[variableName];
-    if (!actualValue || !actualValue.includes(expectedValue)) {
+  async (variableName, expectedValue) => {
+    const state = getActiveState();
+    const actualValue = state.variables[variableName];
+    if (!actualValue || !String(actualValue).includes(expectedValue)) {
       throw new Error(
         `Expected variable "${variableName}" to contain "${expectedValue}", but got "${actualValue}"`,
       );
@@ -215,43 +145,27 @@ step(
   },
 );
 
-/**
- * Take screenshot
- */
-step("Take screenshot with name <filename>", async (filename: string) => {
+step("Take screenshot with name <filename>", async (filename) => {
   const page = getCurrentPage();
-  const browserHelper = getBrowserHelper();
-  await browserHelper.takeScreenshot(page, filename);
+  await page.screenshot({ path: `screenshots/${filename}` });
 });
 
-/**
- * Refresh page
- */
 step("Refresh the page", async () => {
   const page = getCurrentPage();
   await page.reload({ waitUntil: "networkidle" });
 });
 
-/**
- * Go back in history
- */
 step("Go back", async () => {
   const page = getCurrentPage();
   await page.goBack({ waitUntil: "networkidle" });
 });
 
-/**
- * Go forward in history
- */
 step("Go forward", async () => {
   const page = getCurrentPage();
   await page.goForward({ waitUntil: "networkidle" });
 });
 
-/**
- * Get page title
- */
-step("Page title should be <expectedTitle>", async (expectedTitle: string) => {
+step("Page title should be <expectedTitle>", async (expectedTitle) => {
   const page = getCurrentPage();
   const title = await page.title();
   if (title !== expectedTitle) {
@@ -259,10 +173,7 @@ step("Page title should be <expectedTitle>", async (expectedTitle: string) => {
   }
 });
 
-/**
- * Get page URL
- */
-step("Page URL should contain <expectedUrl>", async (expectedUrl: string) => {
+step("Page URL should contain <expectedUrl>", async (expectedUrl) => {
   const page = getCurrentPage();
   const url = page.url();
   if (!url.includes(expectedUrl)) {
@@ -270,33 +181,24 @@ step("Page URL should contain <expectedUrl>", async (expectedUrl: string) => {
   }
 });
 
-/**
- * Execute JavaScript in page
- */
-step("Execute JavaScript <script>", async (script: string) => {
+step("Execute JavaScript <script>", async (script) => {
   const page = getCurrentPage();
   await page.evaluate(script);
 });
 
-/**
- * Get attribute value
- */
 step(
   "Get attribute <attribute> from element <selector> and store as <variableName>",
-  async (attribute: string, selector: string, variableName: string) => {
+  async (attribute, selector, variableName) => {
     const page = getCurrentPage();
     const element = await page.waitForSelector(selector, { state: "visible" });
     const value = await element.getAttribute(attribute);
-    (global as any)[variableName] = value;
+    getActiveState().variables[variableName] = value;
   },
 );
 
-/**
- * Assert attribute value
- */
 step(
   "Element <selector> should have attribute <attribute> with value <value>",
-  async (selector: string, attribute: string, value: string) => {
+  async (selector, attribute, value) => {
     const page = getCurrentPage();
     const element = await page.waitForSelector(selector, { state: "visible" });
     const actualValue = await element.getAttribute(attribute);
@@ -308,10 +210,7 @@ step(
   },
 );
 
-/**
- * Assert element is enabled
- */
-step("Element <selector> should be enabled", async (selector: string) => {
+step("Element <selector> should be enabled", async (selector) => {
   const page = getCurrentPage();
   const element = await page.waitForSelector(selector, { state: "visible" });
   const isEnabled = await element.isEnabled();
@@ -320,10 +219,7 @@ step("Element <selector> should be enabled", async (selector: string) => {
   }
 });
 
-/**
- * Assert element is disabled
- */
-step("Element <selector> should be disabled", async (selector: string) => {
+step("Element <selector> should be disabled", async (selector) => {
   const page = getCurrentPage();
   const element = await page.waitForSelector(selector, { state: "visible" });
   const isEnabled = await element.isEnabled();

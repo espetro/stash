@@ -1,268 +1,188 @@
 # Stash E2E Test Suite
 
-Comprehensive end-to-end tests for the Stash browser extension and viewer application using Gauge and Playwright.
+End-to-end tests for the Stash browser extension and viewer, written in
+Playwright with markdown-style scenario specs. No external test runner
+(Gauge, Selenium, etc.) — just `pnpm exec playwright test` driven by
+`specs.spec.ts` which dynamically loads each `specs/*.spec` file.
 
 ## Prerequisites
 
-1. **Node.js**: v18.0.0 or higher
-2. **npm**: v9.0.0 or higher
-3. **Gauge CLI**: Install globally with `npm install -g @getgauge/cli`
+1. **Node.js**: v20+ (matches `.github/workflows/ci.yml`)
+2. **pnpm**: v11 (matches the workspace root)
+3. **Playwright browser**: `npx playwright install chromium`
+
+The viewer build is managed automatically by Playwright's `webServer`
+config (`packages/e2e/playwright.config.ts`), so you do **not** need
+to start `astro dev` manually. The webServer runs:
+
+```
+pnpm --filter stash-viewer exec astro build && astro preview --port 4321
+```
+
+…from the workspace root, so the share URLs the encoder produces
+(`http://localhost:4321/s/#p=…`) hit a real production build with no
+Astro dev toolbar overlay (which would otherwise inject stray anchor
+elements that the spec assertions would pick up).
 
 ## Setup
 
-### 1. Build the Extension
-
 ```bash
-# From the project root
-pnpm --filter stash-extension run build
-```
-
-This will build the extension to `apps/extension/.output/chrome-mv3`.
-
-### 2. Start the Viewer Server
-
-```bash
-# From the project root
-pnpm --filter stash-viewer run dev
-```
-
-The viewer will be available at `http://localhost:4321`.
-
-### 3. Install Test Dependencies
-
-```bash
-cd packages/e2e
+# From the workspace root
 pnpm install
+pnpm --filter @stash/e2e exec playwright install chromium
 ```
 
 ## Running Tests
 
-### Run All Tests
+### All tests
 
 ```bash
-npm test
+pnpm --filter @stash/e2e exec playwright test
 ```
 
-### Run Specific Specification Files
+By default Playwright uses one worker, which keeps Chromium memory
+under 1.5 GB on 8 GB laptops. To force a different worker count:
 
 ```bash
-# Context menu tests
-npm run test:context-menu
-
-# Link generation tests
-npm run test:link-generation
-
-# Viewer rendering tests
-npm run test:viewer
-
-# End-to-end integration tests
-npm run test:e2e
+pnpm --filter @stash/e2e exec playwright test --workers=2
 ```
 
-### Run Tests in Parallel
+### Subsets
 
 ```bash
-npm run test:parallel
+# All viewer-rendering scenarios
+pnpm --filter @stash/e2e exec playwright test --grep "Viewer Rendering"
+
+# Single scenario
+pnpm --filter @stash/e2e exec playwright test --grep "Happy path - Share single tab"
 ```
 
-### Generate Documentation
+### Dry-run validator (no browser)
 
 ```bash
-npm run docs
+pnpm --filter @stash/e2e run validate:steps
 ```
 
-### Validate Specifications
+This parses every `specs/*.spec` file and verifies each step
+text matches a registered handler. Runs in well under a second,
+no Chromium required, and is fast enough to wire into a pre-push
+hook. Exits non-zero on:
+
+- unresolved step text (typo or missing handler)
+- ambiguous registration (two handlers match the same step text)
+
+### Fixture freshness
+
+`fixtures/payloads.json` and `fixtures/sample-tabs.json` are checked
+into the repo. They are regenerated automatically by Playwright's
+`globalSetup` when the codec sources are newer than the committed
+fixtures — see `lib/regenerate-fixtures.ts`. Manual regeneration:
 
 ```bash
-npm run validate
+pnpm --filter @stash/e2e exec tsx fixtures/generate.ts
 ```
+
+The generator round-trips every fixture through the codec and exits
+non-zero on any mismatch, so a stale fixture set can never ship
+silently.
 
 ## Test Structure
 
 ```
 packages/e2e/
-├── specs/                          # Gauge specification files (.md)
-│   ├── extension-context-menu.md    # Context menu behavior tests
-│   ├── extension-link-generation.md # Link generation tests
-│   ├── viewer-rendering.md          # Viewer display tests
-│   └── end-to-end-integration.md   # Complete user journey tests
-├── step_implementations/           # TypeScript step implementations
-│   ├── common-steps.ts            # Shared utility steps
-│   ├── extension-steps.ts          # Extension interaction steps
-│   ├── viewer-steps.ts             # Viewer page steps
-│   └── clipboard-steps.ts          # Clipboard operation steps
-├── helpers/                        # Test utilities
-│   ├── browser-helper.ts           # Browser setup/teardown
-│   ├── encoder-helper.ts           # Encoding utilities
-│   └── decoder-helper.ts           # Decoding utilities
-├── fixtures/                       # Test data
-│   ├── sample-tabs.json           # Predefined tab datasets
-│   └── payloads.json              # Pre-encoded test payloads
-├── env/
-│   └── default/
-│       └── gauge.properties        # Gauge configuration
-├── package.json                    # Test dependencies
-└── tsconfig.json                  # TypeScript configuration
+├── playwright.config.ts             # webServer + globalSetup
+├── global-setup.ts                  # mtime check + fixture regen
+├── specs.spec.ts                    # one test() per scenario
+├── register-steps.ts                # side-effect import of every handler
+├── specs/                           # .spec files (markdown-style)
+│   ├── viewer-rendering.spec
+│   ├── extension-link-generation.spec
+│   └── end-to-end-integration.spec
+├── step_implementations/            # step() handlers
+│   ├── common-steps.ts
+│   ├── codec-steps.ts               # codec-only scenarios
+│   ├── extension-steps.ts
+│   ├── viewer-steps.ts
+│   ├── clipboard-steps.ts
+│   ├── popup-steps.ts
+│   └── settings-steps.ts
+├── lib/
+│   ├── step-registry.ts             # token compile + longest-literal match
+│   ├── spec-loader.ts               # parse .spec files → scenarios
+│   ├── dry-run.ts                   # validate:steps entry point
+│   ├── fixtures.ts                  # Playwright `state` fixture
+│   ├── scenario-state.ts            # per-scenario state holder
+│   └── regenerate-fixtures.ts       # mtime check
+├── helpers/
+│   ├── browser-helper.ts            # shared chromium singleton
+│   ├── encoder-helper.ts
+│   └── decoder-helper.ts
+├── fixtures/
+│   ├── payloads.json                # committed pre-encoded payloads
+│   ├── sample-tabs.json
+│   └── generate.ts                  # regenerator with round-trip check
+└── package.json
 ```
 
-## Test Coverage
+## Adding a New Step
 
-### 1. Extension Context Menu (`extension-context-menu.md`)
-- Context menu appears for single selected tab
-- Context menu appears for multiple selected tabs
-- Menu item click triggers extension
-- Context menu NOT visible on page context
+1. Add a `step("Your step text with <param>", async (param) => { ... })`
+   call in the most appropriate file under `step_implementations/`.
+2. Run `pnpm --filter @stash/e2e run validate:steps` to confirm the
+   step text compiles and isn't ambiguous with another handler.
+3. Reference it from a `.spec` file as `* Your step text with "value"`.
 
-### 2. Extension Link Generation (`extension-link-generation.md`)
-- Generate link for single tab
-- Generate link for multiple tabs (3-5 tabs)
-- Long title truncation (30 char limit)
-- URL budget truncation (8000 char limit with 100 tabs)
-- Filter tabs without URLs (chrome:// pages)
-- Preserve special characters and Unicode in URLs/titles
-- Valid base64url encoding in clipboard
+Parameter placeholders:
 
-### 3. Viewer Rendering (`viewer-rendering.md`)
-- Display single tab with favicon, title, domain
-- Display multiple tabs (3+ items)
-- "Open All Tabs" button functionality
-- "Copy URLs" button functionality
-- Individual tab click opens in new tab
-- Expired link shows error message
-- Invalid payload shows error
-- Missing fragment shows error
-- Invalid fragment format shows error
-- Unsupported payload version shows error
-- Favicon fallback on load error
+- `<name>` — matches any non-whitespace chunk and captures it
+- `"text"` — matches a quoted literal exactly (tighter than `<name>`)
+- For disambiguating identical-looking button steps, prefer the
+  quoted form so each handler's compiled regex has a unique literal
+  prefix.
 
-### 4. End-to-End Integration (`end-to-end-integration.md`)
-- Happy path: Share single tab → view in browser
-- Happy path: Share 5 tabs → view → copy URLs
-- Link expiry validation (24 hours)
-- Round-trip encoding preserves data (special chars, Unicode)
-- Large tab set triggers truncation (150 tabs)
-- Empty selection shows error
+## Coverage
+
+### Viewer Rendering (`specs/viewer-rendering.spec`)
+- Single tab renders favicon + title + domain
+- Multiple tabs render in order
+- "Open selected" button flow
+- Share-as-QR / New buttons visible
+- Expired, invalid, unsupported-version, empty payload errors
+- Truncated title display (max 120 chars)
+- Responsive layout on mobile viewport
+
+### Extension Link Generation (`specs/extension-link-generation.spec`)
+- Single-tab share link
+- Long-title truncation
+- URL-budget truncation (codec-only, in-process)
+- `chrome://` page filtering
+- Special-character and Unicode preservation
+- Base64url-only encoding
+- `#p=` fragment marker
+
+### End-to-End Integration (`specs/end-to-end-integration.spec`)
+- Happy path: share single tab → view in browser
+- 5-tab round-trip → view
+- Special chars + Unicode round-trip
+- URL-budget truncation (codec-level)
+- Empty selection, chrome:// filtering
+- Link expiry, version, base64url fragment marker
 
 ## Configuration
 
 ### Environment Variables
 
-Set these in `packages/e2e/env/default/gauge.properties`:
+| Name              | Default                   | Purpose                                        |
+| ----------------- | ------------------------- | ---------------------------------------------- |
+| `VIEWER_ORIGIN`   | `http://localhost:4321`   | Origin share URLs point to (matches webServer) |
+| `HEADLESS`        | `true`                    | Set `false` to watch scenarios run             |
 
-```properties
-BROWSER = chrome                    # Browser to use
-HEADLESS = false                   # Run tests in headless mode
-EXTENSION_PATH = ./apps/extension/.output/chrome-mv3  # Extension build path
-VIEWER_URL = http://localhost:4321               # Viewer server URL
-STEP_TIMEOUT = 30000               # Step timeout in milliseconds
-```
+### Playwright Config
 
-### Override Environment Variables
+See `playwright.config.ts`. Key choices:
 
-```bash
-# Run tests in headless mode
-HEADLESS=true npm test
-
-# Use a different extension path
-EXTENSION_PATH=./custom/path npm test
-```
-
-## Troubleshooting
-
-### Extension Not Found
-
-```
-Error: Extension not found at ./apps/extension/.output/chrome-mv3
-```
-
-**Solution**: Build the extension first:
-```bash
-pnpm --filter stash-extension run build
-```
-
-### Viewer Server Not Running
-
-```
-Error: Cannot connect to http://localhost:4321
-```
-
-**Solution**: Start the viewer server:
-```bash
-pnpm --filter stash-viewer run dev
-```
-
-### Gauge Not Installed
-
-```
-Error: gauge: command not found
-```
-
-**Solution**: Install Gauge globally:
-```bash
-npm install -g @getgauge/cli
-```
-
-### Playwright Browsers Not Installed
-
-```
-Error: Executable doesn't exist at /path/to/chrome
-```
-
-**Solution**: Install Playwright browsers:
-```bash
-npx playwright install chromium
-```
-
-## Writing New Tests
-
-### 1. Create a Specification File
-
-Create a new `.md` file in `packages/e2e/specs/`:
-
-```markdown
-# My New Test
-
-## Scenario: Test something new
-Given the browser is launched
-When the user does something
-Then something should happen
-```
-
-### 2. Implement Steps
-
-Add step implementations in `packages/e2e/step_implementations/`:
-
-```typescript
-import { step } from '@getgauge/cli';
-
-step('The user does something', async () => {
-  // Implementation here
-});
-
-step('Something should happen', async () => {
-  // Implementation here
-});
-```
-
-### 3. Run Tests
-
-```bash
-npm test
-```
-
-## Success Criteria
-
-The E2E test suite is complete when:
-- ✅ All 4 .md specification files created in Gauge format
-- ✅ All critical scenarios have passing Gauge steps
-- ✅ Extension context menu behavior validated
-- ✅ Link generation and clipboard copy validated
-- ✅ Viewer rendering and interactions validated
-- ✅ Round-trip encoding/decoding validated
-- ✅ Edge cases covered (expiry, truncation, errors)
-- ✅ Tests can run via `gauge run` command
-- ✅ All 3 user acceptance criteria verified by passing tests
-
-## License
-
-AGPL-3.0-only - See [LICENSE](../../LICENSE) for details.
+- `webServer` builds and previews the viewer in one shot — no separate
+  terminal needed.
+- `globalSetup` regenerates stale fixtures before the suite runs.
+- `workers: 1` keeps memory predictable on CI runners and 8 GB laptops.
+- `reporter: "line"` in CI; use `--reporter=list` locally for detail.
