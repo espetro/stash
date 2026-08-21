@@ -14,7 +14,7 @@ export default defineConfig({
   manifest: {
     name: "Stash",
     description:
-      "Stash saves your open tabs as a shareable snapshot link — inline in the URL, or via a short link. Local-first. No accounts. No tracking.",
+      "Stash saves your open tabs as a shareable snapshot link, inline or short. Local-first. No accounts. No tracking.",
     version: pkg.version,
     permissions: ["contextMenus", "tabs", "clipboardWrite", "notifications", "storage"],
     action: { default_popup: "popup/index.html" },
