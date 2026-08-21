@@ -12,6 +12,9 @@ const viewerOrigin = (process.env.VITE_VIEWER_ORIGIN ?? "http://localhost:4321")
 
 const pkg = JSON.parse(readFileSync(resolve(import.meta.dirname, "package.json"), "utf-8"));
 
+// Only fill translations on explicit opt-in (pnpm i18n:fill). Never during normal builds.
+const vitePlugins = process.env.INTL_AI_FILL === "1" ? [IntlAi()] : [];
+
 export default defineConfig({
   site: viewerOrigin,
   output: "static",
@@ -107,7 +110,7 @@ export default defineConfig({
     define: {
       "import.meta.env.APP_VERSION": JSON.stringify(pkg.version),
     },
-    plugins: [IntlAi()],
+    plugins: vitePlugins,
     optimizeDeps: {
       exclude: ["brotli-wasm"],
     },
