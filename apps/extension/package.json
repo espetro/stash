@@ -15,7 +15,7 @@
     "zip:firefox": "wxt zip -b firefox",
     "format": "oxfmt --write 'entrypoints/**/*.{ts,tsx}' 'lib/**/*.{ts,tsx}'",
     "lint": "oxlint --fix entrypoints lib --ignore-pattern '**/*.d.ts'",
-    "tscheck": "tsc --noEmit",
+    "tscheck": "wxt prepare && tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
