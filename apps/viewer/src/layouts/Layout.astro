@@ -1,23 +1,53 @@
 ---
 import { LocaleProvider } from "@/components/LocaleProvider";
+import { SUPPORTED_LANGUAGES, DEFAULT_LANG, type Lang, isLang } from "@/i18n";
+import { localizedHomePath } from "@/i18n/url";
 
 interface Props {
   title: string;
+  lang?: Lang;
+  /**
+   * Current page pathname. When provided, render hreflang alternates +
+   * a canonical link using absolute URLs off `Astro.site`. Only the
+   * landing page sets this; static pages (`/privacy`, `/terms`) omit
+   * it to avoid duplicate-content risk for untranslated routes.
+   */
+  localizedPath?: string;
 }
-const { title } = Astro.props;
+const { title, lang: langProp, localizedPath } = Astro.props;
+const lang: Lang = langProp && isLang(langProp) ? langProp : DEFAULT_LANG;
+const site = Astro.site?.toString().replace(/\/$/, "");
+const showI18nTags = Boolean(site && localizedPath);
 const posthogKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
 const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST ?? 'https://eu.posthog.com';
 ---
 <!DOCTYPE html>
-<html lang="en">
+<html lang={lang}>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google-site-verification" content="dJbisPrLjFw4YbDPfmdhJtV27zFTjh8ZpOqXAFoTzAE" />
   <link rel="icon" type="image/png" href="/icon-128.png" sizes="128x128" />
   <link rel="icon" type="image/png" href="/icon-48.png" sizes="48x48" />
-  <link rel="apple-touch-icon" href="/icon-128.png" />
+  <apple-touch-icon href="/icon-128.png" />
   <title>{title}</title>
+  {showI18nTags && site && localizedPath && (
+    <>
+      <link rel="canonical" href={`${site}${localizedPath === "/" ? "/" : localizedPath}`} />
+      {SUPPORTED_LANGUAGES.map((code) => (
+        <link
+          rel="alternate"
+          hreflang={code}
+          href={`${site}${localizedHomePath(code)}`}
+        />
+      ))}
+      <link
+        rel="alternate"
+        hreflang="x-default"
+        href={`${site}${localizedHomePath(DEFAULT_LANG)}`}
+      />
+    </>
+  )}
   {posthogKey && posthogHost && (
     <script is:inline define:vars={{ posthogKey, posthogHost }}>
       (function() {

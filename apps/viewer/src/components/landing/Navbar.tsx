@@ -5,14 +5,23 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { INSTALL_CHROME_URL, INSTALL_FIREFOX_URL } from "@/lib/constants";
 import LanguageSelector from "@/components/LanguageSelector";
 import { useLocale } from "@/components/LocaleProvider";
-import { t } from "@/i18n";
+import { t, type Lang } from "@/i18n";
+import { localizedHomePath } from "@/i18n/url";
 
 interface NavbarProps {
   minimal?: boolean;
+  /**
+   * Server-resolved locale. When set (landing page only) it takes
+   * priority over the client store to avoid SSR/hydration mismatch
+   * on `/es`, `/fr`, `/ru`, and is forwarded to the language selector
+   * so selecting a language navigates to the locale URL.
+   */
+  lang?: Lang;
 }
 
-export default function Navbar({ minimal = false }: NavbarProps) {
-  const { lang } = useLocale();
+export default function Navbar({ minimal = false, lang: langProp }: NavbarProps) {
+  const { lang: clientLang } = useLocale();
+  const lang = langProp ?? clientLang;
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -66,7 +75,7 @@ export default function Navbar({ minimal = false }: NavbarProps) {
       <div className="navbar-container max-w-7xl mx-auto px-6 py-3.5 grid grid-cols-[auto_1fr_auto] items-center gap-6">
         {/* Logo */}
         <a
-          href="/"
+          href={localizedHomePath(lang)}
           className="logo flex items-center gap-2 no-underline transition-opacity duration-200 justify-self-start"
         >
           <img
@@ -86,7 +95,7 @@ export default function Navbar({ minimal = false }: NavbarProps) {
         <div className="nav-links flex items-center gap-8 justify-self-center">
           {minimal ? (
             <a
-              href="/"
+              href={localizedHomePath(lang)}
               className="nav-link text-foreground no-underline text-[0.9375rem] font-medium font-sans relative pb-0.5"
             >
               {t("nav.home", undefined, lang)}
@@ -117,7 +126,7 @@ export default function Navbar({ minimal = false }: NavbarProps) {
 
         {/* Controls */}
         <div className="justify-self-end flex items-center gap-2">
-          <LanguageSelector variant="navbar" />
+          <LanguageSelector variant="navbar" lang={langProp} />
 
           <div ref={dropdownRef} className="install-dropdown relative">
             <button

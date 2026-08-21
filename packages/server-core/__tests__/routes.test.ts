@@ -143,3 +143,119 @@ describe("roundtrip through real storage", () => {
     expect(decoded.items).toHaveLength(2);
   });
 });
+
+describe("rate limiting", () => {
+  let limitedServer: ReturnType<typeof createStashServer>;
+  let storage2: Storage;
+
+  function fakeLimiter(shouldSucceed = true) {
+    let calls = 0;
+    return {
+      limit: async () => {
+        calls++;
+        return { success: shouldSucceed };
+      },
+      getCalls: () => calls,
+    };
+  }
+
+  beforeAll(() => {
+    storage2 = createStorage({ driver: memoryDriver() });
+  });
+
+  function rebuildServer(limiter: unknown) {
+    limitedServer = createStashServer({
+      storage: storage2,
+      origin: ORIGIN,
+      getBrotli: getBrotliFunctions,
+      rateLimiter: {
+        stash: limiter as never,
+        mcp: limiter as never,
+      },
+    });
+    return limitedServer;
+  }
+
+  function postStash(srv = limitedServer) {
+    return srv.handle(
+      new Request(`${ORIGIN}/api/stash`, {
+        method: "POST",
+        body: JSON.stringify({ payload: payloadP, ttl: "7d" }),
+      }),
+    );
+  }
+
+  it("returns 429 with Retry-After when the limiter denies POST /api/stash", async () => {
+    rebuildServer(fakeLimiter(false));
+    const res = await postStash();
+    expect(res.status).toBe(429);
+    expect(res.headers.get("Retry-After")).toBe("60");
+    expect(await res.json()).toEqual({ error: "Too many requests" });
+  });
+
+  it("passes when the limiter allows", async () => {
+    rebuildServer(fakeLimiter(true));
+    const res = await postStash();
+    expect(res.status).toBe(201);
+  });
+
+  it("fails open when limit() throws", async () => {
+    rebuildServer({
+      limit: async () => {
+        throw new Error("boom");
+      },
+    });
+    const res = await postStash();
+    expect(res.status).toBe(201);
+  });
+
+  it("fails open when the binding is absent", async () => {
+    const srv = createStashServer({
+      storage: storage2,
+      origin: ORIGIN,
+      getBrotli: getBrotliFunctions,
+    });
+    const res = await postStash(srv);
+    expect(res.status).toBe(201);
+  });
+
+  it("returns 429 JSON-RPC error when the limiter denies POST /mcp", async () => {
+    rebuildServer(fakeLimiter(false));
+    const res = await limitedServer.handle(
+      new Request(`${ORIGIN}/mcp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: {} }),
+      }),
+    );
+    expect(res.status).toBe(429);
+    expect(res.headers.get("Retry-After")).toBe("60");
+    expect(await res.json()).toEqual({
+      jsonrpc: "2.0",
+      id: null,
+      error: { code: -32000, message: expect.any(String) },
+    });
+  });
+
+  it("does not rate-limit GET /mcp", async () => {
+    const limiter = fakeLimiter(false);
+    rebuildServer(limiter);
+    const res = await limitedServer.handle(new Request(`${ORIGIN}/mcp`));
+    expect(res.status).not.toBe(429);
+    expect(limiter.getCalls()).toBe(0);
+  });
+
+  it("GET /s/:id and GET /health are exempt", async () => {
+    const allow = rebuildServer(fakeLimiter(true));
+    const created = await postStash(allow);
+    const { id } = (await created.json()) as { id: string };
+
+    const limiter = fakeLimiter(false);
+    rebuildServer(limiter);
+    const res = await limitedServer.handle(new Request(`${ORIGIN}/s/${id}.json`));
+    expect(res.status).toBe(200);
+    expect(limiter.getCalls()).toBe(0);
+    const health = await limitedServer.handle(new Request(`${ORIGIN}/health`));
+    expect(health.status).toBe(200);
+  });
+});

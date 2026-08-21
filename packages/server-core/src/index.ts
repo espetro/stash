@@ -31,3 +31,10 @@ export {
   type ServerTtl,
 } from "./store";
 export { MAX_PAYLOAD_CHARS, ID_RE, cors } from "./constants";
+export {
+  allowRequest,
+  defaultClientIp as clientIp,
+  tooManyRequests,
+  mcpTooManyRequests,
+} from "./ratelimit";
+export type { RateLimitBinding, RateLimiterConfig } from "./config";

@@ -14,7 +14,6 @@
     "test:coverage": "gauge run --tags 'coverage'",
     "test:smoke": "gauge run --tags 'smoke'",
     "docs": "gauge docs specs/",
-    "tscheck": "tsc --noEmit",
     "lint": "oxlint --fix step_implementations tests helpers && gauge validate specs/",
     "format": "oxfmt --write 'step_implementations/**/*.ts' 'tests/**/*.ts' 'helpers/**/*.ts'",
     "validate": "tsx ../../scripts/validate.ts --cwd packages/e2e"

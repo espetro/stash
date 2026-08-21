@@ -1,5 +1,11 @@
 ---
 // Demo section — dark background with browser session mockup
+import { t, type Lang } from "@/i18n";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
 
 const DEMO_STASH = [
   "https://github.com/withastro/astro/releases/tag/astro%405.0.0",
@@ -18,7 +24,7 @@ const DEMO_LINK =
     <h2
       class="text-3xl font-semibold text-foreground tracking-[-0.02em] mb-10 text-center lg:text-2xl lg:mb-12"
     >
-      See it in action
+      {t("demo.title", undefined, lang)}
     </h2>
 
     <!-- Browser session mockup -->
@@ -46,10 +52,10 @@ const DEMO_LINK =
       <div class="p-5 px-6">
         <span
           class="font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-primary block mb-2"
-          >SAVED SESSION</span
+          >{t("demo.savedSession", undefined, lang)}</span
         >
         <p class="text-base font-semibold text-foreground m-0 mb-5">
-          Research: Astro 5 Migration
+          {t("demo.sessionTitle", undefined, lang)}
         </p>
 
         <div class="flex flex-col" role="list">
@@ -76,7 +82,7 @@ const DEMO_LINK =
       href={DEMO_LINK}
       class="block mt-6 text-primary text-[0.9375rem] no-underline hover:underline focus:outline-2 focus:outline-primary focus:outline-offset-2 focus:rounded-sm text-center"
       target="_blank"
-      rel="noopener noreferrer">View a live example →</a
+      rel="noopener noreferrer">{t("demo.viewLive", undefined, lang)}</a
     >
   </div>
 </section>
