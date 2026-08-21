@@ -3,6 +3,7 @@
   "compilerOptions": {
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
+    "types": ["chrome"],
     "paths": {
       "@/lib/*": ["./lib/*"],
       "@/components/*": ["./components/*"],
