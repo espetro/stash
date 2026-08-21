@@ -1,6 +1,6 @@
 {
   "name": "@stash/e2e",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "E2E tests for Stash browser extension and viewer using Gauge and Playwright",
   "scripts": {
     "test": "gauge run",
