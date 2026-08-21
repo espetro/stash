@@ -2,7 +2,9 @@ packages:
   - 'apps/*'
   - 'packages/*'
 allowBuilds:
+  '@getgauge/cli': false
   esbuild: true
+  protobufjs: true
   sharp: true
   spawn-sync: true
   workerd: true
