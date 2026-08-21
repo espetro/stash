@@ -68,3 +68,33 @@ import { FaCopy } from 'react-icons/fa6'
 // extension
 import { LuCopy } from 'react-icons/lu'
 ```
+
+## Release Process
+
+Releases use [changesets](https://changesets.tools/) for versioning and a tag-triggered GitHub workflow for publishing.
+
+### Branching Model
+- Feature/fix branches → PRs to `main` (Conventional Commits format)
+- `develop` is the integration branch; fast-forward it to `main` after each release
+- Pushing to `main` auto-deploys the viewer (Cloudflare Pages) and shortener worker (deploy.yml)
+
+### Cutting a Release
+
+1. **Bump versions via changesets**
+   - `pnpm changeset` to describe the changes (minor/patch bumps)
+   - Commit the changeset and merge it to `main`
+   - `pnpm changeset version` consumes it, bumping all version-locked packages in lockstep
+2. **Validate on main**
+   - `pnpm run validate` (tscheck, lint, format)
+   - `pnpm run build`
+3. **Push to main** — web deploys run automatically
+4. **Tag the release**: `git tag vX.Y.Z && git push origin vX.Y.Z`
+   - `release.yml` builds Chrome + Firefox zips (`VITE_VIEWER_ORIGIN=https://stash.illo.fyi`) and creates the GitHub Release with the zips attached
+5. **Store submission** (manual)
+   - Chrome: download the chrome zip from the Release, upload at the Web Store Developer Dashboard
+   - Firefox: download the firefox zip, upload at addons.mozilla.org developer hub
+6. **Post-release sync**: fast-forward `develop` to `main` and push
+
+### Conventional Commits
+
+All commits follow the Conventional Commits format — see [CONTRIBUTING.md](./CONTRIBUTING.md#commit-message-format-conventional-commits).
