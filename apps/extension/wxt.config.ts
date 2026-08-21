@@ -53,20 +53,9 @@ export default defineConfig({
     exclude: [/[\\/]node_modules[\\/]/, /[\\/]?\.[\\/]/, /[\\/]packages[\\/]/],
   },
   zip: {
-    excludeSources: ["**/node_modules"],
-    includeSources: [
-      "../../packages/codec/src/**",
-      "../../packages/codec/package.json",
-      "../../packages/codec/tsconfig.json",
-      "../../packages/shared/src/**",
-      "../../packages/shared/package.json",
-      "../../packages/shared/tsconfig.json",
-      "../../packages/server-core/src/**",
-      "../../packages/server-core/package.json",
-      "../../packages/server-core/tsconfig.json",
-      "../../packages/theme/**",
-      "../../packages/theme/package.json",
-    ],
+    // Sources zip is built by scripts/create-sources-zip.sh (WXT's includeSources
+    // emits ../.. path prefixes, which AMO rejects).
+    zipSources: false,
   },
   vite: () => {
     return {
