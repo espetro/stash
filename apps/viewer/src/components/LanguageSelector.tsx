@@ -6,18 +6,30 @@ import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/LocaleProvider";
-import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from "@/i18n";
+import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS, type Lang } from "@/i18n";
+import { localizedHomePath } from "@/i18n/url";
 
 interface LanguageSelectorProps extends React.ComponentProps<"button"> {
   variant?: "navbar" | "card";
+  /**
+   * When set, the selector is on a locale-prefixed landing route and
+   * selecting a language also navigates to that locale's URL (full
+   * page load). When unset, selection is purely client-side (used by
+   * unprefixed pages like `/s/*`).
+   */
+  lang?: Lang;
 }
 
 export default function LanguageSelector({
   className,
   variant = "card",
+  lang: langProp,
   ...props
 }: LanguageSelectorProps) {
   const { lang, setLang } = useLocale();
+  // On a locale-prefixed route, prefer the prop (matches server-rendered
+  // `lang` attribute); otherwise fall back to the client store.
+  const activeLang = langProp ?? lang;
 
   return (
     <DropdownMenuPrimitive.Root>
@@ -53,15 +65,24 @@ export default function LanguageSelector({
           {SUPPORTED_LANGUAGES.map((code) => (
             <DropdownMenuPrimitive.Item
               key={code}
-              onSelect={() => setLang(code)}
+              onSelect={() => {
+                setLang(code);
+                // On landing routes: navigate to the locale URL so crawlers
+                // see distinct HTML per locale. localStorage is still
+                // updated above so the preference carries to unprefixed
+                // pages like `/s/*`.
+                if (langProp) {
+                  window.location.assign(localizedHomePath(code));
+                }
+              }}
               className={cn(
                 "flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-foreground outline-none transition-colors",
                 "hover:bg-muted focus:bg-muted focus-visible:ring-2 focus-visible:ring-ring",
-                lang === code && "text-primary",
+                activeLang === code && "text-primary",
               )}
             >
               <span>{LANGUAGE_LABELS[code]}</span>
-              {lang === code && <FaCheck size={14} />}
+              {activeLang === code && <FaCheck size={14} />}
             </DropdownMenuPrimitive.Item>
           ))}
         </DropdownMenuPrimitive.Content>

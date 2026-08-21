@@ -32,6 +32,9 @@ importers:
       turbo:
         specifier: ^2.9.12
         version: 2.9.16
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
       wrangler:
         specifier: ^3.90.0
         version: 3.114.17(@cloudflare/workers-types@4.20260528.1)
@@ -160,6 +163,9 @@ importers:
       '@astrojs/react':
         specifier: ^5.0.4
         version: 5.0.6(@types/node@24.12.4)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(jiti@2.7.0)(lightningcss@1.32.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(tsx@4.22.3)(yaml@2.9.0)
+      '@astrojs/sitemap':
+        specifier: ^3.7.3
+        version: 3.7.3
       '@astrojs/starlight':
         specifier: ^0.39.2
         version: 0.39.2(astro@6.4.2(@types/node@24.12.4)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.60.4)(tsx@4.22.3)(yaml@2.9.0))(typescript@6.0.3)

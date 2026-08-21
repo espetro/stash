@@ -1,5 +1,11 @@
 ---
 // Social Proof Strip — thin bar with credibility statement
+import { t, type Lang } from "@/i18n";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
 ---
 
 <section
@@ -9,15 +15,15 @@
     class="proof-container max-w-7xl mx-auto flex items-center justify-center gap-6 flex-wrap"
   >
     <span class="proof-label font-mono text-[0.8125rem] text-muted-foreground"
-      >Used by teams at</span
+      >{t("proof.label", undefined, lang)}</span
     >
     <div class="proof-companies flex items-center gap-3 flex-wrap">
       <span class="company font-mono text-sm font-medium text-foreground"
-        >YC-backed startups</span
+        >{t("proof.company1", undefined, lang)}</span
       >
       <span class="sep text-border text-sm">·</span>
       <span class="company font-mono text-sm font-medium text-foreground"
-        >Indie builders</span
+        >{t("proof.company2", undefined, lang)}</span
       >
     </div>
   </div>
