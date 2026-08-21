@@ -1,31 +1,34 @@
 import type { BrotliFunctions } from "@stash/codec";
-import brotliWasm from "brotli-wasm";
+// brotli-wasm's package.json "exports" field maps ESM imports to the
+// web bundle, which calls `fetch()` at init and fails under Node.
+// Load it through CommonJS via createRequire to pick the Node entry,
+// which is synchronous and works under both loaders. The Node CJS
+// entry exposes the brotli API directly (not as a Promise), so we
+// wrap it once at module load time.
+import { createRequire } from "node:module";
+const nodeRequire = createRequire(import.meta.url);
+const nodeBrotli = nodeRequire("brotli-wasm") as {
+  compress: (data: Uint8Array, opts: { quality: number }) => Uint8Array;
+  decompress: (data: Uint8Array) => Uint8Array;
+};
 import { type DecodedPayload, PayloadDecodeError } from "@stash/codec";
 
 export type { DecodedPayload };
 export { PayloadDecodeError };
 
 let _brotli: BrotliFunctions | null = null;
-let _initPromise: Promise<BrotliFunctions> | null = null;
 
 /**
- * Get brotli functions (cached)
+ * Get brotli functions (cached). Backed by brotli-wasm's Node CJS entry.
  */
 async function getBrotliFunctions(): Promise<BrotliFunctions> {
-  if (_brotli) return _brotli;
-
-  if (!_initPromise) {
-    _initPromise = (async () => {
-      const brotliModule = await brotliWasm;
-      _brotli = {
-        compress: (data, opts) => brotliModule.compress(data, opts),
-        decompress: (data) => brotliModule.decompress(data),
-      };
-      return _brotli;
-    })();
+  if (!_brotli) {
+    _brotli = {
+      compress: (data, opts) => nodeBrotli.compress(data, opts),
+      decompress: (data) => nodeBrotli.decompress(data),
+    };
   }
-
-  return _initPromise;
+  return _brotli;
 }
 
 function getDomain(url: string): string {

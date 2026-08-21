@@ -1,56 +1,31 @@
-import { step } from "@getgauge/cli";
+import { step } from "../lib/step-registry";
 import { expect } from "@playwright/test";
-import { Page } from "playwright";
-import { getBrowserHelper } from "../helpers/browser-helper";
-import { getCurrentPage, setCurrentPage } from "./common-steps";
+import type { BrowserContext, Page } from "playwright";
+import { getActiveState } from "../lib/scenario-state";
+import { getExtensionId } from "../helpers/browser-helper";
+import { setCurrentPage } from "./common-steps";
 import { decodeShareUrl } from "../helpers/decoder-helper";
 
 let optionsPage: Page | null = null;
 let popupPage: Page | null = null;
 
-async function getExtensionId(): Promise<string> {
-  const browserHelper = getBrowserHelper();
-  const context = browserHelper.getContext();
-
-  const backgroundPages = context.backgroundPages();
-  if (backgroundPages.length > 0) {
-    const url = backgroundPages[0].url();
-    const match = url.match(/chrome-extension:\/\/([a-z]{32})\//);
-    if (match) {
-      return match[1];
-    }
+function requireExtensionContext(): BrowserContext {
+  const ctx = getActiveState().extensionContext;
+  if (!ctx) {
+    throw new Error("No extension context. Settings steps need an extension scenario.");
   }
-
-  const pages = context.pages();
-  if (pages.length > 0) {
-    try {
-      const extensionId = await pages[0].evaluate(async () => {
-        if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.id) {
-          return chrome.runtime.id;
-        }
-        return null;
-      });
-      if (extensionId) {
-        return extensionId;
-      }
-    } catch (error) {}
-  }
-
-  return "abcdefghijklmnopabcdefghijklmnop";
+  return ctx;
 }
 
 step("The user clicks the settings button", async () => {
-  const browserHelper = getBrowserHelper();
-  const context = browserHelper.getContext();
+  const context = requireExtensionContext();
 
-  // Find the open popup page (opened by previous step 'The user clicks the extension icon')
   const pages = context.pages();
-  const extensionId = await getExtensionId();
+  const extensionId = await getExtensionId(context);
   popupPage =
     pages.find((p) => p.url().includes(`chrome-extension://${extensionId}/popup.html`)) || null;
 
   if (!popupPage) {
-    // Try to open popup if not found
     popupPage = await context.newPage();
     await popupPage.goto(`chrome-extension://${extensionId}/popup.html`);
     await popupPage.waitForLoadState("networkidle");
@@ -68,14 +43,13 @@ step("The user clicks the settings button", async () => {
 });
 
 step("A new tab should open with the settings page", async () => {
-  const browserHelper = getBrowserHelper();
-  const context = browserHelper.getContext();
+  const context = requireExtensionContext();
 
   await popupPage!.waitForTimeout(500);
 
   const pages = context.pages();
 
-  const extensionId = await getExtensionId();
+  const extensionId = await getExtensionId(context);
   const optionsUrl = `chrome-extension://${extensionId}/options.html`;
 
   optionsPage = pages.find((page) => page.url().includes("options.html")) || null;
@@ -85,13 +59,13 @@ step("A new tab should open with the settings page", async () => {
   }
 
   await optionsPage.waitForLoadState("networkidle");
+  void optionsUrl;
 });
 
 step("The user navigates to the options page", async () => {
-  const browserHelper = getBrowserHelper();
-  const context = browserHelper.getContext();
+  const context = requireExtensionContext();
 
-  const extensionId = await getExtensionId();
+  const extensionId = await getExtensionId(context);
 
   if (optionsPage && !optionsPage.isClosed()) {
     await optionsPage.close();
@@ -102,7 +76,7 @@ step("The user navigates to the options page", async () => {
   await optionsPage.waitForLoadState("networkidle");
 });
 
-step('The user selects the "<option>" expiry option', async (option: string) => {
+step('The user selects the "<option>" expiry option', async (option) => {
   if (!optionsPage) {
     throw new Error("Options page is not initialized. Navigate to options page first.");
   }
@@ -132,7 +106,9 @@ step("The expiry setting should be saved to localStorage", async () => {
   }
 
   const result = await optionsPage.evaluate(async () => {
-    const stored = await chrome.storage.sync.get("stash-settings");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const c = (globalThis as any).chrome;
+    const stored = await c.storage.sync.get("stash-settings");
     return stored["stash-settings"];
   });
 
@@ -150,7 +126,7 @@ step("The expiry setting should be saved to localStorage", async () => {
   }
 });
 
-step("The user selects the <theme> theme", async (theme: string) => {
+step("The user selects the <theme> theme", async (theme) => {
   if (!optionsPage) {
     throw new Error("Options page is not initialized. Navigate to options page first.");
   }
@@ -182,7 +158,9 @@ step("The theme setting should be saved to localStorage", async () => {
   }
 
   const result = await optionsPage.evaluate(async () => {
-    const stored = await chrome.storage.sync.get("theme");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const c = (globalThis as any).chrome;
+    const stored = await c.storage.sync.get("theme");
     return stored["theme"];
   });
 
@@ -192,7 +170,7 @@ step("The theme setting should be saved to localStorage", async () => {
 });
 
 step("The user navigates back to a content page", async () => {
-  const browserHelper = getBrowserHelper();
+  const context = requireExtensionContext();
 
   if (optionsPage && !optionsPage.isClosed()) {
     await optionsPage.close();
@@ -203,17 +181,16 @@ step("The user navigates back to a content page", async () => {
     popupPage = null;
   }
 
-  const contentPage = await browserHelper.newPage();
+  const contentPage = await context.newPage();
   await contentPage.goto("https://example.com", { waitUntil: "networkidle" });
   setCurrentPage(contentPage);
 });
 
 step("The user clicks Create Link from popup", async () => {
-  const browserHelper = getBrowserHelper();
-  const context = browserHelper.getContext();
+  const context = requireExtensionContext();
 
   if (!popupPage || popupPage.isClosed()) {
-    const extensionId = await getExtensionId();
+    const extensionId = await getExtensionId(context);
     const pages = context.pages();
     popupPage =
       pages.find((p) => p.url().includes(`chrome-extension://${extensionId}/popup.html`)) || null;
@@ -238,20 +215,19 @@ step("The user clicks Create Link from popup", async () => {
     throw new Error("Link was not generated");
   }
 
-  (global as any)["shareLink"] = linkValue;
+  getActiveState().shareLink = linkValue;
+  getActiveState().clipboard = linkValue;
 });
 
-step("A share link should be generated from popup", async () => {
-  const shareLink = (global as any)["shareLink"];
-
-  if (!shareLink) {
+step("A share link should be generated from the popup", async () => {
+  if (!getActiveState().shareLink) {
     throw new Error("Share link was not generated");
   }
 });
 
-step("The link expiry should be approximately <hours> hours from now", async (hoursStr: string) => {
+step("The link expiry should be approximately <hours> hours from now", async (hoursStr) => {
   const hours = parseInt(hoursStr, 10);
-  const shareLink = (global as any)["shareLink"];
+  const shareLink = getActiveState().shareLink;
 
   if (!shareLink) {
     throw new Error("No share link available");
@@ -270,9 +246,9 @@ step("The link expiry should be approximately <hours> hours from now", async (ho
   }
 });
 
-step("The link expiry should be greater than <hours> hours from now", async (hoursStr: string) => {
+step("The link expiry should be greater than <hours> hours from now", async (hoursStr) => {
   const hours = parseInt(hoursStr, 10);
-  const shareLink = (global as any)["shareLink"];
+  const shareLink = getActiveState().shareLink;
 
   if (!shareLink) {
     throw new Error("No share link available");
