@@ -22,6 +22,7 @@ import {
 } from "@stash/codec";
 
 export type { TabInfo, SharePayload, EncodingResult, QrEncodingResult };
+export { buildShareUrl } from "@stash/codec";
 
 let _brotli: BrotliFunctions | null = null;
 let _initPromise: Promise<BrotliFunctions> | null = null;
