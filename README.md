@@ -7,7 +7,7 @@ Share your entire browser context as one link — or save it for later. Locally.
 <!-- TODO: Add screenshot or GIF showing extension in action -->
 
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Web_Store-blue?logo=google-chrome&logoColor=white)](https://chromewebstore.google.com/detail/stash/hmbicgabmfokajcfljebjldnhhefngld)
-[![Firefox Add-ons](https://img.shields.io/badge/Firefox-Add-ons-orange?logo=firefox&logoColor=white)](https://addons.mozilla.org/en-US/firefox/addon/stash/)
+[![Firefox Add-ons](https://img.shields.io/badge/Firefox-Add-ons-orange?logo=firefox&logoColor=white)](https://addons.mozilla.org/en-US/firefox/addon/stash-snapshot-tabs/)
 
 - 🔄 Share multiple tabs with a single URL
 - 🔒 No server needed — everything is encoded in the link  
