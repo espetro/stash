@@ -1,5 +1,21 @@
 # @stash/extension
 
+## 0.7.1
+
+### Patch Changes
+
+- 340ce40: Narrow host access to the viewer origin (content scripts, externally_connectable, web-accessible fonts) to pass store review, raise Firefox strict_min_version to 140, and complete the AMO sources archive with first-party workspace packages.
+
+  ***
+
+  ## stash-viewer: patch
+
+  Update privacy policy to disclose short-link KV storage and website analytics.
+  - @stash/codec@0.7.1
+  - @stash/theme@0.7.1
+  - @stash/shared@0.7.1
+  - @stash/server-core@0.1.2
+
 ## 0.7.0
 
 ### Minor Changes
