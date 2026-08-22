@@ -24,6 +24,8 @@ export function createPayload(
   tabs: TabInfo[],
   expiryHours: number = EXPIRY_HOURS,
   title?: string,
+  tags?: string[],
+  note?: string,
 ): SharePayload {
   const now = Math.floor(Date.now() / 1000);
   const expiry = now + expiryHours * 3600;
@@ -42,6 +44,14 @@ export function createPayload(
     payload.t = normalizeTitle(title);
   }
 
+  if (tags && tags.length > 0) {
+    payload.g = tags;
+  }
+
+  if (note && note.trim().length > 0) {
+    payload.n = note;
+  }
+
   return payload;
 }
 
@@ -56,10 +66,12 @@ async function _findMaxTabsWithinBudget(
   buildUrlFn: (encoded: string) => string,
   expiryHours: number = 24,
   title?: string,
+  tags?: string[],
+  note?: string,
 ): Promise<number> {
   if (tabs.length === 0) return 0;
 
-  const fullPayload = createPayload(tabs, expiryHours, title);
+  const fullPayload = createPayload(tabs, expiryHours, title, tags, note);
   const fullEncoded = await encoderFn(fullPayload, brotli);
   const fullUrl = buildUrlFn(fullEncoded);
 
@@ -80,7 +92,7 @@ async function _findMaxTabsWithinBudget(
       continue;
     }
 
-    const payload = createPayload(subset, expiryHours, title);
+    const payload = createPayload(subset, expiryHours, title, tags, note);
     const encoded = await encoderFn(payload, brotli);
     const url = buildUrlFn(encoded);
 
@@ -104,6 +116,8 @@ export async function encodeTabsToShareUrl(
   expiryHours: number = EXPIRY_HOURS,
   viewerOrigin?: string,
   title?: string,
+  tags?: string[],
+  note?: string,
 ): Promise<EncodingResult> {
   if (tabs.length === 0) {
     return {
@@ -113,7 +127,7 @@ export async function encodeTabsToShareUrl(
     };
   }
 
-  const fullPayload = createPayload(tabs, expiryHours, title);
+  const fullPayload = createPayload(tabs, expiryHours, title, tags, note);
   const fullEncoded = await encodePayloadToUrl(fullPayload, brotli);
   const fullUrl = buildShareUrl(fullEncoded, viewerOrigin);
 
@@ -132,6 +146,8 @@ export async function encodeTabsToShareUrl(
     (encoded) => buildShareUrl(encoded, viewerOrigin),
     expiryHours,
     title,
+    tags,
+    note,
   );
 
   if (maxTabs === 0) {
@@ -143,7 +159,7 @@ export async function encodeTabsToShareUrl(
   }
 
   const subset = tabs.slice(0, maxTabs);
-  const payload = createPayload(subset, expiryHours, title);
+  const payload = createPayload(subset, expiryHours, title, tags, note);
   const encoded = await encodePayloadToUrl(payload, brotli);
   const url = buildShareUrl(encoded, viewerOrigin);
 
@@ -164,6 +180,8 @@ export async function findMaxTabsWithinBudget(
   viewerOrigin?: string,
   expiryHours: number = 24,
   title?: string,
+  tags?: string[],
+  note?: string,
 ): Promise<number> {
   return _findMaxTabsWithinBudget(
     tabs,
@@ -172,6 +190,8 @@ export async function findMaxTabsWithinBudget(
     (encoded) => buildShareUrl(encoded, viewerOrigin),
     expiryHours,
     title,
+    tags,
+    note,
   );
 }
 
@@ -184,6 +204,8 @@ export async function encodeTabsToQrUrl(
   expiryHours: number = EXPIRY_HOURS,
   viewerOrigin?: string,
   title?: string,
+  tags?: string[],
+  note?: string,
 ): Promise<QrEncodingResult> {
   if (tabs.length === 0) {
     return {
@@ -193,7 +215,7 @@ export async function encodeTabsToQrUrl(
     };
   }
 
-  const fullPayload = createPayload(tabs, expiryHours, title);
+  const fullPayload = createPayload(tabs, expiryHours, title, tags, note);
   const fullEncoded = await encodePayloadToQr(fullPayload, brotli);
   const fullUrl = buildQrUrl(fullEncoded, viewerOrigin);
 
@@ -212,6 +234,8 @@ export async function encodeTabsToQrUrl(
     (encoded) => buildQrUrl(encoded, viewerOrigin),
     expiryHours,
     title,
+    tags,
+    note,
   );
 
   if (maxTabs === 0) {
@@ -223,7 +247,7 @@ export async function encodeTabsToQrUrl(
   }
 
   const subset = tabs.slice(0, maxTabs);
-  const payload = createPayload(subset, expiryHours, title);
+  const payload = createPayload(subset, expiryHours, title, tags, note);
   const encoded = await encodePayloadToQr(payload, brotli);
   const qrUrl = buildQrUrl(encoded, viewerOrigin);
 
