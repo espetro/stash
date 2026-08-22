@@ -76,13 +76,28 @@ describe("agent-equivalent fetch (no JS execution)", () => {
     expect(res.headers.get("Content-Type")).toContain("text/markdown");
   });
 
-  it("browser Accept (text/html first) falls through to SPA", async () => {
+it("browser Accept (text/html first) falls through to SPA", async () => {
     const res = await sHandler(
       makeContext(`/s?p=${payloadP}`, {
         Accept: "text/html,application/xhtml+xml,application/json;q=0.9",
       }),
     );
     expect(await res.text()).toContain("SPA shell");
+  });
+
+  it("GET /s?p= with Accept: text/plain renders plain URL list", async () => {
+    const res = await sHandler(makeContext(`/s?p=${payloadP}`, { Accept: "text/plain" }));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toContain("text/plain");
+    const text = await res.text();
+    expect(text).toBe("https://github.com\nhttps://developer.mozilla.org");
+  });
+
+  it("GET /s?p=xxx.txt suffix renders plain URL list", async () => {
+    const res = await sHandler(makeContext(`/s?p=${payloadP}.txt`));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toContain("text/plain");
+    expect(await res.text()).toContain("https://github.com");
   });
 
   it("GET /s without p falls through to SPA (fragment never reaches server)", async () => {

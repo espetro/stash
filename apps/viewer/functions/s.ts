@@ -12,17 +12,19 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "Content-Type",
 } as const;
 
-function negotiateFormat(request: Request, url: URL): "md" | "json" | null {
+function negotiateFormat(request: Request, url: URL): "md" | "json" | "txt" | null {
   // 1. Explicit ?format=
   const format = url.searchParams.get("format");
   if (format === "md" || format === "markdown") return "md";
   if (format === "json") return "json";
+  if (format === "txt" || format === "plain" || format === "text") return "txt";
 
-  // 2. Suffix on the p parameter (/s?p=xxx.md or /s?p=xxx.json)
+  // 2. Suffix on the p parameter (/s?p=xxx.md or /s?p=xxx.json or /s?p=xxx.txt)
   const p = url.searchParams.get("p");
   if (p) {
     if (p.endsWith(".md") && p.length > 3) return "md";
     if (p.endsWith(".json") && p.length > 5) return "json";
+    if (p.endsWith(".txt") && p.length > 4) return "txt";
   }
 
   // 3. Accept header
@@ -31,18 +33,22 @@ function negotiateFormat(request: Request, url: URL): "md" | "json" | null {
   const htmlIndex = accept.indexOf("text/html");
   const mdIndex = accept.indexOf("text/markdown");
   const jsonIndex = accept.indexOf("application/json");
+  const txtIndex = accept.indexOf("text/plain");
   const minNonHtml = Math.min(
     mdIndex >= 0 ? mdIndex : Infinity,
     jsonIndex >= 0 ? jsonIndex : Infinity,
+    txtIndex >= 0 ? txtIndex : Infinity,
   );
   if (minNonHtml !== Infinity && (htmlIndex < 0 || minNonHtml < htmlIndex)) {
-    return minNonHtml === mdIndex ? "md" : "json";
+    if (minNonHtml === mdIndex) return "md";
+    if (minNonHtml === txtIndex) return "txt";
+    return "json";
   }
 
   return null;
 }
 
-function stripSuffix(p: string, format: "md" | "json"): string {
+function stripSuffix(p: string, format: "md" | "json" | "txt"): string {
   return p.endsWith(`.${format}`) ? p.slice(0, -(format.length + 1)) : p;
 }
 
@@ -52,6 +58,13 @@ function renderMarkdown(decoded: Awaited<ReturnType<typeof decodePayload>>): str
     return `[${escaped}](${url})`;
   });
   return lines.join("\n");
+}
+
+function renderPlainUrlList(decoded: Awaited<ReturnType<typeof decodePayload>>): string {
+  return decoded.items
+    .filter(({ kind }) => kind !== "note")
+    .map(({ url }) => url)
+    .join("\n");
 }
 
 export const onRequest = async (context: any): Promise<Response> => {
@@ -91,6 +104,17 @@ export const onRequest = async (context: any): Promise<Response> => {
         status: 200,
         headers: {
           "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": cacheControl,
+          ...CORS_HEADERS,
+        },
+      });
+    }
+
+    if (format === "txt") {
+      return new Response(renderPlainUrlList(decoded), {
+        status: 200,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
           "Cache-Control": cacheControl,
           ...CORS_HEADERS,
         },

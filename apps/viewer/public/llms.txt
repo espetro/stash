@@ -32,6 +32,43 @@ supports the same decode via negotiation: `GET /s?p=<payload>` with
 `.md`/`.json` suffix on `p`). Without negotiation it serves the interactive
 HTML viewer.
 
+### Short-URL endpoints (s.illo.fyi)
+For short links created by the MCP server (`stash_create`) or the
+`POST /api/stash` API, the same decode is available at three addresses on
+the shortener host `https://s.illo.fyi`:
+
+- `GET /s/<id>` (HTML redirect by default)
+- `GET /s/<id>.json` → `application/json` (decoded payload)
+- `GET /s/<id>.md` → `text/markdown` (decoded payload)
+
+The third form also accepts content negotiation: `GET /s/<id>` with
+`Accept: application/json` (or `text/markdown`) returns the same decoded
+content without forcing the `.json`/`.md` suffix. `<id>` is a 6-character
+base32 id (e.g. `AHK7QY`).
+
+## Worked example: URL → JSON → MD
+
+Given a share URL `https://stash.illo.fyi/s#p=Cj0K...` (payload after
+`#p=`), the same decoded payload is reachable three ways:
+
+```bash
+# 1. JSON via the canonical endpoint
+curl 'https://stash.illo.fyi/json?p=Cj0K...'
+# → { "version": 6, "title": "My Tabs", "items": [{ "url": "...", "title": "..." }], ... }
+
+# 2. Markdown via the alias endpoint
+curl 'https://stash.illo.fyi/md?p=Cj0K...'
+# → [Example](https://example.com)\n[Other](https://other.com)
+
+# 3. Plain URL list (one per line) via text/plain negotiation
+curl 'https://stash.illo.fyi/s?p=Cj0K...' -H 'Accept: text/plain'
+# → https://example.com
+# → https://other.com
+```
+
+For short links (e.g. `https://s.illo.fyi/s/AHK7QY`), the same three
+shapes are reachable via `.json`, `.md`, and `Accept` content negotiation.
+
 ## Notes for agents
 
 - **Prefer `/json` for all programmatic reads.** `/md` and `/s` negotiation are
