@@ -1,15 +1,20 @@
 import * as React from "react";
 import { useState } from "react";
 import { exportToJSON, exportToMarkdown } from "../../../lib/export";
+import { shortenShareUrl } from "../../../lib/shortener";
+import { recordEvent } from "../../../lib/telemetry";
 import { generate as generateQr } from "lean-qr";
 import { toSvgDataURL } from "lean-qr/extras/svg";
 import { makeSyncComponent } from "lean-qr/extras/react";
+import { LuChevronDown } from "react-icons/lu";
 
 const QrCode = makeSyncComponent(React, generateQr, toSvgDataURL, {
   on: "#1A1A1A",
   off: "#FAFAF9",
   pad: 4,
 });
+
+type ShortenState = "payload" | "short" | "failed" | "busy";
 
 interface LinkResultProps {
   url: string;
@@ -19,6 +24,13 @@ interface LinkResultProps {
   tabs: Array<{ url: string; title: string }>;
   truncated?: boolean;
   totalCount?: number;
+  /** Human readable expiry, e.g. "7 days". Omit to hide. */
+  expiresLabel?: string;
+  /** Master opt-out for the shortener. When false the shorten button is hidden. */
+  shortenerEnabled?: boolean;
+  shortenerOrigin?: string;
+  /** Called when the displayed URL is replaced by a short link. */
+  onShortened?: (shortUrl: string) => void;
 }
 
 export function LinkResult({
@@ -29,81 +41,126 @@ export function LinkResult({
   tabs,
   truncated,
   totalCount,
+  expiresLabel,
+  shortenerEnabled = false,
+  shortenerOrigin,
+  onShortened,
 }: LinkResultProps) {
-  const [jsonCopied, setJsonCopied] = useState(false);
-  const [mdCopied, setMdCopied] = useState(false);
-  const [jsonError, setJsonError] = useState(false);
-  const [mdError, setMdError] = useState(false);
+  const [displayUrl, setDisplayUrl] = useState(url);
+  const [shortenState, setShortenState] = useState<ShortenState>("payload");
+  const [copyAsOpen, setCopyAsOpen] = useState(false);
+  const [copyAsCopied, setCopyAsCopied] = useState<"json" | "markdown" | null>(null);
 
-  async function handleCopyJSON() {
-    try {
-      await navigator.clipboard.writeText(exportToJSON(tabs));
-      setJsonCopied(true);
-      setJsonError(false);
-      setTimeout(() => setJsonCopied(false), 2000);
-    } catch {
-      setJsonError(true);
-      setTimeout(() => setJsonError(false), 2000);
+  const isPayloadLink = displayUrl.includes("#p=");
+
+  async function handleShorten() {
+    if (!shortenerOrigin || shortenState === "busy") return;
+    setShortenState("busy");
+    const result = await shortenShareUrl(displayUrl, shortenerOrigin);
+    if ("url" in result) {
+      setDisplayUrl(result.url);
+      setShortenState("short");
+      recordEvent("shortener_used");
+      onShortened?.(result.url);
+    } else {
+      setShortenState("failed");
     }
   }
 
-  async function handleCopyMarkdown() {
+  async function handleCopyAs(format: "json" | "markdown") {
     try {
-      await navigator.clipboard.writeText(exportToMarkdown(tabs));
-      setMdCopied(true);
-      setMdError(false);
-      setTimeout(() => setMdCopied(false), 2000);
+      const text = format === "json" ? exportToJSON(tabs) : exportToMarkdown(tabs);
+      await navigator.clipboard.writeText(text);
+      setCopyAsCopied(format);
+      setTimeout(() => setCopyAsCopied(null), 2000);
     } catch {
-      setMdError(true);
-      setTimeout(() => setMdError(false), 2000);
+      setCopyAsCopied(null);
     }
   }
+
+  const hint =
+    shortenState === "short"
+      ? "Short link. A copy is stored on the shortener for up to 7 days."
+      : shortenState === "failed"
+        ? "Couldn't shorten, using self-contained link."
+        : isPayloadLink
+          ? `Self-contained link. Tab data lives in the URL.${
+              expiresLabel ? ` Expires in ${expiresLabel}.` : ""
+            }`
+          : undefined;
 
   return (
     <div className="link-result">
       <div className="link-result-header">
-        Share link created!{" "}
         {truncated && totalCount ? (
           <span className="budget-message" style={{ display: "inline" }}>
-            ({itemCount} of {totalCount} tabs — URL budget limit)
+            {itemCount} of {totalCount} tabs (URL budget limit)
           </span>
         ) : (
-          <span style={{ color: "#6b7280", fontSize: "0.875rem" }}>
-            ({itemCount} tab{itemCount !== 1 ? "s" : ""})
+          <span>
+            {itemCount} item{itemCount !== 1 ? "s" : ""}
+            {expiresLabel ? ` · expires in ${expiresLabel}` : ""}
           </span>
         )}
       </div>
       <input
         type="text"
         className="link-input"
-        value={url}
+        value={displayUrl}
         readOnly
+        title={displayUrl}
         onClick={(e) => (e.target as HTMLInputElement).select()}
       />
+      {hint && <p className="link-hint">{hint}</p>}
       {(() => {
         try {
-          generateQr(url);
+          generateQr(displayUrl);
         } catch {
           return <p className="qr-error">URL too large for QR code</p>;
         }
         return (
           <div className="qr-wrapper">
-            <QrCode content={url} className="qr-code" />
+            <QrCode content={displayUrl} className="qr-code" />
           </div>
         );
       })()}
       <div className="link-actions">
         <button className={`btn ${isCopied ? "btn-secondary" : "btn-primary"}`} onClick={onCopy}>
-          {isCopied ? "Copied!" : "Copy Link"}
+          {isCopied ? "Copied!" : "Copy link"}
         </button>
+        {shortenerEnabled && shortenState === "short" && (
+          <span className="link-hint">Shortened</span>
+        )}
+        {shortenerEnabled && isPayloadLink && shortenState !== "short" && (
+          <button
+            className="btn btn-secondary"
+            onClick={handleShorten}
+            disabled={shortenState === "busy" || shortenState === "failed"}
+          >
+            {shortenState === "busy" ? "Shortening..." : "Shorten link"}
+          </button>
+        )}
       </div>
-      <div className="link-export-actions">
-        <button className="btn btn-secondary export-btn" onClick={handleCopyJSON}>
-          {jsonError ? "Error" : jsonCopied ? "Copied!" : "Copy as JSON"}
+      <div className="copy-as-wrapper">
+        <button
+          className="btn btn-secondary copy-as-btn"
+          onClick={() => setCopyAsOpen((open) => !open)}
+          aria-expanded={copyAsOpen}
+          disabled={tabs.length === 0}
+          title={tabs.length === 0 ? "Tab data unavailable for this link" : undefined}
+        >
+          Copy as... <LuChevronDown />
         </button>
-        <button className="btn btn-secondary export-btn" onClick={handleCopyMarkdown}>
-          {mdError ? "Error" : mdCopied ? "Copied!" : "Copy as Markdown"}
-        </button>
+        {copyAsOpen && tabs.length > 0 && (
+          <div className="copy-as-menu">
+            <button className="copy-as-item" onClick={() => handleCopyAs("json")} type="button">
+              {copyAsCopied === "json" ? "Copied!" : "JSON"}
+            </button>
+            <button className="copy-as-item" onClick={() => handleCopyAs("markdown")} type="button">
+              {copyAsCopied === "markdown" ? "Copied!" : "Markdown"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

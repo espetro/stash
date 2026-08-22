@@ -9,7 +9,7 @@ import {
   type BrotliFunctions,
 } from "@stash/codec";
 import { parseStashLine } from "@stash/shared";
-import { createStash, getStash, isExpired, type ServerTtl } from "./store";
+import { createStash, getStash, isExpired, SERVER_TTL_HOURS, type ServerTtl } from "./store";
 import type { StashServerDeps } from "./config";
 
 export const MCP_TOOLS = [
@@ -47,13 +47,21 @@ export function buildServer(origin: string, deps: StashServerDeps): McpServer {
         .describe("TTL in days: 1, 7 (default), 14 or 30"),
     },
     async ({ title, urls, ttlDays }) => {
+      const ttl: ServerTtl = `${ttlDays}d` as ServerTtl;
+      if (deps.maxTtl && SERVER_TTL_HOURS[ttl] > SERVER_TTL_HOURS[deps.maxTtl]) {
+        return {
+          content: [
+            { type: "text", text: JSON.stringify({ error: `ttl exceeds maximum allowed (${deps.maxTtl})` }) },
+          ],
+          isError: true,
+        };
+      }
       const brotli = await deps.getBrotli();
       const tabs: TabInfo[] = urls.map((line) => {
         const { url, title } = parseStashLine(line);
         return { url, title };
       });
       const payload = await encodePayloadToUrl(createPayload(tabs, ttlDays * 24, title), brotli);
-      const ttl: ServerTtl = `${ttlDays}d` as ServerTtl;
       const { id } = await createStash(deps.storage, payload, ttl);
       return {
         content: [{ type: "text", text: JSON.stringify({ id, url: `${origin}/s/${id}` }) }],
