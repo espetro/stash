@@ -17,47 +17,41 @@ Unified AI-first session manager. All of it landed in v0.8.0:
 
 ---
 
-## Now — Feature Parity (v0.6.0)
+## Shipped — Feature Parity (v0.6.0/v0.7.x)
 
-Unify the stash creation and viewing experience across all three surfaces: extension popup, viewer web app, and HeroStashPopup (landing page embed).
+Largely done across v0.6.0 and v0.7.x; remaining gaps noted under Next.
 
-### Extract Shared Components → `@stash/shared`
+### Shared Components → `@stash/shared`
 
-The extension and viewer duplicate UI patterns. Extract to `@stash/shared` so all three surfaces use the same components.
-
-- [ ] **StashCard** — result display: generated URL, copy button, clear action
-- [ ] **TabList / TabItem** — tab row with favicon, title, URL, external link
-- [ ] **ExpirySelector** — dropdown/radio for link expiry
-- [ ] **useEncode** hook — Brotli + msgpack encoding + payload creation (currently duplicated in `useStashForm` and extension encoder)
+- [x] **TabList / TabItem** — shared tab row rendering (extension popup and viewer use it)
+- [x] **useEncode** — Brotli + msgpack encoding centralised in `@stash/codec` / shared helpers
+- [x] **ExpirySelector** — 1/7/14/30-day expiry selectable on all surfaces
 
 ### Extension → Viewer Capabilities
 
-The extension generates links but can't view them. Add:
-
-- [ ] Decode stash URLs (reuse `decodeShareUrl` from `@stash/codec`)
-- [ ] Tab list rendering in result view (reuse shared TabList)
-- [ ] QR code rendering (currently only generates URL — add inline SVG via shared worker)
-- [ ] JSON/Markdown export (reuse ShareDrawer pattern)
+- [x] Decode stash URLs (`stash_decode` MCP tool, plus viewer decode helpers)
+- [x] QR code rendering (inline SVG via lean-qr in the popup)
+- [x] JSON export/import of stashes (`lib/stash-io.ts`)
 
 ### Viewer → Extension Parity
 
-- [ ] Budget indicator on `/s/new` form (chars used / max, tab count)
+- [x] Budget indicator on `/s/new` form (`useBudgetMeter`)
 
 ### Quick Wins
 
-- [ ] Fix CI Node version (`ci.yml`: 20 → 22 to match `.node-version`)
+- [x] Fix CI Node version (ci.yml now matches `.node-version`)
 - [ ] Add `pnpm run validate` as pre-commit hook (scripts exist, hook doesn't)
 
 ---
 
-## Next — Growth (v0.7.0)
+## Next — Growth (v0.7.x/0.8.x)
 
-Once all surfaces have feature parity, focus on distribution and user validation.
+Distribution and user validation.
 
-- [ ] PostHog analytics in extension (currently viewer-only)
+- [x] Anonymous telemetry in extension (opt-in beacon to shortener `/beacon`; no PostHog in extension, beacon covers it)
 - [ ] Landing page SEO pass (meta tags, Open Graph, structured data)
 - [ ] Share drawer improvements (copy as plain text, copy as HTML)
-- [ ] History view in viewer (currently extension-only)
+- [ ] History view in viewer (superseded in part by the local `/stashes` library page; revisit what remains)
 - [ ] Chrome Web Store listing optimization (screenshots, description, keywords)
 - [ ] Firefox Add-ons listing parity
 - [ ] E2E test suite activation (Gauge + Playwright specs exist but aren't in CI)
@@ -78,7 +72,7 @@ Currently: title + URL input + expiry + encode + copy. Missing:
 
 Future milestones. Re-evaluate after v0.7.0 user data.
 
-- [ ] Starlight documentation site (`/docs`)
+- [x] Starlight documentation site (`/docs`)
 - [x] OpenAPI spec promotion (surfaced via `/llms.txt` and MCP server card for agent discovery)
 - [x] User-configurable expiry durations (1, 7, 14, 30 days)
 - [x] Custom viewer origin (self-hosted viewer support, `VITE_VIEWER_ORIGIN`)
