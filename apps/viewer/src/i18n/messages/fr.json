@@ -3,7 +3,10 @@
     "home": "Accueil",
     "features": "Fonctionnalités",
     "howItWorks": "Comment ça marche",
-    "demo": "Démo"
+    "demo": "Démo",
+    "newStash": "Nouveau stash",
+    "myStashes": "Mes stashes",
+    "back": "Retour"
   },
   "install": {
     "trigger": "Installer ▾",
@@ -44,6 +47,14 @@
     "saveLocal": {
       "idle": "Enregistrer dans Mes Stashes",
       "done": "Enregistré !"
+    },
+    "shorten": {
+      "idle": "Raccourcir le lien"
+    },
+    "link": {
+      "payloadHint": "Lien payload : fonctionne partout, mais plus long",
+      "shortHint": "Lien court : compact et facile à partager",
+      "shortenFailed": "Échec du raccourcissement. Le lien payload ci-dessus fonctionne toujours."
     }
   },
   "sharedTabs": {

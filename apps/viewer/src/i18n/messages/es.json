@@ -38,6 +38,14 @@
     "saveLocal": {
       "idle": "Guardar en Mis Stashes",
       "done": "¡Guardado!"
+    },
+    "shorten": {
+      "idle": "Acortar enlace"
+    },
+    "link": {
+      "payloadHint": "Enlace de payload: funciona en todas partes, pero es más largo",
+      "shortHint": "Enlace corto: compacto y fácil de compartir",
+      "shortenFailed": "No se pudo acortar. El enlace de payload de arriba sigue funcionando."
     }
   },
   "sharedTabs": {
@@ -58,7 +66,10 @@
     "home": "Inicio",
     "features": "Características",
     "howItWorks": "Cómo funciona",
-    "demo": "Demo"
+    "demo": "Demo",
+    "newStash": "Nuevo stash",
+    "myStashes": "Mis stashes",
+    "back": "Volver"
   },
   "theme": {
     "label": "Cambiar tema",
