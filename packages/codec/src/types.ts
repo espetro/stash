@@ -5,6 +5,8 @@ export interface SharePayload {
   e: number; // Expiry timestamp (Unix seconds)
   i: ShareItem[]; // Items: [url, title, kind?][]
   t?: string; // Optional stash title
+  g?: string[]; // Optional flat tags
+  n?: string; // Optional freeform note
 }
 
 export interface TabInfo {
@@ -32,6 +34,8 @@ export interface DecodedPayload {
   items: ShareItem[];
   isExpired: boolean;
   title?: string;
+  tags: string[];
+  note?: string;
 }
 
 export class PayloadDecodeError extends Error {

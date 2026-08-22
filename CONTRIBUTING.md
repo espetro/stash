@@ -103,6 +103,16 @@ pnpm run validate   # TypeScript, lint, and format checks
 pnpm run build      # Ensure the build passes
 ```
 
+## Build Configuration and Secrets
+
+Nothing in this repo requires secrets for local development. Secrets only appear at deploy time:
+
+- **Viewer (Cloudflare Pages)**: build env vars `VITE_VIEWER_ORIGIN`, `VITE_SHORTENER_ORIGIN`, `VITE_CHROME_DOWNLOAD_URL`, `VITE_FIREFOX_DOWNLOAD_URL`, and the optional PostHog pair `VITE_PUBLIC_POSTHOG_HOST` / `VITE_PUBLIC_POSTHOG_KEY` are configured in the Pages project settings, not in the repo.
+- **Shortener (GitHub Actions `deploy.yml`)**: uses repo secrets `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` (Workers scripts edit permission). Configure them under Settings → Secrets and variables → Actions.
+- **Shortener (local deploys)**: `wrangler` reads `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN` from your environment; no `wrangler login` needed in CI. KV and rate limit bindings live in `apps/shortener/wrangler.toml`, which contains ids only, never secrets.
+- **Extension builds**: `release.yml` sets `VITE_VIEWER_ORIGIN` at build time; no secrets beyond the release workflow's own permissions.
+
+
 ## Release Process
 
 Releases are cut by the maintainer via [changesets](https://changesets.tools/) version bumps plus a tag-triggered workflow. As a contributor, you don't need to manage releases — just write good conventional commits and they'll automatically appear in the next release's changelog.

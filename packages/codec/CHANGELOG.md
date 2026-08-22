@@ -1,5 +1,11 @@
 # @stash/codec
 
+## 0.8.0
+
+### Minor Changes
+
+- 433b330: Payload schema v6: optional top-level tags and note. Decoder accepts v4/v5/v6; v4/v5 stay decode-only legacy. Adds local stash library, My Stashes UI, MCP tool set, opt-in short links, and telemetry.
+
 ## 0.7.1
 
 ## 0.7.0

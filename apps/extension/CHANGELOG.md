@@ -1,5 +1,20 @@
 # @stash/extension
 
+## 0.8.0
+
+### Minor Changes
+
+- 433b330: Payload schema v6: optional top-level tags and note. Decoder accepts v4/v5/v6; v4/v5 stay decode-only legacy. Adds local stash library, My Stashes UI, MCP tool set, opt-in short links, and telemetry.
+- 64603e9: UX cleanup for popup and viewer: shorten-on-demand with link type hints, save-stash form (title, tags, note), header back navigation, grouped copy actions, viewer app header nav, stacked primary actions to prevent overflow.
+
+### Patch Changes
+
+- Updated dependencies [433b330]
+  - @stash/codec@0.8.0
+  - @stash/server-core@0.1.3
+  - @stash/shared@0.8.0
+  - @stash/theme@0.8.0
+
 ## 0.7.1
 
 ### Patch Changes

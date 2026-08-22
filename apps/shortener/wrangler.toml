@@ -27,7 +27,7 @@ fallthrough = false
 name = "RL_STASH"
 namespace_id = "1001"
   [ratelimits.simple]
-  limit = 20
+  limit = 5
   period = 60
 
 [[ratelimits]]
@@ -36,3 +36,9 @@ namespace_id = "1002"
   [ratelimits.simple]
   limit = 60
   period = 60
+
+# Anonymous aggregate telemetry: route/client_class/status/ttl_bucket/origin
+# dimensions only — no URLs, titles, or user identifiers. Free tier, no
+# dataset pre-creation needed (created on first write).
+[[analytics_engine_datasets]]
+binding = "STASH_ANALYTICS"

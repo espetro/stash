@@ -1,0 +1,8 @@
+---
+import ViewerLayout from "../layouts/ViewerLayout.astro";
+import MyStashes from "../components/MyStashes";
+---
+
+<ViewerLayout title="My Stashes">
+  <MyStashes client:only="react" />
+</ViewerLayout>
