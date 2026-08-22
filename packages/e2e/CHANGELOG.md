@@ -1,5 +1,12 @@
 # @stash/e2e
 
+## 0.8.0
+
+### Patch Changes
+
+- Updated dependencies [433b330]
+  - @stash/codec@0.8.0
+
 ## 0.7.1
 
 ### Patch Changes
