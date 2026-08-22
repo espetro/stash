@@ -13,6 +13,7 @@ tmp/
 *.js
 # Vendored sources (plain-JS deps consumed directly)
 !apps/shortener/src/vendor/*.js
+!apps/viewer/functions/_vendor/*.js
 .opencode/plugins/emdash-notifications.js
 .wrangler/
 # Playwright test artifacts
