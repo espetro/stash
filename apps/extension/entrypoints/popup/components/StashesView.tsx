@@ -9,11 +9,7 @@ import type { StashRecord } from "../../../lib/stash-store";
 
 const sortByUpdatedDesc = (a: StashRecord, b: StashRecord) => b.updatedAt - a.updatedAt;
 
-interface StashesViewProps {
-  onBack: () => void;
-}
-
-export function StashesView({ onBack }: StashesViewProps) {
+export function StashesView() {
   const { stashes, isLoading, error, setError, update, remove, create } = useStashes();
   const [searchQuery, setSearchQuery] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -83,9 +79,6 @@ export function StashesView({ onBack }: StashesViewProps) {
     <div className="stash-view">
       <div className="stash-header">
         <div className="stash-header-left">
-          <button className="stash-back-btn" onClick={onBack} aria-label="Go back" type="button">
-            ←
-          </button>
           <span className="stash-title">My Stashes</span>
         </div>
         <div className="stash-header-actions">
