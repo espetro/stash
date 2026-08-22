@@ -1,16 +1,16 @@
-@import '@stash/theme/components.css';
+@import "@stash/theme/components.css";
 
 /* Geist Fonts */
 @font-face {
-  font-family: 'Geist Sans';
-  src: url('/fonts/GeistSans-Variable.woff2') format('woff2');
+  font-family: "Geist Sans";
+  src: url("/fonts/GeistSans-Variable.woff2") format("woff2");
   font-weight: 100 900;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Geist Mono';
-  src: url('/fonts/GeistMono-Variable.woff2') format('woff2');
+  font-family: "Geist Mono";
+  src: url("/fonts/GeistMono-Variable.woff2") format("woff2");
   font-weight: 100 900;
   font-display: swap;
 }
@@ -264,19 +264,95 @@ body {
   margin-top: 16px;
 }
 
-/* Export button row */
-.link-export-actions {
-  display: flex;
-  gap: 8px;
+/* Hint line under the URL */
+.link-hint {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin: 4px 0 0;
+}
+
+/* Copy as... popover */
+.copy-as-wrapper {
+  position: relative;
   margin-top: 8px;
 }
 
-/* Export buttons - compact secondary buttons */
-.link-export-actions .export-btn {
-  flex: 1;
-  padding: 6px 12px;
-  font-size: 0.7rem;
+.copy-as-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 16px;
+  font-size: 0.75rem;
+}
+
+.copy-as-menu {
+  display: flex;
+  flex-direction: column;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  overflow: hidden;
+}
+
+.copy-as-item {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 12px;
+  font-size: 0.75rem;
   font-weight: 500;
+  color: var(--foreground);
+  cursor: pointer;
+  text-align: left;
+}
+
+.copy-as-item:last-child {
+  border-bottom: none;
+}
+
+.copy-as-item:hover {
+  background: var(--muted);
+}
+
+.copy-as-item:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+/* Header left group (back chevron + title) */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-back {
+  font-size: 1.125rem;
+}
+
+/* Save Stash form */
+.save-stash-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.save-stash-header {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.save-stash-saved {
+  text-align: center;
+  color: var(--success);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 24px 0;
 }
 
 .link-result-header {
