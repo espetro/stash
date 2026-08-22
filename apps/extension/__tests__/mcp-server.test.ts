@@ -1,8 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
+import { fakeBrowser } from "wxt/testing/fake-browser";
 import { buildMcpServer } from "../lib/mcp/server";
-import { addToHistory, historyItem } from "../lib/history";
+import { encodeTabsToShareUrl } from "@stash/codec";
 
 // The global setup mocks @stash/shared without getBrotliFunctions; brotli-wasm
 // can't be fetched under happy-dom, so substitute an identity "compression"
@@ -25,7 +26,6 @@ vi.mock("@stash/shared", async () => {
   };
 });
 
-// Brotli works in happy-dom via the @stash/shared wasm module
 async function makeClient(): Promise<Client> {
   const server = buildMcpServer();
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
@@ -35,61 +35,139 @@ async function makeClient(): Promise<Client> {
   return client;
 }
 
+function textOf(result: Awaited<ReturnType<Client["callTool"]>>) {
+  return JSON.parse((result.content as Array<{ text: string }>)[0].text);
+}
+
 describe("MCP server tools", () => {
-  it("exposes stash_list, stash_create, stash_decode", async () => {
+  it("exposes the v2 tool set", async () => {
     const client = await makeClient();
     const { tools } = await client.listTools();
     const names = tools.map((t) => t.name).sort();
-    expect(names).toEqual(["stash_create", "stash_decode", "stash_list"]);
+    expect(names).toEqual(
+      [
+        "stash_snapshot_tabs",
+        "stash_list",
+        "stash_get",
+        "stash_create",
+        "stash_update",
+        "stash_delete",
+        "stash_search",
+        "stash_decode",
+      ].sort(),
+    );
     await client.close();
   });
 
-  it("stash_create produces a share URL and records history", async () => {
+  it("stash_snapshot_tabs returns the current window's open tabs", async () => {
+    fakeBrowser.tabs.query = vi
+      .fn()
+      .mockResolvedValue([
+        { url: "https://example.com", title: "Example" },
+        { url: "chrome://extensions", title: "Extensions" },
+      ]) as never;
+
     const client = await makeClient();
-    const result = await client.callTool({
-      name: "stash_create",
-      arguments: { urls: ["https://example.com", "https://example.org"] },
-    });
-    const payload = JSON.parse((result.content as Array<{ text: string }>)[0].text);
-    expect(payload.url).toMatch(/^https?:\/\/.+\/s\/#/);
-    expect(payload.itemCount).toBe(2);
-    expect(payload.truncated).toBe(false);
-
-    const history = await historyItem.get();
-    expect(history?.length).toBeGreaterThan(0);
-    expect(history![history!.length - 1].url).toBe(payload.url);
+    const result = await client.callTool({ name: "stash_snapshot_tabs", arguments: {} });
+    const payload = textOf(result);
+    expect(payload.items).toEqual([{ url: "https://example.com", title: "Example" }]);
     await client.close();
   });
 
-  it("stash_create → stash_decode roundtrip", async () => {
+  it("stash_create persists a stash and stash_list/stash_get/stash_search see it", async () => {
     const client = await makeClient();
     const created = await client.callTool({
       name: "stash_create",
-      arguments: { urls: ["https://example.com", "https://example.org"], title: "My Stash" },
+      arguments: {
+        title: "My Stash",
+        tags: ["research"],
+        note: "for later",
+        items: [{ url: "https://example.com", title: "Example" }],
+      },
     });
-    const url = JSON.parse((created.content as Array<{ text: string }>)[0].text).url;
-    const p = new URL(url).hash.match(/p=([^&]+)/)![1];
+    const stash = textOf(created);
+    expect(stash.id).toBeTruthy();
+    expect(stash.title).toBe("My Stash");
+    expect(stash.tags).toEqual(["research"]);
 
-    const decoded = await client.callTool({ name: "stash_decode", arguments: { payload: p } });
-    const result = JSON.parse((decoded.content as Array<{ text: string }>)[0].text);
-    expect(result.title).toBe("My Stash");
-    expect(result.items.length).toBe(2);
+    const listed = textOf(await client.callTool({ name: "stash_list", arguments: {} }));
+    expect(listed.stashes.some((s: { id: string }) => s.id === stash.id)).toBe(true);
+
+    const fetched = textOf(await client.callTool({ name: "stash_get", arguments: { id: stash.id } }));
+    expect(fetched.items).toEqual(stash.items);
+
+    const searched = textOf(
+      await client.callTool({ name: "stash_search", arguments: { query: "research" } }),
+    );
+    expect(searched.stashes.some((s: { id: string }) => s.id === stash.id)).toBe(true);
     await client.close();
   });
 
-  it("stash_list returns stored history entries", async () => {
-    await addToHistory({
-      id: "test1",
-      url: "https://stash.illo.fyi/s/#p=abc",
-      itemCount: 1,
-      truncated: false,
-      createdAt: Date.now(),
-      expiresAt: Date.now() + 1000,
-    });
+  it("stash_get returns not_found for an unknown id", async () => {
     const client = await makeClient();
-    const result = await client.callTool({ name: "stash_list", arguments: {} });
-    const payload = JSON.parse((result.content as Array<{ text: string }>)[0].text);
-    expect(payload.stashes.some((s: { id: string }) => s.id === "test1")).toBe(true);
+    const result = await client.callTool({ name: "stash_get", arguments: { id: "nope" } });
+    expect(result.isError).toBe(true);
+    expect(textOf(result).error).toBe("not_found");
+    await client.close();
+  });
+
+  it("stash_update patches an existing stash", async () => {
+    const client = await makeClient();
+    const created = textOf(
+      await client.callTool({
+        name: "stash_create",
+        arguments: { items: [{ url: "https://example.com", title: "Example" }] },
+      }),
+    );
+
+    const updated = textOf(
+      await client.callTool({
+        name: "stash_update",
+        arguments: { id: created.id, title: "Renamed" },
+      }),
+    );
+    expect(updated.title).toBe("Renamed");
+    await client.close();
+  });
+
+  it("stash_delete removes a stash", async () => {
+    const client = await makeClient();
+    const created = textOf(
+      await client.callTool({
+        name: "stash_create",
+        arguments: { items: [{ url: "https://example.com", title: "Example" }] },
+      }),
+    );
+
+    const deleted = textOf(
+      await client.callTool({ name: "stash_delete", arguments: { id: created.id } }),
+    );
+    expect(deleted.deleted).toBe(true);
+
+    const listed = textOf(await client.callTool({ name: "stash_list", arguments: {} }));
+    expect(listed.stashes).toHaveLength(0);
+    await client.close();
+  });
+
+  it("stash_decode surfaces title, items, tags and note", async () => {
+    const brotli = { compress: (d: Uint8Array) => d, decompress: (d: Uint8Array) => d };
+    const encoded = await encodeTabsToShareUrl(
+      [{ url: "https://example.com", title: "Example" }],
+      brotli,
+      24,
+      "https://stash.illo.fyi",
+      "My Stash",
+      ["a"],
+      "a note",
+    );
+    const p = new URL(encoded.url).hash.match(/p=([^&]+)/)![1];
+
+    const client = await makeClient();
+    const decoded = textOf(await client.callTool({ name: "stash_decode", arguments: { payload: p } }));
+    expect(decoded.title).toBe("My Stash");
+    expect(decoded.items.length).toBe(1);
+    expect(decoded.tags).toEqual(["a"]);
+    expect(decoded.note).toBe("a note");
     await client.close();
   });
 });

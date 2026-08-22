@@ -2,6 +2,7 @@
 // Final CTA — dark #0B0E15 background, centered, generous padding
 import { FaChrome, FaFirefoxBrowser } from "react-icons/fa6";
 import { t, type Lang } from "@/i18n";
+import { INSTALL_CHROME_URL, INSTALL_FIREFOX_URL } from "@/lib/constants";
 
 interface Props {
   lang: Lang;
@@ -28,7 +29,7 @@ const { lang } = Astro.props;
 
     <div class="flex flex-wrap gap-3 items-center justify-center">
       <a
-        href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md"
+        href={INSTALL_CHROME_URL}
         class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-semibold text-[0.9375rem] no-underline bg-accent text-accent-foreground hover:opacity-90 focus:outline-2 focus:outline-accent focus:outline-offset-2 transition-colors duration-150"
         aria-label={t("hero.cta.chromeAria", undefined, lang)}
       >
@@ -40,7 +41,7 @@ const { lang } = Astro.props;
       </a>
 
       <a
-        href="https://github.com/espetro/stash/blob/main/content/docs/getting-started.md"
+        href={INSTALL_FIREFOX_URL}
         class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-semibold text-[0.9375rem] no-underline bg-transparent text-foreground border border-foreground hover:border-foreground hover:bg-muted focus:outline-2 focus:outline-primary focus:outline-offset-2 transition-colors duration-150"
         aria-label={t("hero.cta.firefoxAria", undefined, lang)}
       >

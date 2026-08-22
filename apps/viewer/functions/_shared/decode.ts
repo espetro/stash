@@ -1,22 +1,40 @@
-import { decodeEncodedPayload, PayloadDecodeError } from "@stash/codec";
+import init, { compress, decompress } from "../_vendor/brotli_wasm.js";
+// @ts-expect-error wasm import is handled by Cloudflare's CompiledWasm bundler rule
+import wasmModule from "../_vendor/brotli_wasm_bg.wasm";
+import { decodeEncodedPayload } from "@stash/codec";
+import { PayloadDecodeError } from "@stash/codec";
 import type { BrotliFunctions } from "@stash/codec";
 
-let brotliInstance: BrotliFunctions | null = null;
-
+/**
+ * Load brotli functions for the Pages Functions runtime (workerd).
+ *
+ * `import "brotli-wasm"` resolves to index.web.js, whose default export is a
+ * Promise and whose init() fetch()es the wasm relative to import.meta.url —
+ * that fetch has no corresponding asset in Pages Functions, so decompress
+ * threw "Failed to decompress payload" in production. Instead we vendored
+ * pkg.web's JS and wasm and hand init() a WebAssembly.Module (or the raw
+ * bytes when the bundler rule has not compiled the .wasm import).
+ */
 export async function getBrotliFunctions(): Promise<BrotliFunctions> {
-  if (brotliInstance) return brotliInstance;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const brotliWasm = await import("brotli-wasm") as any;
-  brotliInstance = {
-    compress: (data, opts) => brotliWasm.compress(data, opts),
-    decompress: (data) => brotliWasm.decompress(data),
+  const module =
+    wasmModule instanceof WebAssembly.Module
+      ? wasmModule
+      : new WebAssembly.Module(
+          new Uint8Array(
+            wasmModule as unknown as ArrayBuffer | Uint8Array,
+          ),
+        );
+  await init(module);
+  return {
+    compress: (data, opts) => compress(data, opts),
+    decompress: (data) => decompress(data),
   };
-  return brotliInstance;
 }
 
 export interface DecodedPayload {
   title?: string;
+  tags: string[];
+  note?: string;
   expiry: number;
   isExpired: boolean;
   version: number;
@@ -29,6 +47,8 @@ export async function decodePayload(p: string): Promise<DecodedPayload> {
 
   return {
     title: decoded.title,
+    tags: decoded.tags,
+    note: decoded.note,
     expiry: decoded.expiry,
     isExpired: decoded.isExpired,
     version: decoded.version,

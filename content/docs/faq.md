@@ -8,7 +8,7 @@ Here are answers to common questions about Stash.
 ## General Questions
 
 ### Q: Do my tabs get stored on a server?
-**A:** No. Stash works entirely in your browser. Tab information is encoded directly into the share link itself—nothing is sent to or stored on any server. (The optional experimental server mode stores data locally in your browser, never on an external server; see [Agent Server](/agent-server).)
+**A:** No. Stash works entirely in your browser. Tab information is encoded directly into the share link itself. Nothing is sent to or stored on any server. (The optional short link feature stores a copy on a server for at most 7 days, only when you explicitly turn it on; and agents can manage a stash library that lives locally in your browser, never on an external server. See [Agents & MCP](/agent-server) and [Self-Hosting](/self-hosting).)
 
 ### Q: What happens when the link expires?
 **A:** The link stops working and shows an "expired" message. Expired links cannot be used to access the shared tabs. This is enforced client-side in the viewer.
@@ -28,7 +28,7 @@ Here are answers to common questions about Stash.
 ## Installation & Setup
 
 ### Q: How do I install Stash?
-**A:** Get it from the [Chrome Web Store](https://chrome.google.com/webstore/detail/stash/...) or [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/stash/). Click "Add to Browser" and follow the prompts.
+**A:** Get it from the [Chrome Web Store](https://chrome.google.com/webstore/detail/stash/...) or [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/stash-snapshot-tabs/). Click "Add to Browser" and follow the prompts.
 
 ### Q: What browsers are supported?
 **A:** Stash works on Chrome, Firefox, Edge, and other Chromium-based browsers. Mobile browsers work for viewing shared links but not for the extension itself.

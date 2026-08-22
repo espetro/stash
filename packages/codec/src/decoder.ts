@@ -60,9 +60,9 @@ export async function decodeEncodedPayload(
     throw new PayloadDecodeError("Invalid payload structure");
   }
 
-  const { v, e, i, t } = payload;
+  const { v, e, i, t, g, n } = payload;
 
-  if (v !== 4 && v !== 5) {
+  if (v !== 4 && v !== 5 && v !== 6) {
     throw new PayloadDecodeError("Unsupported payload version");
   }
 
@@ -78,6 +78,8 @@ export async function decodeEncodedPayload(
     items: i,
     isExpired: now > e,
     title: t,
+    tags: g ?? [],
+    note: n,
   };
 }
 

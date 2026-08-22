@@ -7,6 +7,7 @@ import {
   cacheControlFor,
   renderMarkdown,
   jsonHeaders,
+  SERVER_TTL_HOURS,
 } from "./store";
 import { handleMcpRequest, serverCardResponse } from "./mcp";
 import { cors, ID_RE, MAX_PAYLOAD_CHARS } from "./constants";
@@ -16,6 +17,14 @@ import {
   tooManyRequests,
   mcpTooManyRequests,
 } from "./ratelimit";
+import {
+  classifyClient,
+  classifyOrigin,
+  ttlBucketFor,
+  isBeaconEvent,
+  type TelemetryRoute,
+  type TtlBucket,
+} from "./telemetry";
 import type { StashServerDeps } from "./config";
 
 function errorResponse(status: number, message: string, extra: Record<string, string> = {}) {
@@ -25,23 +34,72 @@ function errorResponse(status: number, message: string, extra: Record<string, st
   });
 }
 
+/** Filled in by routeRequest as it determines which route matched, so
+ *  handleRequest can record one telemetry event per request afterward. */
+interface TelemetryMeta {
+  route?: TelemetryRoute;
+  ttlBucket?: TtlBucket;
+  beaconEvent?: string;
+  surface?: "extension" | "web";
+}
+
 /** Route a web-standard Request through the stash server.
  *  Pure web APIs only (Request/Response/URL/crypto) — runtime-agnostic. */
 export async function handleRequest(request: Request, deps: StashServerDeps): Promise<Response> {
+  const meta: TelemetryMeta = {};
+  const response = await routeRequest(request, deps, meta);
+  if (deps.telemetry && meta.route) {
+    deps.telemetry.record({
+      route: meta.route,
+      clientClass: classifyClient(request),
+      status: response.status,
+      ttlBucket: meta.ttlBucket ?? "n/a",
+      origin: classifyOrigin(request, deps.origin),
+      beaconEvent: meta.beaconEvent,
+      surface: meta.surface,
+    });
+  }
+  return response;
+}
+
+async function routeRequest(
+  request: Request,
+  deps: StashServerDeps,
+  meta: TelemetryMeta,
+): Promise<Response> {
   const url = new URL(request.url);
 
   if (request.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: cors });
   }
 
+  // POST /beacon  { event, surface } -> 204 — client-side funnel events
+  if (url.pathname === "/beacon" && request.method === "POST") {
+    meta.route = "beacon";
+    let body: { event?: string; surface?: string };
+    try {
+      body = await request.json();
+    } catch {
+      return errorResponse(400, "Invalid JSON body");
+    }
+    if (!isBeaconEvent(body.event) || (body.surface !== "extension" && body.surface !== "web")) {
+      return errorResponse(400, "Invalid beacon event");
+    }
+    meta.beaconEvent = body.event;
+    meta.surface = body.surface;
+    return new Response(null, { status: 204, headers: cors });
+  }
+
   // POST /api/stash  { payload, ttl } -> { id, url }
   if (url.pathname === "/api/stash" && request.method === "POST") {
+    meta.route = "api_stash";
     const limiter = deps.rateLimiter;
     if (
       limiter &&
       !(await allowRequest(
         limiter.stash,
         (limiter.clientIp ?? defaultClientIp)(request),
+        "closed",
       ))
     ) {
       return tooManyRequests();
@@ -67,6 +125,10 @@ export async function handleRequest(request: Request, deps: StashServerDeps): Pr
     const ttl = body.ttl ?? "7d";
     if (!isServerTtl(ttl)) {
       return errorResponse(400, "ttl must be one of 1d, 7d, 14d, 30d");
+    }
+    meta.ttlBucket = ttlBucketFor(ttl);
+    if (deps.maxTtl && SERVER_TTL_HOURS[ttl] > SERVER_TTL_HOURS[deps.maxTtl]) {
+      return errorResponse(400, `ttl exceeds maximum allowed (${deps.maxTtl})`);
     }
 
     // Validate the payload decodes before storing
@@ -122,24 +184,28 @@ export async function handleRequest(request: Request, deps: StashServerDeps): Pr
     const format = match[2]?.slice(1) ?? negotiate(request.headers.get("Accept"));
 
     if (format === "md") {
+      meta.route = "s_view_md";
       return new Response(renderMarkdown(decoded), {
         status: 200,
         headers: { "Content-Type": "text/markdown; charset=utf-8", ...baseHeaders },
       });
     }
     if (format === "json") {
+      meta.route = "s_view_json";
       return new Response(JSON.stringify(decoded, null, 2), {
         status: 200,
         headers: jsonHeaders(baseHeaders),
       });
     }
     // HTML: redirect into the viewer SPA with the payload inline (stateless render)
+    meta.route = "s_view_html";
     const viewer = url.searchParams.get("v") ?? `${deps.origin}/s`;
     return Response.redirect(`${viewer}#p=${entry.p}`, 302);
   }
 
   // MCP: stateless Streamable-HTTP server
   if (url.pathname === "/mcp" && (request.method === "POST" || request.method === "GET")) {
+    meta.route = "mcp";
     const limiter = deps.rateLimiter;
     if (
       request.method === "POST" &&
@@ -156,11 +222,13 @@ export async function handleRequest(request: Request, deps: StashServerDeps): Pr
 
   // GET /.well-known/mcp-server-card — discovery card
   if (url.pathname === "/.well-known/mcp-server-card" && request.method === "GET") {
+    meta.route = "card";
     return serverCardResponse(deps.origin);
   }
 
   // GET /health
   if (url.pathname === "/health") {
+    meta.route = "health";
     return new Response(JSON.stringify({ ok: true }), { headers: jsonHeaders() });
   }
 

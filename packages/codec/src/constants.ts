@@ -1,9 +1,10 @@
 /**
- * Current payload schema version. v5 is a superset of v4: items gain an
- * optional third tuple element `kind` ("url" | "note"). v4 remains
+ * Current payload schema version. v6 is a superset of v5: adds optional
+ * top-level `g` (tags) and `n` (note) fields. v5 is a superset of v4: items
+ * gain an optional third tuple element `kind` ("url" | "note"). v4/v5 remain
  * decode-only legacy for links already in the wild.
  */
-export const PAYLOAD_VERSION = 5;
+export const PAYLOAD_VERSION = 6;
 export const EXPIRY_HOURS = 24;
 export const BUDGET_CHARS = 8000;
 export const MAX_TITLE_CHARS = 120;
