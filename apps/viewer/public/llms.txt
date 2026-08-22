@@ -87,6 +87,16 @@ shapes are reachable via `.json`, `.md`, and `Accept` content negotiation.
 - Short links live on the same host: `https://s.illo.fyi/s/<id>`
 - Rate limit: ~20 creates/min per IP on `/api/stash`, ~60 req/min on `/mcp`; HTTP 429 with `Retry-After: 60`.
 
+A second MCP surface is shipped by the browser extension. It exposes the
+local stash library (and the current browser tabs) to an AI agent over a
+Chrome runtime port named `portName: "mcp"` — no HTTP, no host. The same
+discovery card lists it under `servers[]` as
+`{ name: "stash-extension", transport: "extension-port", portName: "mcp" }`
+with eight tools (`stash_snapshot_tabs`, `stash_list`, `stash_get`,
+`stash_create`, `stash_update`, `stash_delete`, `stash_search`,
+`stash_decode`). See the extension package (`apps/extension/lib/mcp/`)
+for wiring details.
+
 ## Docs
 
 - Human docs: https://stash.illo.fyi/docs
