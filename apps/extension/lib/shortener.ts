@@ -28,3 +28,19 @@ export async function createShortLink({
     return { fallback: true };
   }
 }
+
+/** Shortens a payload share link (contains `#p=`) via the shortener.
+ *  Non-payload URLs or any shortener failure return `{ fallback: true }`
+ *  so callers can fail open and keep the self-contained link. */
+export async function shortenShareUrl(
+  url: string,
+  shortenerOrigin: string,
+): Promise<CreateShortLinkResult> {
+  const fragmentIdx = url.indexOf("#p=");
+  if (fragmentIdx === -1) return { fallback: true };
+  return createShortLink({
+    payload: url.slice(fragmentIdx + "#p=".length),
+    ttlDays: 7,
+    shortenerOrigin,
+  });
+}
