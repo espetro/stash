@@ -4,14 +4,38 @@ import type { TabInfo } from "@stash/codec";
 import { getBrotliFunctions } from "@stash/shared";
 import { getSettings, settingsItem } from "../lib/settings";
 import type { RuntimePort } from "../global";
-import { MCP_PORT_NAME, startMcpServerOverPort } from "../lib/mcp/background-server";
+import {
+  isSenderAllowed,
+  MCP_PORT_NAME,
+  senderDebugInfo,
+  startMcpServerOverPort,
+} from "../lib/mcp/background-server";
 
 export default defineBackground(() => {
-  // MCP server over runtime ports (fresh server + transport per connection)
+  // MCP server over runtime ports (fresh server + transport per connection).
+  // Defence in depth: the `externally_connectable` manifest field gates
+  // *who can initiate* a connection, but `port.sender` is still trusted to
+  // be present and on the allowlist before we hand the port to the MCP
+  // transport — a misconfigured manifest, a malicious peer, or a stale
+  // sender from a removed extension all end up rejected here.
   browser.runtime.onConnect.addListener((port) => {
-    if (port.name === MCP_PORT_NAME) {
-      startMcpServerOverPort(port as unknown as RuntimePort);
+    const typedPort = port as unknown as RuntimePort;
+    if (typedPort.name !== MCP_PORT_NAME) return;
+
+    if (!isSenderAllowed(typedPort)) {
+      console.warn(
+        "[mcp] rejecting connection from untrusted sender",
+        senderDebugInfo(typedPort),
+      );
+      try {
+        typedPort.disconnect();
+      } catch {
+        // already disconnected
+      }
+      return;
     }
+
+    startMcpServerOverPort(typedPort);
   });
 
   settingsItem.onChanged((newValue) => {

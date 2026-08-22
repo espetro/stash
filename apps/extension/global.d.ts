@@ -13,6 +13,17 @@ export interface RuntimePort {
     addListener(callback: () => void): void;
     removeListener(callback: () => void): void;
   };
+  /**
+   * Mirrors `chrome.runtime.Port.sender` — only present on ports received
+   * via `onConnect` / `onConnectExternal`. Used to verify the connecting
+   * peer is on the externally_connectable allowlist.
+   */
+  sender?: {
+    id?: string;
+    url?: string;
+    tab?: { id?: number };
+    frameId?: number;
+  };
 }
 
 declare global {
