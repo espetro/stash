@@ -5,17 +5,21 @@ export function defaultClientIp(request: Request): string {
   return request.headers.get("CF-Connecting-IP") ?? "unknown";
 }
 
-/** Fail-open check. Returns true = allow (binding missing, check passed, or binding threw). */
+/** Checks a rate limit binding. Missing binding always allows. On the
+ *  binding throwing, `failMode` decides: "open" (default) allows, "closed"
+ *  denies — used for the public shortener's write path so one misbehaving
+ *  limiter can't be used to bypass quota. */
 export async function allowRequest(
   binding: RateLimitBinding | undefined,
   key: string,
+  failMode: "open" | "closed" = "open",
 ): Promise<boolean> {
   if (!binding) return true;
   try {
     const { success } = await binding.limit({ key });
     return success;
   } catch {
-    return true; // fail-open
+    return failMode === "open";
   }
 }
 
