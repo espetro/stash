@@ -87,6 +87,18 @@ export function renderMarkdown(decoded: DecodedPayload): string {
   return lines.join("\n");
 }
 
+/**
+ * Render decoded payload as a plain URL list (one URL per line). Notes
+ * (kind=note) are skipped because they have no canonical URL — their
+ * text is intentionally not exposed in this format.
+ */
+export function renderPlainUrlList(decoded: DecodedPayload): string {
+  return decoded.items
+    .filter(([, , kind]) => kind !== "note")
+    .map(([url]) => url)
+    .join("\n");
+}
+
 export function jsonHeaders(extra: Record<string, string> = {}): Record<string, string> {
   return {
     "Content-Type": "application/json; charset=utf-8",

@@ -6,6 +6,7 @@ import {
   isExpired,
   cacheControlFor,
   renderMarkdown,
+  renderPlainUrlList,
   jsonHeaders,
   SERVER_TTL_HOURS,
 } from "./store";
@@ -167,7 +168,7 @@ async function routeRequest(
   }
 
   // GET /s/:id(.json|.md)? — content negotiation by suffix (path URL, no fragment limits)
-  const match = url.pathname.match(/^\/s\/([A-Za-z2-7]{6})(\.(?:json|md))?\/?$/);
+  const match = url.pathname.match(/^\/s\/([A-Za-z2-7]{6})(\.(?:json|md|txt))?\/?$/);
   if (match && request.method === "GET") {
     const id = match[1].toUpperCase();
     if (!ID_RE.test(id)) return errorResponse(400, "Invalid id");
@@ -195,6 +196,13 @@ async function routeRequest(
       return new Response(JSON.stringify(decoded, null, 2), {
         status: 200,
         headers: jsonHeaders(baseHeaders),
+      });
+    }
+    if (format === "txt") {
+      meta.route = "s_view_txt";
+      return new Response(renderPlainUrlList(decoded), {
+        status: 200,
+        headers: { "Content-Type": "text/plain; charset=utf-8", ...baseHeaders },
       });
     }
     // HTML: redirect into the viewer SPA with the payload inline (stateless render)
@@ -235,13 +243,20 @@ async function routeRequest(
   return errorResponse(404, "Not found");
 }
 
-function negotiate(accept: string | null): "md" | "json" | null {
+function negotiate(accept: string | null): "md" | "json" | "txt" | null {
   if (!accept) return null;
   const a = accept.toLowerCase();
   const html = a.indexOf("text/html");
   const md = a.indexOf("text/markdown");
   const json = a.indexOf("application/json");
-  const best = Math.min(md >= 0 ? md : Infinity, json >= 0 ? json : Infinity);
+  const txt = a.indexOf("text/plain");
+  const best = Math.min(
+    md >= 0 ? md : Infinity,
+    json >= 0 ? json : Infinity,
+    txt >= 0 ? txt : Infinity,
+  );
   if (best === Infinity || (html >= 0 && html < best)) return null;
-  return best === md ? "md" : "json";
+  if (best === md) return "md";
+  if (best === txt) return "txt";
+  return "json";
 }
