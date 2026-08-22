@@ -1,15 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTabSelection } from "./hooks/useTabSelection";
 import { TabList } from "./components/TabList";
 import { SelectAllToggle } from "./components/SelectAllToggle";
 import { LinkResult } from "./components/LinkResult";
 import { ErrorMessage } from "./components/ErrorMessage";
 import { HistoryView } from "./components/HistoryView";
+import { StashesView } from "./components/StashesView";
 import { Button } from "@/components/ui/Button";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import { getBrotliFunctions } from "@stash/shared";
 import { getSettings, type Settings } from "@/lib/settings";
 import { addToHistory, type HistoryEntry } from "@/lib/history";
+import { createStash } from "@/lib/stash-store";
+import { createShortLink } from "@/lib/shortener";
+import { recordEvent } from "@/lib/telemetry";
 import Header from "./components/Header";
 
 export default function App() {
@@ -22,14 +26,25 @@ export default function App() {
   const [linkItemCount, setLinkItemCount] = useState(0);
   const [linkTruncated, setLinkTruncated] = useState(false);
   const [linkTabs, setLinkTabs] = useState<Array<{ url: string; title: string }>>([]);
-  const [view, setView] = useState<"main" | "history">("main");
+  const [view, setView] = useState<"main" | "history" | "stashes">("main");
   const [historyLinkResult, setHistoryLinkResult] = useState<HistoryEntry | null>(null);
+  const [isStashSaved, setIsStashSaved] = useState(false);
+  const hasRecordedTabSelection = useRef(false);
 
   useEffect(() => {
     getSettings()
       .then(setSettings)
       .finally(() => setIsSettingsLoading(false));
+    recordEvent("popup_open");
   }, []);
+
+  function handleToggleTab(tabId: number) {
+    if (!hasRecordedTabSelection.current) {
+      hasRecordedTabSelection.current = true;
+      recordEvent("tabs_selected");
+    }
+    toggleTab(tabId);
+  }
 
   async function handleCreateLink() {
     try {
@@ -38,6 +53,7 @@ export default function App() {
         setError("Please select at least one tab");
         return;
       }
+      recordEvent("create_clicked");
 
       const selectedTabs = tabs.filter((t) => t.isSelected);
       const tabInfos = selectedTabs.map((t) => ({ url: t.url, title: t.title }));
@@ -50,19 +66,40 @@ export default function App() {
         settings.viewerOrigin,
       );
 
-      await navigator.clipboard.writeText(result.url);
+      let finalUrl = result.url;
+      if (settings.shortenerEnabled) {
+        const fragmentIdx = result.url.indexOf("#p=");
+        if (fragmentIdx !== -1) {
+          const payload = result.url.slice(fragmentIdx + "#p=".length);
+          const shortResult = await createShortLink({
+            payload,
+            ttlDays: 7,
+            shortenerOrigin: settings.shortenerOrigin,
+          });
+          if ("url" in shortResult) {
+            finalUrl = shortResult.url;
+            recordEvent("shortener_used");
+          } else {
+            recordEvent("link_copied");
+          }
+        }
+      } else {
+        recordEvent("link_copied");
+      }
+
+      await navigator.clipboard.writeText(finalUrl);
 
       const expiresAt = Date.now() + expiryHours * 3600 * 1000;
       await addToHistory({
         id: Date.now().toString(36),
-        url: result.url,
+        url: finalUrl,
         itemCount: result.itemCount,
         truncated: result.truncated,
         createdAt: Date.now(),
         expiresAt,
       });
 
-      setShareUrl(result.url);
+      setShareUrl(finalUrl);
       setLinkItemCount(result.itemCount);
       setLinkTruncated(result.truncated);
       setLinkTabs(tabInfos);
@@ -72,6 +109,26 @@ export default function App() {
     } catch (err) {
       console.error("handleCreateLink error:", err);
       setError("Failed to create share link");
+    }
+  }
+
+  async function handleSaveStash() {
+    try {
+      if (selectedCount === 0) {
+        setError("Please select at least one tab");
+        return;
+      }
+
+      const selectedTabs = tabs.filter((t) => t.isSelected);
+      const items = selectedTabs.map((t) => ({ url: t.url, title: t.title }));
+      await createStash({ items });
+      recordEvent("stash_saved");
+
+      setIsStashSaved(true);
+      setTimeout(() => setIsStashSaved(false), 2000);
+    } catch (err) {
+      console.error("handleSaveStash error:", err);
+      setError("Failed to save stash");
     }
   }
 
@@ -118,13 +175,19 @@ export default function App() {
   return (
     <div className="popup-container">
       <Header
+        onClickStashes={() => {
+          recordEvent("stash_list_viewed");
+          setView("stashes");
+        }}
         onClickHistory={() => setView("history")}
         onClickSettings={() => browser.runtime.openOptionsPage()}
       />
 
       {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}
 
-      {view === "history" ? (
+      {view === "stashes" ? (
+        <StashesView onBack={() => setView("main")} />
+      ) : view === "history" ? (
         historyLinkResult ? (
           <>
             <LinkResult
@@ -171,10 +234,17 @@ export default function App() {
                 onSelectAll={handleSelectAll}
                 onDeselectAll={deselectAll}
               />
-              <TabList tabs={tabs} onToggle={toggleTab} />
+              <TabList tabs={tabs} onToggle={handleToggleTab} />
               <div className="popup-actions">
                 <Button variant="primary" onClick={handleCreateLink} disabled={selectedCount === 0}>
                   Create Link ({selectedCount})
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={handleSaveStash}
+                  disabled={selectedCount === 0}
+                >
+                  {isStashSaved ? "Saved!" : "Save Stash"}
                 </Button>
               </div>
             </>

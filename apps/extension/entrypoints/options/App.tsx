@@ -5,9 +5,10 @@ import { browserStorageAdapter } from "@/lib/browser-storage-adapter.js";
 import { EXPIRY_OPTIONS } from "@stash/shared";
 import OptionsFooter from "./components/OptionsFooter.js";
 import OptionsExpiryForm from "./components/OptionsExpiryForm.js";
-import OptionsExperimentalForm from "./components/OptionsExperimentalForm.js";
 import OptionsThemeForm from "./components/OptionsThemeForm.js";
 import OptionsViewerForm from "./components/OptionsViewerForm.js";
+import OptionsShortenerForm from "./components/OptionsShortenerForm.js";
+import OptionsTelemetryForm from "./components/OptionsTelemetryForm.js";
 
 type ExpiryMode = "24h" | "7d" | "30d" | "never";
 type Theme = "light" | "dark" | "system";
@@ -17,7 +18,9 @@ export default function App() {
   const [expiryMode, setExpiryMode] = useState<ExpiryMode>("never");
   const [theme, setThemeState] = useState<Theme>("system");
   const [viewerOrigin, setViewerOrigin] = useState<string>("");
-  const [experimentalServer, setExperimentalServer] = useState(false);
+  const [shortenerOrigin, setShortenerOrigin] = useState<string>("");
+  const [shortenerEnabled, setShortenerEnabled] = useState<boolean>(false);
+  const [telemetryEnabled, setTelemetryEnabled] = useState<boolean>(true);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -26,7 +29,9 @@ export default function App() {
       .then((settings) => {
         setExpiryMode(settings.expiryMode);
         setViewerOrigin(settings.viewerOrigin);
-        setExperimentalServer(settings.experimentalServer);
+        setShortenerOrigin(settings.shortenerOrigin);
+        setShortenerEnabled(settings.shortenerEnabled);
+        setTelemetryEnabled(settings.telemetryEnabled);
         setThemeState(getTheme(browserStorageAdapter));
       })
       .finally(() => setIsLoading(false));
@@ -36,13 +41,6 @@ export default function App() {
     const newMode = _.target.value as ExpiryMode;
     setExpiryMode(newMode);
     await setSettings({ expiryMode: newMode });
-    showSuccessFeedback();
-  };
-
-  const handleExperimentalChange: ChangeEventHandler<HTMLInputElement> = async (event) => {
-    const checked = event.target.checked;
-    setExperimentalServer(checked);
-    await setSettings({ experimentalServer: checked });
     showSuccessFeedback();
   };
 
@@ -90,10 +88,18 @@ export default function App() {
             <OptionsViewerForm init={viewerOrigin} onSuccess={() => showSuccessFeedback()} />
           </section>
 
-          <section className="settings-section" aria-labelledby="experimental-heading">
-            <OptionsExperimentalForm
-              checked={experimentalServer}
-              onChange={handleExperimentalChange}
+          <section className="settings-section" aria-labelledby="shortener-heading">
+            <OptionsShortenerForm
+              initOrigin={shortenerOrigin}
+              initEnabled={shortenerEnabled}
+              onSuccess={() => showSuccessFeedback()}
+            />
+          </section>
+
+          <section className="settings-section" aria-labelledby="telemetry-heading">
+            <OptionsTelemetryForm
+              initEnabled={telemetryEnabled}
+              onSuccess={() => showSuccessFeedback()}
             />
           </section>
 
