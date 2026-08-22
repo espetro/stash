@@ -10,7 +10,6 @@ import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS, type Lang } from "@/i18n";
 import { localizedHomePath } from "@/i18n/url";
 
 interface LanguageSelectorProps extends React.ComponentProps<"button"> {
-  variant?: "navbar" | "card";
   /**
    * When set, the selector is on a locale-prefixed landing route and
    * selecting a language also navigates to that locale's URL (full
@@ -22,7 +21,6 @@ interface LanguageSelectorProps extends React.ComponentProps<"button"> {
 
 export default function LanguageSelector({
   className,
-  variant = "card",
   lang: langProp,
   ...props
 }: LanguageSelectorProps) {
@@ -38,9 +36,7 @@ export default function LanguageSelector({
           type="button"
           aria-label="Select language"
           className={cn(
-            "group inline-flex items-center justify-center rounded-full border-none bg-transparent text-foreground outline-none transition-transform duration-150 ease-out active:scale-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-            variant === "navbar" && "h-9 w-9",
-            variant === "card" && "h-9 w-9",
+            "group inline-flex h-9 w-9 items-center justify-center rounded-full border-none bg-transparent text-foreground outline-none transition-transform duration-150 ease-out active:scale-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             className,
           )}
           {...props}

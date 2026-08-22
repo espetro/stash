@@ -1,5 +1,16 @@
 # stash-viewer
 
+## 0.8.1
+
+### Patch Changes
+
+- Floating pill navbar with shadcn-style NavigationMenu and a Settings
+  dropdown (theme + language). Footer is now links-only — theme and
+  language controls moved to the navbar.
+  - @stash/codec@0.8.1
+  - @stash/theme@0.8.1
+  - @stash/shared@0.8.1
+
 ## 0.8.0
 
 ### Minor Changes

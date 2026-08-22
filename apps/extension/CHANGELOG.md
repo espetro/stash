@@ -1,5 +1,14 @@
 # @stash/extension
 
+## 0.8.1
+
+### Patch Changes
+
+- @stash/codec@0.8.1
+- @stash/theme@0.8.1
+- @stash/shared@0.8.1
+- @stash/server-core@0.1.4
+
 ## 0.8.0
 
 ### Minor Changes
