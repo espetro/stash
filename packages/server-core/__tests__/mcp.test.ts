@@ -86,6 +86,46 @@ describe("MCP /mcp", () => {
   });
 });
 
+describe("stash_create maxTtl", () => {
+  const cappedServer = createStashServer({
+    storage: createStorage({ driver: memoryDriver() }),
+    origin: ORIGIN,
+    getBrotli: getBrotliFunctions,
+    maxTtl: "7d",
+  });
+
+  async function rpcOn(server: ReturnType<typeof createStashServer>, method: string, params?: unknown) {
+    const res = await server.handle(
+      new Request(`${ORIGIN}/mcp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: ACCEPT },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+      }),
+    );
+    expect(res.status).toBe(200);
+    const body: any = await res.json();
+    return body.result;
+  }
+
+  it("rejects ttlDays above the configured max", async () => {
+    const result = await rpcOn(cappedServer, "tools/call", {
+      name: "stash_create",
+      arguments: { urls: ["https://example.com"], ttlDays: 30 },
+    });
+    expect(result.isError).toBe(true);
+    const data = JSON.parse(result.content[0].text);
+    expect(data.error).toMatch(/ttl/);
+  });
+
+  it("allows ttlDays at the configured max", async () => {
+    const result = await rpcOn(cappedServer, "tools/call", {
+      name: "stash_create",
+      arguments: { urls: ["https://example.com"], ttlDays: 7 },
+    });
+    expect(result.isError).toBeUndefined();
+  });
+});
+
 describe("GET /.well-known/mcp-server-card", () => {
   it("returns discovery card", async () => {
     const res = await server.handle(new Request(`${ORIGIN}/.well-known/mcp-server-card`));

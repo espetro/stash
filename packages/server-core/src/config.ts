@@ -1,5 +1,7 @@
 import type { Storage } from "unstorage";
 import type { BrotliFunctions } from "@stash/codec";
+import type { ServerTtl } from "./store";
+import type { TelemetrySink } from "./telemetry";
 
 /** A Workers RateLimit-compatible binding (runtime-agnostic seam). */
 export interface RateLimitBinding {
@@ -26,6 +28,12 @@ export interface StashServerConfig {
   getBrotli: () => Promise<BrotliFunctions>;
   /** Optional per-IP rate limiting via runtime bindings (fail-open). */
   rateLimiter?: RateLimiterConfig;
+  /** Optional TTL ceiling enforced on write paths (HTTP + MCP). Self-hosted
+   *  deployments can omit this to keep the full 1d-30d range. */
+  maxTtl?: ServerTtl;
+  /** Optional aggregate telemetry sink (e.g. Cloudflare Analytics Engine).
+   *  Self-hosted / test consumers simply omit it — no-op. */
+  telemetry?: TelemetrySink;
 }
 
 /** The resolved set of dependencies passed through routing and MCP layers. */
@@ -34,4 +42,6 @@ export interface StashServerDeps {
   origin: string;
   getBrotli: () => Promise<BrotliFunctions>;
   rateLimiter?: RateLimiterConfig;
+  maxTtl?: ServerTtl;
+  telemetry?: TelemetrySink;
 }
