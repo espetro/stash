@@ -74,8 +74,9 @@ export default defineConfig({
           label: "About",
           items: [
             { label: "Privacy & Data", slug: "privacy-and-data" },
-            { label: "Agent Server", slug: "agent-server" },
+            { label: "Agents & MCP", slug: "agent-server" },
             { label: "FAQ", slug: "faq" },
+            { label: "Self-Hosting", slug: "self-hosting" },
           ],
         },
       ],

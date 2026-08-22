@@ -38,3 +38,19 @@ export {
   mcpTooManyRequests,
 } from "./ratelimit";
 export type { RateLimitBinding, RateLimiterConfig } from "./config";
+export {
+  classifyClient,
+  classifyOrigin,
+  ttlBucketFor,
+  isBeaconEvent,
+  BEACON_EVENTS,
+} from "./telemetry";
+export type {
+  TelemetryEvent,
+  TelemetrySink,
+  TelemetryRoute,
+  ClientClass,
+  OriginClass,
+  TtlBucket,
+  BeaconEvent,
+} from "./telemetry";

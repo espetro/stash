@@ -184,7 +184,7 @@ export const GET: APIRoute = () => {
                   {
                     type: "string",
                     enum: ["url", "note"],
-                    description: "Optional item kind (payload v5)",
+                    description: "Optional item kind (payload v5+)",
                   },
                 ],
                 minItems: 2,
@@ -192,19 +192,37 @@ export const GET: APIRoute = () => {
               },
               description: "Array of [url, title, kind?] tuples",
             },
+            g: {
+              type: "array",
+              items: { type: "string" },
+              description: "Optional flat tags (payload v6+)",
+            },
+            n: {
+              type: "string",
+              description: "Optional freeform note (payload v6+)",
+            },
           },
         },
         DecodedPayload: {
           type: "object",
-          required: ["expiry", "items", "isExpired"],
+          required: ["expiry", "items", "isExpired", "tags"],
           properties: {
             version: {
               type: "integer",
-              description: "Payload schema version (4 or 5)",
+              description: "Payload schema version (4, 5, or 6)",
             },
             title: {
               type: "string",
               description: "Optional title of the stash",
+            },
+            tags: {
+              type: "array",
+              items: { type: "string" },
+              description: "Flat tags; empty array if none (payload v6+)",
+            },
+            note: {
+              type: "string",
+              description: "Optional freeform note (payload v6+)",
             },
             expiry: {
               type: "integer",

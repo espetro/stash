@@ -13,6 +13,7 @@ import {
   estimateQrBitLength,
   PayloadDecodeError,
   MAX_TITLE_CHARS,
+  PAYLOAD_VERSION,
 } from "../index.js";
 import type { TabInfo } from "../index.js";
 import type { BrotliFunctions } from "../types.js";
@@ -74,7 +75,7 @@ describe("v4 codec round-trip tests (URL adapter)", () => {
     expect(result.truncated).toBe(false);
 
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.version).toBe(5);
+    expect(decoded.version).toBe(6);
     expect(decoded.items.length).toBe(1);
     expect(decoded.items[0][0]).toBe("https://github.com");
     expect(decoded.items[0][1]).toBe("GitHub");
@@ -87,7 +88,7 @@ describe("v4 codec round-trip tests (URL adapter)", () => {
     expect(result.truncated).toBe(false);
 
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.version).toBe(5);
+    expect(decoded.version).toBe(6);
     expect(decoded.items.length).toBe(5);
     expect(decoded.items[0][0]).toBe("https://github.com");
     expect(decoded.items[1][0]).toBe("https://stackoverflow.com");
@@ -121,7 +122,7 @@ describe("v4 codec round-trip tests (URL adapter)", () => {
     const result = await encodeTabsToShareUrl(titledTabs, brotli, 24, undefined, "My Stash");
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
 
-    expect(decoded.version).toBe(5);
+    expect(decoded.version).toBe(6);
     expect(decoded.title).toBe("My Stash");
     expect(decoded.items.length).toBe(2);
   });
@@ -161,7 +162,7 @@ describe("v4 codec round-trip tests (QR adapter)", () => {
     expect(result.truncated).toBe(false);
 
     const decoded = await decodeShareUrl(getFragment(result.qrUrl), brotli);
-    expect(decoded.version).toBe(5);
+    expect(decoded.version).toBe(6);
     expect(decoded.items.length).toBe(1);
     expect(decoded.items[0][0]).toBe("https://github.com");
     expect(decoded.items[0][1]).toBe("GitHub");
@@ -174,7 +175,7 @@ describe("v4 codec round-trip tests (QR adapter)", () => {
     expect(result.truncated).toBe(false);
 
     const decoded = await decodeShareUrl(getFragment(result.qrUrl), brotli);
-    expect(decoded.version).toBe(5);
+    expect(decoded.version).toBe(6);
     expect(decoded.items.length).toBe(5);
   });
 
@@ -228,11 +229,18 @@ describe("cross-adapter compatibility", () => {
     const decodedFromUrl = await decodeShareUrl(`#p=${urlEncoded}`, brotli);
     const decodedFromQr = await decodeShareUrl(`#q=${qrEncoded}`, brotli);
 
-    expect(decodedFromUrl.version).toBe(5);
-    expect(decodedFromQr.version).toBe(5);
+    expect(decodedFromUrl.version).toBe(6);
+    expect(decodedFromQr.version).toBe(6);
     expect(decodedFromUrl.expiry).toBe(decodedFromQr.expiry);
     expect(decodedFromUrl.title).toBe(decodedFromQr.title);
     expect(decodedFromUrl.items).toEqual(decodedFromQr.items);
+  });
+
+  it("Encoder and decoder versions never desync", async () => {
+    const payload = createPayload(mediumTabs, 24, "Version Sync");
+    const urlEncoded = await encodePayloadToUrl(payload, brotli);
+    const decoded = await decodeShareUrl(`#p=${urlEncoded}`, brotli);
+    expect(decoded.version).toBe(PAYLOAD_VERSION);
   });
 });
 
@@ -410,7 +418,7 @@ describe("v5 payload tests", () => {
     const tabs: TabInfo[] = [{ url: "https://github.com", title: "GitHub" }];
     const result = await encodeTabsToShareUrl(tabs, brotli);
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.version).toBe(5);
+    expect(decoded.version).toBe(6);
   });
 
   it("note items round-trip with kind", async () => {
@@ -420,7 +428,7 @@ describe("v5 payload tests", () => {
     ];
     const result = await encodeTabsToShareUrl(tabs, brotli);
     const decoded = await decodeShareUrl(getFragment(result.url), brotli);
-    expect(decoded.version).toBe(5);
+    expect(decoded.version).toBe(6);
     expect(decoded.items[0]).toEqual(["https://github.com", "GitHub"]);
     expect(decoded.items[1]).toEqual(["Remember to check the PR thread", "Note", "note"]);
   });
@@ -462,5 +470,80 @@ describe("v5 payload tests", () => {
     const body = encodeBase32UpperCaseNoPadding(brotli.compress(raw, { quality: 11 }));
     const decoded = await decodeShareUrl(`#q=D${body}`, brotli);
     expect(decoded.items[0][2]).toBe("video");
+  });
+});
+
+describe("v6 payload tests (tags + note)", () => {
+  let brotli: BrotliFunctions;
+
+  beforeAll(async () => {
+    const m = (await brotliWasm) as any;
+    brotli = {
+      compress: (d, o) => m.compress(d, o),
+      decompress: (d) => m.decompress(d),
+    };
+  });
+
+  it("encoder emits v6", async () => {
+    const tabs: TabInfo[] = [{ url: "https://github.com", title: "GitHub" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.version).toBe(6);
+  });
+
+  it("tags and note round-trip via URL adapter", async () => {
+    const tabs: TabInfo[] = [{ url: "https://github.com", title: "GitHub" }];
+    const result = await encodeTabsToShareUrl(
+      tabs,
+      brotli,
+      24,
+      undefined,
+      "My Stash",
+      ["work/project-x", "reading"],
+      "Check this before Monday",
+    );
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.tags).toEqual(["work/project-x", "reading"]);
+    expect(decoded.note).toBe("Check this before Monday");
+  });
+
+  it("tags and note round-trip via QR adapter", async () => {
+    const tabs: TabInfo[] = [{ url: "https://github.com", title: "GitHub" }];
+    const result = await encodeTabsToQrUrl(
+      tabs,
+      brotli,
+      24,
+      undefined,
+      undefined,
+      ["personal"],
+      "A short note",
+    );
+    const decoded = await decodeShareUrl(getFragment(result.qrUrl), brotli);
+    expect(decoded.tags).toEqual(["personal"]);
+    expect(decoded.note).toBe("A short note");
+  });
+
+  it("tags default to [] and note is undefined when omitted", async () => {
+    const tabs: TabInfo[] = [{ url: "https://github.com", title: "GitHub" }];
+    const result = await encodeTabsToShareUrl(tabs, brotli);
+    const decoded = await decodeShareUrl(getFragment(result.url), brotli);
+    expect(decoded.tags).toEqual([]);
+    expect(decoded.note).toBeUndefined();
+  });
+
+  it("v5 payload (no tags/note) decodes under v6-aware decoder with defaults", async () => {
+    const { serializePayload } = await import("../payload.js");
+    const raw = serializePayload({
+      v: 5,
+      e: Math.floor(Date.now() / 1000) + 3600,
+      i: [["https://example.com", "Legacy v5"]],
+    });
+    const { encodeBase64urlNoPadding } = await import("@oslojs/encoding");
+    const body = encodeBase64urlNoPadding(brotli.compress(raw, { quality: 11 }));
+    const decoded = await decodeShareUrl(`#p=C${body}`, brotli);
+    expect(decoded.version).toBe(5);
+    expect(decoded.tags).toEqual([]);
+    expect(decoded.note).toBeUndefined();
+    expect(decoded.items[0]).toEqual(["https://example.com", "Legacy v5"]);
   });
 });

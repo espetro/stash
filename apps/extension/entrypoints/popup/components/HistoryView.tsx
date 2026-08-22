@@ -7,11 +7,10 @@ import type { HistoryEntry } from "../../../lib/history";
 const sortByDateTimeDesc = (a: HistoryEntry, b: HistoryEntry) => b.createdAt - a.createdAt;
 
 interface HistoryViewProps {
-  onBack: () => void;
   onShowLinkResult: (entry: HistoryEntry) => void;
 }
 
-export function HistoryView({ onBack, onShowLinkResult }: HistoryViewProps) {
+export function HistoryView({ onShowLinkResult }: HistoryViewProps) {
   const { entries, isLoading, error, clear } = useHistory();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -52,9 +51,6 @@ export function HistoryView({ onBack, onShowLinkResult }: HistoryViewProps) {
     <div className="history-view">
       <div className="history-header">
         <div className="history-header-left">
-          <button className="history-back-btn" onClick={onBack} aria-label="Go back" type="button">
-            ←
-          </button>
           <span className="history-title">History</span>
         </div>
         {entries.length > 0 && (

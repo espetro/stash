@@ -6,6 +6,7 @@ interface ImportMetaEnv {
   readonly VITE_PUBLIC_POSTHOG_HOST?: string;
   // * Used to link to project sites
   readonly VITE_VIEWER_ORIGIN: string;
+  readonly VITE_SHORTENER_ORIGIN: string;
   readonly VITE_CHROME_DOWNLOAD_URL: string;
   readonly VITE_FIREFOX_DOWNLOAD_URL: string;
 }

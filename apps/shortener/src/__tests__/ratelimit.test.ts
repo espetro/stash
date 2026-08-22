@@ -61,20 +61,31 @@ describe("rate limiting: POST /api/stash", () => {
     expect(await res.json()).toEqual({ error: "Too many requests" });
   });
 
-  it("fails open when limit() throws", async () => {
+  it("fails closed when limit() throws", async () => {
     mockEnv.RL_STASH = {
       limit: async () => {
         throw new Error("boom");
       },
     } as unknown as RateLimit;
     const res = await postStash();
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(429);
   });
 
   it("fails open when the binding is absent", async () => {
     delete mockEnv.RL_STASH;
     const res = await postStash();
     expect(res.status).toBe(201);
+  });
+});
+
+describe("maxTtl: POST /api/stash", () => {
+  it("rejects ttl above the public 7d ceiling", async () => {
+    delete mockEnv.RL_STASH;
+    const res = await fetchWorker("https://short.example.com/api/stash", {
+      method: "POST",
+      body: JSON.stringify({ payload: payloadP, ttl: "30d" }),
+    });
+    expect(res.status).toBe(400);
   });
 });
 

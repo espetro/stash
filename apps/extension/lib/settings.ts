@@ -3,6 +3,7 @@ import { validateViewerOrigin } from "./validation.js";
 
 export type ExpiryMode = "24h" | "7d" | "30d" | "never";
 const BUILD_TIME_VIEWER_ORIGIN = import.meta.env.VITE_VIEWER_ORIGIN || "https://stash.illo.fyi";
+const BUILD_TIME_SHORTENER_ORIGIN = import.meta.env.VITE_SHORTENER_ORIGIN || "https://s.illo.fyi";
 
 export const EXPIRY_HOURS_MAP: Record<ExpiryMode, number> = {
   "24h": 24,
@@ -14,13 +15,17 @@ export const EXPIRY_HOURS_MAP: Record<ExpiryMode, number> = {
 export interface Settings {
   expiryMode: ExpiryMode;
   viewerOrigin: string;
-  experimentalServer: boolean;
+  shortenerOrigin: string;
+  shortenerEnabled: boolean;
+  telemetryEnabled: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   expiryMode: "never",
   viewerOrigin: BUILD_TIME_VIEWER_ORIGIN,
-  experimentalServer: false,
+  shortenerOrigin: BUILD_TIME_SHORTENER_ORIGIN,
+  shortenerEnabled: false,
+  telemetryEnabled: true,
 };
 
 export const settingsItem = new StorageItem<Settings>("stash-settings", {
@@ -41,6 +46,12 @@ export const setSettings = async (
 ): Promise<{ success: boolean; error?: string }> => {
   if (partial.viewerOrigin !== undefined) {
     const validation = validateViewerOrigin(partial.viewerOrigin);
+    if (!validation.success) {
+      return { success: false, error: validation.error };
+    }
+  }
+  if (partial.shortenerOrigin !== undefined) {
+    const validation = validateViewerOrigin(partial.shortenerOrigin);
     if (!validation.success) {
       return { success: false, error: validation.error };
     }

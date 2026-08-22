@@ -123,6 +123,36 @@ describe("GET /s/:id", () => {
   });
 });
 
+describe("maxTtl", () => {
+  const cappedServer = createStashServer({
+    storage: createStorage({ driver: memoryDriver() }),
+    origin: ORIGIN,
+    getBrotli: getBrotliFunctions,
+    maxTtl: "7d",
+  });
+
+  it("rejects ttl above the configured max", async () => {
+    const res = await cappedServer.handle(
+      new Request(`${ORIGIN}/api/stash`, {
+        method: "POST",
+        body: JSON.stringify({ payload: payloadP, ttl: "30d" }),
+      }),
+    );
+    expect(res.status).toBe(400);
+    expect(((await res.json()) as any).error).toMatch(/ttl/);
+  });
+
+  it("allows ttl at or below the configured max", async () => {
+    const res = await cappedServer.handle(
+      new Request(`${ORIGIN}/api/stash`, {
+        method: "POST",
+        body: JSON.stringify({ payload: payloadP, ttl: "7d" }),
+      }),
+    );
+    expect(res.status).toBe(201);
+  });
+});
+
 describe("GET /health", () => {
   it("returns ok", async () => {
     const res = await fetchServer(`${ORIGIN}/health`);
@@ -199,14 +229,30 @@ describe("rate limiting", () => {
     expect(res.status).toBe(201);
   });
 
-  it("fails open when limit() throws", async () => {
+  it("fails closed for POST /api/stash when limit() throws", async () => {
     rebuildServer({
       limit: async () => {
         throw new Error("boom");
       },
     });
     const res = await postStash();
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(429);
+  });
+
+  it("fails open for POST /mcp when limit() throws", async () => {
+    rebuildServer({
+      limit: async () => {
+        throw new Error("boom");
+      },
+    });
+    const res = await limitedServer.handle(
+      new Request(`${ORIGIN}/mcp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: {} }),
+      }),
+    );
+    expect(res.status).not.toBe(429);
   });
 
   it("fails open when the binding is absent", async () => {

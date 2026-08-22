@@ -34,6 +34,18 @@
       "24h": "24 horas",
       "7d": "7 días",
       "30d": "30 días"
+    },
+    "saveLocal": {
+      "idle": "Guardar en Mis Stashes",
+      "done": "¡Guardado!"
+    },
+    "shorten": {
+      "idle": "Acortar enlace"
+    },
+    "link": {
+      "payloadHint": "Enlace de payload: funciona en todas partes, pero es más largo",
+      "shortHint": "Enlace corto: compacto y fácil de compartir",
+      "shortenFailed": "No se pudo acortar. El enlace de payload de arriba sigue funcionando."
     }
   },
   "sharedTabs": {
@@ -54,7 +66,10 @@
     "home": "Inicio",
     "features": "Características",
     "howItWorks": "Cómo funciona",
-    "demo": "Demo"
+    "demo": "Demo",
+    "newStash": "Nuevo stash",
+    "myStashes": "Mis stashes",
+    "back": "Volver"
   },
   "theme": {
     "label": "Cambiar tema",
@@ -144,7 +159,7 @@
   },
   "privacy": {
     "title": "Diseñado para generar confianza.",
-    "subtitle": "Cero telemetría, cero nube, cero compromisos.",
+    "subtitle": "Solo telemetría agregada y anónima, cero nube, cero compromisos.",
     "item1": "Sin cuenta requerida. Nunca.",
     "item2": "Todas las sesiones se almacenan en el almacenamiento local de tu navegador.",
     "item3": "Compartir es opt-in. Nada sale sin tu acción.",
@@ -187,5 +202,28 @@
       "shipped": "Enviado",
       "comingSoon": "Próximamente"
     }
+  },
+  "myStashes": {
+    "navLink": "Mis Stashes",
+    "title": "Mis Stashes",
+    "searchPlaceholder": "Buscar stashes...",
+    "empty": "Aún no hay stashes. Guarda uno desde la página Nuevo Stash.",
+    "newStash": "Nuevo Stash",
+    "export": "Exportar",
+    "import": "Importar",
+    "items": "elementos",
+    "untitled": "Stash sin título",
+    "titlePlaceholder": "Título del stash",
+    "tagsPlaceholder": "Etiquetas, separadas por comas",
+    "notePlaceholder": "Nota",
+    "edit": "Editar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "deleteConfirmTitle": "¿Eliminar el stash?",
+    "deleteConfirmBody": "Esto eliminará permanentemente este stash de este dispositivo.",
+    "deleteConfirm": "Eliminar",
+    "importSuccess": "Se importaron {count} stash(es)",
+    "importError": "No se pudo importar el archivo"
   }
 }
