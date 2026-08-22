@@ -1,5 +1,11 @@
 # @stash/shared
 
+## 0.8.1
+
+### Patch Changes
+
+- @stash/codec@0.8.1
+
 ## 0.8.0
 
 ### Patch Changes

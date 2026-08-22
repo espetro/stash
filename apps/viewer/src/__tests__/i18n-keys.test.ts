@@ -30,6 +30,27 @@ describe("viewer app i18n keys", () => {
     }
   });
 
+  it.each(["en", "es", "fr", "ru"])(
+    "%s has nav keys for floating pill navbar + Settings dropdown",
+    (lang) => {
+      const keys = flatten(bundles[lang]);
+      for (const key of [
+        "nav.products",
+        "nav.solutions",
+        "nav.resources",
+        "nav.developers",
+        "nav.enterprise",
+        "nav.pricing",
+        "nav.contactSales",
+        "nav.settings",
+        "nav.settings.theme",
+        "nav.settings.language",
+      ]) {
+        expect(keys, `${lang} missing ${key}`).toContain(key);
+      }
+    },
+  );
+
   it.each(["en", "es", "fr", "ru"])("%s has stash.link hint keys", (lang) => {
     const keys = flatten(bundles[lang]);
     for (const key of [
