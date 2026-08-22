@@ -98,7 +98,7 @@ of launching an MV3 extension under headless Chromium.
 * A new tab is opened with URL "https://github.com"
 * The user selects the open tab
 * A share link should be generated
-* The decoded payload version should be 5
+* The decoded payload version should be 6
 
 ## Payload contains future expiry
 * The browser is launched with the Stash extension loaded
