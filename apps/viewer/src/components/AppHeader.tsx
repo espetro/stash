@@ -43,7 +43,7 @@ export default function AppHeader() {
           </a>
         </Button>
         <ThemeSwitcher />
-        <LanguageSelector variant="card" />
+        <LanguageSelector />
       </nav>
     </header>
   );

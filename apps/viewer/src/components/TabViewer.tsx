@@ -287,7 +287,7 @@ export default function TabViewer() {
           </div>
           <div className="flex items-center justify-center gap-2">
             <ThemeSwitcher />
-            <LanguageSelector variant="card" />
+            <LanguageSelector />
           </div>
         </SharedCardContent>
       </SharedCard>
