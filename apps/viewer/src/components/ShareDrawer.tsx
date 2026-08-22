@@ -23,6 +23,8 @@ interface ShareDrawerProps {
   data: DecodedData;
 }
 
+const SHARE_PATH_FRAGMENT_PREFIX = "#p=";
+
 function exportToJSON(data: DecodedData): string {
   const output = {
     expiry: data.expiry,
@@ -42,9 +44,26 @@ function exportToMarkdown(data: DecodedData): string {
     .join("\n");
 }
 
+/**
+ * Build an agent-friendly share URL by moving the encoded payload from the
+ * fragment (`#p=…`) into the query string (`?p=…`). The fragment is opaque
+ * to fetch-only agents (curl, HTTP libs), so a query-string variant makes
+ * the same link consumable by every class of agent without losing the
+ * fragment form for browsers.
+ */
+function buildAgentShareUrl(origin: string): string | null {
+  if (typeof window === "undefined") return null;
+  const fragment = window.location.hash;
+  if (!fragment.startsWith(SHARE_PATH_FRAGMENT_PREFIX)) return null;
+  const encoded = fragment.slice(SHARE_PATH_FRAGMENT_PREFIX.length);
+  if (!encoded) return null;
+  return `${origin}/s?p=${encoded}`;
+}
+
 export function ShareDrawer({ open, onClose, data }: ShareDrawerProps) {
   const [jsonLabel, setJsonLabel] = React.useState("Share as JSON");
   const [mdLabel, setMdLabel] = React.useState("Share as Markdown");
+  const [agentLabel, setAgentLabel] = React.useState("Copy as agent URL");
 
   const handleCopyJSON = React.useCallback(() => {
     const text = exportToJSON(data);
@@ -63,6 +82,17 @@ export function ShareDrawer({ open, onClose, data }: ShareDrawerProps) {
       onClose();
     });
   }, [data, onClose]);
+
+  const handleCopyAgentUrl = React.useCallback(() => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const url = buildAgentShareUrl(origin);
+    if (!url) return;
+    navigator.clipboard.writeText(url).then(() => {
+      setAgentLabel("Copied!");
+      setTimeout(() => setAgentLabel("Copy as agent URL"), 2000);
+      onClose();
+    });
+  }, [onClose]);
 
   return (
     <Drawer open={open} onClose={onClose} direction="bottom">
@@ -91,6 +121,17 @@ export function ShareDrawer({ open, onClose, data }: ShareDrawerProps) {
           >
             <span className="font-medium text-foreground">{mdLabel}</span>
             <span className="text-xs text-muted-foreground group-hover:text-accent-foreground transition-colors">{`Formatted list with links`}</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            size="lg"
+            className="group h-auto flex-col items-start py-4 rounded-xl"
+            onClick={handleCopyAgentUrl}
+            data-testid="copy-agent-url"
+          >
+            <span className="font-medium text-foreground">{agentLabel}</span>
+            <span className="text-xs text-muted-foreground group-hover:text-accent-foreground transition-colors">{`?p=<payload> form for curl + agents`}</span>
           </Button>
         </div>
 

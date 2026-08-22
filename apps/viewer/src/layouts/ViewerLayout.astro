@@ -18,11 +18,14 @@ const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST ?? 'https://eu.post
   <link rel="icon" type="image/png" href="/icon-48.png" sizes="48x48" />
   <link rel="apple-touch-icon" href="/icon-128.png" />
   <title>{title}</title>
-  {/* AI agent consumption — alternate representations of this stash page */}
+  {/* AI agent consumption — alternate representations of this stash page.
+      SSR emits a stable href that omits the payload (fragments never reach
+      the server); the useDecodeShareUrl hook fills in `p=<encoded>` client-side
+      once the fragment is decoded. */}
   {Astro.url.pathname.startsWith('/s') && (
     <>
-      <link rel="alternate" type="application/json" href={Astro.url + '?format=json'} title="Stash as JSON" />
-      <link rel="alternate" type="text/markdown" href={Astro.url + '?format=md'} title="Stash as Markdown" />
+      <link rel="alternate" type="application/json" href={Astro.url.origin + '/json?p='} title="Stash as JSON" />
+      <link rel="alternate" type="text/markdown" href={Astro.url.origin + '/md?p='} title="Stash as Markdown" />
     </>
   )}
   {posthogKey && posthogHost && (
