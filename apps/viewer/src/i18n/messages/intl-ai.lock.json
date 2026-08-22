@@ -2856,6 +2856,213 @@
       "translated": "Скоро",
       "origin": "human",
       "timestamp": "2026-08-21T20:26:46.115Z"
+    },
+    "fr||stash.saveLocal.idle": {
+      "key": "stash.saveLocal.idle",
+      "locale": "fr",
+      "sourceHash": "6d214b29903683fddd6586076a5aa51e987b399f",
+      "translated": "Enregistrer dans Mes Stockages",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.058Z"
+    },
+    "fr||stash.saveLocal.done": {
+      "key": "stash.saveLocal.done",
+      "locale": "fr",
+      "sourceHash": "e929bf589f8ca4abbf1d121800cd16a32fbb4ad9",
+      "translated": "Enregistré !",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.058Z"
+    },
+    "fr||myStashes.navLink": {
+      "key": "myStashes.navLink",
+      "locale": "fr",
+      "sourceHash": "3b3fd33e4acd18f76611e8df39429152f4fc0dd1",
+      "translated": "Mes Stockages",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.058Z"
+    },
+    "fr||myStashes.title": {
+      "key": "myStashes.title",
+      "locale": "fr",
+      "sourceHash": "3b3fd33e4acd18f76611e8df39429152f4fc0dd1",
+      "translated": "Mes Stockages",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.058Z"
+    },
+    "fr||myStashes.searchPlaceholder": {
+      "key": "myStashes.searchPlaceholder",
+      "locale": "fr",
+      "sourceHash": "3c47511ea24f1ca055ca40778aba1ec0dba6a4d6",
+      "translated": "Rechercher des stockages...",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.058Z"
+    },
+    "fr||myStashes.empty": {
+      "key": "myStashes.empty",
+      "locale": "fr",
+      "sourceHash": "0699a088e693ffcbc2648b9380db446d5aa2853f",
+      "translated": "Aucun stockage pour l'instant. Enregistrez-en un depuis la page Nouveau Stockage.",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.058Z"
+    },
+    "fr||myStashes.newStash": {
+      "key": "myStashes.newStash",
+      "locale": "fr",
+      "sourceHash": "d52db0e1d78849b2d475fb414d1f16211db13ae7",
+      "translated": "Nouveau Stockage",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.059Z"
+    },
+    "fr||myStashes.export": {
+      "key": "myStashes.export",
+      "locale": "fr",
+      "sourceHash": "f3e4fadb9e370a1e2c0c622c01fc8c77daf93a2c",
+      "translated": "Exporter",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.059Z"
+    },
+    "fr||myStashes.import": {
+      "key": "myStashes.import",
+      "locale": "fr",
+      "sourceHash": "d6fbc9d2bdd580e18ed0bc5805dc26db323d6f5f",
+      "translated": "Importer",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.059Z"
+    },
+    "fr||myStashes.items": {
+      "key": "myStashes.items",
+      "locale": "fr",
+      "sourceHash": "7316c8b2e74870d9d7e9d30bbc28ecf4cdf945ee",
+      "translated": "éléments",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.059Z"
+    },
+    "fr||myStashes.untitled": {
+      "key": "myStashes.untitled",
+      "locale": "fr",
+      "sourceHash": "0a725f45296a51fa036fd4a71f06e4f376431c24",
+      "translated": "Stockage non intitulé",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.059Z"
+    },
+    "fr||myStashes.titlePlaceholder": {
+      "key": "myStashes.titlePlaceholder",
+      "locale": "fr",
+      "sourceHash": "ec05b9acb5462a5a21fc9c211287ee440695126c",
+      "translated": "Titre du stockage",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.059Z"
+    },
+    "fr||myStashes.tagsPlaceholder": {
+      "key": "myStashes.tagsPlaceholder",
+      "locale": "fr",
+      "sourceHash": "484ada33d8e019d0e30ec1d7918817a2e33523ea",
+      "translated": "mots-clés, séparés par des virgules",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.059Z"
+    },
+    "fr||myStashes.notePlaceholder": {
+      "key": "myStashes.notePlaceholder",
+      "locale": "fr",
+      "sourceHash": "2c924e3088204ee77ba681f72be3444357932fca",
+      "translated": "Note",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.060Z"
+    },
+    "fr||myStashes.edit": {
+      "key": "myStashes.edit",
+      "locale": "fr",
+      "sourceHash": "5301648dcf6b53cefc9ed52999aaa92d4603cae0",
+      "translated": "Modifier",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.060Z"
+    },
+    "fr||myStashes.save": {
+      "key": "myStashes.save",
+      "locale": "fr",
+      "sourceHash": "efc007a393f66cdb14d57d385822a3d9e36ef873",
+      "translated": "Enregistrer",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.060Z"
+    },
+    "fr||myStashes.cancel": {
+      "key": "myStashes.cancel",
+      "locale": "fr",
+      "sourceHash": "77dfd2135f4db726c47299bb55be26f7f4525a46",
+      "translated": "Annuler",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.060Z"
+    },
+    "fr||myStashes.delete": {
+      "key": "myStashes.delete",
+      "locale": "fr",
+      "sourceHash": "f6fdbe48dc54dd86f63097a03bd24094dedd713a",
+      "translated": "Supprimer",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.060Z"
+    },
+    "fr||myStashes.deleteConfirmTitle": {
+      "key": "myStashes.deleteConfirmTitle",
+      "locale": "fr",
+      "sourceHash": "bd521e290d9722d9a2b3030af21c620d1379f187",
+      "translated": "Supprimer le stockage ?",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.060Z"
+    },
+    "fr||myStashes.deleteConfirmBody": {
+      "key": "myStashes.deleteConfirmBody",
+      "locale": "fr",
+      "sourceHash": "46fc2f7820dec444666b541cc095af34c13c997f",
+      "translated": "Cela supprimera définitivement ce stockage de cet appareil.",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.060Z"
+    },
+    "fr||myStashes.deleteConfirm": {
+      "key": "myStashes.deleteConfirm",
+      "locale": "fr",
+      "sourceHash": "f6fdbe48dc54dd86f63097a03bd24094dedd713a",
+      "translated": "Supprimer",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.060Z"
+    },
+    "fr||myStashes.importSuccess": {
+      "key": "myStashes.importSuccess",
+      "locale": "fr",
+      "sourceHash": "fe833f3ebf9d155235ecafe4cc45f26e7e7736b1",
+      "translated": "Importé(e)s {count} stockage",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.060Z"
+    },
+    "fr||myStashes.importError": {
+      "key": "myStashes.importError",
+      "locale": "fr",
+      "sourceHash": "0e47e0967723a55be08fa83956a160d66a2b717b",
+      "translated": "Impossible d'importer le fichier",
+      "origin": "ai",
+      "model": "openrouter/free",
+      "timestamp": "2026-08-22T11:49:19.060Z"
     }
   }
 }

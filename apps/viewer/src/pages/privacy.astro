@@ -25,8 +25,9 @@ import { LuBadgeCheck } from "react-icons/lu";
         <li class="policy-item">
           <LuBadgeCheck className="size-[18px] flex-shrink-0 mt-[3px]" />
           <div>
-            <strong>No personal data is collected.</strong> We don't track you, store
-            cookies, or gather any information about you.
+            <strong>No personal data is collected.</strong> We collect anonymous aggregate
+            counters only (e.g. how often a feature is used) — never URLs, titles,
+            tags, notes, or any identifier tied to you.
           </div>
         </li>
         <li class="policy-item">
@@ -65,10 +66,12 @@ import { LuBadgeCheck } from "react-icons/lu";
         <li class="policy-item">
           <LuBadgeCheck className="size-[18px] flex-shrink-0 mt-[3px]" />
           <div>
-            <strong>The browser extension collects nothing.</strong> The Chrome and
-            Firefox extensions run entirely on your device: snapshots are encoded
-            locally and preferences are stored in local browser storage. No analytics
-            run inside the extension.
+            <strong>The browser extension only sends anonymous counters.</strong
+            > The Chrome and Firefox extensions run entirely on your device: snapshots
+            are encoded locally and preferences are stored in local browser storage.
+            The only network calls for telemetry are small, opt-out event names (e.g.
+            "stash saved") — never tab URLs, titles, tags, notes, or an identifier
+            tied to you.
           </div>
         </li>
         <li class="policy-item">
@@ -77,8 +80,8 @@ import { LuBadgeCheck } from "react-icons/lu";
             <strong
               >This website uses PostHog (cookieless) for analytics.</strong
             >
-            We collect anonymous page views and clicks only—no cookies, no persistent
-            identifiers, no tab content.
+            We collect anonymous page views, clicks, and a small set of feature-usage
+            event names only — no cookies, no persistent identifiers, no tab content.
           </div>
         </li>
       </ul>
