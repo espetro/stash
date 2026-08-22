@@ -17,6 +17,8 @@ export async function getBrotliFunctions(): Promise<BrotliFunctions> {
 
 export interface DecodedPayload {
   title?: string;
+  tags: string[];
+  note?: string;
   expiry: number;
   isExpired: boolean;
   version: number;
@@ -29,6 +31,8 @@ export async function decodePayload(p: string): Promise<DecodedPayload> {
 
   return {
     title: decoded.title,
+    tags: decoded.tags,
+    note: decoded.note,
     expiry: decoded.expiry,
     isExpired: decoded.isExpired,
     version: decoded.version,
