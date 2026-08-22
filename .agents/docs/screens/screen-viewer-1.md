@@ -7,7 +7,7 @@ file: apps/viewer/src/pages/index.astro
 
 ```text
 +--------------------------------------------------------------+
-| STASH                                          nav / actions |
+| [⌂ Stash]  [ Products | Solutions | Resources | ... | ... ] [⚙]   |
 +--------------------------------------------------------------+
 | Your tabs are your thinking.                    (visual demo)|
 | Accent second headline line.                                  |
@@ -25,7 +25,7 @@ file: apps/viewer/src/pages/index.astro
 | Privacy section                                               |
 | Final CTA                                                     |
 +--------------------------------------------------------------+
-| Footer: GitHub | Privacy | Terms             theme / lang     |
+| Footer: GitHub | Privacy | Terms                               |
 +--------------------------------------------------------------+
 ```
 
@@ -40,11 +40,15 @@ with translated strings (`apps/viewer/src/i18n`).
 | CTA row | always | Primary install (Chrome store), secondary install (Firefox), ghost "Try in browser" linking `/s/new` |
 | Tagline | always | Mono accent line under CTAs |
 | Problem / Features / Demo / Roadmap / Privacy / Final CTA | always | Composed from `apps/viewer/src/components/landing/*` |
-| Footer | always | GitHub link, `/privacy`, `/terms`, theme and language controls |
+| Footer | always | Copyright + GitHub/Privacy/Terms only (no theme/lang controls) |
 
 ## Behavior
 
 - No telemetry on this page; purely static Astro with client-side theme
-  and language widgets.
+  and language widgets accessed via the floating pill navbar's Settings
+  dropdown (pointing to `apps/viewer/src/components/landing/SettingsMenu.tsx`).
+- The hero sits beneath a shadcn-style floating pill navbar; the logo lives
+  outside the pill on the left, marketing links inside it, and a separate
+  Settings pill sits on the right.
 - Locale resolved from `Astro.currentLocale` with fallback to the default
   language.
