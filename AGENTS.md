@@ -86,6 +86,10 @@ Releases use [changesets](https://changesets.tools/) for versioning and a tag-tr
 
 All commits follow the Conventional Commits format — see [CONTRIBUTING.md](./CONTRIBUTING.md#commit-message-format-conventional-commits).
 
+## UI Screens registry
+
+`.agents/docs/screens/` is the canonical ASCII map of every user-facing screen (extension popup, viewer pages, dialogs). Update the affected screen files whenever you change UI layout, copy, or flows — stale ASCII is worse than none. See `.agents/docs/screens/INDEX.md`.
+
 ## Project Management
 
 In case of working on a git-tracked project, **all plans and implementations must be linked to a refined task in a Project** (usually Github Project, but could also be Linear, local project, etc.). No orphan work.
