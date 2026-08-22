@@ -5,6 +5,19 @@ Cloudflare Worker providing opt-in short links (`POST /api/stash`,
 `/.well-known/mcp-server-card`). All logic lives in
 `@stash/server-core`; this app only wires bindings.
 
+The discovery card advertises **two** MCP surfaces under `servers[]`:
+
+- `stash-shortener` — this worker, `transport: "streamable-http"`,
+  `url: <origin>/mcp`.
+- `stash-extension` — the browser extension's local MCP server,
+  `transport: "extension-port"`, `portName: "mcp"`. No `url` (Chrome
+  runtime port, not HTTP). See `apps/extension/lib/mcp/` and
+  `apps/extension/AGENTS.md` for client wiring.
+
+Legacy flat `url` / `transport` / `tools` fields at the top of the card
+mirror the shortener entry and are kept for backwards compatibility with
+existing agent integrations.
+
 ## Bindings (wrangler.toml)
 
 - `STASH_KV` — KV namespace for short links (7-day TTL ceiling)
