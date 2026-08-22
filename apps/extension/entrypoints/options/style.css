@@ -343,3 +343,53 @@ body {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
+
+/* Try MCP panel */
+.try-mcp-status {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.try-mcp-status svg {
+  flex-shrink: 0;
+}
+
+.try-mcp-args {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  min-height: 96px;
+  resize: vertical;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.try-mcp-tool-description {
+  margin: 8px 0 0 0;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+.try-mcp-response {
+  margin: 0;
+  padding: 12px;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--foreground);
+  background: var(--muted, color-mix(in srgb, var(--foreground) 5%, var(--background)));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+}
+
+.btn .lucide {
+  margin-right: 6px;
+  vertical-align: -2px;
+}
