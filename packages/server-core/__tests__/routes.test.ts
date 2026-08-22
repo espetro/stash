@@ -101,6 +101,25 @@ describe("GET /s/:id", () => {
     expect(text).toContain("[GitHub](https://github.com)");
   });
 
+  it("returns plain URL list via .txt suffix", async () => {
+    const id = await makeStash();
+    const res = await fetchServer(`${ORIGIN}/s/${id}.txt`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toContain("text/plain");
+    const text = await res.text();
+    expect(text).toBe("https://github.com\nhttps://developer.mozilla.org");
+  });
+
+  it("negotiates text/plain via Accept header", async () => {
+    const id = await makeStash();
+    const res = await fetchServer(`${ORIGIN}/s/${id}`, {
+      headers: { Accept: "text/plain" },
+    });
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toContain("text/plain");
+    expect(await res.text()).toContain("https://github.com");
+  });
+
   it("negotiates via Accept header", async () => {
     const id = await makeStash();
     const res = await fetchServer(`${ORIGIN}/s/${id}`, {
