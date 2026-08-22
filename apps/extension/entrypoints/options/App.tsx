@@ -9,6 +9,7 @@ import OptionsThemeForm from "./components/OptionsThemeForm.js";
 import OptionsViewerForm from "./components/OptionsViewerForm.js";
 import OptionsShortenerForm from "./components/OptionsShortenerForm.js";
 import OptionsTelemetryForm from "./components/OptionsTelemetryForm.js";
+import TryMcpPanel from "./components/TryMcpPanel.js";
 
 type ExpiryMode = "24h" | "7d" | "30d" | "never";
 type Theme = "light" | "dark" | "system";
@@ -101,6 +102,10 @@ export default function App() {
               initEnabled={telemetryEnabled}
               onSuccess={() => showSuccessFeedback()}
             />
+          </section>
+
+          <section className="settings-section" aria-labelledby="try-mcp-heading">
+            <TryMcpPanel />
           </section>
 
           <OptionsFooter />
