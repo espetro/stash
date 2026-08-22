@@ -1,7 +1,6 @@
 import * as React from "react";
+import AppHeader from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
-import ThemeSwitcher from "@/components/ThemeSwitcher";
-import LanguageSelector from "@/components/LanguageSelector";
 import { useLocale } from "@/components/LocaleProvider";
 import { t } from "@/i18n";
 import {
@@ -15,7 +14,7 @@ import {
 import { useStashForm } from "@/hooks/useStashForm";
 import { useBudgetMeter } from "@/hooks/useBudgetMeter";
 import { EXPIRY_OPTIONS } from "@stash/shared";
-import { FaCircleCheck, FaTriangleExclamation, FaBoxArchive } from "react-icons/fa6";
+import { FaCircleCheck, FaTriangleExclamation } from "react-icons/fa6";
 
 export default function NewStashForm() {
   const { lang } = useLocale();
@@ -62,6 +61,8 @@ export default function NewStashForm() {
 
   return (
     <div className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8">
+      <AppHeader />
+
       <SharedCard>
         <SharedCardHeader title={t("stash.create.title", undefined, lang)} />
 
@@ -165,6 +166,9 @@ export default function NewStashForm() {
               >
                 {resultUrl}
               </a>
+              <p className="mb-3 text-xs text-muted-foreground">
+                {t(isShortUrl ? "stash.link.shortHint" : "stash.link.payloadHint", undefined, lang)}
+              </p>
               <Button
                 variant="outline"
                 onClick={handleCopy}
@@ -174,33 +178,37 @@ export default function NewStashForm() {
                   ? t("stash.copy.done", undefined, lang)
                   : t("stash.copy.idle", undefined, lang)}
               </Button>
+              <Button
+                variant="outline"
+                onClick={handleSaveLocally}
+                disabled={localSaveState === "saving"}
+                className="mt-2 h-12 w-full rounded-xl border-border bg-card text-sm font-semibold text-foreground hover:bg-secondary"
+              >
+                {localSaveLabel}
+              </Button>
               {!isShortUrl && (
-                <Button
-                  variant="outline"
-                  onClick={handleGetShortLink}
-                  disabled={shortenState === "shortening"}
-                  className="mt-2 h-12 w-full rounded-xl border-border bg-card text-sm font-semibold text-foreground hover:bg-secondary"
-                >
-                  {shortenState === "shortening"
-                    ? t("stash.shorten.generating", undefined, lang)
-                    : shortenState === "error"
-                      ? t("stash.shorten.error", undefined, lang)
-                      : t("stash.shorten.idle", undefined, lang)}
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={handleGetShortLink}
+                    disabled={shortenState === "shortening"}
+                    className="mt-2 h-12 w-full rounded-xl border-border bg-card text-sm font-semibold text-foreground hover:bg-secondary"
+                  >
+                    {shortenState === "shortening"
+                      ? t("stash.shorten.generating", undefined, lang)
+                      : shortenState === "error"
+                        ? t("stash.shorten.error", undefined, lang)
+                        : t("stash.shorten.idle", undefined, lang)}
+                  </Button>
+                  {shortenState === "error" && (
+                    <p className="mt-2 text-center text-xs text-muted-foreground">
+                      {t("stash.link.shortenFailed", undefined, lang)}
+                    </p>
+                  )}
+                </>
               )}
             </div>
           )}
-          <div className="flex items-center justify-center gap-3">
-            <ThemeSwitcher />
-            <LanguageSelector variant="card" />
-            <a
-              href="/stashes"
-              className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
-            >
-              <FaBoxArchive className="size-3.5" />
-              {t("myStashes.navLink", undefined, lang)}
-            </a>
-          </div>
         </SharedCardContent>
       </SharedCard>
 
@@ -208,9 +216,6 @@ export default function NewStashForm() {
         <PrimaryButton onClick={handleSave} disabled={saveState === "generating"}>
           {saveLabel}
         </PrimaryButton>
-        <OutlineButton onClick={handleSaveLocally} disabled={localSaveState === "saving"}>
-          {localSaveLabel}
-        </OutlineButton>
         <OutlineButton onClick={handleClear}>{t("stash.clear", undefined, lang)}</OutlineButton>
       </SharedButtonArea>
     </div>
