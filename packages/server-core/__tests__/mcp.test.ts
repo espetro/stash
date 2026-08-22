@@ -133,6 +133,41 @@ describe("GET /.well-known/mcp-server-card", () => {
     expect(res.headers.get("Content-Type")).toContain("application/json");
     expect(res.headers.get("Access-Control-Allow-Origin")).toBe("*");
     const card: any = await res.json();
+    expect(card.name).toBe("stash");
+    expect(card.version).toBe("0.1.0");
+
+    // Dual-surface `servers` array.
+    expect(Array.isArray(card.servers)).toBe(true);
+    expect(card.servers).toHaveLength(2);
+
+    const [shortener, extension] = card.servers;
+
+    expect(shortener.name).toBe("stash-shortener");
+    expect(shortener.transport).toBe("streamable-http");
+    expect(shortener.url).toBe(`${ORIGIN}/mcp`);
+    expect(shortener.portName).toBeUndefined();
+    expect(shortener.tools.map((t: any) => t.name)).toEqual([
+      "stash_create",
+      "stash_get",
+      "stash_decode",
+    ]);
+
+    expect(extension.name).toBe("stash-extension");
+    expect(extension.transport).toBe("extension-port");
+    expect(extension.portName).toBe("mcp");
+    expect(extension.url).toBeUndefined();
+    expect(extension.tools.map((t: any) => t.name)).toEqual([
+      "stash_snapshot_tabs",
+      "stash_list",
+      "stash_get",
+      "stash_create",
+      "stash_update",
+      "stash_delete",
+      "stash_search",
+      "stash_decode",
+    ]);
+
+    // Legacy flat fields preserved for backwards compat.
     expect(card.url).toBe(`${ORIGIN}/mcp`);
     expect(card.transport).toBe("streamable-http");
     expect(card.tools.map((t: any) => t.name)).toEqual([
