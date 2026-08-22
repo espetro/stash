@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useState, useRef, useCallback } from "react";
-import ThemeSwitcher from "@/components/ThemeSwitcher";
-import LanguageSelector from "@/components/LanguageSelector";
+import AppHeader from "@/components/AppHeader";
 import { useLocale } from "@/components/LocaleProvider";
 import { t } from "@/i18n";
 import {
@@ -271,6 +270,8 @@ export default function MyStashes() {
 
   return (
     <div className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8">
+      <AppHeader />
+
       <SharedCard>
         <SharedCardHeader title={t("myStashes.title", undefined, lang)} />
 
@@ -307,11 +308,6 @@ export default function MyStashes() {
           {importMessage && (
             <p className="text-center text-xs text-muted-foreground">{importMessage}</p>
           )}
-
-          <div className="flex items-center justify-center gap-2">
-            <ThemeSwitcher />
-            <LanguageSelector variant="card" />
-          </div>
         </SharedCardContent>
       </SharedCard>
 
@@ -320,14 +316,20 @@ export default function MyStashes() {
           <FaPlus className="size-4" />
           {t("myStashes.newStash", undefined, lang)}
         </PrimaryButton>
-        <div className="flex gap-3">
-          <OutlineButton onClick={exportJson}>
+        <div className="flex justify-center gap-2">
+          <OutlineButton
+            onClick={exportJson}
+            aria-label={t("myStashes.export", undefined, lang)}
+            className="size-10 rounded-xl p-0"
+          >
             <FaFileArrowDown className="size-4" />
-            {t("myStashes.export", undefined, lang)}
           </OutlineButton>
-          <OutlineButton onClick={handleImportClick}>
+          <OutlineButton
+            onClick={handleImportClick}
+            aria-label={t("myStashes.import", undefined, lang)}
+            className="size-10 rounded-xl p-0"
+          >
             <FaFileArrowUp className="size-4" />
-            {t("myStashes.import", undefined, lang)}
           </OutlineButton>
         </div>
       </SharedButtonArea>
