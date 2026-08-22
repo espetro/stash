@@ -21,7 +21,16 @@ export default defineConfig({
     // @ts-ignore - WXT doesn't expose externally_connectable in its manifest types yet
     externally_connectable: {
       ids: ["*"],
-      matches: ["https://stash.illo.fyi/*"],
+      // PR5: `stash-mcp-relay` dials the extension over a loopback
+      // TCP socket which the extension opens. The relay process lives
+      // at one of these origins so we list both. `ids` stays `["*"]`
+      // so PR4 (or any other extension consumer) can attach without
+      // further manifest edits.
+      matches: [
+        "https://stash.illo.fyi/*",
+        "http://127.0.0.1/*",
+        "http://localhost/*",
+      ],
     },
     icons: {
       16: "icon-16.png",
