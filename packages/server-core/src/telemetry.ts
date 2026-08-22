@@ -11,6 +11,7 @@ export type TelemetryRoute =
   | "s_view_html"
   | "s_view_json"
   | "s_view_md"
+  | "s_view_txt"
   | "card"
   | "health"
   | "beacon";
