@@ -22,7 +22,7 @@ Available tools:
 | `stash_search` | Search local stashes by a substring match over title, tags and note |
 | `stash_decode` | Decode a stash payload string (the `?p=` value from a share URL) into its title, items, tags and note |
 
-A client connects by opening a runtime port named `stash-mcp` to the extension. AI agents with native extension MCP support pick this up automatically; others can attach via an MCP client that transports over the Chrome extension port.
+A client connects by opening a runtime port named `mcp` to the extension. AI agents with native extension MCP support pick this up automatically; others can attach via an MCP client that transports over the Chrome extension port.
 
 ## Hosted MCP endpoint (shortener)
 

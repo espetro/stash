@@ -3,6 +3,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { fakeBrowser } from "wxt/testing/fake-browser";
 import { buildMcpServer } from "../lib/mcp/server";
+import { MCP_PORT_NAME } from "../lib/mcp/constants";
 import { encodeTabsToShareUrl } from "@stash/codec";
 
 // The global setup mocks @stash/shared without getBrotliFunctions; brotli-wasm
@@ -169,5 +170,24 @@ describe("MCP server tools", () => {
     expect(decoded.tags).toEqual(["a"]);
     expect(decoded.note).toBe("a note");
     await client.close();
+  });
+});
+
+describe("MCP_PORT_NAME contract", () => {
+  it('is "mcp" (matches @mcp-b/transports default)', () => {
+    expect(MCP_PORT_NAME).toBe("mcp");
+  });
+
+  it("docs no longer reference the old stash-mcp name", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const { fileURLToPath } = await import("node:url");
+    const { resolve, dirname } = await import("node:path");
+    const docsPath = resolve(
+      dirname(fileURLToPath(import.meta.url)),
+      "../../../content/docs/agent-server.md",
+    );
+    const docs = await readFile(docsPath, "utf-8");
+    expect(docs).not.toMatch(/stash-mcp/);
+    expect(docs).toMatch(/`mcp`/);
   });
 });
