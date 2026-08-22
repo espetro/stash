@@ -4,6 +4,10 @@ Astro static site: renders shared tab payloads, hosts the Starlight docs
 under `/docs`, serves agent JSON endpoints (`/json`, `/md`, `/s`,
 `/api/openapi.json`, `/llms.txt`), and the `/stashes` local library page.
 
+User-facing screens are mapped in `.agents/docs/screens/` (see
+`screen-viewer-*.md` and `screen-docs-1.md`); update them when page or
+dialog UI changes.
+
 ## Formatting
 
 oxfmt does not support `.astro` files. The combined format command is:

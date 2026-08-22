@@ -5,6 +5,9 @@ stashes live in `browser.storage.local` (`lib/stash-store.ts`), and a
 local MCP server (`lib/mcp/`) exposes tabs and the stash library to AI
 agents over a Chrome runtime port named `stash-mcp`.
 
+User-facing screens are mapped in `.agents/docs/screens/` (see
+`screen-extension-*.md`); update them when popup or options UI changes.
+
 ## Icons
 
 `react-icons` Lucide only (`react-icons/lu`).
