@@ -7,20 +7,25 @@ Stash is designed with privacy as a core principle. This page explains exactly h
 
 ## No Data Collection
 
-### Zero Tracking
-Stash does not track, monitor, or collect any information about you:
+### Anonymous Aggregate Telemetry Only
+Stash does not track or monitor you individually. The only data collected is anonymous
+aggregate counters — event names and coarse dimensions, never anything that identifies you:
 
-- **No analytics**: No user behavior tracking
+- **No personal identifiers**: Events carry an event name and coarse dimensions only —
+  never a user id, IP-linked history, tab URL, title, tag, or note
 - **No cookies**: No persistent storage for tracking
-- **No logging**: No activity logs or usage records
 - **No fingerprinting**: No device or browser fingerprinting
 - **No user accounts**: No registration or login required
+- **Opt-out in the extension**: Telemetry can be disabled from Settings; the web viewer's
+  PostHog analytics are cookieless by default
 
 ### Browser-Only Processing
 All tab sharing happens entirely within your browser:
 
 - **Extension processing**: Tab selection and encoding happens locally
-- **No server requests**: No data sent to external servers during normal use
+- **Content stays local**: Tab URLs and titles are never sent to a server unless you
+  explicitly opt in to short-link sharing; only anonymous telemetry event names (e.g.
+  "stash saved") leave the device
 - **Client-side expiry**: Expiration checked in browser, not on servers
 
 ## How Sharing Actually Works
@@ -58,7 +63,7 @@ Stash has minimal server infrastructure:
 - **No processing**: No server-side data manipulation
 - **Static hosting**: Viewer site is static files with no dynamic processing
 
-There is one opt-in exception: the experimental server mode runs a small server inside the extension that stores stashes locally in `browser.storage.local` on your machine. It never sends data to an external server and is disabled by default (see [Agent Server](/agent-server)).
+There is one opt-in exception: short links. If you explicitly enable the short link feature, a copy of the stash is stored on the shortener service for at most 7 days. Agents can also manage a stash library that lives locally in your browser's `storage.local` and never leaves your machine (see [Agents & MCP](/agent-server)).
 
 ### Link Security
 Shared links are designed for security:
@@ -70,11 +75,13 @@ Shared links are designed for security:
 
 ## Third-Party Services
 
-### No External Dependencies
-Stash avoids third-party services:
+### Minimal Third-Party Dependencies
+Stash avoids third-party services beyond anonymous telemetry:
 
 - **CDN only**: Static assets served from CDN
-- **No APIs**: No external API calls during normal use
+- **Telemetry only**: The only external API calls are the anonymous aggregate counters
+  described above (Cloudflare Analytics Engine for the extension/shortener, PostHog for
+  the web viewer) — no other external calls during normal use
 - **No authentication**: No OAuth or external identity providers
 - **No advertising**: No ad networks or marketing pixels
 
@@ -108,9 +115,9 @@ Stash requests minimal permissions:
 ### Viewer Privacy
 People who view your shared links have privacy too:
 
-- **No tracking**: Viewer doesn't track link visitors
+- **No individual tracking**: Viewers aren't tracked individually — only anonymous
+  aggregate counters (e.g. a stash view happened) are recorded
 - **No collection**: No personal information from viewers
-- **No analytics**: No data about who views your links
 - **Temporary access**: Links expire automatically
 
 ### Mobile Compatibility
@@ -134,7 +141,9 @@ Stash is licensed under AGPL-3.0—free to use, modify, and distribute.
 ## Common Privacy Questions
 
 **Q: Does Stash collect any user data?**
-A: No. Stash processes everything locally and collects no data.
+A: Stash processes everything locally. The only data leaving your device is anonymous
+aggregate counters (an event name and coarse dimensions) — never URLs, titles, tags,
+notes, or an identifier tied to you.
 
 **Q: Are my browsing habits tracked?**
 A: No. Stash only sees the tabs you explicitly choose to share.

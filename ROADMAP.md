@@ -1,6 +1,19 @@
 # Stash Roadmap
 
-Last updated: May 29, 2026 · Current release: **v0.5.0**
+Last updated: Aug 22, 2026 · Current release: **v0.7.1** (v0.8.0 in flight)
+
+---
+
+## Shipped — Stash v2 (v0.8.0)
+
+Unified AI-first session manager. All of it landed in v0.8.0:
+
+- [x] Payload schema v6 with optional tags and note (decoder accepts v4/v5/v6)
+- [x] Local stash library in the extension (`browser.storage.local`) plus My Stashes UI in popup and viewer
+- [x] Local MCP server in the extension (snapshot tabs, list/get/create/update/delete/search stashes)
+- [x] Opt-in short links with fail-closed rate limiting and a 7-day TTL ceiling
+- [x] Agent JSON endpoints (`/json`, `/md`, `/s`) with tags and note surfaced in the OpenAPI schema
+- [x] Anonymous aggregate telemetry (Cloudflare Analytics Engine + optional PostHog)
 
 ---
 
@@ -66,10 +79,10 @@ Currently: title + URL input + expiry + encode + copy. Missing:
 Future milestones. Re-evaluate after v0.7.0 user data.
 
 - [ ] Starlight documentation site (`/docs`)
-- [ ] OpenAPI spec promotion (exists at `/api/openapi.json` — surface it for AI agent discovery)
-- [ ] User-configurable expiry durations
-- [ ] Custom viewer origin (self-hosted viewer support)
-- [ ] Storage migration path (versioned payload format for backwards compatibility)
+- [x] OpenAPI spec promotion (surfaced via `/llms.txt` and MCP server card for agent discovery)
+- [x] User-configurable expiry durations (1, 7, 14, 30 days)
+- [x] Custom viewer origin (self-hosted viewer support, `VITE_VIEWER_ORIGIN`)
+- [x] Storage migration path (versioned payload format v6 with v4/v5 backwards compatibility)
 - [ ] Release automation (`release.yml` exists — add automated changelog generation)
 
 ---
