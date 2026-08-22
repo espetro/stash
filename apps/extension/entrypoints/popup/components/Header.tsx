@@ -1,18 +1,27 @@
 import { ComponentProps } from "react";
-import { LuClock, LuCog } from "react-icons/lu";
+import { LuArchive, LuClock, LuCog } from "react-icons/lu";
 
 interface HeaderProps {
+  onClickStashes: ComponentProps<"button">["onClick"];
   onClickHistory: ComponentProps<"button">["onClick"];
   onClickSettings: ComponentProps<"button">["onClick"];
 }
 
-export default function Header({ onClickHistory, onClickSettings }: HeaderProps) {
+export default function Header({ onClickStashes, onClickHistory, onClickSettings }: HeaderProps) {
   return (
     <div className="popup-header">
       <h1>Stash</h1>
 
       {/* Action buttons */}
       <div className="header-buttons">
+        <button
+          className="theme-toggle"
+          onClick={onClickStashes}
+          aria-label="View my stashes"
+          title="My Stashes"
+        >
+          <LuArchive />
+        </button>
         <button
           className="theme-toggle"
           onClick={onClickHistory}
