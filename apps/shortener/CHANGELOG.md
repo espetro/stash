@@ -1,5 +1,11 @@
 # @stash/shortener
 
+## 0.1.4
+
+### Patch Changes
+
+- @stash/shared@0.8.1
+
 ## 0.1.3
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@stash/e2e",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "type": "module",
   "description": "E2E tests for Stash browser extension and viewer using Playwright + markdown loader",
   "scripts": {
