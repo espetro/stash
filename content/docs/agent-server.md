@@ -1,71 +1,48 @@
 ---
-title: Agent Server
-description: Experimental opt-in server mode that lets AI agents create and fetch stashed share links
+title: Agents & MCP
+description: Give AI agents access to your tabs and local stash library via MCP, in the extension or through the hosted shortener.
 ---
 
-Stash can run a small HTTP server inside the extension itself. This is an **experimental feature, off by default**, aimed at AI agents and automation tools.
+Stash speaks the [Model Context Protocol](https://modelcontextprotocol.io) (MCP) on two surfaces: locally inside the extension, and as a hosted endpoint on the shortener worker. Agents can read your open tabs, manage your local stash library, and create or decode share links.
 
-## Enabling the Server
+## Extension MCP server (local, always on)
 
-1. Open the extension's Options page.
-2. Toggle **Experimental Server** (setting `experimentalServer`) on.
+The extension runs an MCP server inside its background service worker over a Chrome runtime port, so an agent on your machine can work with your real browser state. All data stays in `browser.storage.local`; nothing leaves your machine.
 
-With the flag on, the extension hosts a stash server in its background service worker and exposes it over two transports: a message bridge and additional MCP tools.
+Available tools:
 
-## Share URL Scheme
+| Tool | Description |
+|------|-------------|
+| `stash_snapshot_tabs` | Read-only snapshot of the tabs currently open in this browser window (url + title) |
+| `stash_list` | List local stashes (id, title, tags, item counts, timestamps) |
+| `stash_get` | Fetch a local stash by id, including its full item list |
+| `stash_create` | Create and persist a new local stash from a list of URLs (with optional titles), title, tags and note |
+| `stash_update` | Update a local stash's title, tags, note, or items by id |
+| `stash_delete` | Delete a local stash by id |
+| `stash_search` | Search local stashes by a substring match over title, tags and note |
+| `stash_decode` | Decode a stash payload string (the `?p=` value from a share URL) into its title, items, tags and note |
 
-Stashed links use a pseudo-origin that points at the extension itself:
+A client connects by opening a runtime port named `stash-mcp` to the extension. AI agents with native extension MCP support pick this up automatically; others can attach via an MCP client that transports over the Chrome extension port.
 
-```
-chrome-extension://<extension-id>/s/<stash-id>
-```
+## Hosted MCP endpoint (shortener)
 
-Unlike normal share links, these resolve only while the extension is installed and running. The data lives in `browser.storage.local` on your machine, with a per-entry TTL and a 500-entry cap. Nothing is sent to any external server.
+If you run the shortener worker (see [Self-Hosting](/self-hosting)), it exposes a stateless Streamable HTTP MCP server at `POST /mcp`, plus a discovery card at `GET /.well-known/mcp-server-card`. It is rate limited to 60 requests per minute per IP.
 
-## Message Bridge Protocol
+Available tools:
 
-Manifest V3 extensions cannot open network ports, so requests travel over messaging. Send a request:
+| Tool | Inputs | Description |
+|------|--------|-------------|
+| `stash_create` | `title?`, `urls` (min 1), `ttlDays` (1, 7 default, 14 or 30) | Create a stash: a short shareable link bundling multiple URLs. Returns the short id and share URL |
+| `stash_get` | `id` (6-character stash id) | Fetch a stash by its short id and return its title and items |
+| `stash_decode` | `payload` | Decode a stash payload string (the `?p=` value from a stash share URL) into its title and items |
 
-```json
-{
-  "type": "stash-bridge-request",
-  "id": 1,
-  "method": "GET",
-  "url": "/s/some-id",
-  "headers": {},
-  "body": null
-}
-```
+Note that the hosted tools operate on short links stored in the worker's KV (with a server-side TTL), not on your local stash library.
 
-The extension replies with:
+## Agent-friendly HTTP API
 
-```json
-{
-  "type": "stash-bridge-response",
-  "id": 1,
-  "status": 200,
-  "headers": {},
-  "body": "..."
-}
-```
+The viewer also serves structured data for agents, no MCP needed:
 
-There are two ways to deliver a request:
-
-- **From another extension**: call `browser.runtime.sendMessage(extensionId, request)`. Stash is listed in `externally_connectable`, so this works cross-extension.
-- **From a web page or hosted agent**: `window.postMessage` the request to the page. Stash's content script relays it to the background server and posts the response back.
-
-## Using fetchViaBridge
-
-The helper `fetchViaBridge(send, url, init)` in `apps/extension/lib/server/client.ts` wraps the protocol with fetch-like semantics. Pass it the `send` function for your transport:
-
-```ts
-import { fetchViaBridge } from "./lib/server/client";
-
-// send(request) delivers the message and resolves with the response
-const res = await fetchViaBridge(send, `chrome-extension://${extId}/s/${id}`);
-const body = await res.text();
-```
-
-## MCP Tools
-
-With the flag enabled, the extension's background MCP server additionally exposes `stash_create_stored` and `stash_get_stored`, mirroring the existing tools but storing the payload server-side with a TTL of 1, 7, 14, or 30 days.
+- `/json?p=<payload>` returns the decoded stash as JSON, including `tags` and `note` (payload v6).
+- `/md?p=<payload>` returns it as Markdown.
+- `/api/openapi.json` publishes the OpenAPI schema.
+- `/llms.txt` gives an LLM-oriented overview of the endpoints.
