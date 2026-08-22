@@ -1,6 +1,6 @@
 # Stash Roadmap
 
-Last updated: Aug 22, 2026 · Current release: **v0.7.1** (v0.8.0 in flight)
+Last updated: Aug 22, 2026 · Current release: **v0.8.0** shipped · **v0.8.1** in flight: navbar/settings polish
 
 ---
 
