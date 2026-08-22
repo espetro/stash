@@ -20,16 +20,18 @@ export default defineConfig({
     action: { default_popup: "popup/index.html" },
     // @ts-ignore - WXT doesn't expose externally_connectable in its manifest types yet
     externally_connectable: {
-      ids: ["*"],
-      // PR5: `stash-mcp-relay` dials the extension over a loopback
-      // TCP socket which the extension opens. The relay process lives
-      // at one of these origins so we list both. `ids` stays `["*"]`
-      // so PR4 (or any other extension consumer) can attach without
-      // further manifest edits.
+      // Allowlist (NOT `["*"]`): any extension the user installs would otherwise
+      // inherit Stash's tab-read capability via externally_connectable.
+      // - `mhipkdochajohklmmjinmicahanmldbj` is MCP-B's production extension id
+      //   (see @mcp-b/native-server docs), the only external extension that
+      //   needs to talk to the in-extension MCP server.
+      // - localhost / 127.0.0.1 allow a local stdio relay (@stash/mcp-relay)
+      //   to attach as a web page over a loopback origin.
+      ids: ["mhipkdochajohklmmjinmicahanmldbj"],
       matches: [
         "https://stash.illo.fyi/*",
-        "http://127.0.0.1/*",
         "http://localhost/*",
+        "http://127.0.0.1/*",
       ],
     },
     icons: {
