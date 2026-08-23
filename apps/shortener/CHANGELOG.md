@@ -1,5 +1,12 @@
 # @stash/shortener
 
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies [2443a0b]
+  - @stash/shared@0.9.0
+
 ## 0.1.4
 
 ### Patch Changes

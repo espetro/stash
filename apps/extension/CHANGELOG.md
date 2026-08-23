@@ -1,5 +1,26 @@
 # @stash/extension
 
+## 0.9.0
+
+### Minor Changes
+
+- 1f1b91f: Add a "Try MCP" panel to the extension options page. Connects to the background MCP server, lists tools, lets the user call one and see the response. Dogfoods the previously unused `connectToBackgroundMcp()`.
+- 63174e5: Tighten externally_connectable: drop `ids: ["*"]` (any extension), allowlist MCP-B's production id, add localhost for the local relay. Validate port.sender in the background handler.
+
+### Patch Changes
+
+- 7224704: New `@stash/mcp-relay` package bridging stdio agents (Claude Desktop, Cursor) to the extension's local MCP server. Extension manifest now allows localhost matches for the relay to attach.
+- 8d314f9: Align MCP port name across code and docs to "mcp" (was "stash-mcp" in docs). Adds regression test.
+- c936f09: Fix MCP self-connect blocker: allow runtime ports whose sender id equals the extension's own `browser.runtime.id` (popup/options pages), while still rejecting foreign ids spoofing a `chrome-extension://` URL.
+- Updated dependencies [8d72ba5]
+- Updated dependencies [7f99ed4]
+- Updated dependencies [2443a0b]
+- Updated dependencies [a7c69d4]
+  - @stash/server-core@0.2.0
+  - @stash/shared@0.9.0
+  - @stash/codec@0.9.0
+  - @stash/theme@0.9.0
+
 ## 0.8.1
 
 ### Patch Changes

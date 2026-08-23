@@ -1,5 +1,15 @@
 # @stash/e2e
 
+## 0.9.0
+
+### Minor Changes
+
+- e9a1cc3: Add agent-flow e2e specs and the MCP seed harness: fetch-only agent scenarios over the viewer's JSON/markdown alternate links and Accept negotiation, plus a headless extension MCP client (`connectMcpPort`) driving `initialize`/`tools/list`/`tools/call` over the runtime port, with `EXTENSION_SEED` as the canonical stash-library seed. Adds a README "verify with sample data" one-command path.
+
+### Patch Changes
+
+- @stash/codec@0.9.0
+
 ## 0.8.1
 
 ### Patch Changes
