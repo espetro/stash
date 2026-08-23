@@ -14,7 +14,8 @@
     "lint": "turbo run lint",
     "format": "turbo run format",
     "validate": "tsx scripts/validate.ts",
-    "screenshots": "tsx scripts/generate-screenshots.ts"
+    "screenshots": "tsx scripts/generate-screenshots.ts",
+    "eval:agents": "pnpm --filter @stash/evals run eval"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",

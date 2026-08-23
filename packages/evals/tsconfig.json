@@ -1,0 +1,12 @@
+{
+  "extends": "../shared/tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"],
+    "rootDir": ".",
+    "paths": {
+      "brotli-wasm": ["./src/node-brotli.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "vitest.config.ts"]
+}

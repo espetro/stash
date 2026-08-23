@@ -24,3 +24,4 @@ packages/e2e/playwright/.cache/
 packages/e2e/screenshots/
 packages/e2e/.gauge/
 packages/e2e/reports/
+packages/evals/report.json

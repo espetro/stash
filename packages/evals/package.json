@@ -1,0 +1,21 @@
+{
+  "name": "@stash/evals",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "eval": "tsx src/run.ts"
+  },
+  "devDependencies": {
+    "@stash/codec": "workspace:*",
+    "@stash/server-core": "workspace:*",
+    "@stash/shared": "workspace:*",
+    "@types/node": "^26.2.0",
+    "dotenv": "^17.2.3",
+    "typescript": "^7.0.2",
+    "tsx": "^4.21.0",
+    "unstorage": "^1.17.1",
+    "vitest": "4.1.7"
+  }
+}
