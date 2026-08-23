@@ -5,11 +5,15 @@
   "type": "module",
   "main": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./fixtures": "./src/fixtures.ts",
+    "./fixtures/payloads.json": "./fixtures/payloads.json",
+    "./negotiation": "./src/negotiation.ts"
   },
   "scripts": {
     "tscheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "generate:fixtures": "tsx fixtures/generate.ts"
   },
   "dependencies": {
     "@stash/codec": "workspace:*",
@@ -17,6 +21,8 @@
     "valibot": "^1.4.2"
   },
   "devDependencies": {
+    "@types/node": "^26.2.0",
+    "tsx": "^4.21.0",
     "typescript": "^7.0.2",
     "vite": "^8.0.12",
     "vitest": "4.1.7"

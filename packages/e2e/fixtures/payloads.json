@@ -2,7 +2,7 @@
   {
     "name": "single-tab",
     "description": "One shareable tab URL",
-    "fragment": "#p=Rg6F2BaFlzmqJ742haZGSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWI",
+    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZGSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWI",
     "itemCount": 1,
     "items": [
       {
@@ -14,7 +14,7 @@
   {
     "name": "three-tabs",
     "description": "Three tab URLs",
-    "fragment": "#p=Rg6F2BaFlzmqJ742haZOSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWKSuWh0dHBzOi8vc3RhY2tvdmVyZmxvdy5jb22uU3RhY2sgT3ZlcmZsb3eSvWh0dHBzOi8vZGV2ZWxvcGVyLm1vemlsbGEub3JnrE1ETiBXZWIgRG9jcw",
+    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZOSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWKSuWh0dHBzOi8vc3RhY2tvdmVyZmxvdy5jb22uU3RhY2sgT3ZlcmZsb3eSvWh0dHBzOi8vZGV2ZWxvcGVyLm1vemlsbGEub3JnrE1ETiBXZWIgRG9jcw",
     "itemCount": 3,
     "items": [
       {
@@ -34,7 +34,7 @@
   {
     "name": "five-tabs",
     "description": "Five tab URLs across categories",
-    "fragment": "#p=CG9IAIJwJdmyVwdohN6pB2Z-_JukD-XcClVvzdQstwTIsGnFV6VwFiTY7bYFiErW1to4CCoIPAN8pPdkEhXwETncyq8zM3v9g5pr-yPSx3cIpteZ8zQixmD6ikxeq7nMpSXFugwmKYvpJVqINWwm5kstRImXomxqQsZ5PfyuwMtMw3GKcnwyvTc0wq0vLCxBAmF5rWs9zVPDF-doT7TbqGA",
+    "fragment": "#p=CG9IAIJwJdmyVwdohN8rBUNmfPxfJCuRvAtEXzesWf2BXbdFV6VwGjDY7bYFiErW1to4CCoIPAN8pPdkEhXwETncyb8ztQay5D_7I9HH9yquN5nwjCkmAZ3TKSjdDLiUpLiMwqZ4CvslKtNErIVdyOXW4LjWzDYpLzRL-K7AK27L8apyfgmltw7Kb69CLQhQEuNW0WZao4ovLdWBHIzQ2",
     "itemCount": 5,
     "items": [
       {
@@ -62,7 +62,7 @@
   {
     "name": "long-title",
     "description": "Long-title tab to verify truncation",
-    "fragment": "#p=Rg6F2BaFlzmqJ742haZGS2SFodHRwczovL2V4YW1wbGUuY29tL2xvbmctdXJsLXBhdGjZWVRoaXMgaXMgYSB2ZXJ5IGxvbmcgdGl0bGUgdGhhdCBleGNlZWRzIHRoZSB0aGlydHkgY2hhcmFjdGVyIGxpbWl0IGFuZCBzaG91bGQgYmUgdHJ1bmNhdGVk",
+    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZGS2SFodHRwczovL2V4YW1wbGUuY29tL2xvbmctdXJsLXBhdGjZWVRoaXMgaXMgYSB2ZXJ5IGxvbmcgdGl0bGUgdGhhdCBleGNlZWRzIHRoZSB0aGlydHkgY2hhcmFjdGVyIGxpbWl0IGFuZCBzaG91bGQgYmUgdHJ1bmNhdGVk",
     "itemCount": 1,
     "items": [
       {
@@ -74,7 +74,7 @@
   {
     "name": "special-chars",
     "description": "URL and title with reserved/special characters",
-    "fragment": "#p=Rg6F2BaFlzmqJ742haZGS2TZodHRwczovL2V4YW1wbGUuY29tL3BhdGg_cXVlcnk9dmFsdWUmb3RoZXI9MTIzI3NlY3Rpb268VVJMIHdpdGggc3BlY2lhbCBjaGFycyAmICMgPw",
+    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZGS2TZodHRwczovL2V4YW1wbGUuY29tL3BhdGg_cXVlcnk9dmFsdWUmb3RoZXI9MTIzI3NlY3Rpb268VVJMIHdpdGggc3BlY2lhbCBjaGFycyAmICMgPw",
     "itemCount": 1,
     "items": [
       {
@@ -86,7 +86,7 @@
   {
     "name": "unicode",
     "description": "URL path and title in Japanese",
-    "fragment": "#p=Rg6F2BaFlzmqJ742haZGS2SdodHRwczovL2V4YW1wbGUuY29tL-aXpeacrOiqni_jg4bjgrnjg4jZJOaXpeacrOiqnuOBruODmuODvOOCuCAtIFVuaWNvZGUgVGVzdA",
+    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZGS2SdodHRwczovL2V4YW1wbGUuY29tL-aXpeacrOiqni_jg4bjgrnjg4jZJOaXpeacrOiqnuOBruODmuODvOOCuCAtIFVuaWNvZGUgVGVzdA",
     "itemCount": 1,
     "items": [
       {
@@ -98,7 +98,7 @@
   {
     "name": "chrome-mixed",
     "description": "URLs including chrome:// entries",
-    "fragment": "#p=Rg6F2BaFlzmqJ742haZOSs2Nocm9tZTovL2V4dGVuc2lvbnOqRXh0ZW5zaW9uc5KxY2hyb21lOi8vc2V0dGluZ3OoU2V0dGluZ3OSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWI",
+    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZOSs2Nocm9tZTovL2V4dGVuc2lvbnOqRXh0ZW5zaW9uc5KxY2hyb21lOi8vc2V0dGluZ3OoU2V0dGluZ3OSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWI",
     "itemCount": 3,
     "items": [
       {
@@ -125,7 +125,7 @@
   {
     "name": "expired",
     "description": "An expired share link payload",
-    "fragment": "#p=Rg6F2BaFlzmqIj_2haZGSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWI",
+    "fragment": "#p=Rg6F2BqFlzmqKvRGhaZGSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWI",
     "itemCount": 1,
     "items": [
       {
@@ -137,7 +137,7 @@
   {
     "name": "hundred-tabs",
     "description": "100 tabs to force budget truncation",
-    "fragment": "#p=CGz8v4J0HdoNzhxBnJLrNHuvw2lCCNgviqq_i5xc4xQm9BaeSBii59Uut0HLm7oKwREkQ1YECwO1m4ebnUZKA1WrY8ZbqUKW6jS3XcQl6Ihr2Hy-cgFf6P8iRu7Mapq-A_44B4N12vSWSW5tIeDL96T1RfGr1QfCPLu5BPv-azcJ3PK9RPIend_Prl51f0JqpWHKWUqnZyqXnqJSZS1VZc6suex415cyrttz51D3qBr4TPwhM8jcJADqWBHIqBexcGsSlDChXZYF2XTYYN-WAdVsuOHfh7cKRcFMAdCwJ5FQK2Lk0iEsZUK7KAu26bDBuygHrtlxw7sLbjSPjpgHoWBLIqRSwc2kQlzKgXJUF2nXZYNyUA9ZtueDchbcHR8HNANCxJJBTKWDn0iAuZUC5Kgu067LBuCkHrNtywbkLby8cFW4WAB1LAjmVAnYuDeJSBpSrskC7LhuMm3LAui0XnLvw9sZR42YD0LEkkFMpYOfSIC5lQLkqC7TrssG4KQes23LBuQtvHxwNbg4AHUsCOZUCdi4N4lIGlKuyQLsuG4ybcsC6LRecu_D2xdHi5gLQsSSQUylg59IgLmVAuSoLtOuywbgpB6zbcsG5C28_HB1uHgAdSwI5lQJ2Lg3iUgaUq7JAuy4bjJtywLotF5y7xxw",
+    "fragment": "#p=CGz8v4J0HdoNzhxBnJLrNHuvw2ggGGrRZEFd9FT_RKc6CU0kDlNz6pVZoOXO3QRijJIjqQAHgdrNw8_MoScBqNex4S3WoUt3Gluu4BD0RDfuPH24gqGGAEvkHr2H6CvjvBADe4zRHpqX3hcavsJ85M8On9xAl_xjyHuTzr90sfMfzGsVzeHo3v37Z-QWtmYolZymVmq1ceo5KmblUlTW36rLnUVPOvGrLnU_do24QO_GDwKR-kwCgY0kgp1LAzqVBXMqAclUWaNdlg3FTDli35YJzF94uHAk3BUDHkkBOpYCdS4O4lAHlqizQrssG46YcsG7LBecuvN04Mm4agI4lgZxKATuXBnEpA8pVWaBdlw3GTTlg3ZYLzl14e3AU3AwAHUsCOZUCdi4N4lIGlKuyQLsuG4ybcsC6LRecu_D2wlHhZgHQsSSQUylg59IgLmVAuSoLtOuywbgpB6zbcsG5C29vHDVuNgAdSwI5lQJ2Lg3iUgaUq7JAuy4bjJtywLotF5y78PbB0eDmANCxJJBTKWDn0iAuZUC5Kgu067LBuCkHrNtywbkLb18cLW4uAB1LAjmVAnYuDeJSBpSrskC7LhuMm3LAui0XnLvw9sPR4eYB0LEkkFMpYOfSIC5lQLkqC7TrssG4KQes23LBuXvMAQ",
     "itemCount": 100,
     "items": [
       {
@@ -541,5 +541,54 @@
         "title": "Example tab number 99 demonstrating budget overflow on purpose"
       }
     ]
+  },
+  {
+    "name": "qr-single-tab",
+    "description": "One tab encoded for QR (#q= base32 fragment)",
+    "fragment": "#q=DBMKIBA5BOYDKCZOONKGBZINBNGIZFMTIOR2HA4Z2F4XWO2LUNB2WELTDN5W2MR3JOREHKYQD",
+    "itemCount": 1,
+    "items": [
+      {
+        "url": "https://github.com",
+        "title": "GitHub"
+      }
+    ]
+  },
+  {
+    "name": "qr-three-tabs",
+    "description": "Three tabs encoded for QR (#q= base32 fragment)",
+    "fragment": "#q=DDN7ABIE4BG3M3CD4FTHDDEJXZLAVBWP7XNEXE5YFSTIFYQD3CN6LAJXV6KMVPE6OMXAKRE6TQPZOLVGW3K5GAEAA42LNWGAOZ5IE6WF7S54TFB3HKFZRV7EN5GFNGIIZXXA7EEAA2FYDXUYPV2P7PSCALWHNBNCBYMPVJSOBVQBS7ZB6GVLKPBI6ZXLH4DY",
+    "itemCount": 3,
+    "items": [
+      {
+        "url": "https://github.com",
+        "title": "GitHub"
+      },
+      {
+        "url": "https://stackoverflow.com",
+        "title": "Stack Overflow"
+      },
+      {
+        "url": "https://developer.mozilla.org",
+        "title": "MDN Web Docs"
+      }
+    ]
+  },
+  {
+    "name": "tagged-stash",
+    "description": "One tab with title, tags and note metadata",
+    "fragment": "#p=RhqF2BqFlzmqMHKGhaZGSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWKhdKVUaXRsZaFnkahyZXNlYXJjaKFupmEgbm90ZQ",
+    "itemCount": 1,
+    "items": [
+      {
+        "url": "https://github.com",
+        "title": "GitHub"
+      }
+    ],
+    "title": "Title",
+    "tags": [
+      "research"
+    ],
+    "note": "a note"
   }
 ]
