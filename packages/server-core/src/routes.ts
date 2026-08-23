@@ -12,12 +12,7 @@ import {
 } from "./store";
 import { handleMcpRequest, serverCardResponse } from "./mcp";
 import { cors, ID_RE, MAX_PAYLOAD_CHARS } from "./constants";
-import {
-  allowRequest,
-  defaultClientIp,
-  tooManyRequests,
-  mcpTooManyRequests,
-} from "./ratelimit";
+import { allowRequest, defaultClientIp, tooManyRequests, mcpTooManyRequests } from "./ratelimit";
 import {
   classifyClient,
   classifyOrigin,
@@ -26,6 +21,11 @@ import {
   type TelemetryRoute,
   type TtlBucket,
 } from "./telemetry";
+import {
+  negotiateFormat,
+  isValidFormatParam,
+  type NegotiatedFormat,
+} from "@stash/shared/negotiation";
 import type { StashServerDeps } from "./config";
 
 function errorResponse(status: number, message: string, extra: Record<string, string> = {}) {
@@ -97,11 +97,7 @@ async function routeRequest(
     const limiter = deps.rateLimiter;
     if (
       limiter &&
-      !(await allowRequest(
-        limiter.stash,
-        (limiter.clientIp ?? defaultClientIp)(request),
-        "closed",
-      ))
+      !(await allowRequest(limiter.stash, (limiter.clientIp ?? defaultClientIp)(request), "closed"))
     ) {
       return tooManyRequests();
     }
@@ -167,11 +163,30 @@ async function routeRequest(
     }
   }
 
-  // GET /s/:id(.json|.md)? — content negotiation by suffix (path URL, no fragment limits)
-  const match = url.pathname.match(/^\/s\/([A-Za-z2-7]{6})(\.(?:json|md|txt))?\/?$/);
+  // GET /s/:id — content negotiation via ?format= then Accept header.
+  // The legacy .json|.md|.txt suffix routes are deprecated for one
+  // release: they 301-redirect to /s/:id?format=<fmt>.
+  const match = url.pathname.match(/^\/s\/([A-Za-z2-7]{6})(\.(json|md|txt))?\/?$/);
   if (match && request.method === "GET") {
     const id = match[1].toUpperCase();
     if (!ID_RE.test(id)) return errorResponse(400, "Invalid id");
+
+    if (match[2]) {
+      const suffix = match[2].slice(1) as NegotiatedFormat;
+      return new Response(null, {
+        status: 301,
+        headers: { Location: `${url.origin}/s/${id}?format=${suffix}`, ...cors },
+      });
+    }
+
+    const formatParam = url.searchParams.get("format");
+    if (formatParam !== null && formatParam !== "" && !isValidFormatParam(formatParam)) {
+      return errorResponse(
+        400,
+        `Unknown format "${formatParam}"; supported: json, md, markdown, txt, plain, text`,
+      );
+    }
+    const format = negotiateFormat(request.headers.get("Accept"), formatParam);
 
     const entry = await getStash(deps.storage, id);
     if (!entry) return errorResponse(404, "Not found or expired");
@@ -181,8 +196,6 @@ async function routeRequest(
     const decoded = await decodeEncodedPayload(entry.p, brotli);
     const cache = cacheControlFor(entry);
     const baseHeaders = { "Cache-Control": cache, ...cors };
-
-    const format = match[2]?.slice(1) ?? negotiate(request.headers.get("Accept"));
 
     if (format === "md") {
       meta.route = "s_view_md";
@@ -218,10 +231,7 @@ async function routeRequest(
     if (
       request.method === "POST" &&
       limiter &&
-      !(await allowRequest(
-        limiter.mcp,
-        (limiter.clientIp ?? defaultClientIp)(request),
-      ))
+      !(await allowRequest(limiter.mcp, (limiter.clientIp ?? defaultClientIp)(request)))
     ) {
       return mcpTooManyRequests();
     }
@@ -241,22 +251,4 @@ async function routeRequest(
   }
 
   return errorResponse(404, "Not found");
-}
-
-function negotiate(accept: string | null): "md" | "json" | "txt" | null {
-  if (!accept) return null;
-  const a = accept.toLowerCase();
-  const html = a.indexOf("text/html");
-  const md = a.indexOf("text/markdown");
-  const json = a.indexOf("application/json");
-  const txt = a.indexOf("text/plain");
-  const best = Math.min(
-    md >= 0 ? md : Infinity,
-    json >= 0 ? json : Infinity,
-    txt >= 0 ? txt : Infinity,
-  );
-  if (best === Infinity || (html >= 0 && html < best)) return null;
-  if (best === md) return "md";
-  if (best === txt) return "txt";
-  return "json";
 }

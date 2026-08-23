@@ -123,7 +123,7 @@ describe("rate limiting: exempt routes", () => {
 
     const limiter = fakeLimiter(false);
     mockEnv.RL_STASH = limiter;
-    const res = await fetchWorker(`https://short.example.com/s/${id}.json`);
+    const res = await fetchWorker(`https://short.example.com/s/${id}?format=json`);
     expect(res.status).toBe(200);
     expect(limiter.getCalls()).toBe(0);
   });

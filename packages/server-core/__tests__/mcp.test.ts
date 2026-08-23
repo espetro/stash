@@ -94,7 +94,11 @@ describe("stash_create maxTtl", () => {
     maxTtl: "7d",
   });
 
-  async function rpcOn(server: ReturnType<typeof createStashServer>, method: string, params?: unknown) {
+  async function rpcOn(
+    server: ReturnType<typeof createStashServer>,
+    method: string,
+    params?: unknown,
+  ) {
     const res = await server.handle(
       new Request(`${ORIGIN}/mcp`, {
         method: "POST",
@@ -135,6 +139,22 @@ describe("GET /.well-known/mcp-server-card", () => {
     const card: any = await res.json();
     expect(card.name).toBe("stash");
     expect(card.version).toBe("0.1.0");
+
+    // Agent-facing endpoint inventory (W3).
+    expect(card.endpoints).toEqual([
+      {
+        url: `${ORIGIN}/s/{id}`,
+        description: expect.stringContaining("content negotiation"),
+      },
+      {
+        url: `${ORIGIN}/openapi.json`,
+        description: expect.stringContaining("OpenAPI"),
+      },
+      {
+        url: `${ORIGIN}/llms.txt`,
+        description: expect.stringContaining("LLM"),
+      },
+    ]);
 
     // Dual-surface `servers` array.
     expect(Array.isArray(card.servers)).toBe(true);

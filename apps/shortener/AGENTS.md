@@ -5,6 +5,12 @@ Cloudflare Worker providing opt-in short links (`POST /api/stash`,
 `/.well-known/mcp-server-card`). All logic lives in
 `@stash/server-core`; this app only wires bindings.
 
+Short-link reads use the consolidated `?format=` API:
+`GET /s/<id>?format=json|md|txt` (or `Accept` negotiation) returns the
+decoded payload; an unknown `format` value is a `400` JSON error. The
+legacy `.json`/`.md`/`.txt` suffix routes 301-redirect to the `?format=`
+form for one release and are then removed.
+
 The discovery card advertises **two** MCP surfaces under `servers[]`:
 
 - `stash-shortener` — this worker, `transport: "streamable-http"`,

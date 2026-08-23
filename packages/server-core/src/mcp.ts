@@ -38,7 +38,8 @@ export const MCP_TOOLS = [
 export const EXTENSION_MCP_TOOLS = [
   {
     name: "stash_snapshot_tabs",
-    description: "Read-only snapshot of the tabs currently open in this browser window (url + title).",
+    description:
+      "Read-only snapshot of the tabs currently open in this browser window (url + title).",
   },
   {
     name: "stash_list",
@@ -94,7 +95,10 @@ export function buildServer(origin: string, deps: StashServerDeps): McpServer {
       if (deps.maxTtl && SERVER_TTL_HOURS[ttl] > SERVER_TTL_HOURS[deps.maxTtl]) {
         return {
           content: [
-            { type: "text", text: JSON.stringify({ error: `ttl exceeds maximum allowed (${deps.maxTtl})` }) },
+            {
+              type: "text",
+              text: JSON.stringify({ error: `ttl exceeds maximum allowed (${deps.maxTtl})` }),
+            },
           ],
           isError: true,
         };
@@ -182,11 +186,29 @@ export async function handleMcpRequest(request: Request, deps: StashServerDeps):
 /** GET /.well-known/mcp-server-card — agent discovery card. */
 export function serverCardResponse(origin: string): Response {
   const shortenerTools = MCP_TOOLS.map(({ name, description }) => ({ name, description }));
-  const extensionTools = EXTENSION_MCP_TOOLS.map(({ name, description }) => ({ name, description }));
+  const extensionTools = EXTENSION_MCP_TOOLS.map(({ name, description }) => ({
+    name,
+    description,
+  }));
   const card = {
     name: "stash",
     version: "0.1.0",
     docs: `${origin}/llms.txt`,
+    endpoints: [
+      {
+        url: `${origin}/s/{id}`,
+        description:
+          "Resolve a short stash id by content negotiation: ?format=json|md|txt wins, then the Accept header (application/json, text/markdown, text/plain), otherwise a 302 to the HTML viewer.",
+      },
+      {
+        url: `${origin}/openapi.json`,
+        description: "OpenAPI 3.1 specification of all HTTP endpoints.",
+      },
+      {
+        url: `${origin}/llms.txt`,
+        description: "LLM-oriented documentation for agents consuming Stash.",
+      },
+    ],
     servers: [
       {
         name: "stash-shortener",
