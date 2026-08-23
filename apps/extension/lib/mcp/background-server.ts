@@ -40,8 +40,12 @@ export const ALLOWED_ORIGINS: readonly string[] = [
 
 /**
  * Decide whether an incoming runtime port is allowed to talk to the
- * background MCP server. Returns `true` iff the sender's extension id
- * is on `ALLOWED_EXTENSION_IDS`, or the sender's page URL has a
+ * background MCP server. Connections from this extension itself
+ * (popup, options page) are always allowed: the browser sets
+ * `sender.id` to our own `runtime.id`, which no foreign extension
+ * can spoof. Returns `true` iff the sender is the extension itself,
+ * the sender's extension id is on `ALLOWED_EXTENSION_IDS`, or the
+ * sender's page URL has a
  * scheme + hostname matching one of `ALLOWED_ORIGINS` (port is
  * intentionally ignored, mirroring the externally_connectable manifest
  * match-pattern behaviour).
@@ -51,6 +55,7 @@ export function isSenderAllowed(port: RuntimePort): boolean {
   if (!sender) return false;
 
   if (sender.id) {
+    if (sender.id === browser.runtime.id) return true;
     return ALLOWED_EXTENSION_IDS.includes(sender.id);
   }
 
@@ -64,8 +69,7 @@ export function isSenderAllowed(port: RuntimePort): boolean {
     return (ALLOWED_ORIGINS as readonly string[]).some((allowed) => {
       try {
         const allowedUrl = new URL(allowed);
-        return allowedUrl.protocol === parsed.protocol
-          && allowedUrl.hostname === parsed.hostname;
+        return allowedUrl.protocol === parsed.protocol && allowedUrl.hostname === parsed.hostname;
       } catch {
         return false;
       }

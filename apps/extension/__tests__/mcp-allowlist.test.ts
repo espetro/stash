@@ -26,6 +26,18 @@ describe("isSenderAllowed", () => {
     expect(isSenderAllowed(port({ id: ALLOWED_EXTENSION_IDS[0] }))).toBe(true);
   });
 
+  it("accepts the extension's own id (self connect from popup/options)", () => {
+    expect(isSenderAllowed(port({ id: fakeBrowser.runtime.id }))).toBe(true);
+  });
+
+  it("rejects a foreign extension id spoofing a chrome-extension url", () => {
+    expect(
+      isSenderAllowed(
+        port({ id: "some-other-extension", url: `chrome-extension://${fakeBrowser.runtime.id}/options/index.html` }),
+      ),
+    ).toBe(false);
+  });
+
   it("rejects an extension id not on the allowlist", () => {
     expect(isSenderAllowed(port({ id: "some-other-extension" }))).toBe(false);
   });
@@ -248,6 +260,34 @@ describe("background MCP listener sender allowlist", () => {
   it("rejects a port with no sender", () => {
     const { trigger } = installBackgroundListener();
     const port = makePort(); // sender undefined
+
+    trigger(port);
+
+    expect(port.disconnect).toHaveBeenCalledTimes(1);
+    expect(port.onMessage.addListener).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalled();
+  });
+
+  it("accepts a same-extension sender (self connect from options page)", () => {
+    const { trigger } = installBackgroundListener();
+    const ownId = fakeBrowser.runtime.id;
+    const port = makePort({
+      sender: { id: ownId, url: `chrome-extension://${ownId}/options/index.html` },
+    });
+
+    trigger(port);
+
+    expect(port.disconnect).not.toHaveBeenCalled();
+    expect(port.onMessage.addListener).toHaveBeenCalled();
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
+
+  it("rejects a foreign extension id spoofing a chrome-extension url", () => {
+    const { trigger } = installBackgroundListener();
+    const ownId = fakeBrowser.runtime.id;
+    const port = makePort({
+      sender: { id: "some-other-extension", url: `chrome-extension://${ownId}/options/index.html` },
+    });
 
     trigger(port);
 

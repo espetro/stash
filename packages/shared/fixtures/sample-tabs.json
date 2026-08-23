@@ -1,0 +1,44 @@
+{
+  "five-tabs": [
+    {
+      "url": "https://github.com",
+      "title": "GitHub"
+    },
+    {
+      "url": "https://stackoverflow.com",
+      "title": "Stack Overflow"
+    },
+    {
+      "url": "https://developer.mozilla.org",
+      "title": "MDN Web Docs"
+    },
+    {
+      "url": "https://www.reddit.com/r/webdev",
+      "title": "Reddit - webdev"
+    },
+    {
+      "url": "https://css-tricks.com",
+      "title": "CSS-Tricks"
+    }
+  ],
+  "three-tabs": [
+    {
+      "url": "https://github.com",
+      "title": "GitHub"
+    },
+    {
+      "url": "https://stackoverflow.com",
+      "title": "Stack Overflow"
+    },
+    {
+      "url": "https://developer.mozilla.org",
+      "title": "MDN Web Docs"
+    }
+  ],
+  "single-tab": [
+    {
+      "url": "https://github.com",
+      "title": "GitHub"
+    }
+  ]
+}

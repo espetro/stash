@@ -23,10 +23,7 @@ export default defineBackground(() => {
     if (typedPort.name !== MCP_PORT_NAME) return;
 
     if (!isSenderAllowed(typedPort)) {
-      console.warn(
-        "[mcp] rejecting connection from untrusted sender",
-        senderDebugInfo(typedPort),
-      );
+      console.warn("[mcp] rejecting connection from untrusted sender", senderDebugInfo(typedPort));
       try {
         typedPort.disconnect();
       } catch {
