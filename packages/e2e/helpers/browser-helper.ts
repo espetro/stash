@@ -120,6 +120,22 @@ export async function closeContext(context: BrowserContext): Promise<void> {
 
 /** Pick the extension id from the loaded extension's background pages. */
 export async function getExtensionId(context: BrowserContext): Promise<string> {
+  // MV3: the background is a service worker, not a background page.
+  const sws = context.serviceWorkers();
+  if (sws.length > 0) {
+    const match = sws[0].url().match(/chrome-extension:\/\/([a-z]{32})\//);
+    if (match) return match[1];
+  }
+  try {
+    const sw =
+      sws[0] ?? (await context.waitForEvent("serviceworker", { timeout: 10000 }).catch(() => null));
+    if (sw) {
+      const match = sw.url().match(/chrome-extension:\/\/([a-z]{32})\//);
+      if (match) return match[1];
+    }
+  } catch {
+    /* fall through to page probing */
+  }
   const bgPages = context.backgroundPages();
   if (bgPages.length > 0) {
     const url = bgPages[0].url();

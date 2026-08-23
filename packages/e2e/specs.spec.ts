@@ -15,4 +15,11 @@ import "./register-steps.ts";
 import { loadSpecs } from "./lib/spec-loader.ts";
 import * as path from "node:path";
 
+// Playwright's default registerHooks() loader chain does not run
+// module.register() hooks registered later in-process (our wasm loader
+// in helpers/agent-fetch-server.ts), so the viewer's vendored .wasm
+// import is parsed as JS and explodes. Forcing Playwright onto its
+// async loader chain keeps both coexisting. See README "Agent flow".
+process.env.PLAYWRIGHT_FORCE_ASYNC_LOADER ??= "1";
+
 loadSpecs(path.resolve(process.cwd(), "specs"));

@@ -32,6 +32,34 @@ pnpm install
 pnpm --filter @stash/e2e exec playwright install chromium
 ```
 
+Note: some machines (including the one this suite was developed on)
+lack the Playwright browser binaries at `~/.cache/ms-playwright`. The
+`playwright install chromium` line above is a one-time fix; without it
+every test fails at browser launch.
+
+## Verify with sample data (agent path)
+
+The whole app can be verified against committed sample data with one
+command chain, no manual setup:
+
+```bash
+pnpm --filter @stash/extension run build \
+  && pnpm --filter stash-viewer run build \
+  && pnpm --filter @stash/e2e run test
+```
+
+Ground truth lives in `packages/shared/fixtures/payloads.json`
+(canonical; mirrored into `packages/e2e/fixtures/` by the generator)
+and `packages/shared/fixtures/sample-tabs.json`. Each payload entry
+carries the encoded fragment plus the expected decoded `items`, so
+failures name the exact mismatch. The extension seed for MCP
+scenarios is `EXTENSION_SEED` in `helpers/mcp-seed.ts`, derived from
+the same sample-tabs datasets.
+
+The extension build is only needed for the `agent-flow-extension`
+spec (it drives the built MV3 background service worker); the viewer
+build is handled automatically by Playwright's `webServer` config.
+
 ## Running Tests
 
 ### All tests
@@ -97,6 +125,8 @@ packages/e2e/
 ├── specs/                           # .spec files (markdown-style)
 │   ├── viewer-rendering.spec
 │   ├── extension-link-generation.spec
+│   ├── agent-flow.spec
+│   ├── agent-flow-extension.spec
 │   └── end-to-end-integration.spec
 ├── step_implementations/            # step() handlers
 │   ├── common-steps.ts
@@ -105,6 +135,7 @@ packages/e2e/
 │   ├── viewer-steps.ts
 │   ├── clipboard-steps.ts
 │   ├── popup-steps.ts
+│   ├── agent-flow-steps.ts          # fetch-only agent + extension MCP
 │   └── settings-steps.ts
 ├── lib/
 │   ├── step-registry.ts             # token compile + longest-literal match
@@ -116,7 +147,9 @@ packages/e2e/
 ├── helpers/
 │   ├── browser-helper.ts            # shared chromium singleton
 │   ├── encoder-helper.ts
-│   └── decoder-helper.ts
+│   ├── decoder-helper.ts
+│   ├── mcp-seed.ts                  # extension MCP JSON-RPC client + seed
+│   └── agent-fetch-server.ts        # local /s?p= stand-in (Pages Functions)
 ├── fixtures/
 │   ├── payloads.json                # committed pre-encoded payloads
 │   ├── sample-tabs.json
@@ -167,6 +200,33 @@ Parameter placeholders:
 - URL-budget truncation (codec-level)
 - Empty selection, chrome:// filtering
 - Link expiry, version, base64url fragment marker
+
+### Agent Flow (`specs/agent-flow.spec`)
+- JSON alternate link (`<link rel="alternate" type="application/json">`)
+  discovered from served HTML, fetched, item count + known URL/title
+- Markdown alternate link round-trip
+- `Accept: text/plain` and `Accept: text/markdown` negotiation
+- Fixture-driven (three-tabs, five-tabs, single-tab)
+
+### Agent Flow Extension (`specs/agent-flow-extension.spec`)
+- MCP `initialize` + `tools/list` over the extension runtime port
+  (spoken from the options page, the same surface MCP-B uses)
+- Full 8-tool list asserted
+- `stash_snapshot_tabs` shape check
+- Canonical seed via `stash_create`, then `stash_list` /
+  `stash_get` / `stash_search` round-trip
+- Requires a built extension (`pnpm --filter @stash/extension run build`)
+
+#### Why the agent surface needs a local server
+
+`astro preview` serves the static build only; the Cloudflare Pages
+Function implementing `GET /s?p=&format=` (and Accept negotiation)
+does not execute locally. `helpers/agent-fetch-server.ts` imports the
+real `onRequest` handler from `apps/viewer/functions/s.ts` and serves
+it over a loopback HTTP server, with `context.next()` proxied to the
+preview server. A small wasm loader hook (registered from
+`specs.spec.ts` via `PLAYWRIGHT_FORCE_ASYNC_LOADER`) lets Node import
+the vendored brotli `.wasm` the handler needs.
 
 ## Configuration
 
