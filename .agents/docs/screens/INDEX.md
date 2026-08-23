@@ -36,7 +36,7 @@ Viewer
 | Options page | extension options page (Shortener/Telemetry forms) | `screen-extension-5.md` |
 | Landing | viewer `/` | `screen-viewer-1.md` |
 | Create stash | viewer `/s/new` | `screen-viewer-2.md` |
-| Tab viewer | viewer `/s/<id>` plus `/s`, `/json`, `/md` payload routes | `screen-viewer-3.md` |
+| Tab viewer | viewer `/s/<id>` plus `/s?p=` content-negotiated payload route | `screen-viewer-3.md` |
 | My Stashes (viewer) | viewer `/stashes` | `screen-viewer-4.md` |
 | ShareDrawer dialog | viewer, bottom drawer from tab viewer | `screen-viewer-5.md` |
 | QR dialog | viewer, dialog from tab viewer | `screen-viewer-6.md` |

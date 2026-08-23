@@ -10,7 +10,7 @@ export function buildOpenApiSpec() {
       title: "Stash API",
       version: "1.2.0",
       description:
-        "API documentation for AI agents consuming Stash endpoints. Two surfaces: the viewer's canonical decode at https://stash.illo.fyi (GET /s?p=<payload> with Accept or ?format= negotiation) and the shortener at https://s.illo.fyi (POST /api/stash, GET /s/<id>[.json|.md|.txt]). The `p` parameter contains the payload string taken from the share URL fragment (everything after #p= or #q=).",
+        "API documentation for AI agents consuming Stash endpoints. Two surfaces: the viewer's canonical decode at https://stash.illo.fyi (GET /s?p=<payload> with Accept or ?format= negotiation) and the shortener at https://s.illo.fyi (POST /api/stash, GET /s/<id>?format=json|md|txt). The `p` parameter contains the payload string taken from the share URL fragment (everything after #p= or #q=).",
     },
     servers: [
       { url: "https://stash.illo.fyi", description: "Stash viewer (decode endpoints)" },
@@ -154,7 +154,7 @@ export function buildOpenApiSpec() {
         get: {
           summary: "Resolve short stash id by content negotiation",
           description:
-            "Returns the decoded stash contents for the given short id. Format is selected by (1) optional .json/.md/.txt suffix on the path, or (2) Accept header (application/json, text/markdown, text/plain). Without a recognized format the request 302-redirects to the interactive viewer at /s#p=<encoded>.",
+            "Returns the decoded stash contents for the given short id. Format is selected by (1) the optional ?format=json|md|txt query parameter, or (2) Accept header (application/json, text/markdown, text/plain). An unknown format value returns 400 JSON. Without a recognized format the request 302-redirects to the interactive viewer at /s#p=<encoded>. Legacy .json/.md/.txt path suffixes 301-redirect to the ?format= form and will be removed in a future release.",
           servers: [{ url: "https://s.illo.fyi" }],
           parameters: [
             {
@@ -165,6 +165,16 @@ export function buildOpenApiSpec() {
                 type: "string",
                 pattern: "^[A-Z2-7]{6}$",
                 description: "6-char base32 stash id",
+              },
+            },
+            {
+              name: "format",
+              in: "query",
+              required: false,
+              schema: {
+                type: "string",
+                enum: ["json", "md", "txt"],
+                description: "Explicit output format override",
               },
             },
           ],
@@ -184,49 +194,11 @@ export function buildOpenApiSpec() {
               },
             },
             "302": { description: "Redirect to viewer SPA (HTML negotiation)" },
-            "404": {
-              description: "Unknown or expired stash",
+            "400": {
+              description: "Unknown format parameter",
               content: {
                 "application/json": {
                   schema: { $ref: "#/components/schemas/ErrorResponse" },
-                },
-              },
-            },
-            "410": {
-              description: "Stash expired",
-              content: {
-                "application/json": {
-                  schema: { $ref: "#/components/schemas/ErrorResponse" },
-                },
-              },
-            },
-          },
-        },
-      },
-      "/s/{id}.json": {
-        get: {
-          summary: "Resolve short stash id as JSON",
-          description:
-            "Alias of GET /s/{id} with the .json suffix; equivalent to GET /s/{id} with Accept: application/json.",
-          servers: [{ url: "https://s.illo.fyi" }],
-          parameters: [
-            {
-              name: "id",
-              in: "path",
-              required: true,
-              schema: {
-                type: "string",
-                pattern: "^[A-Z2-7]{6}$",
-                description: "6-char base32 stash id",
-              },
-            },
-          ],
-          responses: {
-            "200": {
-              description: "Decoded JSON",
-              content: {
-                "application/json": {
-                  schema: { $ref: "#/components/schemas/DecodedPayload" },
                 },
               },
             },
@@ -238,38 +210,8 @@ export function buildOpenApiSpec() {
                 },
               },
             },
-          },
-        },
-      },
-      "/s/{id}.md": {
-        get: {
-          summary: "Resolve short stash id as Markdown",
-          description:
-            "Alias of GET /s/{id} with the .md suffix; equivalent to GET /s/{id} with Accept: text/markdown.",
-          servers: [{ url: "https://s.illo.fyi" }],
-          parameters: [
-            {
-              name: "id",
-              in: "path",
-              required: true,
-              schema: {
-                type: "string",
-                pattern: "^[A-Z2-7]{6}$",
-                description: "6-char base32 stash id",
-              },
-            },
-          ],
-          responses: {
-            "200": {
-              description: "Markdown link list",
-              content: {
-                "text/markdown": {
-                  schema: { type: "string" },
-                },
-              },
-            },
-            "404": {
-              description: "Unknown or expired stash",
+            "410": {
+              description: "Stash expired",
               content: {
                 "application/json": {
                   schema: { $ref: "#/components/schemas/ErrorResponse" },

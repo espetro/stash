@@ -40,10 +40,18 @@ describe("buildOpenApiSpec", () => {
     expect(format).toBeDefined();
   });
 
-  it("exposes the shortener /s/{id}[.json|.md] path family", () => {
+  it("exposes the shortener /s/{id} path with a format param, no suffix paths", () => {
     expect(spec.paths["/s/{id}"]).toBeDefined();
-    expect(spec.paths["/s/{id}.json"]).toBeDefined();
-    expect(spec.paths["/s/{id}.md"]).toBeDefined();
+    expect(spec.paths["/s/{id}.json"]).toBeUndefined();
+    expect(spec.paths["/s/{id}.md"]).toBeUndefined();
+    expect(spec.paths["/s/{id}.txt"]).toBeUndefined();
+
+    const route = spec.paths["/s/{id}"] as any;
+    const params = route.get?.parameters as { name: string; in: string }[];
+    const id = params?.find((x) => x.name === "id" && x.in === "path");
+    const format = params?.find((x) => x.name === "format" && x.in === "query");
+    expect(id).toBeDefined();
+    expect(format).toBeDefined();
   });
 
   it("exposes /api/stash for short-link creation", () => {

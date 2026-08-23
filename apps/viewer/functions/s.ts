@@ -1,4 +1,5 @@
 import { PayloadDecodeError } from "@stash/codec";
+import { isValidFormatParam, negotiateFormat } from "@stash/shared/negotiation";
 import {
   decodePayload,
   buildCacheControl,
@@ -11,34 +12,6 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 } as const;
-
-function negotiateFormat(request: Request, url: URL): "md" | "json" | "txt" | null {
-  // 1. Explicit ?format=
-  const format = url.searchParams.get("format");
-  if (format === "md" || format === "markdown") return "md";
-  if (format === "json") return "json";
-  if (format === "txt" || format === "plain" || format === "text") return "txt";
-
-  // 2. Accept header
-  const accept = (request.headers.get("Accept") ?? "").toLowerCase();
-  // Only negotiate when HTML is NOT explicitly preferred (browsers send text/html first)
-  const htmlIndex = accept.indexOf("text/html");
-  const mdIndex = accept.indexOf("text/markdown");
-  const jsonIndex = accept.indexOf("application/json");
-  const txtIndex = accept.indexOf("text/plain");
-  const minNonHtml = Math.min(
-    mdIndex >= 0 ? mdIndex : Infinity,
-    jsonIndex >= 0 ? jsonIndex : Infinity,
-    txtIndex >= 0 ? txtIndex : Infinity,
-  );
-  if (minNonHtml !== Infinity && (htmlIndex < 0 || minNonHtml < htmlIndex)) {
-    if (minNonHtml === mdIndex) return "md";
-    if (minNonHtml === txtIndex) return "txt";
-    return "json";
-  }
-
-  return null;
-}
 
 function renderMarkdown(decoded: Awaited<ReturnType<typeof decodePayload>>): string {
   const lines = decoded.items.map(({ url, title }) => {
@@ -74,7 +47,22 @@ export const onRequest = async (context: any): Promise<Response> => {
     return context.next();
   }
 
-  const format = negotiateFormat(request, url);
+  // Explicit ?format= wins, then Accept negotiation, then HTML fallthrough.
+  // An unknown format value is a client error, not a silent HTML redirect.
+  const formatParam = url.searchParams.get("format");
+  if (formatParam && !isValidFormatParam(formatParam)) {
+    return new Response(
+      JSON.stringify({
+        error: `Unknown format parameter: ${formatParam} (expected json, md, or txt)`,
+      }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+      },
+    );
+  }
+
+  const format = negotiateFormat(request.headers.get("Accept"), formatParam);
   if (!format) {
     return context.next();
   }
@@ -126,14 +114,16 @@ export const onRequest = async (context: any): Promise<Response> => {
     });
   } catch (error) {
     if (error instanceof PayloadDecodeError) {
-      return new Response(
-        JSON.stringify({ error: "Invalid payload: " + error.message }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json", ...CORS_HEADERS },
-        },
-      );
+      return new Response(JSON.stringify({ error: "Invalid payload: " + error.message }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+      });
     }
-    return context.next();
+    // A negotiated format was promised; fail with JSON, never HTML.
+    const message = error instanceof Error ? error.message : "Internal server error";
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+    });
   }
 };

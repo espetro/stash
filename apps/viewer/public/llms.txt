@@ -26,17 +26,23 @@ Without negotiation it serves the interactive HTML viewer.
 
 ### Short-URL endpoints (s.illo.fyi)
 For short links created by the MCP server (`stash_create`) or the
-`POST /api/stash` API, the same decode is available at three addresses on
-the shortener host `https://s.illo.fyi`:
+`POST /api/stash` API, the same decode is available on the shortener
+host `https://s.illo.fyi`:
 
-- `GET /s/<id>` (HTML redirect by default)
-- `GET /s/<id>.json` → `application/json` (decoded payload)
-- `GET /s/<id>.md` → `text/markdown` (decoded payload)
+- `GET /s/<id>` with `Accept: application/json`, `text/markdown`, or
+  `text/plain` (canonical content negotiation)
+- `GET /s/<id>?format=json|md|txt` (explicit fallback; same precedence
+  rules as the viewer)
+- Without negotiation, `GET /s/<id>` 302-redirects to the interactive
+  viewer with the payload inline
+- An unknown `format` value returns `400` JSON
+- Legacy suffix routes `GET /s/<id>.json`, `/s/<id>.md`, `/s/<id>.txt`
+  still resolve but now 301-redirect to the `?format=` form; they will
+  be removed in a future release
 
-The third form also accepts content negotiation: `GET /s/<id>` with
-`Accept: application/json` (or `text/markdown`) returns the same decoded
-content without forcing the `.json`/`.md` suffix. `<id>` is a 6-character
-base32 id (e.g. `AHK7QY`).
+`<id>` is a 6-character base32 id (e.g. `AHK7QY`). The same three
+output formats (JSON, Markdown, plain URL list) are available as on
+the viewer.
 
 ## Worked example: URL → JSON → MD
 
@@ -62,7 +68,8 @@ curl 'https://stash.illo.fyi/s?p=Cj0K...&format=json'
 ```
 
 For short links (e.g. `https://s.illo.fyi/s/AHK7QY`), the same three
-shapes are reachable via `.json`, `.md`, and `Accept` content negotiation.
+shapes are reachable via `?format=json|md|txt` and `Accept` content
+negotiation, plus `text/plain`.
 
 ## Notes for agents
 
@@ -71,8 +78,9 @@ shapes are reachable via `.json`, `.md`, and `Accept` content negotiation.
   be set. Output is identical data across formats.
 - Responses are cached until the payload's expiry timestamp.
 - Expired stashes still decode (check `isExpired` in JSON output).
-- A 400 means the payload string was malformed or truncated; re-copy the full
-  payload from the share URL.
+- A 400 means the payload string was malformed or truncated, or the
+  `format` parameter value was unknown; re-copy the full payload from
+  the share URL or use `format=json|md|txt`.
 - Rate limit: ~30 requests/minute per IP, HTTP 429 with `Retry-After: 60`.
 
 ## MCP

@@ -24,9 +24,10 @@ file: apps/viewer/src/components/TabViewer.tsx
 ```
 
 Payload route (content negotiated, no UI): `GET /s?p=` returns
-structured JSON, Markdown, or HTML depending on the `Accept` header
-(`application/json`, `text/markdown`, default HTML), with a
-`?format=json|md` query fallback. See the agent notice comment in
+structured JSON, Markdown, or a plain URL list depending on the
+`Accept` header (`application/json`, `text/markdown`, `text/plain`,
+default HTML), with a `?format=json|md|txt` query fallback; an unknown
+format value returns `400` JSON. See the agent notice comment in
 `apps/viewer/src/pages/s.astro`.
 
 ## Elements

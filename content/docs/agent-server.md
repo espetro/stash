@@ -42,6 +42,7 @@ Note that the hosted tools operate on short links stored in the worker's KV (wit
 
 The viewer also serves structured data for agents, no MCP needed:
 
-- `/s?p=<payload>` returns the decoded stash; format is negotiated via the `Accept` header (`application/json` returns JSON including `tags` and `note`, `text/markdown` returns Markdown, with an HTML viewer as the default). A `?format=json|md` query parameter is accepted as a fallback for agents that cannot set headers.
+- `/s?p=<payload>` returns the decoded stash; format is negotiated via the `Accept` header (`application/json` returns JSON including `tags` and `note`, `text/markdown` returns Markdown, `text/plain` returns a plain URL list, with an HTML viewer as the default). A `?format=json|md|txt` query parameter is accepted as a fallback for agents that cannot set headers; an unknown value returns `400` JSON.
+- On the shortener, `GET /s/<id>` follows the same rules: `?format=json|md|txt` or `Accept` negotiation, with a 302 redirect to the viewer when neither applies. The legacy `.json`/`.md`/`.txt` suffix routes now 301-redirect to the `?format=` form.
 - `/api/openapi.json` publishes the OpenAPI schema.
 - `/llms.txt` gives an LLM-oriented overview of the endpoints.
