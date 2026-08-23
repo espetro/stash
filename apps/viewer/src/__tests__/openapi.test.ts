@@ -27,10 +27,17 @@ describe("buildOpenApiSpec", () => {
     expect(Object.keys(spec.paths).length).toBeGreaterThan(0);
   });
 
-  it("exposes the canonical decoder paths", () => {
-    expect(spec.paths["/json"]).toBeDefined();
-    expect(spec.paths["/md"]).toBeDefined();
+  it("exposes the canonical decoder path /s without legacy /json and /md paths", () => {
     expect(spec.paths["/s"]).toBeDefined();
+    expect(spec.paths["/json"]).toBeUndefined();
+    expect(spec.paths["/md"]).toBeUndefined();
+
+    const route = spec.paths["/s"] as any;
+    const params = route.get?.parameters as { name: string; in: string }[];
+    const p = params?.find((x) => x.name === "p" && x.in === "query");
+    const format = params?.find((x) => x.name === "format" && x.in === "query");
+    expect(p).toBeDefined();
+    expect(format).toBeDefined();
   });
 
   it("exposes the shortener /s/{id}[.json|.md] path family", () => {

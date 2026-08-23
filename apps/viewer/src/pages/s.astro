@@ -6,10 +6,11 @@ import TabViewer from "../components/TabViewer";
 <!--
   Agent notice: this page decodes its payload client-side from the URL
   fragment (#p=...), which is invisible to servers. To fetch the contents
-  server-side, use the query form instead:
-    GET /json?p=<payload>   (canonical, structured JSON)
-    GET /md?p=<payload>     (alias, Markdown list)
-  or content-negotiate /s?p=<payload> with Accept: application/json or text/markdown.
+  server-side, pass the payload as a query parameter and negotiate the
+  format:
+    GET /s?p=<payload>  with Accept: application/json | text/markdown | text/plain
+                        (canonical), or ?format=json|md|txt (fallback)
+  Without negotiation it serves this interactive HTML viewer.
 -->
 <ViewerLayout title="Stash Viewer">
   <TabViewer client:only="react" />

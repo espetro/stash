@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-// Regression test for the deployed /json?p= decompression bug: importing
+// Regression test for the deployed /s?p=...&format=json decompression bug: importing
 // "brotli-wasm" directly resolves to index.web.js in the Pages Functions
 // ESM build, whose init() fetch()es the wasm relative to import.meta.url.
 // workerd has no such asset, so decompress failed with

@@ -1,7 +1,7 @@
 ---
 screen: viewer-3
 name: Tab viewer
-route: /s/<payload> (also /s?p=..., /json?p=..., /md?p=... payload routes)
+route: /s/<payload> (also /s?p=... payload route)
 file: apps/viewer/src/components/TabViewer.tsx
 ---
 
@@ -23,9 +23,11 @@ file: apps/viewer/src/components/TabViewer.tsx
 +--------------------------------------------------------------+
 ```
 
-Payload routes (content negotiated, no UI): `GET /json?p=` returns
-structured JSON, `GET /md?p=` returns a Markdown list, `/s?p=` honors the
-Accept header. See the agent notice comment in `apps/viewer/src/pages/s.astro`.
+Payload route (content negotiated, no UI): `GET /s?p=` returns
+structured JSON, Markdown, or HTML depending on the `Accept` header
+(`application/json`, `text/markdown`, default HTML), with a
+`?format=json|md` query fallback. See the agent notice comment in
+`apps/viewer/src/pages/s.astro`.
 
 ## Elements
 

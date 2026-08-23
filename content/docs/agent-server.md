@@ -42,7 +42,6 @@ Note that the hosted tools operate on short links stored in the worker's KV (wit
 
 The viewer also serves structured data for agents, no MCP needed:
 
-- `/json?p=<payload>` returns the decoded stash as JSON, including `tags` and `note` (payload v6).
-- `/md?p=<payload>` returns it as Markdown.
+- `/s?p=<payload>` returns the decoded stash; format is negotiated via the `Accept` header (`application/json` returns JSON including `tags` and `note`, `text/markdown` returns Markdown, with an HTML viewer as the default). A `?format=json|md` query parameter is accepted as a fallback for agents that cannot set headers.
 - `/api/openapi.json` publishes the OpenAPI schema.
 - `/llms.txt` gives an LLM-oriented overview of the endpoints.

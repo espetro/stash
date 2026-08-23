@@ -17,20 +17,12 @@ Payload format: one prefix character + body.
 
 ## Endpoints
 
-### /json (canonical)
-Decode a stash payload and return structured JSON (version, expiry, items, title).
-**This is the canonical machine-readable endpoint.** Usage: `GET /json?p=<payload>`
-
-### /md (alias of /json)
-Same decode, rendered as a Markdown link list. Convenience for prompt-friendly
-plain text. Usage: `GET /md?p=<payload>`
-
-### /s (alias via content negotiation)
-The stash viewer page. When the payload is passed as a query parameter, it
-supports the same decode via negotiation: `GET /s?p=<payload>` with
-`Accept: text/markdown` or `application/json` (or `?format=md|json`, or a
-`.md`/`.json` suffix on `p`). Without negotiation it serves the interactive
-HTML viewer.
+### /s (canonical, content negotiation)
+The stash viewer page and canonical machine-readable endpoint. When the
+payload is passed as a query parameter, `GET /s?p=<payload>` decodes it and
+negotiates the output format. **Canonical:** `Accept: application/json`,
+`text/markdown`, or `text/plain`. **Fallback:** `?format=json|md|txt`.
+Without negotiation it serves the interactive HTML viewer.
 
 ### Short-URL endpoints (s.illo.fyi)
 For short links created by the MCP server (`stash_create`) or the
@@ -52,18 +44,21 @@ Given a share URL `https://stash.illo.fyi/s#p=Cj0K...` (payload after
 `#p=`), the same decoded payload is reachable three ways:
 
 ```bash
-# 1. JSON via the canonical endpoint
-curl 'https://stash.illo.fyi/json?p=Cj0K...'
+# 1. JSON via Accept negotiation (canonical)
+curl -H 'Accept: application/json' 'https://stash.illo.fyi/s?p=Cj0K...'
 # → { "version": 6, "title": "My Tabs", "items": [{ "url": "...", "title": "..." }], ... }
 
-# 2. Markdown via the alias endpoint
-curl 'https://stash.illo.fyi/md?p=Cj0K...'
+# 2. Markdown via Accept negotiation
+curl -H 'Accept: text/markdown' 'https://stash.illo.fyi/s?p=Cj0K...'
 # → [Example](https://example.com)\n[Other](https://other.com)
 
 # 3. Plain URL list (one per line) via text/plain negotiation
-curl 'https://stash.illo.fyi/s?p=Cj0K...' -H 'Accept: text/plain'
+curl -H 'Accept: text/plain' 'https://stash.illo.fyi/s?p=Cj0K...'
 # → https://example.com
 # → https://other.com
+
+# Fallback: explicit format query parameter
+curl 'https://stash.illo.fyi/s?p=Cj0K...&format=json'
 ```
 
 For short links (e.g. `https://s.illo.fyi/s/AHK7QY`), the same three
@@ -71,8 +66,9 @@ shapes are reachable via `.json`, `.md`, and `Accept` content negotiation.
 
 ## Notes for agents
 
-- **Prefer `/json` for all programmatic reads.** `/md` and `/s` negotiation are
-  aliases kept for convenience; output is identical data.
+- **All programmatic reads go through `GET /s?p=<payload>`.** Prefer the
+  `Accept` header negotiation; `?format=` is a fallback when headers cannot
+  be set. Output is identical data across formats.
 - Responses are cached until the payload's expiry timestamp.
 - Expired stashes still decode (check `isExpired` in JSON output).
 - A 400 means the payload string was malformed or truncated; re-copy the full

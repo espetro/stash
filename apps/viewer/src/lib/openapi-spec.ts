@@ -10,7 +10,7 @@ export function buildOpenApiSpec() {
       title: "Stash API",
       version: "1.2.0",
       description:
-        "API documentation for AI agents consuming Stash endpoints. Two surfaces: the viewer's canonical decode at https://stash.illo.fyi (GET /json?p=<payload>, /md?p=<payload>, /s?p=<payload>) and the shortener at https://s.illo.fyi (POST /api/stash, GET /s/<id>[.json|.md|.txt]). The `p` parameter contains the payload string taken from the share URL fragment (everything after #p= or #q=).",
+        "API documentation for AI agents consuming Stash endpoints. Two surfaces: the viewer's canonical decode at https://stash.illo.fyi (GET /s?p=<payload> with Accept or ?format= negotiation) and the shortener at https://s.illo.fyi (POST /api/stash, GET /s/<id>[.json|.md|.txt]). The `p` parameter contains the payload string taken from the share URL fragment (everything after #p= or #q=).",
     },
     servers: [
       { url: "https://stash.illo.fyi", description: "Stash viewer (decode endpoints)" },
@@ -18,121 +18,19 @@ export function buildOpenApiSpec() {
       { url: "/", description: "Relative origin (same host)" },
     ],
     paths: {
-      "/json": {
-        get: {
-          summary: "Decode stash payload as JSON (canonical)",
-          description:
-            "Canonical endpoint. Decodes a stash payload and returns the structured data as JSON. Responses are cached based on the payload's expiry time.",
-          parameters: [
-            {
-              name: "p",
-              in: "query",
-              required: true,
-              schema: {
-                type: "string",
-                description: "Base64url-encoded compressed payload",
-              },
-            },
-          ],
-          responses: {
-            "200": {
-              description: "Success",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/DecodedPayload",
-                  },
-                },
-              },
-            },
-            "400": {
-              description: "Invalid or missing payload",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/ErrorResponse",
-                  },
-                },
-              },
-            },
-            "429": {
-              description: "Rate limit exceeded",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/ErrorResponse",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      "/md": {
-        get: {
-          summary: "Decode stash payload as Markdown (alias of /json)",
-          description:
-            "Alias of /json returning the items as a Markdown link list. Prefer GET /json for structured consumption; /md is a convenience for prompt-friendly plain text. Responses are cached based on the payload's expiry time.",
-          parameters: [
-            {
-              name: "p",
-              in: "query",
-              required: true,
-              schema: {
-                type: "string",
-                description: "Base64url-encoded compressed payload",
-              },
-            },
-          ],
-          responses: {
-            "200": {
-              description: "Success",
-              content: {
-                "text/markdown": {
-                  schema: {
-                    type: "string",
-                    description: "Markdown-formatted link list",
-                  },
-                },
-              },
-            },
-            "400": {
-              description: "Invalid or missing payload",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/ErrorResponse",
-                  },
-                },
-              },
-            },
-            "429": {
-              description: "Rate limit exceeded",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/ErrorResponse",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
       "/s": {
         get: {
-          summary: "Stash viewer page with content negotiation (alias of /json)",
+          summary: "Stash viewer page with content negotiation (canonical decode endpoint)",
           description:
-            "Alias of /json via content negotiation. When the payload is passed as ?p= (query, not fragment), GET /s?p=<payload> with Accept: application/json, Accept: text/markdown, Accept: text/plain, ?format=json|md, or a .json/.md/.txt suffix on p returns the decoded content server-side. Without negotiation it serves the interactive HTML viewer (the default for browsers).",
+            "Canonical decode endpoint. When the payload is passed as ?p= (query, not fragment), GET /s?p=<payload> negotiates the output format: Accept header (application/json, text/markdown, text/plain) or ?format=json|md|txt fallback. Without negotiation it serves the interactive HTML viewer (the default for browsers). Responses are cached based on the payload's expiry time.",
           parameters: [
             {
               name: "p",
               in: "query",
-              required: false,
+              required: true,
               schema: {
                 type: "string",
-                description:
-                  "Payload string from the share URL fragment (optional .json/.md/.txt suffix selects format)",
+                description: "Payload string from the share URL fragment",
               },
             },
             {
@@ -141,7 +39,7 @@ export function buildOpenApiSpec() {
               required: false,
               schema: {
                 type: "string",
-                enum: ["json", "md"],
+                enum: ["json", "md", "txt"],
                 description: "Explicit output format override",
               },
             },
@@ -159,10 +57,23 @@ export function buildOpenApiSpec() {
                 "text/plain": {
                   schema: { type: "string" },
                 },
+                "text/html": {
+                  schema: { type: "string" },
+                },
               },
             },
             "400": {
-              description: "Invalid payload",
+              description: "Invalid or missing payload",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/ErrorResponse",
+                  },
+                },
+              },
+            },
+            "429": {
+              description: "Rate limit exceeded",
               content: {
                 "application/json": {
                   schema: {

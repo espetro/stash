@@ -19,15 +19,7 @@ function negotiateFormat(request: Request, url: URL): "md" | "json" | "txt" | nu
   if (format === "json") return "json";
   if (format === "txt" || format === "plain" || format === "text") return "txt";
 
-  // 2. Suffix on the p parameter (/s?p=xxx.md or /s?p=xxx.json or /s?p=xxx.txt)
-  const p = url.searchParams.get("p");
-  if (p) {
-    if (p.endsWith(".md") && p.length > 3) return "md";
-    if (p.endsWith(".json") && p.length > 5) return "json";
-    if (p.endsWith(".txt") && p.length > 4) return "txt";
-  }
-
-  // 3. Accept header
+  // 2. Accept header
   const accept = (request.headers.get("Accept") ?? "").toLowerCase();
   // Only negotiate when HTML is NOT explicitly preferred (browsers send text/html first)
   const htmlIndex = accept.indexOf("text/html");
@@ -48,10 +40,6 @@ function negotiateFormat(request: Request, url: URL): "md" | "json" | "txt" | nu
   return null;
 }
 
-function stripSuffix(p: string, format: "md" | "json" | "txt"): string {
-  return p.endsWith(`.${format}`) ? p.slice(0, -(format.length + 1)) : p;
-}
-
 function renderMarkdown(decoded: Awaited<ReturnType<typeof decodePayload>>): string {
   const lines = decoded.items.map(({ url, title }) => {
     const escaped = title.replace(/]/g, "\\]").replace(/\[/g, "\\[");
@@ -69,6 +57,14 @@ function renderPlainUrlList(decoded: Awaited<ReturnType<typeof decodePayload>>):
 
 export const onRequest = async (context: any): Promise<Response> => {
   const { request } = context;
+
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: { ...CORS_HEADERS },
+    });
+  }
+
   const url = new URL(request.url);
 
   // Only server-side render when the payload arrived via ?p= (query).
@@ -95,8 +91,7 @@ export const onRequest = async (context: any): Promise<Response> => {
       });
     }
 
-    const payload = stripSuffix(rawP, format);
-    const decoded = await decodePayload(payload);
+    const decoded = await decodePayload(rawP);
     const cacheControl = buildCacheControl(decoded.expiry);
 
     if (format === "json") {
