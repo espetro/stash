@@ -30,6 +30,14 @@ export const BRIDGE_RESPONSE_TYPE = "stash:viewer:response" as const;
 export const BRIDGE_PROTOCOL_VERSION = 1 as const;
 
 const DEFAULT_TIMEOUT_MS = 1500;
+// The content script attaches its `message` listener only after an async
+// settings read (and only once `document_idle` fires), so a request sent
+// immediately on navigation can be posted before anything is listening —
+// postMessage delivers to whoever is listening *right now*, there is no
+// queuing, so that first request is lost for good. Re-sending on a short
+// interval until a response lands (or the overall timeout expires) closes
+// that race without needing an artificially long single wait.
+const RETRY_INTERVAL_MS = 150;
 
 export interface BridgeProbeOptions {
   timeoutMs?: number;
@@ -92,6 +100,7 @@ export async function probeLocalBridge(opts: BridgeProbeOptions = {}): Promise<B
         clearTimeout(timeoutHandle);
         timeoutHandle = null;
       }
+      clearInterval(retryHandle);
     };
 
     const settle = (result: BridgeProbeResult): void => {
@@ -133,21 +142,25 @@ export async function probeLocalBridge(opts: BridgeProbeOptions = {}): Promise<B
       settle({ available: false, error: "timeout" });
     }, timeoutMs);
 
-    window.addEventListener("message", onMessage);
+    const send = (): void => {
+      try {
+        window.postMessage(
+          {
+            type: BRIDGE_REQUEST_TYPE,
+            version: BRIDGE_PROTOCOL_VERSION,
+            requestId,
+          },
+          "*",
+        );
+      } catch {
+        // Synchronous postMessage failures (rare; e.g. detached frame)
+        // collapse to an unavailable result so the caller can fall back.
+        settle({ available: false, error: "post_failed" });
+      }
+    };
 
-    try {
-      window.postMessage(
-        {
-          type: BRIDGE_REQUEST_TYPE,
-          version: BRIDGE_PROTOCOL_VERSION,
-          requestId,
-        },
-        "*",
-      );
-    } catch {
-      // Synchronous postMessage failures (rare; e.g. detached frame)
-      // collapse to an unavailable result so the caller can fall back.
-      settle({ available: false, error: "post_failed" });
-    }
+    window.addEventListener("message", onMessage);
+    const retryHandle: ReturnType<typeof setInterval> = setInterval(send, RETRY_INTERVAL_MS);
+    send();
   });
 }
