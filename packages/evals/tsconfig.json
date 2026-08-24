@@ -2,7 +2,7 @@
   "extends": "../shared/tsconfig.json",
   "compilerOptions": {
     "noEmit": true,
-    "types": ["node"],
+    "types": ["node", "chrome"],
     "rootDir": ".",
     "paths": {
       "brotli-wasm": ["./src/node-brotli.ts"]

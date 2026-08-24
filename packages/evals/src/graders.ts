@@ -103,3 +103,129 @@ export function gradeShortLinkRead(
   }
   return { pass: true, reason: `all ${expectedUrls.length} URLs reported` };
 }
+
+/**
+ * Grade the alternate-link-discovery eval: regression test for the /s
+ * page's `<link rel="alternate">` href pointing at localhost instead of
+ * the configured production viewer origin. Passes iff at least one of
+ * the model's fetch_url calls targeted the expected origin with the
+ * right payload; fails if every attempt was localhost-scoped or none
+ * were made at all.
+ */
+export function gradeAlternateLinkDiscovery(
+  fetchedUrls: string[],
+  payload: string,
+  expectedOrigin: string,
+): { pass: boolean; reason: string } {
+  if (fetchedUrls.length === 0) {
+    return { pass: false, reason: "model made no fetch_url calls" };
+  }
+  const localhostOnly = fetchedUrls.filter((u) => /localhost|127\.0\.0\.1/.test(u));
+  const ok = fetchedUrls.some((u) => {
+    if (!u.startsWith(expectedOrigin)) return false;
+    if (!u.includes(`p=${payload}`)) return false;
+    return /\/s(\?|$)/.test(u.replace(expectedOrigin, ""));
+  });
+  if (!ok) {
+    return {
+      pass: false,
+      reason:
+        localhostOnly.length > 0
+          ? `model fetched the localhost alternate href instead of the production origin ${expectedOrigin}: ${localhostOnly.join(", ")}`
+          : `no fetched URL matched ${expectedOrigin}/s?p=${payload}...; got: ${fetchedUrls.join(" | ")}`,
+    };
+  }
+  return { pass: true, reason: `model fetched a production-style URL: ${fetchedUrls.find((u) => u.startsWith(expectedOrigin))}` };
+}
+
+const LIMITATION_PHRASES = [
+  "cannot access",
+  "can't access",
+  "cannot list",
+  "can't list",
+  "unable to",
+  "no access",
+  "not accessible",
+  "client-rendered",
+  "client rendered",
+  "requires a browser",
+  "browser extension",
+  "profile-local",
+  "profile local",
+  "empty shell",
+  "no stash data",
+  "does not expose",
+  "doesn't expose",
+  "not possible via",
+  "no way to",
+];
+
+/**
+ * Grade the negative-fetch-only eval: a fetch-only agent asked to list
+ * the browser's saved stashes must either recognize it cannot (the
+ * `/stashes` page is client-rendered) or fall back to the `/s?p=...`
+ * decode endpoint. Fails on any response that asserts it read real
+ * stash data from a fetch-only `/stashes` GET, since that data can
+ * never appear there without a browser running the page's JS.
+ */
+export function gradeNegativeFetchOnly(response: string): { pass: boolean; reason: string } {
+  const text = response.toLowerCase();
+  const acknowledgesLimitation = LIMITATION_PHRASES.some((p) => text.includes(p));
+  const proposesFallback = /\/s\?p=/.test(response) || text.includes("format=json");
+  const claimsSuccess =
+    /\b(here (are|is)|found \d|saved (stashes|tabs)|the stashes (are|saved)|your stashes)\b/i.test(
+      response,
+    );
+  if (claimsSuccess && !acknowledgesLimitation) {
+    return {
+      pass: false,
+      reason: `model appears to claim it listed real stash data via fetch-only /stashes access: "${response.slice(0, 200)}"`,
+    };
+  }
+  if (acknowledgesLimitation || proposesFallback) {
+    return { pass: true, reason: "model correctly identified the fetch-only limitation and/or proposed a fallback" };
+  }
+  return {
+    pass: false,
+    reason: `response neither acknowledged the fetch-only limitation nor proposed a fallback; ambiguous: "${response.slice(0, 200)}"`,
+  };
+}
+
+export interface ExpectedStash {
+  title: string;
+  items: { url: string }[];
+}
+
+/**
+ * Grade the island-extraction eval: the model's final `answer(stashes)`
+ * payload must contain every seeded stash (by title) with every seeded
+ * item URL present, order-independent.
+ */
+export function gradeIslandExtraction(
+  answer: unknown,
+  expected: ExpectedStash[],
+): { pass: boolean; reason: string } {
+  if (!Array.isArray(answer)) {
+    return { pass: false, reason: `answer is not an array: ${JSON.stringify(answer).slice(0, 300)}` };
+  }
+  const got = answer as { title?: unknown; items?: unknown }[];
+  for (const exp of expected) {
+    const match = got.find((g) => g.title === exp.title);
+    if (!match) {
+      return {
+        pass: false,
+        reason: `missing stash titled "${exp.title}"; got titles: ${got.map((g) => g.title).join(", ")}`,
+      };
+    }
+    const gotItems = Array.isArray(match.items) ? (match.items as { url?: unknown }[]) : [];
+    const gotUrls = new Set(gotItems.map((i) => String(i.url ?? "")));
+    const missingUrls = exp.items.filter((i) => !gotUrls.has(i.url));
+    if (missingUrls.length > 0) {
+      return {
+        pass: false,
+        reason: `stash "${exp.title}" missing URLs: ${missingUrls.map((i) => i.url).join(", ")}`,
+      };
+    }
+  }
+  return { pass: true, reason: `all ${expected.length} seeded stashes found with matching URLs` };
+}

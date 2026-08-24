@@ -29,9 +29,21 @@ export interface ChatMessage {
   tool_call_id?: string;
 }
 
+const DEFAULT_TOOL_PARAMETERS = {
+  type: "object",
+  properties: { url: { type: "string" } },
+  required: ["url"],
+} as const;
+
 export interface FetchTool {
   name: string;
   description: string;
+  /**
+   * JSON-schema for the tool's parameters, advertised to the model.
+   * Defaults to fetch_url's single required `url` string when omitted,
+   * so existing fetch-only tools need no change.
+   */
+  parameters?: Record<string, unknown>;
   /** Execute the tool; return the content fed back to the model. */
   execute(args: Record<string, unknown>): Promise<string>;
 }
@@ -81,7 +93,7 @@ export function createClient(fetchImpl: typeof fetch = fetch): LlmClient {
           ? {
               tools: tools.map((t) => ({
                 type: "function",
-                function: { name: t.name, description: t.description, parameters: { type: "object", properties: { url: { type: "string" } }, required: ["url"] } },
+                function: { name: t.name, description: t.description, parameters: t.parameters ?? DEFAULT_TOOL_PARAMETERS },
               })),
             }
           : {}),
