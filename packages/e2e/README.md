@@ -236,6 +236,20 @@ the vendored brotli `.wasm` the handler needs.
 | ----------------- | ------------------------- | ---------------------------------------------- |
 | `VIEWER_ORIGIN`   | `http://localhost:4321`   | Origin share URLs point to (matches webServer) |
 | `HEADLESS`        | `true`                    | Set `false` to watch scenarios run             |
+| `BROWSER_EXECUTABLE_PATH` | unset              | Absolute path to an alternative Chromium-based browser binary. Wins over `BROWSER_LABEL` auto-discovery when set. |
+| `BROWSER_LABEL`   | `chromium` (or `custom` if `BROWSER_EXECUTABLE_PATH` is set) | Selects a known browser to auto-discover: `chrome` or `browseros`. Used by `pnpm test:chrome` / `pnpm test:browseros`. |
+
+**Browser auto-discovery (macOS):** setting `BROWSER_LABEL=chrome` or `BROWSER_LABEL=browseros` looks up that app's bundle under `~/Applications` first, then `/Applications` — no hardcoded path required, so this works unmodified on any macOS device with the app installed in either location. See `locateMacApp()` in `helpers/browser-helper.ts`. Set `BROWSER_EXECUTABLE_PATH` explicitly to override discovery or to test on non-macOS platforms.
+
+**BrowserOS headless support:** confirmed working. `BrowserOS --headless=new --user-data-dir=<dir> about:blank` starts cleanly, its internal "BrowserOS Server" (the agent bridge — Consolidated HTTP Server + CDP hookup) connects successfully, and Playwright can drive it exactly like stock Chromium. One caveat found during testing: don't pass an explicit `--remote-debugging-port` on BrowserOS's command line — its internal agent server assumes a fixed default CDP port (9100) and fails to start ("Failed to start CDP") if that port is overridden externally. Playwright's own launch path doesn't set this flag, so `test:browseros`/`test:chrome` are unaffected; only relevant if you're driving BrowserOS by hand outside Playwright.
+
+**Reproducible BrowserOS AI-provider config (OpenRouter):** BrowserOS's built-in agent reads its provider config from a `browseros.providers` key in the launch profile's Chromium `Preferences` file. Rather than depending on whatever provider a developer has configured in their personal BrowserOS profile (not reproducible across machines/CI, and risks touching real personal API keys), `pnpm test:browseros:openrouter` seeds a **fresh, isolated, temp `userDataDir`** per run — never the developer's real profile — with a single `openai-compatible` provider pointed at OpenRouter, using `OPENROUTER_API_KEY` / `OPENROUTER_MODEL_ID` from the root `.env` (same variables `packages/evals` already uses). See `helpers/browseros-profile.ts`. The seeded profile dir is removed after the context closes (`closeContext()`) and swept again on process exit as a safety net.
+
+| Name                  | Default | Purpose                                                                 |
+| --------------------- | ------- | ------------------------------------------------------------------------ |
+| `BROWSEROS_OPENROUTER` | unset   | Set to `1` (only meaningful with `BROWSER_LABEL=browseros`) to seed an isolated OpenRouter-backed profile instead of using the developer's real BrowserOS profile |
+
+**Port constraint:** `VIEWER_ORIGIN` only helps for host changes on port `4321`. The extension's local-bridge allowlist (`LOCAL_LIBRARY_VIEWER_ORIGINS` in `apps/extension/lib/settings.ts`) and the content-script `matches` pattern (`apps/extension/entrypoints/stashes-bridge.content.ts`) are both port-pinned to `4321` — only `https://stash.illo.fyi`, `http://localhost:4321`, and `http://127.0.0.1:4321` are allowed. Do not widen that allowlist for test convenience; running the local-bridge scenarios against a different port is out of scope.
 
 ### Playwright Config
 

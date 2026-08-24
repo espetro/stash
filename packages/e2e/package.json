@@ -12,6 +12,9 @@
     "test:e2e": "playwright test end-to-end-integration",
     "test:link": "playwright test extension-link-generation",
     "test:ui": "playwright test --ui",
+    "test:browseros": "BROWSER_LABEL=browseros playwright test --grep @runtime",
+    "test:browseros:openrouter": "BROWSER_LABEL=browseros BROWSEROS_OPENROUTER=1 playwright test --grep @runtime",
+    "test:chrome": "BROWSER_LABEL=chrome playwright test --grep @runtime",
     "tscheck": "tsc --noEmit",
     "lint": "oxlint --fix step_implementations helpers lib specs.spec.ts",
     "format": "oxfmt --write 'step_implementations/**/*.ts' 'helpers/**/*.ts' 'lib/**/*.ts' 'specs.spec.ts'",
@@ -27,6 +30,7 @@
     "@playwright/test": "^1.62.1",
     "@types/chrome": "^0.2.6",
     "@types/node": "^24.12.4",
+    "dotenv": "^17.4.2",
     "typescript": "^7.0.2"
   }
 }

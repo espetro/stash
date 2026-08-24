@@ -20,7 +20,11 @@ import type { BrowserContext } from "playwright";
 import { step } from "../lib/step-registry";
 import { getActiveState } from "../lib/scenario-state";
 import { EXTENSION_SEED, type McpRpc } from "../helpers/mcp-seed";
-import { generateViewerUrlFromFixture, encodeFixturePayload } from "../helpers/encoder-helper";
+import {
+  generateViewerUrlFromFixture,
+  encodeFixturePayload,
+  VIEWER_ORIGIN,
+} from "../helpers/encoder-helper";
 import { setCurrentPage, getCurrentPage } from "./common-steps";
 
 /**
@@ -97,7 +101,7 @@ step("The user navigates to /stashes", async () => {
   const page =
     ctx.pages().find((p) => !p.url().startsWith("chrome-extension://")) ?? (await ctx.newPage());
   setCurrentPage(page);
-  await page.goto("http://localhost:4321/stashes", { waitUntil: "domcontentloaded" });
+  await page.goto(`${VIEWER_ORIGIN}/stashes`, { waitUntil: "domcontentloaded" });
   // The bridge probe runs in a post-mount effect, so wait for the
   // island to settle before any assertions read it.
   await page.waitForSelector('#stash-local-export[data-stash-status="ready"]', { timeout: 10000 });
@@ -194,7 +198,7 @@ step("The ?agent=json view returns the canonical StashExport shape", async () =>
   const page =
     ctx.pages().find((p) => !p.url().startsWith("chrome-extension://")) ?? (await ctx.newPage());
   setCurrentPage(page);
-  await page.goto("http://localhost:4321/stashes?agent=json", { waitUntil: "domcontentloaded" });
+  await page.goto(`${VIEWER_ORIGIN}/stashes?agent=json`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector('pre#agent-export[data-stash-status="ready"]', { timeout: 10000 });
   const parsed = (await page.evaluate(() => {
     const el = document.getElementById("agent-export");
@@ -226,7 +230,7 @@ step("The ?agent=markdown view contains each seeded title and URL", async () => 
   const page =
     ctx.pages().find((p) => !p.url().startsWith("chrome-extension://")) ?? (await ctx.newPage());
   setCurrentPage(page);
-  await page.goto("http://localhost:4321/stashes?agent=markdown", {
+  await page.goto(`${VIEWER_ORIGIN}/stashes?agent=markdown`, {
     waitUntil: "domcontentloaded",
   });
   await page.waitForSelector('pre#agent-export-md[data-stash-status="ready"]', { timeout: 10000 });
@@ -270,7 +274,7 @@ step("Reloading the page reflects the updated extension record", async () => {
   const page =
     ctx.pages().find((p) => !p.url().startsWith("chrome-extension://")) ?? (await ctx.newPage());
   setCurrentPage(page);
-  await page.goto("http://localhost:4321/stashes", { waitUntil: "domcontentloaded" });
+  await page.goto(`${VIEWER_ORIGIN}/stashes`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector('#stash-local-export[data-stash-status="ready"]', { timeout: 10000 });
 
   // The bridge reads from extension storage, so the updated title
@@ -404,7 +408,7 @@ step("A plain GET of /stashes returns an HTML shell with no extension records", 
   // bridge. The viewer should serve an HTML shell that does NOT
   // include any of the seeded titles or URLs.
   const api = await baselineApi();
-  const response = await api.get("http://localhost:4321/stashes");
+  const response = await api.get(`${VIEWER_ORIGIN}/stashes`);
   if (!response.ok()) {
     throw new Error(`Fetch-only GET of /stashes failed: ${response.status()}`);
   }
@@ -437,7 +441,7 @@ step("A hosted /s decode with format json returns the canonical payload", async 
   const url = await generateViewerUrlFromFixture(fixture);
   const encoded = await encodeFixturePayload(fixture);
   const api = await baselineApi();
-  const response = await api.get(`http://localhost:4321/s?p=${encoded}&format=json`);
+  const response = await api.get(`${VIEWER_ORIGIN}/s?p=${encoded}&format=json`);
   if (!response.ok()) {
     throw new Error(`/s?format=json failed: ${response.status()}`);
   }
@@ -449,7 +453,7 @@ step("A hosted /s decode with format json returns the canonical payload", async 
   // `${VIEWER_ORIGIN}/s/#p=...`; the rendered URL must equal what the
   // encoder produced. Round-tripping the URL also proves the decode
   // endpoint didn't URL-strip the fragment.
-  if (!url.startsWith("http://localhost:4321/s/#p=")) {
+  if (!url.startsWith(`${VIEWER_ORIGIN}/s/#p=`)) {
     throw new Error(`Unexpected canonical share URL shape: ${url}`);
   }
 });
