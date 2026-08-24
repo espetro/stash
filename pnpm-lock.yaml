@@ -113,7 +113,7 @@ importers:
         version: 17.4.2
       geist:
         specifier: ^1.7.0
-        version: 1.7.1(next@16.2.6(@babel/core@7.29.7)(@playwright/test@1.62.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))
+        version: 1.7.1(next@16.2.6(@playwright/test@1.62.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))
       happy-dom:
         specifier: ^20.9.0
         version: 20.9.0
@@ -198,7 +198,7 @@ importers:
         version: 3.0.1
       geist:
         specifier: ^1.7.0
-        version: 1.7.1(next@16.2.6(@babel/core@7.29.7)(@playwright/test@1.62.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))
+        version: 1.7.1(next@16.2.6(@playwright/test@1.62.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))
       intl-messageformat:
         specifier: ^11.2.8
         version: 11.2.8
@@ -349,6 +349,9 @@ importers:
       '@types/node':
         specifier: ^24.12.4
         version: 24.12.4
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -358,18 +361,27 @@ importers:
       '@stash/codec':
         specifier: workspace:*
         version: link:../codec
+      '@stash/e2e':
+        specifier: workspace:*
+        version: link:../e2e
       '@stash/server-core':
         specifier: workspace:*
         version: link:../server-core
       '@stash/shared':
         specifier: workspace:*
         version: link:../shared
+      '@types/chrome':
+        specifier: ^0.2.6
+        version: 0.2.6
       '@types/node':
         specifier: ^26.2.0
         version: 26.2.0
       dotenv:
         specifier: ^17.2.3
         version: 17.4.2
+      playwright:
+        specifier: ^1.62.1
+        version: 1.62.1
       tsx:
         specifier: ^4.21.0
         version: 4.22.3
@@ -11556,7 +11568,7 @@ snapshots:
       which: 1.2.4
       winreg: 0.0.12
 
-  geist@1.7.1(next@16.2.6(@babel/core@7.29.7)(@playwright/test@1.62.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)):
+  geist@1.7.1(next@16.2.6(@playwright/test@1.62.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)):
     dependencies:
       next: 16.2.6(@babel/core@7.29.7)(@playwright/test@1.62.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
 
