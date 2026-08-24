@@ -10,7 +10,7 @@ export function buildOpenApiSpec() {
       title: "Stash API",
       version: "1.2.0",
       description:
-        "API documentation for AI agents consuming Stash endpoints. Two surfaces: the viewer's canonical decode at https://stash.illo.fyi (GET /s?p=<payload> with Accept or ?format= negotiation) and the shortener at https://s.illo.fyi (POST /api/stash, GET /s/<id>?format=json|md|txt). The `p` parameter contains the payload string taken from the share URL fragment (everything after #p= or #q=).",
+        "API documentation for AI agents consuming Stash endpoints. Three surfaces: (1) the viewer's canonical decode at https://stash.illo.fyi (GET /s?p=<payload> with Accept or ?format= negotiation), (2) the shortener at https://s.illo.fyi (POST /api/stash, GET /s/<id>?format=json|md|txt), and (3) a profile-local browser-agent surface at https://stash.illo.fyi/stashes — this last surface is for browser-class agents that run inside the user's profile (ChromeClaw, NanoBrowser, BrowserOS); fetch-only agents cannot use it and should use the hosted share-link endpoints. The `p` parameter contains the payload string taken from the share URL fragment (everything after #p= or #q=).",
     },
     servers: [
       { url: "https://stash.illo.fyi", description: "Stash viewer (decode endpoints)" },

@@ -101,6 +101,41 @@ with eight tools (`stash_snapshot_tabs`, `stash_list`, `stash_get`,
 `stash_decode`). See the extension package (`apps/extension/lib/mcp/`)
 for wiring details.
 
+## Profile-local browser-agent surface (`/stashes`)
+
+`https://stash.illo.fyi/stashes` is a **profile-local** surface for
+browser-class agents that run inside the user's browser profile
+(ChromeClaw, NanoBrowser, BrowserOS). It is NOT a fetch endpoint:
+
+- The page is client-rendered (`client:only="react"`) — a plain
+  `curl`/`page.request.get` returns an empty Astro shell and **no
+  stashes**.
+- The viewer's local-bridge content script reads the user's extension
+  stash library (read-only) and exposes it through a deterministic
+  JSON island: `<script type="application/json" id="stash-local-export"
+  data-stash-status="ready">{ "version": 1, "source": "extension",
+  "stashes": [...] }</script>`.
+- Browser agents should open `/stashes`, wait for
+  `data-stash-status="ready"` on `#stash-local-export`, and parse the
+  island's text content as JSON.
+- Two convenience views, also client-only, render the same payload as
+  raw text: `/stashes?agent=json` → `<pre id="agent-export">` (the
+  canonical `StashExport` shape) and `/stashes?agent=markdown` →
+  `<pre id="agent-export-md">` (markdown per `/s` conventions).
+
+Stable semantic selectors for browser agents:
+
+- `[data-stash-root]`, `[data-stash-list]`,
+  `[data-stash-record-id="..."]`, `[data-stash-title]`,
+  `[data-stash-item-url="..."]`
+- `#stash-local-export` (JSON island, lifecycle via
+  `data-stash-status="loading"|"ready"`)
+
+This surface is gated on the extension being installed **and** the user
+having opted in via `Settings → Local Library Bridge`. Fetch-only agents
+must use `/s?p=<payload>&format=json` instead — that endpoint is the
+universal baseline and works without the extension.
+
 ## Docs
 
 - Human docs: https://stash.illo.fyi/docs

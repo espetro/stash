@@ -24,6 +24,15 @@ file: apps/extension/entrypoints/options/App.tsx
 | [x] Enable short link sharing                     |
 | Shortener URL [ https://shortener.example ] [Save]|
 |                                                   |
+| Local Library Bridge                              |
+| Allow the configured viewer origin to read this  |
+| profile's stash library when /stashes is opened.  |
+| **This setting roams with your browser account**  |
+| (stored in browser.storage.sync). Enabling it    |
+| exposes stash titles, URLs, tags, and notes to    |
+| JavaScript loaded by the viewer origin.           |
+| [ ] Expose local stash library to /stashes        |
+|                                                   |
 | Usage Analytics                                   |
 | Sends anonymous aggregate counters...             |
 | [x] Share anonymous usage analytics               |
@@ -59,6 +68,7 @@ file: apps/extension/entrypoints/options/App.tsx
 | Viewer URL row | input + Save button | URL input with validation; Save disabled while empty or invalid, error text below |
 | Enable short link sharing | checkbox | Master toggle; saved on change |
 | Shortener URL row | input + Save button | Same pattern as viewer URL; gate for the popup Shorten link button |
+| Local Library Bridge | checkbox | Saved on change; lives in `browser.storage.sync` so it roams with the browser account |
 | Share anonymous usage analytics | checkbox | Saves on change |
 | Try MCP - Connect button | always shown | Opens a `browser.runtime.connect({name: "stash-mcp"})` port, wraps it in `ChromePortTransport`, calls `client.connect()` + `client.listTools()`. Disabled while connecting. |
 | Try MCP - Disconnect button | only when connected | Closes the SDK client and clears tool list / response. |
