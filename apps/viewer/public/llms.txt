@@ -103,9 +103,11 @@ for wiring details.
 
 ## Profile-local browser-agent surface (`/stashes`)
 
-`https://stash.illo.fyi/stashes` is a **profile-local** surface for
+`https://stash.illo.fyi/stashes/` is a **profile-local** surface for
 browser-class agents that run inside the user's browser profile
-(ChromeClaw, NanoBrowser, BrowserOS). It is NOT a fetch endpoint:
+(ChromeClaw, NanoBrowser, BrowserOS). It is NOT a fetch endpoint. Use
+the trailing-slash form (`/stashes/`) directly — `/stashes` without the
+slash 308-redirects to it, costing an extra round trip.
 
 - The page is client-rendered (`client:only="react"`) — a plain
   `curl`/`page.request.get` returns an empty Astro shell and **no
@@ -115,21 +117,37 @@ browser-class agents that run inside the user's browser profile
   JSON island: `<script type="application/json" id="stash-local-export"
   data-stash-status="ready">{ "version": 1, "source": "extension",
   "stashes": [...] }</script>`.
-- Browser agents should open `/stashes`, wait for
-  `data-stash-status="ready"` on `#stash-local-export`, and parse the
-  island's text content as JSON.
+- Browser agents should open `/stashes/`, wait for
+  `data-stash-status="ready"` on the `#stash-local-export` island
+  element itself (there is no separate root/wrapper element carrying
+  this attribute in the normal view), and parse the island's text
+  content as JSON.
 - Two convenience views, also client-only, render the same payload as
-  raw text: `/stashes?agent=json` → `<pre id="agent-export">` (the
-  canonical `StashExport` shape) and `/stashes?agent=markdown` →
-  `<pre id="agent-export-md">` (markdown per `/s` conventions).
+  raw text instead of the island: `/stashes/?agent=json` → wait for
+  `data-stash-status="ready"` on `<pre id="agent-export">` (the
+  canonical `StashExport` shape) and `/stashes/?agent=markdown` → wait
+  for `data-stash-status="ready"` on `<pre id="agent-export-md">`
+  (markdown per `/s` conventions). These views do NOT render
+  `#stash-local-export` — polling for that element from an `?agent=`
+  view will hang forever.
+
+The JSON island (`#stash-local-export` in the normal view, or
+`#agent-export`/`#agent-export-md` in the `?agent=` views) is the only
+load-time-complete source of stash data. The rendered list items in the
+normal view (`[data-stash-record-id="..."]`, `[data-stash-title]`, and
+any per-item URL anchors) are for human display only: cards render
+collapsed by default and per-item data only appears in the DOM once a
+card is expanded, so agents polling those selectors at load time will
+find nothing. Do not rely on them — parse the JSON island instead.
 
 Stable semantic selectors for browser agents:
 
-- `[data-stash-root]`, `[data-stash-list]`,
-  `[data-stash-record-id="..."]`, `[data-stash-title]`,
-  `[data-stash-item-url="..."]`
-- `#stash-local-export` (JSON island, lifecycle via
-  `data-stash-status="loading"|"ready"`)
+- `[data-stash-root]`, `[data-stash-list]` (presence/structure only,
+  not a data source)
+- `#stash-local-export` (JSON island, normal view; lifecycle via its
+  own `data-stash-status="loading"|"ready"` attribute)
+- `#agent-export`, `#agent-export-md` (JSON/markdown views; lifecycle
+  via their own `data-stash-status="loading"|"ready"` attribute)
 
 This surface is gated on the extension being installed **and** the user
 having opted in via `Settings → Local Library Bridge`. Fetch-only agents
@@ -138,5 +156,6 @@ universal baseline and works without the extension.
 
 ## Docs
 
+- Agent runtime compatibility matrix (per-runtime verification status and manual POC script): `.agents/docs/agent-runtime-matrix.md`
 - Human docs: https://stash.illo.fyi/docs
 - OpenAPI spec: https://stash.illo.fyi/api/openapi.json
