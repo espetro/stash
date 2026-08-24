@@ -234,6 +234,9 @@
     "deleteConfirmBody": "Cela supprimera définitivement ce stash de cet appareil.",
     "deleteConfirm": "Supprimer",
     "importSuccess": "{count} stash(s) importé(s)",
-    "importError": "Impossible d'importer le fichier"
+    "importError": "Impossible d'importer le fichier",
+    "sourceExtension": "This browser's extension library",
+    "sourceViewer": "Saved in this browser.",
+    "readOnlyHint": "Read-only mirror of the extension library; edit stashes from the extension popup."
   }
 }

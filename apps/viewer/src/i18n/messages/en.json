@@ -159,5 +159,8 @@
   "myStashes.deleteConfirmBody": "This will permanently remove this stash from this device.",
   "myStashes.deleteConfirm": "Delete",
   "myStashes.importSuccess": "Imported {count} stash(es)",
-  "myStashes.importError": "Could not import file"
+  "myStashes.importError": "Could not import file",
+  "myStashes.sourceExtension": "This browser's extension library",
+  "myStashes.sourceViewer": "Saved in this browser.",
+  "myStashes.readOnlyHint": "Read-only mirror of the extension library; edit stashes from the extension popup."
 }

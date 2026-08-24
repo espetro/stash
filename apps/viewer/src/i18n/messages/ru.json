@@ -234,6 +234,9 @@
     "deleteConfirmBody": "Это навсегда удалит этот стеш с этого устройства.",
     "deleteConfirm": "Удалить",
     "importSuccess": "Импортировано {count} стеш(ей)",
-    "importError": "Не удалось импортировать файл"
+    "importError": "Не удалось импортировать файл",
+    "sourceExtension": "This browser's extension library",
+    "sourceViewer": "Saved in this browser.",
+    "readOnlyHint": "Read-only mirror of the extension library; edit stashes from the extension popup."
   }
 }
