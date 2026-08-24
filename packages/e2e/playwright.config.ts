@@ -19,7 +19,9 @@ export default defineConfig({
   testMatch: /specs\.spec\.ts$/,
   fullyParallel: false,
   workers: 1,
-  reporter: isCI ? [["github"], ["list"]] : "list",
+  reporter: isCI
+    ? [["github"], ["list"], ["./lib/runtime-conformance-reporter.ts"]]
+    : [["list"], ["./lib/runtime-conformance-reporter.ts"]],
   retries: isCI ? 1 : 0,
   timeout: 60_000,
   expect: {

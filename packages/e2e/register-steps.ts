@@ -14,3 +14,4 @@ import "./step_implementations/popup-steps.ts";
 import "./step_implementations/settings-steps.ts";
 import "./step_implementations/agent-flow-steps.ts";
 import "./step_implementations/local-bridge-steps.ts";
+import "./step_implementations/runtime-conformance-steps.ts";
