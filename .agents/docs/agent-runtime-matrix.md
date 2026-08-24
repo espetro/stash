@@ -10,10 +10,10 @@ answer instead of a one-off manual poke.
 
 | Runtime | `/s?p=` fetch (JSON/MD/TXT) | `/stashes` island | `?agent=json` | `?agent=markdown` | extension MCP |
 |---|---|---|---|---|---|
-| BrowserOS 148 | untested — pending: `packages/e2e/specs/agent-runtime-conformance.spec` (`@runtime` tag) and `packages/evals` island-extraction/negative-fetch-only evals not yet executed against this runtime — see `runtime-conformance.json` and eval report once produced | untested — same pending run | untested — same pending run | untested — same pending run | untested — same pending run |
-| Chrome + nanobrowser | untested — pending: `packages/e2e/specs/agent-runtime-conformance.spec` (`@runtime` tag) and `packages/evals` island-extraction/negative-fetch-only evals not yet executed against this runtime — see `runtime-conformance.json` and eval report once produced | untested — same pending run | untested — same pending run | untested — same pending run | untested — same pending run |
-| Chrome + ChromeClaw | untested — pending: `packages/e2e/specs/agent-runtime-conformance.spec` (`@runtime` tag) and `packages/evals` island-extraction/negative-fetch-only evals not yet executed against this runtime — see `runtime-conformance.json` and eval report once produced | untested — same pending run | untested — same pending run | untested — same pending run | untested — same pending run |
-| stock Chromium | untested — pending: `packages/e2e/specs/agent-runtime-conformance.spec` (`@runtime` tag) and `packages/evals` island-extraction/negative-fetch-only evals not yet executed against this runtime — see `runtime-conformance.json` and eval report once produced | untested — same pending run | untested — same pending run | untested — same pending run | untested — same pending run |
+| BrowserOS 148 | verified — `runtime-conformance-browseros.json`, 2026-08-24, all 5 `agent-runtime-conformance.spec` scenarios pass (`pnpm --filter @stash/e2e run test:browseros`) | verified — same report | verified — same report | verified — same report | verified — same report |
+| Chrome + nanobrowser | blocked (automated) — `runtime-conformance-chrome.json`, 2026-08-24: signed/branded Google Chrome refuses `--load-extension`/`--disable-extensions-except` for unpacked extensions, so our extension can't be automated-loaded into real Chrome at all (independent of nanobrowser); only the manual POC script below can reach this runtime | blocked (automated) — same reason | blocked (automated) — same reason | blocked (automated) — same reason | blocked (automated) — same reason |
+| Chrome + ChromeClaw | blocked (automated) — same branded-Chrome CLI restriction as above, see `runtime-conformance-chrome.json` | blocked (automated) — same reason | blocked (automated) — same reason | blocked (automated) — same reason | blocked (automated) — same reason |
+| stock Chromium | verified — `runtime-conformance-stock-chromium.json`, 2026-08-24, all 5 `agent-runtime-conformance.spec` scenarios pass via Playwright's managed unbranded `channel: "chromium"` (`pnpm --filter @stash/e2e exec playwright test --grep runtime`) | verified — same report | verified — same report | verified — same report | verified — same report |
 | Firefox | untested — Playwright cannot drive a stock Gecko binary, only its own patched build — manual checklist only, not yet run | untested — same | untested — same | untested — same | untested — same |
 | Zen | untested — Playwright cannot drive a stock Gecko binary, only its own patched build — manual checklist only, not yet run | untested — same | untested — same | untested — same | untested — same |
 | Claude Code | untested — no evidence yet | blocked — not a browser-profile runtime — fetch-only, per plan tier model | blocked — not a browser-profile runtime — fetch-only, per plan tier model | blocked — not a browser-profile runtime — fetch-only, per plan tier model | blocked — not a browser-profile runtime — fetch-only, per plan tier model |
@@ -54,6 +54,27 @@ panel — verify the `/stashes` island manually:
 succeed, that is a legibility finding to feed back into `llms.txt`, not
 a passing result. Interpret partial/hinted successes accordingly when
 recording results.
+
+## Eval results (2026-08-24)
+
+`pnpm --filter @stash/evals run eval` against `nvidia/nemotron-3-super-120b-a12b:free`
+via OpenRouter, run 3 times for consistency (`packages/evals/report.json`,
+gitignored — not a runtime-conformance report, model-capability evidence):
+
+- `decode-comprehension`, `format-discovery`, `short-link-read` — pass, all 3 runs.
+- `negative-fetch-only` — pass in 2/3 runs, one transient OpenRouter error
+  (`OpenRouter returned no message`) unrelated to the eval itself.
+- `alternate-link-discovery` — failed all 3 runs with a low-level
+  `terminated` network error from the OpenRouter call (not a grader
+  failure or a code defect in the eval harness) — likely free-tier
+  throttling on this eval's larger HTML-embedding prompt. Unresolved;
+  worth retrying with a paid model tier before concluding this surface
+  is broken.
+- `island-extraction` — failed all 3 runs (model never located
+  `#stash-local-export` from llms.txt + raw DOM alone). This is the
+  free-tier model's actual capability on the task the eval is designed
+  to measure, not an infra error — a genuine (if narrow) legibility
+  finding, not something to "fix" in this pass.
 
 ## Evidence sources
 
