@@ -75,7 +75,14 @@ export async function updateStash(
   const index = stashes.findIndex((s) => s.id === id);
   if (index === -1) return undefined;
 
-  const updated: StashRecord = { ...stashes[index], ...patch, updatedAt: Date.now() };
+  // `patch` always carries all UpdateStashInput keys (Zod-optional params
+  // are passed through as explicit `undefined`, not omitted), so a naive
+  // spread would blow away untouched fields on a partial update (e.g.
+  // updating only `title` would wipe `items`/`tags`/`note` to undefined).
+  const definedPatch = Object.fromEntries(
+    Object.entries(patch).filter(([, value]) => value !== undefined),
+  );
+  const updated: StashRecord = { ...stashes[index], ...definedPatch, updatedAt: Date.now() };
   const next = [...stashes];
   next[index] = updated;
   await stashesItem.set(next);
