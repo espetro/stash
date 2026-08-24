@@ -26,6 +26,8 @@ import {
   VIEWER_ORIGIN,
 } from "../helpers/encoder-helper";
 import { setCurrentPage, getCurrentPage } from "./common-steps";
+import { getExtensionId } from "../helpers/browser-helper";
+import { agentFetchServer } from "../helpers/agent-fetch-server";
 
 /**
  * Shared APIRequestContext for the fetch-only baseline scenario.
@@ -103,25 +105,41 @@ step("The user navigates to /stashes", async () => {
   setCurrentPage(page);
   await page.goto(`${VIEWER_ORIGIN}/stashes`, { waitUntil: "domcontentloaded" });
   // The bridge probe runs in a post-mount effect, so wait for the
-  // island to settle before any assertions read it.
-  await page.waitForSelector('#stash-local-export[data-stash-status="ready"]', { timeout: 10000 });
+  // island to settle before any assertions read it. `state: "attached"`
+  // (not the default "visible") because the island is a <script> tag —
+  // Playwright never considers script elements visible, so the default
+  // wait would time out even once the island is genuinely ready.
+  await page.waitForSelector('#stash-local-export[data-stash-status="ready"]', {
+    state: "attached",
+    timeout: 10000,
+  });
 });
 
 step("The user sets localLibraryViewerEnabled to <value>", async (value) => {
   const enabled = value.trim().toLowerCase() === "true";
   const ctx = requireExtensionContext();
-  const probe = ctx.pages().find((p) => p.url().startsWith("chrome-extension://"));
-  const page = probe ?? (await ctx.newPage());
+  let page = ctx.pages().find((p) => p.url().startsWith("chrome-extension://"));
+  if (!page) {
+    // A blank newPage() has no `chrome.storage` API — it must be an
+    // extension-origin page for `chrome.storage.sync` to exist.
+    const extensionId = await getExtensionId(ctx);
+    page = await ctx.newPage();
+    await page.goto(`chrome-extension://${extensionId}/options.html`);
+  }
   await page.evaluate(async (flag) => {
-    // The settings item (`stash-settings`) lives in `sync` storage; the
-    // existing settings-steps.ts uses the same `c.storage.sync.get`
-    // surface to read it, so `set` is the symmetric write path.
+    // `webext-storage`'s StorageItem stores the settings object RAW
+    // (chrome.storage.sync.set({ [key]: value }), no JSON encoding) —
+    // see webext-storage's storage-item.js. Round-tripping through
+    // JSON.stringify/parse here would store a *string* under the key,
+    // which getSettings() (a StorageItem.get()) then hands back as-is
+    // instead of an object, silently failing the
+    // `localLibraryViewerEnabled === true` check downstream.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const c = (globalThis as any).chrome;
     const current = (await c.storage.sync.get("stash-settings"))["stash-settings"];
-    const parsed = current ? JSON.parse(current) : {};
+    const parsed = current && typeof current === "object" ? current : {};
     parsed.localLibraryViewerEnabled = flag;
-    await c.storage.sync.set({ "stash-settings": JSON.stringify(parsed) });
+    await c.storage.sync.set({ "stash-settings": parsed });
   }, enabled);
 });
 
@@ -275,7 +293,12 @@ step("Reloading the page reflects the updated extension record", async () => {
     ctx.pages().find((p) => !p.url().startsWith("chrome-extension://")) ?? (await ctx.newPage());
   setCurrentPage(page);
   await page.goto(`${VIEWER_ORIGIN}/stashes`, { waitUntil: "domcontentloaded" });
-  await page.waitForSelector('#stash-local-export[data-stash-status="ready"]', { timeout: 10000 });
+  // See the "navigates to /stashes" step: `state: "attached"` is required
+  // because a <script> island is never "visible" per Playwright's model.
+  await page.waitForSelector('#stash-local-export[data-stash-status="ready"]', {
+    state: "attached",
+    timeout: 10000,
+  });
 
   // The bridge reads from extension storage, so the updated title
   // must surface in the reloaded island.
@@ -441,12 +464,18 @@ step("A hosted /s decode with format json returns the canonical payload", async 
   const url = await generateViewerUrlFromFixture(fixture);
   const encoded = await encodeFixturePayload(fixture);
   const api = await baselineApi();
-  const response = await api.get(`${VIEWER_ORIGIN}/s?p=${encoded}&format=json`);
+  // `astro preview` serves the static build only — the Cloudflare Pages
+  // Function implementing `/s` does not execute there. Route through the
+  // local stand-in server (same one `agent-flow-steps.ts` uses) instead
+  // of hitting VIEWER_ORIGIN directly, which would just 404 to the SPA
+  // shell HTML.
+  const base = await agentFetchServer();
+  const response = await api.get(`${base}/s?p=${encoded}&format=json`);
   if (!response.ok()) {
     throw new Error(`/s?format=json failed: ${response.status()}`);
   }
-  const json = (await response.json()) as { v?: number; i?: unknown[] };
-  if (json.v === undefined) {
+  const json = (await response.json()) as { version?: number; items?: unknown[] };
+  if (json.version === undefined) {
     throw new Error(`/s?format=json missing canonical version field; got ${JSON.stringify(json)}.`);
   }
   // Compare URLs end-to-end: the canonical share URL path is

@@ -60,18 +60,30 @@ step("The agent probes the postMessage bridge directly on /stashes", async () =>
     return new Promise<unknown>((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         window.removeEventListener("message", handler);
+        clearInterval(retryId);
         reject(new Error("No stash:viewer:response received within 10s."));
       }, 10000);
       function handler(event: MessageEvent): void {
         const data = event.data as { type?: string; requestId?: string } | null;
         if (data && data.type === "stash:viewer:response" && data.requestId === reqId) {
           clearTimeout(timeoutId);
+          clearInterval(retryId);
           window.removeEventListener("message", handler);
           resolve(data);
         }
       }
+      const send = (): void => {
+        window.postMessage({ type: "stash:viewer:request", version: 1, requestId: reqId }, "*");
+      };
       window.addEventListener("message", handler);
-      window.postMessage({ type: "stash:viewer:request", version: 1, requestId: reqId }, "*");
+      // The content script only attaches its listener after an async
+      // settings read at `document_idle` — a single request sent right on
+      // navigation can be posted before anything is listening and is lost
+      // for good (no postMessage queuing). Resend on an interval until a
+      // response lands or the overall timeout expires, mirroring the fix
+      // in `apps/viewer/src/lib/local-bridge.ts`.
+      const retryId = setInterval(send, 150);
+      send();
     });
   }, requestId)) as BridgeProbeResponse;
 
