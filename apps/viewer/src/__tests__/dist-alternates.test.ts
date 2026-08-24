@@ -34,6 +34,20 @@ describe.runIf(hasDist)("built /s HTML advertises alternate links", () => {
       expect(href.replace(/^https?:\/\/[^/]+/, "")).toMatch(/^\/s\?p=.*&format=md$/);
     }
   });
+
+  it("resolves alternate hrefs to the configured viewer origin, never localhost", () => {
+    const expectedOrigin = process.env.VITE_VIEWER_ORIGIN || "https://stash.illo.fyi";
+    const hrefs = [
+      ...html.matchAll(
+        /<link rel="alternate" type="(?:application\/json|text\/markdown)" href="([^"]+)"/g,
+      ),
+    ].map((m) => m[1]);
+    expect(hrefs.length).toBeGreaterThan(0);
+    for (const href of hrefs) {
+      expect(href).not.toMatch(/localhost|127\.0\.0\.1/);
+      expect(href.startsWith(expectedOrigin)).toBe(true);
+    }
+  });
 });
 
 describe.skipIf(hasDist)("built /s HTML alternates (skipped: no dist/)", () => {

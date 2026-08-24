@@ -1,7 +1,7 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
-Disallow: /s
+Allow: /s
 Disallow: /api/
 
 Sitemap: https://stash.illo.fyi/sitemap-index.xml

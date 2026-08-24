@@ -1,5 +1,6 @@
 ---
 import { LocaleProvider } from "@/components/LocaleProvider";
+import { validateViewerOrigin } from "@stash/shared";
 
 interface Props {
   title: string;
@@ -7,6 +8,13 @@ interface Props {
 const { title } = Astro.props;
 const posthogKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
 const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST ?? 'https://eu.posthog.com';
+
+// Build-time origin, not Astro.url.origin — the latter resolves to the
+// prerender/build server (localhost) for prerendered pages in production.
+const rawViewerOrigin = import.meta.env.VITE_VIEWER_ORIGIN || 'https://stash.illo.fyi';
+const viewerOrigin = validateViewerOrigin(rawViewerOrigin).success
+  ? rawViewerOrigin
+  : 'https://stash.illo.fyi';
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -24,8 +32,8 @@ const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST ?? 'https://eu.post
       once the fragment is decoded. */}
   {Astro.url.pathname.startsWith('/s') && (
     <>
-      <link rel="alternate" type="application/json" href={Astro.url.origin + '/s?p=&format=json'} title="Stash as JSON" />
-      <link rel="alternate" type="text/markdown" href={Astro.url.origin + '/s?p=&format=md'} title="Stash as Markdown" />
+      <link rel="alternate" type="application/json" href={viewerOrigin + '/s?p=&format=json'} title="Stash as JSON" />
+      <link rel="alternate" type="text/markdown" href={viewerOrigin + '/s?p=&format=md'} title="Stash as Markdown" />
     </>
   )}
   {posthogKey && posthogHost && (

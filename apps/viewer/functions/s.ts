@@ -13,6 +13,9 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "Content-Type",
 } as const;
 
+// /s responses carry payload data reconstructed from the URL; never index them.
+const NOINDEX_HEADER = { "X-Robots-Tag": "noindex" } as const;
+
 function renderMarkdown(decoded: Awaited<ReturnType<typeof decodePayload>>): string {
   const lines = decoded.items.map(({ url, title }) => {
     const escaped = title.replace(/]/g, "\\]").replace(/\[/g, "\\[");
@@ -34,7 +37,7 @@ export const onRequest = async (context: any): Promise<Response> => {
   if (request.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
-      headers: { ...CORS_HEADERS },
+      headers: { ...CORS_HEADERS, ...NOINDEX_HEADER },
     });
   }
 
@@ -57,7 +60,7 @@ export const onRequest = async (context: any): Promise<Response> => {
       }),
       {
         status: 400,
-        headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+        headers: { "Content-Type": "application/json", ...CORS_HEADERS, ...NOINDEX_HEADER },
       },
     );
   }
@@ -75,6 +78,7 @@ export const onRequest = async (context: any): Promise<Response> => {
           "Content-Type": "application/json",
           "Retry-After": "60",
           ...CORS_HEADERS,
+          ...NOINDEX_HEADER,
         },
       });
     }
@@ -89,6 +93,7 @@ export const onRequest = async (context: any): Promise<Response> => {
           "Content-Type": "application/json; charset=utf-8",
           "Cache-Control": cacheControl,
           ...CORS_HEADERS,
+          ...NOINDEX_HEADER,
         },
       });
     }
@@ -100,6 +105,7 @@ export const onRequest = async (context: any): Promise<Response> => {
           "Content-Type": "text/plain; charset=utf-8",
           "Cache-Control": cacheControl,
           ...CORS_HEADERS,
+          ...NOINDEX_HEADER,
         },
       });
     }
@@ -110,20 +116,21 @@ export const onRequest = async (context: any): Promise<Response> => {
         "Content-Type": "text/markdown; charset=utf-8",
         "Cache-Control": cacheControl,
         ...CORS_HEADERS,
+        ...NOINDEX_HEADER,
       },
     });
   } catch (error) {
     if (error instanceof PayloadDecodeError) {
       return new Response(JSON.stringify({ error: "Invalid payload: " + error.message }), {
         status: 400,
-        headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+        headers: { "Content-Type": "application/json", ...CORS_HEADERS, ...NOINDEX_HEADER },
       });
     }
     // A negotiated format was promised; fail with JSON, never HTML.
     const message = error instanceof Error ? error.message : "Internal server error";
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
-      headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+      headers: { "Content-Type": "application/json", ...CORS_HEADERS, ...NOINDEX_HEADER },
     });
   }
 };
