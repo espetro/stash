@@ -8,6 +8,7 @@ import OptionsExpiryForm from "./components/OptionsExpiryForm.js";
 import OptionsThemeForm from "./components/OptionsThemeForm.js";
 import OptionsViewerForm from "./components/OptionsViewerForm.js";
 import OptionsShortenerForm from "./components/OptionsShortenerForm.js";
+import OptionsLocalLibraryForm from "./components/OptionsLocalLibraryForm.js";
 import OptionsTelemetryForm from "./components/OptionsTelemetryForm.js";
 import TryMcpPanel from "./components/TryMcpPanel.js";
 
@@ -21,6 +22,7 @@ export default function App() {
   const [viewerOrigin, setViewerOrigin] = useState<string>("");
   const [shortenerOrigin, setShortenerOrigin] = useState<string>("");
   const [shortenerEnabled, setShortenerEnabled] = useState<boolean>(false);
+  const [localLibraryViewerEnabled, setLocalLibraryViewerEnabled] = useState<boolean>(false);
   const [telemetryEnabled, setTelemetryEnabled] = useState<boolean>(true);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,6 +34,7 @@ export default function App() {
         setViewerOrigin(settings.viewerOrigin);
         setShortenerOrigin(settings.shortenerOrigin);
         setShortenerEnabled(settings.shortenerEnabled);
+        setLocalLibraryViewerEnabled(settings.localLibraryViewerEnabled);
         setTelemetryEnabled(settings.telemetryEnabled);
         setThemeState(getTheme(browserStorageAdapter));
       })
@@ -93,6 +96,13 @@ export default function App() {
             <OptionsShortenerForm
               initOrigin={shortenerOrigin}
               initEnabled={shortenerEnabled}
+              onSuccess={() => showSuccessFeedback()}
+            />
+          </section>
+
+          <section className="settings-section" aria-labelledby="local-library-heading">
+            <OptionsLocalLibraryForm
+              initEnabled={localLibraryViewerEnabled}
               onSuccess={() => showSuccessFeedback()}
             />
           </section>
