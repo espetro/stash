@@ -77,7 +77,8 @@ export function TabListItem({ url, title, kind, selected, onToggle, onOpenNote }
         <a
           href={url}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener noreferrer nofollow"
+          data-stash-item-url={url}
           className="flex min-w-0 flex-1 items-start gap-3"
         >
           {body}
