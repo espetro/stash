@@ -197,10 +197,18 @@ export async function launchWithExtension(): Promise<BrowserContext> {
     ? { executablePath: execPath }
     : { channel: "chromium" as const };
   const userDataDir = resolveUserDataDir();
+  const args = [`--disable-extensions-except=${absExt}`, `--load-extension=${absExt}`];
+  // Branded/signed Google Chrome 137+ refuses --load-extension for unpacked
+  // extensions unless this feature is explicitly disabled. Meaningless (and
+  // untested) on stock Chromium/BrowserOS, so scope it to BROWSER_LABEL=chrome
+  // only to avoid regressing the already-passing runtimes.
+  if (browserLabel() === "chrome") {
+    args.push("--disable-features=DisableLoadExtensionCommandLineSwitch");
+  }
   const context = await chromium.launchPersistentContext(userDataDir, {
     ...channelOrExecutable,
     headless: headless(),
-    args: [`--disable-extensions-except=${absExt}`, `--load-extension=${absExt}`],
+    args,
     viewport: { width: 1280, height: 720 },
   });
   // launchPersistentContext returns a context that owns the browser
