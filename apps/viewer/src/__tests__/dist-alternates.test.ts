@@ -53,3 +53,36 @@ describe.runIf(hasDist)("built /s HTML advertises alternate links", () => {
 describe.skipIf(hasDist)("built /s HTML alternates (skipped: no dist/)", () => {
   it.skip("dist/s/index.html not present; run `pnpm --filter stash-viewer run build` first", () => {});
 });
+
+const distStashesIndex = path.resolve(__dirname, "../../dist/stashes/index.html");
+const distSNewIndex = path.resolve(__dirname, "../../dist/s/new/index.html");
+const hasStashesDist = existsSync(distStashesIndex) && existsSync(distSNewIndex);
+
+describe.runIf(hasStashesDist)(
+  "built /stashes and /s/new HTML do not mis-fire the /s guard",
+  () => {
+    it("/stashes has no /s?p=&format=json or /s?p=&format=md alternate", () => {
+      const html = readFileSync(distStashesIndex, "utf8").replace(/&amp;/g, "&");
+      expect(html).not.toMatch(/href="[^"]*\/s\?p=&format=(json|md)"/);
+    });
+
+    it("/stashes has its own ?agent=json and ?agent=markdown alternates", () => {
+      const html = readFileSync(distStashesIndex, "utf8").replace(/&amp;/g, "&");
+      expect(html).toMatch(
+        /<link rel="alternate" type="application\/json" href="[^"]*\/stashes\/\?agent=json"/,
+      );
+      expect(html).toMatch(
+        /<link rel="alternate" type="text\/markdown" href="[^"]*\/stashes\/\?agent=markdown"/,
+      );
+    });
+
+    it("/s/new has no /s?p=&format=json or /s?p=&format=md alternate", () => {
+      const html = readFileSync(distSNewIndex, "utf8").replace(/&amp;/g, "&");
+      expect(html).not.toMatch(/href="[^"]*\/s\?p=&format=(json|md)"/);
+    });
+  },
+);
+
+describe.skipIf(hasStashesDist)("built /stashes and /s/new HTML (skipped: no dist/)", () => {
+  it.skip("dist/stashes/index.html or dist/s/new/index.html not present; run `pnpm --filter stash-viewer run build` first", () => {});
+});

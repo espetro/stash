@@ -185,6 +185,37 @@ describe("MyStashes — JSON island lifecycle", () => {
   });
 });
 
+describe("MyStashes — agent discoverability hint", () => {
+  it("renders an sr-only anchor pointing agents at ?agent=json in the normal view", async () => {
+    probeMock.mockResolvedValue({ available: false, error: "timeout" });
+
+    const { container } = render(
+      <LocaleProvider>
+        <MyStashes />
+      </LocaleProvider>,
+    );
+
+    const hint = container.querySelector("[data-agent-hint]");
+    expect(hint).not.toBeNull();
+    expect(hint?.tagName).toBe("A");
+    expect(hint?.getAttribute("href")).toBe("/stashes/?agent=json");
+    expect(hint?.className).toContain("sr-only");
+  });
+
+  it("does not render the hint in ?agent=json or ?agent=markdown views", async () => {
+    probeMock.mockResolvedValue({ available: false, error: "timeout" });
+    window.history.replaceState({}, "", "/stashes?agent=json");
+
+    const { container } = render(
+      <LocaleProvider>
+        <MyStashes />
+      </LocaleProvider>,
+    );
+
+    expect(container.querySelector("[data-agent-hint]")).toBeNull();
+  });
+});
+
 describe("MyStashes — semantic selectors", () => {
   it("exposes [data-stash-root], [data-stash-list], [data-stash-record-id], [data-stash-title] and [data-stash-item-url]", async () => {
     probeMock.mockResolvedValue({
@@ -277,6 +308,56 @@ describe("MyStashes — ?agent=json browser-only view", () => {
             { url: "https://example.com", title: "Example" },
             { url: "https://github.com", title: "GitHub" },
           ],
+          createdAt: 1,
+          updatedAt: 2,
+        },
+      ],
+    });
+  });
+});
+
+describe("MyStashes — ?agent=json / ?agent=markdown payload parity", () => {
+  it("returns the same viewer-local records via ?agent=json as ?agent=markdown, unlike the extension-only island", async () => {
+    probeMock.mockResolvedValue({ available: false, error: "disabled" });
+    localStorage.setItem(
+      "stash:records",
+      JSON.stringify([
+        {
+          id: "local-1",
+          title: "Viewer local",
+          tags: ["home"],
+          note: "a note",
+          items: [{ url: "https://example.org", title: "Example" }],
+          createdAt: 1,
+          updatedAt: 2,
+        },
+      ]),
+    );
+
+    window.history.replaceState({}, "", "/stashes?agent=json");
+    const { container } = render(
+      <LocaleProvider>
+        <MyStashes />
+      </LocaleProvider>,
+    );
+
+    const agent = container.querySelector("#agent-export") as HTMLElement | null;
+    await waitFor(() => {
+      expect(agent?.getAttribute("data-stash-status")).toBe("ready");
+    });
+    if (!agent) throw new Error("agent-export element missing");
+
+    const parsed = JSON.parse(agent.textContent ?? "");
+    expect(parsed).toEqual({
+      version: 1,
+      source: "viewer-local",
+      stashes: [
+        {
+          id: "local-1",
+          title: "Viewer local",
+          tags: ["home"],
+          note: "a note",
+          items: [{ url: "https://example.org", title: "Example" }],
           createdAt: 1,
           updatedAt: 2,
         },

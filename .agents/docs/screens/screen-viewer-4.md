@@ -30,6 +30,8 @@ file: apps/viewer/src/components/MyStashes.tsx
 | <script id="stash-local-export" data-stash-status="ready">   |
 |   { "version":1, "source":"extension", "stashes":[...] }      |
 | </script>                                                     |
+| <a class="sr-only" data-agent-hint href="/stashes/?agent=json"|
+|   >Agents: read every stash in one request at ...</a>         |
 +--------------------------------------------------------------+
 ```
 
@@ -51,6 +53,7 @@ file: apps/viewer/src/components/MyStashes.tsx
 | Export | viewer-local only | FaFileArrowDown, downloads library JSON |
 | Import | viewer-local only | FaFileArrowUp, triggers hidden file input (JSON) |
 | `#stash-local-export` | always | JSON island with canonical `StashExport`; `data-stash-status` lifecycle |
+| Agent hint anchor | always, normal view only | `sr-only` `<a data-agent-hint href="/stashes/?agent=json">`; a11y-tree-visible pointer for DOM-snapshot browser agents |
 
 ## Behavior
 
@@ -67,14 +70,24 @@ file: apps/viewer/src/components/MyStashes.tsx
   `target="_blank"`. Non-`http(s)` URLs are filtered out before render.
 - A `<script type="application/json" id="stash-local-export">` element
   is rendered at the page root with `data-stash-status="loading"` until
-  the source settles, then `"ready"`. The island is the canonical export
-  surface for browser-class agents (ChromeClaw, NanoBrowser, BrowserOS).
+  the source settles, then `"ready"`. `<script>` elements are invisible
+  to default DOM-snapshot/text-extraction tools in common browser-agent
+  runtimes (BrowserOS-class) — only `evaluate_script`/`get_dom`/raw
+  `page.content()` readers can reach it.
+- A `sr-only` `<a data-agent-hint href="/stashes/?agent=json">` sits next
+  to the island, next to the file input, in the normal view only (not in
+  `?agent=` views). It is a real accessibility surface (announced by
+  screen readers) that also lands in the a11y tree, extracted page text,
+  and page-links enumeration — the three perception paths DOM-snapshot
+  agents actually use — pointing them at `/stashes/?agent=json`.
 - Stable semantic selectors: `[data-stash-root]`, `[data-stash-list]`,
-  `[data-stash-record-id]`, `[data-stash-title]`, `[data-stash-item-url]`.
-- `?agent=json` renders `<pre id="agent-export">` (canonical JSON).
+  `[data-stash-record-id]`, `[data-stash-title]`.
+- `?agent=json` renders `<pre id="agent-export">` — the canonical
+  `StashExport` shape, serialized from the same `records` list the
+  normal view renders (not just the extension-sourced island).
 - `?agent=markdown` renders `<pre id="agent-export-md">` (markdown per
   `/s` conventions: `# title`, `- [label](url)` per item, `tags: ...`,
-  `note: ...`).
+  `note: ...`) — same record set as `?agent=json`.
 - Both `?agent=` views are browser-only — `page.request.get` returns an
   empty Astro shell because the page is `client:only="react"`. Fetch-only
   agents must use `/s?p=<payload>` instead.

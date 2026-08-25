@@ -25,6 +25,7 @@ import { formatDateTime } from "@stash/shared";
 import { recordEvent } from "@/lib/telemetry";
 import { probeLocalBridge } from "@/lib/local-bridge";
 import type { StashExportRecord, StashExport } from "@stash/shared/agent-export";
+import { toStashExport } from "@stash/shared/agent-export";
 import {
   FaMagnifyingGlass,
   FaPlus,
@@ -436,6 +437,14 @@ export default function MyStashes() {
   );
   const islandJson = useMemo(() => JSON.stringify(islandExport), [islandExport]);
 
+  // `?agent=json` serializes the same `records` list `?agent=markdown`
+  // uses — everything the user can see on the page — unlike the
+  // `#stash-local-export` island, which stays narrow (extension-only).
+  const agentExportJson = useMemo(
+    () => JSON.stringify(toStashExport(records, source)),
+    [records, source],
+  );
+
   // Optional `?agent=json|markdown` browser-only view. Read once on
   // mount so the very first render already lands in the right shape
   // (avoids a SharedCard→agent-mode flicker when an agent navigates
@@ -446,7 +455,7 @@ export default function MyStashes() {
     return (
       <div data-stash-root data-stash-status={status} className="min-h-screen p-3">
         <pre id="agent-export" data-stash-status={status}>
-          {islandJson}
+          {agentExportJson}
         </pre>
       </div>
     );
@@ -569,6 +578,19 @@ export default function MyStashes() {
       <script type="application/json" id="stash-local-export" data-stash-status={status}>
         {islandJson}
       </script>
+
+      {/*
+        `<script type="application/json">` is invisible to DOM-snapshot
+        browser agents (BrowserOS-class): stripped by content extraction,
+        absent from the a11y tree. This `sr-only` anchor is a real a11y
+        surface (announced by screen readers) that also happens to land
+        in every default agent perception path — a11y tree, page text,
+        and page links — pointing them at the surface that already works.
+      */}
+      <a className="sr-only" href="/stashes/?agent=json" data-agent-hint>
+        Agents: read every stash in one request at /stashes/?agent=json (JSON) or
+        /stashes/?agent=markdown (Markdown). Do not expand cards one by one.
+      </a>
     </div>
   );
 }

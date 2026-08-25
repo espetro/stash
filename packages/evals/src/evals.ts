@@ -357,6 +357,141 @@ export const islandExtraction: Eval = async ({ client, llmsTxt }) => {
   }
 };
 
+/**
+ * Eval 7: snapshot-tier island extraction. Same setup as `islandExtraction`
+ * (real Playwright context, extension loaded and seeded, local-bridge
+ * enabled), but `read_dom` mirrors a DOM-snapshot/text-extraction browser
+ * agent (BrowserOS-class `get_page_content`) instead of a raw-HTML reader:
+ * rooted at `document.body`, with `SCRIPT`/`STYLE`/`NOSCRIPT` subtrees
+ * stripped before the remaining text is returned. `#stash-local-export`
+ * (a `<script type="application/json">`) is therefore invisible through
+ * this tool, same as it is to the real runtime it models — so the model
+ * must find `/stashes/?agent=json` (via the sr-only hint or llms.txt)
+ * instead of trying to read the island. This case is expected to FAIL on
+ * a build without the sr-only hint and PASS once it's present — that
+ * regression is the point.
+ */
+export const snapshotExtraction: Eval = async ({ client, llmsTxt }) => {
+  await bootViewer();
+  const context = await launchWithExtension();
+  let capturedAnswer: unknown = null;
+  try {
+    const rpc = await connectMcpPort(context);
+    await rpc.initialize();
+    await seedExtensionLibrary(rpc);
+    await rpc.page.evaluate(async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const c = (globalThis as any).chrome;
+      const current = (await c.storage.sync.get("stash-settings"))["stash-settings"];
+      const parsed = current ? JSON.parse(current) : {};
+      parsed.localLibraryViewerEnabled = true;
+      await c.storage.sync.set({ "stash-settings": JSON.stringify(parsed) });
+    });
+
+    const page = await context.newPage();
+    await page.goto("about:blank");
+
+    const navigateTool: FetchTool = {
+      name: "navigate",
+      description: "Navigate the browser to a URL under the viewer origin.",
+      parameters: {
+        type: "object",
+        properties: { url: { type: "string", description: "URL to navigate to" } },
+        required: ["url"],
+      },
+      async execute(args) {
+        const url = String(args.url ?? "");
+        if (!url.startsWith(VIEWER_ORIGIN)) return `error: navigation restricted to ${VIEWER_ORIGIN}`;
+        await page.goto(url, { waitUntil: "domcontentloaded" });
+        await page.waitForLoadState("networkidle").catch(() => undefined);
+        await page.waitForTimeout(1000);
+        return `navigated to ${page.url()} (title: ${await page.title()})`;
+      },
+    };
+
+    // Mirrors a DOM-snapshot/text-extraction tool: body-rooted, with
+    // SCRIPT/STYLE/NOSCRIPT stripped, returning only visible text — no
+    // outerHTML, no tags, no attributes.
+    const readDomTool: FetchTool = {
+      name: "read_dom",
+      description:
+        "Read the current page's visible text content, rooted at <body>. Script, style, and noscript " +
+        "elements are never included — this does not surface hidden data attributes, JSON script islands, " +
+        "or <head> metadata.",
+      parameters: {
+        type: "object",
+        properties: {},
+      },
+      async execute() {
+        const text = await page.evaluate(() => {
+          const SKIP = new Set(["SCRIPT", "STYLE", "NOSCRIPT"]);
+          function walk(node: Node): string {
+            if (node.nodeType === Node.TEXT_NODE) return node.textContent ?? "";
+            if (node.nodeType !== Node.ELEMENT_NODE) return "";
+            const el = node as Element;
+            if (SKIP.has(el.tagName)) return "";
+            let out = "";
+            for (const child of Array.from(el.childNodes)) out += walk(child);
+            return out;
+          }
+          return walk(document.body).replace(/\s+/g, " ").trim();
+        });
+        return text.length > 8_000 ? `${text.slice(0, 8_000)}\n...(truncated)` : text;
+      },
+    };
+
+    const answerTool: FetchTool = {
+      name: "answer",
+      description:
+        "Submit your final answer once you've found the stash data: an array of stashes, each with a title and its items (array of {url, title}).",
+      parameters: {
+        type: "object",
+        properties: {
+          stashes: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                title: { type: "string" },
+                items: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: { url: { type: "string" }, title: { type: "string" } },
+                    required: ["url"],
+                  },
+                },
+              },
+              required: ["title", "items"],
+            },
+          },
+        },
+        required: ["stashes"],
+      },
+      async execute(args) {
+        capturedAnswer = args.stashes ?? args;
+        return "answer recorded";
+      },
+    };
+
+    const prompt = [
+      `Here is the llms.txt of a link-sharing site:\n\n${llmsTxt}`,
+      `The site is running at ${VIEWER_ORIGIN}.`,
+      `Task: list the stashes saved in this browser.`,
+    ].join("\n\n");
+    const result = await client.chat(prompt, DOM_AGENT_CONTEXT, [navigateTool, readDomTool, answerTool]);
+    const answer = capturedAnswer ?? tryParseJson(result.content);
+    return base(
+      "snapshot-extraction",
+      prompt,
+      result,
+      gradeIslandExtraction(answer, EXTENSION_SEED.map((s) => ({ title: s.title, items: s.items }))),
+    );
+  } finally {
+    await closeContext(context);
+  }
+};
+
 function tryParseJson(text: string): unknown {
   try {
     return JSON.parse(text);
@@ -372,4 +507,5 @@ export const EVALS: Eval[] = [
   alternateLinkDiscovery,
   negativeFetchOnly,
   islandExtraction,
+  snapshotExtraction,
 ];

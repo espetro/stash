@@ -112,42 +112,49 @@ slash 308-redirects to it, costing an extra round trip.
 - The page is client-rendered (`client:only="react"`) — a plain
   `curl`/`page.request.get` returns an empty Astro shell and **no
   stashes**.
-- The viewer's local-bridge content script reads the user's extension
-  stash library (read-only) and exposes it through a deterministic
-  JSON island: `<script type="application/json" id="stash-local-export"
+- **Read all stashes in one shot at `/stashes/?agent=json` (or
+  `?agent=markdown`).** Open that URL, wait for `data-stash-status="ready"`
+  on `<pre id="agent-export">` (JSON, the canonical `StashExport` shape)
+  or `<pre id="agent-export-md">` (Markdown, per `/s` conventions), and
+  read its text content. This is the surface that works for DOM-snapshot
+  browser agents (BrowserOS-class): it is plain visible text, present in
+  the accessibility tree and in any DOM-to-text extraction. **Do not**
+  click into individual stash cards to enumerate them — expensive and
+  unnecessary, the `?agent=` views already return everything.
+- The normal view (no `?agent=` query) also embeds a
+  `<script type="application/json" id="stash-local-export"
   data-stash-status="ready">{ "version": 1, "source": "extension",
-  "stashes": [...] }</script>`.
-- Browser agents should open `/stashes/`, wait for
-  `data-stash-status="ready"` on the `#stash-local-export` island
-  element itself (there is no separate root/wrapper element carrying
-  this attribute in the normal view), and parse the island's text
-  content as JSON.
-- Two convenience views, also client-only, render the same payload as
-  raw text instead of the island: `/stashes/?agent=json` → wait for
-  `data-stash-status="ready"` on `<pre id="agent-export">` (the
-  canonical `StashExport` shape) and `/stashes/?agent=markdown` → wait
-  for `data-stash-status="ready"` on `<pre id="agent-export-md">`
-  (markdown per `/s` conventions). These views do NOT render
-  `#stash-local-export` — polling for that element from an `?agent=`
-  view will hang forever.
+  "stashes": [...] }</script>` island, but **`<script>` elements are
+  invisible to default DOM-snapshot/DOM-to-text tools** in common
+  browser-agent runtimes — they get stripped before the agent ever sees
+  them. Only tools that read raw HTML (`evaluate_script`, `get_dom`, or
+  a Playwright/CDP-driven `page.content()`) can reach it. If your runtime
+  only offers a DOM snapshot or extracted page text, use `?agent=json`
+  instead — do not rely on this island.
+- Unlike the island, which mirrors only the browser-extension library,
+  `?agent=json` and `?agent=markdown` serialize everything the signed-in
+  profile can see on the page — on a viewer-local-only profile (no
+  extension bridge) they return real rows while the island still reports
+  `stashes: []`. They always return the same record set as each other.
 
-The JSON island (`#stash-local-export` in the normal view, or
-`#agent-export`/`#agent-export-md` in the `?agent=` views) is the only
-load-time-complete source of stash data. The rendered list items in the
-normal view (`[data-stash-record-id="..."]`, `[data-stash-title]`, and
-any per-item URL anchors) are for human display only: cards render
-collapsed by default and per-item data only appears in the DOM once a
-card is expanded, so agents polling those selectors at load time will
-find nothing. Do not rely on them — parse the JSON island instead.
+The rendered list items in the normal view
+(`[data-stash-record-id="..."]`, `[data-stash-title]`) are for human
+display only: cards render collapsed by default and per-item data only
+appears in the DOM once a card is expanded, so agents polling those
+selectors at load time will find nothing. Do not rely on them — use
+`?agent=json`/`?agent=markdown`.
 
 Stable semantic selectors for browser agents:
 
 - `[data-stash-root]`, `[data-stash-list]` (presence/structure only,
   not a data source)
-- `#stash-local-export` (JSON island, normal view; lifecycle via its
-  own `data-stash-status="loading"|"ready"` attribute)
-- `#agent-export`, `#agent-export-md` (JSON/markdown views; lifecycle
-  via their own `data-stash-status="loading"|"ready"` attribute)
+- `#agent-export`, `#agent-export-md` (JSON/markdown `?agent=` views —
+  the recommended read path; lifecycle via their own
+  `data-stash-status="loading"|"ready"` attribute)
+- `#stash-local-export` (JSON island, normal view; readable only via
+  `evaluate_script`/`get_dom`/a Playwright-style `page.content()` — not
+  by DOM-snapshot or extracted-text tools; lifecycle via its own
+  `data-stash-status="loading"|"ready"` attribute)
 
 This surface is gated on the extension being installed **and** the user
 having opted in via `Settings → Local Library Bridge`. Fetch-only agents
