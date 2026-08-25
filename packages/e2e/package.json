@@ -15,6 +15,7 @@
     "test:browseros": "BROWSER_LABEL=browseros playwright test --grep runtime",
     "test:browseros:openrouter": "BROWSER_LABEL=browseros BROWSEROS_OPENROUTER=1 playwright test --grep runtime",
     "test:chrome": "BROWSER_LABEL=chrome playwright test --grep runtime",
+    "probe:agent-uas": "tsx scripts/probe-agent-uas.ts",
     "tscheck": "tsc --noEmit",
     "lint": "oxlint --fix step_implementations helpers lib specs.spec.ts",
     "format": "oxfmt --write 'step_implementations/**/*.ts' 'helpers/**/*.ts' 'lib/**/*.ts' 'specs.spec.ts'",
@@ -23,6 +24,7 @@
   },
   "dependencies": {
     "@stash/codec": "workspace:*",
+    "@stash/shared": "workspace:*",
     "brotli-wasm": "^3.0.1",
     "playwright": "^1.62.1"
   },
