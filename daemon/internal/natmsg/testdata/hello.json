@@ -1,0 +1,1 @@
+{"type":"hello","correlationId":"ext-abc12345","payload":{"protocolVersion":"1.0.0","supportedRange":">=1.0.0 <2.0.0","extension":{"name":"Stash","version":"0.9.0"}}}

@@ -29,6 +29,9 @@
     "test": {
       "cache": false
     },
+    "daemon:test": {
+      "cache": false
+    },
     "validate": {
       "cache": false
     }

@@ -1,0 +1,34 @@
+[
+  {
+    "name": "stash_snapshot_tabs",
+    "description": "Read-only snapshot of the tabs currently open in this browser window (url + title)."
+  },
+  {
+    "name": "stash_list",
+    "description": "List local stashes (id, title, tags, item counts, timestamps)."
+  },
+  {
+    "name": "stash_get",
+    "description": "Fetch a local stash by id, including its full item list."
+  },
+  {
+    "name": "stash_create",
+    "description": "Create and persist a new local stash from a list of URLs (with optional titles), title, tags and note."
+  },
+  {
+    "name": "stash_update",
+    "description": "Update a local stash's title, tags, note, or items by id."
+  },
+  {
+    "name": "stash_delete",
+    "description": "Delete a local stash by id."
+  },
+  {
+    "name": "stash_search",
+    "description": "Search local stashes by a substring match over title, tags and note."
+  },
+  {
+    "name": "stash_decode",
+    "description": "Decode a stash payload string (the ?p= value from a stash share URL) into its title, items, tags and note."
+  }
+]
