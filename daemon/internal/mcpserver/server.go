@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/espetro/stash/daemon/internal/codec"
 	"github.com/espetro/stash/daemon/internal/store"
 )
 
@@ -195,7 +196,7 @@ func (s *Server) runTool(ctx context.Context, name string, a map[string]any) (st
 		out, _ := json.Marshal(map[string]any{"stashes": summaries(recs)})
 		return string(out), false
 	case "stash_decode":
-		return CallError("not_implemented", "stash_decode is not implemented until codec port (F3)"), true
+		return s.stashDecode(a)
 	default:
 		return CallError("unknown_tool", fmt.Sprintf("unknown tool %q", name)), true
 	}
@@ -236,4 +237,35 @@ func strOr(m map[string]any, k, def string) string {
 		return v
 	}
 	return def
+}
+
+// stashDecode implements the stash_decode tool via the internal codec
+// (v6-only; legacy payloads surface "Unsupported payload version").
+func (s *Server) stashDecode(a map[string]any) (string, bool) {
+	payload, _ := a["payload"].(string)
+	if payload == "" {
+		return CallError("invalid_params", "missing required parameter: payload"), true
+	}
+	p, err := codec.DecodeEncodedPayload(payload)
+	if err != nil {
+		return CallError("decode_error", err.Error()), true
+	}
+	items := make([]map[string]any, 0, len(p.Items))
+	for _, it := range p.Items {
+		m := map[string]any{"url": it.URL, "title": it.Title}
+		if it.Kind != "" {
+			m["kind"] = it.Kind
+		}
+		items = append(items, m)
+	}
+	out, _ := json.Marshal(map[string]any{
+		"version":   p.Version,
+		"expiry":    p.Expiry,
+		"isExpired": p.IsExpired,
+		"title":     p.Title,
+		"items":     items,
+		"tags":      p.Tags,
+		"note":      p.Note,
+	})
+	return string(out), false
 }

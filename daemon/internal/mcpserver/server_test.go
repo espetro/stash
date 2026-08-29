@@ -145,12 +145,36 @@ func TestToolRoundTrip(t *testing.T) {
 	}
 }
 
-func TestStashDecodeStubError(t *testing.T) {
+// TestStashDecodeRealPayload decodes a real share-URL ?p= value from the
+// canonical fixture set and asserts the decoded shape; a hand-crafted v5
+// payload must surface the version error (v6-only at the tool boundary).
+func TestStashDecodeRealPayload(t *testing.T) {
+	fixtures := decodeFixtures(t)
+	var five fixture
+	for _, f := range fixtures {
+		if f.Name == "five-tabs" {
+			five = f
+		}
+	}
 	s := &Server{Store: openStore(t)}
-	out := call(t, s, "tools/call", map[string]any{"name": "stash_decode", "arguments": map[string]any{"payload": "abc"}})
+	out := call(t, s, "tools/call", map[string]any{"name": "stash_decode", "arguments": map[string]any{"payload": strings.TrimPrefix(five.Fragment, "#p=")}})
 	text, isErr := toolText(t, out)
-	if !isErr || !strings.Contains(text, "not_implemented") || !strings.Contains(text, "F3") {
-		t.Fatalf("decode stub: %s %v", text, isErr)
+	if isErr {
+		t.Fatalf("decode five-tabs: %s", text)
+	}
+	if !strings.Contains(text, `"itemCount"` ) && !strings.Contains(text, `"items"`) {
+		t.Fatalf("decode output missing items: %s", text)
+	}
+	if !strings.Contains(text, "css-tricks.com") {
+		t.Fatalf("decode output missing expected item url: %s", text)
+	}
+
+	// Hand-crafted v5 payload: msgpack map with v=5, base64url, R prefix.
+	v5 := encodeV5Payload(t, 5)
+	out = call(t, s, "tools/call", map[string]any{"name": "stash_decode", "arguments": map[string]any{"payload": v5}})
+	text, isErr = toolText(t, out)
+	if !isErr || !strings.Contains(text, "Unsupported payload version") {
+		t.Fatalf("v5 payload: want Unsupported payload version, got %s (isErr=%v)", text, isErr)
 	}
 }
 
@@ -220,4 +244,13 @@ func TestHarnessE2E(t *testing.T) {
 			t.Fatalf("harness name %d: got %s want %s", i, names[i], want[i])
 		}
 	}
+}
+
+func encodeV5Payload(t *testing.T, version int64) string {
+	t.Helper()
+	mp, err := msgpackMarshal(map[string]any{"v": version, "e": int64(9999999999), "i": [][]string{{"https://github.com", "GitHub"}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return "R" + base64RawURL(mp)
 }
