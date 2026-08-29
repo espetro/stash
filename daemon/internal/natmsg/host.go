@@ -13,9 +13,10 @@ import (
 	"github.com/espetro/stash/daemon/internal/store"
 )
 
-// RunHost serves the native-messaging host role over r/w: length-prefixed
-// F1 envelopes. It handles the hello/serverCard handshake, health
-// ping/pong, and routes MCP requests to the same tool registry as stdio.
+// RunHost serves the native-messaging host role over r/w: newline-delimited
+// F1 envelopes (see frame.go for the contract). It handles the
+// hello/serverCard handshake, health ping/pong, and routes MCP requests to
+// the same tool registry as stdio.
 func RunHost(st *store.Store, lw *logging.Writer, r io.Reader, w io.Writer) error {
 	return runHostConn(st, lw, r, w, NewRegistry())
 }
@@ -24,9 +25,10 @@ func runHostConn(st *store.Store, lw *logging.Writer, r io.Reader, w io.Writer, 
 	srv := &mcpserver.Server{Store: st, Log: slog.Default()}
 	var mu sync.Mutex
 	ctx := context.Background()
+	dec := NewDecoder(r)
 
 	for {
-		env, err := DecodeFrame(r)
+		env, err := dec.Decode()
 		if err != nil {
 			if err == io.EOF {
 				return nil
@@ -48,18 +50,17 @@ func runHostConn(st *store.Store, lw *logging.Writer, r io.Reader, w io.Writer, 
 				mu.Unlock()
 				continue
 			}
-			reg.Touch(h.PeerID, h.Label)
+			reg.Touch(h.Extension.Name, h.Extension.Version)
 			card := ServerCard{
 				ProtocolVersion: ProtocolVersion,
 				SupportedRange:  SupportedRange,
-				Name:            "stash-daemon",
-				Tools:           mcpserver.ToolNames(),
+				Server:          ServerInfo{Name: "stash-daemon", Version: mcpserver.Version()},
 			}
 			payload, _ := json.Marshal(card)
 			mu.Lock()
 			EncodeFrame(w, &Envelope{Type: TypeServerCard, CorrelationID: env.CorrelationID, Payload: payload})
 			mu.Unlock()
-			lw.Info("browser attached", map[string]any{"peer": h.PeerID, "label": h.Label})
+			lw.Info("browser attached", map[string]any{"peer": h.Extension.Name, "label": h.Extension.Version})
 		case TypePing:
 			payload, _ := json.Marshal(map[string]string{"status": "ok"})
 			mu.Lock()
