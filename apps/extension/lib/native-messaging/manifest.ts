@@ -54,9 +54,7 @@ export function buildHostManifest(input: ManifestInput): string {
     if (!input.chromeExtensionId) {
       throw new Error("chrome requires chromeExtensionId");
     }
-    base.allowed_origins = [
-      `chrome-extension://${input.chromeExtensionId}/`,
-    ];
+    base.allowed_origins = [`chrome-extension://${input.chromeExtensionId}/`];
   } else {
     base.allowed_extensions = [GECKO_EXTENSION_ID];
   }
@@ -70,11 +68,7 @@ export function windowsRegistryKey(browser: Browser, name = HOST_NAME): string {
 }
 
 /** Filesystem install directory for the manifest on macOS/Linux. */
-export function installLocation(
-  browser: Browser,
-  os: OS,
-  home: string,
-): InstallLocation {
+export function installLocation(browser: Browser, os: OS, home: string): InstallLocation {
   if (os === "windows") {
     return {
       browser,
@@ -104,11 +98,6 @@ export function installLocation(
 }
 
 /** All install locations for one browser across OSes (for `doctor` output). */
-export function allInstallLocations(
-  browser: Browser,
-  home: string,
-): InstallLocation[] {
-  return (["macos", "linux", "windows"] as const).map((os) =>
-    installLocation(browser, os, home),
-  );
+export function allInstallLocations(browser: Browser, home: string): InstallLocation[] {
+  return (["macos", "linux", "windows"] as const).map((os) => installLocation(browser, os, home));
 }

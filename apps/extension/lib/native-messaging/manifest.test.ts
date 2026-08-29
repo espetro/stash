@@ -37,15 +37,15 @@ describe("buildHostManifest", () => {
   });
 
   it("rejects relative daemon paths", () => {
-    expect(() =>
-      buildHostManifest({ browser: "firefox", daemonPath: "bin/stashd" }),
-    ).toThrow(/absolute/);
+    expect(() => buildHostManifest({ browser: "firefox", daemonPath: "bin/stashd" })).toThrow(
+      /absolute/,
+    );
   });
 
   it("chrome without extension id throws", () => {
-    expect(() =>
-      buildHostManifest({ browser: "chrome", daemonPath: "/bin/stashd" }),
-    ).toThrow(/chromeExtensionId/);
+    expect(() => buildHostManifest({ browser: "chrome", daemonPath: "/bin/stashd" })).toThrow(
+      /chromeExtensionId/,
+    );
   });
 
   it("output is pure JSON with trailing newline", () => {
@@ -65,9 +65,7 @@ describe("windowsRegistryKey", () => {
     );
   });
   it("uses HKCU Mozilla key for firefox", () => {
-    expect(windowsRegistryKey("firefox")).toContain(
-      "SOFTWARE\\Mozilla\\NativeMessagingHosts\\",
-    );
+    expect(windowsRegistryKey("firefox")).toContain("SOFTWARE\\Mozilla\\NativeMessagingHosts\\");
   });
 });
 
