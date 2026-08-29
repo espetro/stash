@@ -16,7 +16,16 @@ export default defineConfig({
     description:
       "Stash saves your open tabs as a shareable snapshot link, inline or short. Local-first. No accounts. Anonymous aggregate usage counters only, opt-out in Settings.",
     version: pkg.version,
-    permissions: ["contextMenus", "tabs", "clipboardWrite", "notifications", "storage"],
+    permissions: [
+      "contextMenus",
+      "tabs",
+      "clipboardWrite",
+      "notifications",
+      "storage",
+      // Talks to the locally installed Stash daemon over runtime.connectNative
+      // (stdio). Local-only channel; see STORE_LISTING.nativeMessaging.md.
+      "nativeMessaging",
+    ],
     action: { default_popup: "popup/index.html" },
     // @ts-ignore - WXT doesn't expose externally_connectable in its manifest types yet
     externally_connectable: {
