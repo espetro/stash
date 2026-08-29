@@ -78,5 +78,5 @@ The earlier "ask Cloudflare to challenge instead of silently drop" follow-up is
 retired: the drop is not Cloudflare's, it is upstream of it.
 
 These are tracked in the local-first re-platform spec
-(`.agents/plans/2026-08-29-local-first-replatform-spec.md`, section 9a) and its
+(`.agents/docs/local-first-replatform-spec.md`, section 9a) and its
 follow-up issues.
