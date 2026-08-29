@@ -32,6 +32,15 @@ links.
 
 ## Local MCP / `stash-mcp-relay`
 
+> **Superseded direction.** The local-first re-platform spec
+> ([`.agents/docs/local-first-replatform-spec.md`](../../.agents/docs/local-first-replatform-spec.md),
+> issue #44) replaces "PR6's extension-side loopback socket" with a
+> local MCP daemon reached over **native messaging (stdio)**, not a
+> raw TCP socket, and folds `@stash/mcp-relay` out of the tree
+> (spec section 10.4). The relay wiring below still describes what
+> ships today; do not build further toward the never-completed
+> extension-side socket without checking the spec first.
+
 Stash exposes its background MCP server (`lib/mcp/`) on the runtime
 port named `mcp` (constant: `lib/mcp/constants.ts`). Stdout MCP
 clients (Claude Desktop, Cursor) can talk to it through the

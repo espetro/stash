@@ -1,6 +1,23 @@
 # Stash Roadmap
 
-Last updated: Aug 22, 2026 · Current release: **v0.8.0** shipped · **v0.8.1** in flight: navbar/settings polish
+Last updated: Aug 29, 2026 · Current release: **v0.8.0** shipped · **v0.8.1** in flight: navbar/settings polish
+
+---
+
+## In design — Local-first re-platform (#44)
+
+Architecture spec drafted, not yet implemented. See
+[`.agents/docs/local-first-replatform-spec.md`](.agents/docs/local-first-replatform-spec.md).
+
+A local MCP daemon becomes the source of truth for the stash library,
+reachable by both browsers and headless agent harnesses; the extension
+becomes the sync/UI hub; the viewer stays a thin renderer; the shortener
+is reframed as a self-hostable relay. Sync across a user's browsers uses a
+CRDT (Automerge, proven by spike). Implementation is split into follow-up
+issues F1-F13 in the spec (transport, daemon MVP, Go codec port, sync
+client, CRDT adoption, relay rework, Saved/History merge, packaging,
+Cloudflare null-routing resilience). Out of scope for now: cross-machine
+sync, mobile, accounts.
 
 ---
 
@@ -51,7 +68,7 @@ Distribution and user validation.
 - [x] Anonymous telemetry in extension (opt-in beacon to shortener `/beacon`; no PostHog in extension, beacon covers it)
 - [ ] Landing page SEO pass (meta tags, Open Graph, structured data)
 - [ ] Share drawer improvements (copy as plain text, copy as HTML)
-- [ ] History view in viewer (superseded in part by the local `/stashes` library page; revisit what remains)
+- [ ] History view in viewer — superseded by the Saved/History merge in the local-first spec (#44, section 10.3): one record type with a `shares[]` field, no separate History view
 - [ ] Chrome Web Store listing optimization (screenshots, description, keywords)
 - [ ] Firefox Add-ons listing parity
 - [ ] E2E test suite activation (Gauge + Playwright specs exist but aren't in CI)
@@ -95,7 +112,7 @@ Ideas from `.omo/plans/` that are deprioritized. Revisit if user demand exists.
 
 ## Architecture Principles
 
-1. **No server, no account** — URL-encoded payload is the core differentiator
+1. **No server, no account** — URL-encoded payload is the core differentiator. The local-first re-platform (#44) keeps this: the daemon is a local, loopback-only process with no network egress and no identity, not a hosted backend. The hosted relay stays optional and holds only opaque, TTL-bound payloads.
 2. **Shared packages first** — new features go to `@stash/codec` or `@stash/shared`, not duplicated
 3. **Budget-aware** — 8000-char URL budget constrains everything; show it to users
 4. **Three surfaces, one experience** — extension, viewer, and landing embed should feel identical
