@@ -80,7 +80,7 @@ export function LinkResult({
 
   const hint =
     shortenState === "short"
-      ? "Short link. A copy is stored on the shortener for up to 7 days."
+      ? "Encrypted short link. Only the key in the link can read it; a copy is stored on the shortener for up to 7 days."
       : shortenState === "failed"
         ? "Couldn't shorten, using self-contained link."
         : isPayloadLink

@@ -6,6 +6,7 @@
   "main": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./crypto": "./src/crypto.ts",
     "./agent-export": "./src/agent-export.ts",
     "./fixtures": "./src/fixtures.ts",
     "./fixtures/payloads.json": "./fixtures/payloads.json",

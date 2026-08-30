@@ -76,7 +76,9 @@ describe("LinkResult shorten state", () => {
       expect(screen.getByDisplayValue(SHORT_URL)).toBeTruthy();
     });
     expect(
-      screen.getByText("Short link. A copy is stored on the shortener for up to 7 days."),
+      screen.getByText(
+        "Encrypted short link. Only the key in the link can read it; a copy is stored on the shortener for up to 7 days.",
+      ),
     ).toBeTruthy();
     expect(screen.getByText("Shortened")).toBeTruthy();
     expect(screen.queryByText("Shorten link")).toBeNull();
