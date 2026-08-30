@@ -9,4 +9,8 @@ interface ImportMetaEnv {
   readonly VITE_SHORTENER_ORIGIN: string;
   readonly VITE_CHROME_DOWNLOAD_URL: string;
   readonly VITE_FIREFOX_DOWNLOAD_URL: string;
+  // * Set when building the viewer for embedding into the stash-daemon
+  //   (F12): drops PostHog and Google Fonts so the loopback shell makes
+  //   zero network requests.
+  readonly VITE_EMBEDDED_VIEWER?: string;
 }
