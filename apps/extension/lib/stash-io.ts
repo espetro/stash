@@ -68,7 +68,10 @@ export function parseStashesImport(json: string): StashRecord[] {
     if (!v1.success) {
       throw new Error("Not a valid stash export file");
     }
-    result = stashExportSchema.safeParse({ version: STASH_EXPORT_VERSION, stashes: v1.data.stashes });
+    result = stashExportSchema.safeParse({
+      version: STASH_EXPORT_VERSION,
+      stashes: v1.data.stashes,
+    });
     if (!result.success) {
       throw new Error("Not a valid stash export file");
     }

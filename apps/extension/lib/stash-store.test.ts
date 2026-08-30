@@ -66,9 +66,9 @@ describe("shares[] (F8)", () => {
     const origin = await getProfileId();
     await appendShareEvent(rec.id, share());
     const box = await getOutbox();
-    expect(box.at(-1)?.op).toBe("update");
-    expect(box.at(-1)?.origin).toBe(origin);
-    expect(box.at(-1)?.record?.shares).toHaveLength(1);
+    expect(box[box.length - 1]?.op).toBe("update");
+    expect(box[box.length - 1]?.origin).toBe(origin);
+    expect(box[box.length - 1]?.record?.shares).toHaveLength(1);
   });
 
   it("deleteStash keeps working on records carrying shares", async () => {

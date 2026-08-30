@@ -1006,3 +1006,38 @@ body {
 .stash-item-link:hover {
   text-decoration: underline;
 }
+
+/* F8: per-record share history affordance */
+.stash-shares-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.stash-shares-toggle:hover {
+  color: var(--foreground);
+}
+
+.stash-shares-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stash-share {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stash-share-meta {
+  font-size: 0.7rem;
+  color: var(--muted-foreground);
+}

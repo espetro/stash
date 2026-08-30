@@ -32,14 +32,9 @@ function toShareEvent(entry: HistoryEntry): ShareEvent {
   };
 }
 
-function matchRecord(
-  entry: HistoryEntry,
-  records: StashRecord[],
-): StashRecord | undefined {
+function matchRecord(entry: HistoryEntry, records: StashRecord[]): StashRecord | undefined {
   return records.find(
-    (r) =>
-      r.shares?.some((s) => s.url === entry.url) ||
-      r.items.some((i) => i.url === entry.url),
+    (r) => r.shares?.some((s) => s.url === entry.url) || r.items.some((i) => i.url === entry.url),
   );
 }
 

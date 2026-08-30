@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { LuChevronDown, LuChevronRight, LuPlus, LuTrash2, LuX } from "react-icons/lu";
-import { formatDateTime } from "@stash/shared";
+import { LuChevronDown, LuChevronRight, LuLink2, LuPlus, LuTrash2, LuX } from "react-icons/lu";
+import { formatDateTime, formatRemainingTime } from "@stash/shared";
 import { recordEvent } from "../../../lib/telemetry";
 import type { StashRecord } from "../../../lib/stash-store";
 
@@ -17,7 +17,10 @@ export function StashItem({ stash, onUpdate, onDelete }: StashItemProps) {
   const [noteDraft, setNoteDraft] = useState(stash.note ?? "");
   const [tagDraft, setTagDraft] = useState("");
 
+  const [sharesExpanded, setSharesExpanded] = useState(false);
+
   const itemText = stash.items.length === 1 ? "1 item" : `${stash.items.length} items`;
+  const shares = stash.shares ?? [];
 
   function handleTitleBlur() {
     const trimmed = titleDraft.trim();
@@ -82,6 +85,23 @@ export function StashItem({ stash, onUpdate, onDelete }: StashItemProps) {
                 </span>
               ))}
             </div>
+          )}
+          {shares.length > 0 && (
+            <button
+              className="stash-shares-toggle"
+              type="button"
+              aria-expanded={sharesExpanded}
+              aria-label={`Shared ${shares.length} ${shares.length === 1 ? "time" : "times"}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSharesExpanded((v) => !v);
+              }}
+            >
+              <LuLink2 aria-hidden />
+              <span>
+                Shared {shares.length} {shares.length === 1 ? "time" : "times"}
+              </span>
+            </button>
           )}
         </div>
         <button
@@ -149,6 +169,37 @@ export function StashItem({ stash, onUpdate, onDelete }: StashItemProps) {
             onChange={(e) => setNoteDraft(e.target.value)}
             onBlur={handleNoteBlur}
           />
+
+          {sharesExpanded && shares.length > 0 && (
+            <div className="stash-shares" onClick={(e) => e.stopPropagation()}>
+              <label className="stash-field-label">Shares</label>
+              <div className="stash-shares-list">
+                {shares.map((share, i) => {
+                  const isActive = share.expiresAt > Date.now();
+                  return (
+                    <div key={`${share.url}-${i}`} className="stash-share">
+                      <a
+                        className="stash-item-link"
+                        href={share.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        title={share.url}
+                      >
+                        {share.url}
+                      </a>
+                      <span className="stash-share-meta">
+                        {formatDateTime(share.createdAt)} ·{" "}
+                        {share.itemCount === 1 ? "1 tab" : `${share.itemCount} tabs`}
+                        {isActive
+                          ? ` · ${formatRemainingTime(share.expiresAt - Date.now())} left`
+                          : " · expired"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <label className="stash-field-label">Items</label>
           <div className="stash-item-links">

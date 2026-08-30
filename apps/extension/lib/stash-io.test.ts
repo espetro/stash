@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { exportStashesToJSON, parseStashesImport, type StashExport } from "./stash-io";
+import { exportStashesToJSON, parseStashesImport } from "./stash-io";
 import type { StashRecord } from "./stash-store";
 
 const record = (over: Partial<StashRecord> = {}): StashRecord => ({
@@ -14,7 +14,13 @@ const record = (over: Partial<StashRecord> = {}): StashRecord => ({
 
 describe("stash export (F8 v2)", () => {
   it("exports version 2 and round-trips unchanged", () => {
-    const stashes = [record({ shares: [{ url: "https://s/1", itemCount: 1, truncated: false, createdAt: 5, expiresAt: 6 }] })];
+    const stashes = [
+      record({
+        shares: [
+          { url: "https://s/1", itemCount: 1, truncated: false, createdAt: 5, expiresAt: 6 },
+        ],
+      }),
+    ];
     const json = exportStashesToJSON(stashes);
     expect(JSON.parse(json).version).toBe(2);
     expect(parseStashesImport(json)).toEqual(stashes);

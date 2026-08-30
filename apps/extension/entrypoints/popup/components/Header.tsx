@@ -1,19 +1,13 @@
 import { ComponentProps } from "react";
-import { LuArchive, LuArrowLeft, LuClock, LuCog } from "react-icons/lu";
+import { LuArchive, LuArrowLeft, LuCog } from "react-icons/lu";
 
 interface HeaderProps {
   onClickStashes: ComponentProps<"button">["onClick"];
-  onClickHistory: ComponentProps<"button">["onClick"];
   onClickSettings: ComponentProps<"button">["onClick"];
   onBack?: () => void;
 }
 
-export default function Header({
-  onClickStashes,
-  onClickHistory,
-  onClickSettings,
-  onBack,
-}: HeaderProps) {
+export default function Header({ onClickStashes, onClickSettings, onBack }: HeaderProps) {
   return (
     <div className="popup-header">
       <div className="header-left">
@@ -39,14 +33,6 @@ export default function Header({
           title="My Stashes"
         >
           <LuArchive />
-        </button>
-        <button
-          className="theme-toggle"
-          onClick={onClickHistory}
-          aria-label="View history"
-          title="History"
-        >
-          <LuClock />
         </button>
         <button
           className="theme-toggle"

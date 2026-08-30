@@ -61,7 +61,9 @@ describe("history → shares migration (F8.W5)", () => {
       items: [{ url: "https://stash.illo.fyi/s/h1", title: "x" }],
     });
     await addToHistory(entry());
-    await addToHistory(entry({ id: "e2", url: "https://stash.illo.fyi/s/h1", createdAt: Date.now() - 500 }));
+    await addToHistory(
+      entry({ id: "e2", url: "https://stash.illo.fyi/s/h1", createdAt: Date.now() - 500 }),
+    );
     await migrateHistoryToShares();
     const stored = (await listStashes()).find((r) => r.id === rec.id);
     expect(stored?.shares).toHaveLength(2);
