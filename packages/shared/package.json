@@ -9,7 +9,8 @@
     "./agent-export": "./src/agent-export.ts",
     "./fixtures": "./src/fixtures.ts",
     "./fixtures/payloads.json": "./fixtures/payloads.json",
-    "./negotiation": "./src/negotiation.ts"
+    "./negotiation": "./src/negotiation.ts",
+    "./failover": "./src/failover.ts"
   },
   "scripts": {
     "tscheck": "tsc --noEmit",
