@@ -6,6 +6,7 @@ import { LinkResult } from "./components/LinkResult";
 import { ErrorMessage } from "./components/ErrorMessage";
 import { HistoryView } from "./components/HistoryView";
 import { StashesView } from "./components/StashesView";
+import { SyncStatusBar } from "./components/SyncStatusBar";
 import { Button } from "@/components/ui/Button";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import { getBrotliFunctions } from "@stash/shared";
@@ -206,7 +207,10 @@ export default function App() {
       {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}
 
       {view === "stashes" ? (
-        <StashesView />
+        <>
+          <SyncStatusBar />
+          <StashesView />
+        </>
       ) : view === "saveStash" ? (
         <SaveStashForm
           itemCount={stashToSave.length}
