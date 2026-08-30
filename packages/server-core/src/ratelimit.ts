@@ -7,8 +7,10 @@ export function defaultClientIp(request: Request): string {
 
 /** Checks a rate limit binding. Missing binding always allows. On the
  *  binding throwing, `failMode` decides: "open" (default) allows, "closed"
- *  denies — used for the public shortener's write path so one misbehaving
- *  limiter can't be used to bypass quota. */
+ *  deny — used for the relay's quota-consuming write paths
+ *  (POST /api/stash and POST /mcp) so a misbehaving limiter can't be
+ *  used to bypass quota. Self-hosters without a binding are unaffected
+ *  (missing binding always allows). */
 export async function allowRequest(
   binding: RateLimitBinding | undefined,
   key: string,

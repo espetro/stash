@@ -7,6 +7,7 @@ export type OriginClass = "extension" | "web" | "other" | "n/a";
 export type TtlBucket = "1d" | "7d" | "14d" | "30d" | "n/a";
 export type TelemetryRoute =
   | "api_stash"
+  | "api_stash_delete"
   | "mcp"
   | "s_view_html"
   | "s_view_json"
@@ -50,7 +51,8 @@ export function classifyClient(request: Request): ClientClass {
   const ua = (request.headers.get("User-Agent") ?? "").toLowerCase();
   if (ua && AGENT_UA_MARKERS.some((marker) => ua.includes(marker))) return "agent";
 
-  const hasSecFetch = request.headers.has("Sec-Fetch-Mode") || request.headers.has("Sec-Fetch-Site");
+  const hasSecFetch =
+    request.headers.has("Sec-Fetch-Mode") || request.headers.has("Sec-Fetch-Site");
   if (ua.includes("mozilla") && hasSecFetch) return "human";
   if (!ua) return "unknown";
 

@@ -18,7 +18,15 @@ export interface RateLimiterConfig {
   clientIp?: (request: Request) => string;
 }
 
-/** Ports every runtime adapter must supply. */
+/** Ports every runtime adapter must supply.
+ *
+ *  NOTE (payload storage): a parallel zero-trust-encryption analysis may
+ *  change how payloads are persisted (ciphertext server-side vs fragment-
+ *  only). Storage access is deliberately funneled through `storage` (the
+ *  unstorage instance) plus the small helpers in `store.ts`
+ *  (`createStash` / `getStash` / `removeItem`), so an encrypted-storage
+ *  strategy can slot in behind that seam without touching routes or MCP.
+ */
 export interface StashServerConfig {
   /** unstorage instance (KV binding, browser.storage.local, memory…) */
   storage: Storage;
@@ -26,10 +34,16 @@ export interface StashServerConfig {
   origin: string;
   /** Lazily-loaded brotli (worker: vendored wasm; extension: @stash/shared). */
   getBrotli: () => Promise<BrotliFunctions>;
-  /** Optional per-IP rate limiting via runtime bindings (fail-open). */
+  /** Optional per-IP rate limiting via runtime bindings. Write paths
+   *  (POST /api/stash, POST /mcp) fail closed: a limiter that throws
+   *  blocks the request rather than admitting it. */
   rateLimiter?: RateLimiterConfig;
+  /** Default TTL applied to relay uploads that don't specify one
+   *  (HTTP `ttl` field or MCP `ttlDays`). Defaults to "7d" when unset. */
+  defaultTtl?: ServerTtl;
   /** Optional TTL ceiling enforced on write paths (HTTP + MCP). Self-hosted
-   *  deployments can omit this to keep the full 1d-30d range. */
+   *  deployments can omit this to keep the full 1d-30d range.
+   *  Relay-side concept only; the TTL is bound to the relay upload. */
   maxTtl?: ServerTtl;
   /** Optional aggregate telemetry sink (e.g. Cloudflare Analytics Engine).
    *  Self-hosted / test consumers simply omit it — no-op. */
@@ -41,6 +55,7 @@ export interface StashServerDeps {
   storage: Storage;
   origin: string;
   getBrotli: () => Promise<BrotliFunctions>;
+  defaultTtl: ServerTtl;
   rateLimiter?: RateLimiterConfig;
   maxTtl?: ServerTtl;
   telemetry?: TelemetrySink;

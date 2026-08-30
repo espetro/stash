@@ -2,6 +2,7 @@ import { decodeEncodedPayload, PayloadDecodeError } from "@stash/codec";
 import {
   createStash,
   getStash,
+  removeItem,
   isServerTtl,
   isExpired,
   cacheControlFor,
@@ -119,7 +120,7 @@ async function routeRequest(
       return errorResponse(400, "Unknown payload prefix");
     }
 
-    const ttl = body.ttl ?? "7d";
+    const ttl = body.ttl ?? deps.defaultTtl;
     if (!isServerTtl(ttl)) {
       return errorResponse(400, "ttl must be one of 1d, 7d, 14d, 30d");
     }
@@ -161,6 +162,25 @@ async function routeRequest(
       }
       throw e;
     }
+  }
+
+  // DELETE /api/stash/:id -> 204 (revokes a short link before TTL expiry).
+  // No auth in v1: the id is a 6-char unguessable base32 secret; abuse is
+  // bounded by the rate limiter. See the relay README.
+  const deleteMatch = url.pathname.match(/^\/api\/stash\/([A-Za-z2-7]{6})\/?$/);
+  if (deleteMatch && request.method === "DELETE") {
+    meta.route = "api_stash_delete";
+    const limiter = deps.rateLimiter;
+    if (
+      limiter &&
+      !(await allowRequest(limiter.stash, (limiter.clientIp ?? defaultClientIp)(request), "closed"))
+    ) {
+      return tooManyRequests();
+    }
+    const id = deleteMatch[1].toUpperCase();
+    if (!(await deps.storage.hasItem(id))) return errorResponse(404, "Not found");
+    await removeItem(deps.storage, id);
+    return new Response(null, { status: 204, headers: cors });
   }
 
   // GET /s/:id — content negotiation via ?format= then Accept header.
@@ -231,7 +251,10 @@ async function routeRequest(
     if (
       request.method === "POST" &&
       limiter &&
-      !(await allowRequest(limiter.mcp, (limiter.clientIp ?? defaultClientIp)(request)))
+      // Fail-closed (§12.2): /mcp is a quota-consuming write path on the
+      // hosted relay, so a degraded RateLimit binding blocks writes
+      // instead of admitting them. Missing binding still allows.
+      !(await allowRequest(limiter.mcp, (limiter.clientIp ?? defaultClientIp)(request), "closed"))
     ) {
       return mcpTooManyRequests();
     }

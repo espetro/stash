@@ -1,7 +1,6 @@
 import type { Storage } from "unstorage";
 import type { DecodedPayload } from "@stash/codec";
 
-
 /** Server-stored stashes enforce one of these TTLs; `never` only exists in
  *  URL-payload mode. */
 export const SERVER_TTL_HOURS = {
@@ -64,6 +63,14 @@ export async function getStash(storage: Storage, id: string): Promise<StoredEntr
   if (raw === null || raw === undefined) return null;
   // some drivers return the stored string, others the parsed object
   return typeof raw === "string" ? (JSON.parse(raw) as StoredEntry) : raw;
+}
+
+/** Explicitly remove a stored stash (DELETE /api/stash/:id). Returns true
+ *  when an entry was removed, false when the id was already absent. */
+export async function removeItem(storage: Storage, id: string): Promise<boolean> {
+  const existed = await storage.hasItem(id);
+  if (existed) await storage.removeItem(id);
+  return existed;
 }
 
 export function cacheControlFor(entry: StoredEntry): string {
