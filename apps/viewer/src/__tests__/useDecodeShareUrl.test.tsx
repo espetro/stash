@@ -100,13 +100,11 @@ describe("useDecodeShareUrl — relayed links (zero-trust)", () => {
     const tampered = ciphertext.slice(0, -1) + (ciphertext.endsWith("A") ? "B" : "A");
     vi.stubGlobal(
       "fetch",
-      vi
-        .fn()
-        .mockResolvedValue(
-          new Response(JSON.stringify({ id, ciphertext: tampered, encrypted: true }), {
-            status: 200,
-          }),
-        ),
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ id, ciphertext: tampered, encrypted: true }), {
+          status: 200,
+        }),
+      ),
     );
 
     const { result } = renderHook(() => useDecodeShareUrl());
