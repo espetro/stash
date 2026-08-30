@@ -14,6 +14,7 @@ import (
 
 	"github.com/espetro/stash/daemon/internal/config"
 	"github.com/espetro/stash/daemon/internal/doctor"
+	"github.com/espetro/stash/daemon/internal/install"
 	"github.com/espetro/stash/daemon/internal/logging"
 	"github.com/espetro/stash/daemon/internal/mcpserver"
 	"github.com/espetro/stash/daemon/internal/natmsg"
@@ -31,25 +32,54 @@ func main() {
 	var configDir string
 	var jsonOut bool
 	var origin string
+	var chromeID string
+	var autostart bool
+	var yes bool
 	fs := flag.NewFlagSet("stash-daemon", flag.ExitOnError)
 	fs.StringVar(&configDir, "config-dir", "", "override config directory")
 	fs.BoolVar(&jsonOut, "json", false, "machine-readable JSON output")
 	fs.StringVar(&origin, "origin", "", "host mode: extension origin (escape hatch)")
+	fs.StringVar(&chromeID, "chrome-id", "", "install: Chrome extension id override (default: store id)")
+	fs.BoolVar(&autostart, "autostart", false, "install: also install the launchd/systemd user unit")
+	fs.BoolVar(&yes, "yes", false, "uninstall: skip the data-deletion prompt")
 	fs.Usage = func() {
-		fmt.Fprintf(os.Stderr, "stash-daemon <serve|host|status|doctor> [flags]\n\nFlags:\n")
+		fmt.Fprintf(os.Stderr, "	stash-daemon <serve|host|status|doctor|install|uninstall> [flags]\n\nFlags:\n")
 		fs.PrintDefaults()
 	}
-	fs.Parse(os.Args[1:])
+	// Accept flags on either side of the subcommand
+	// (`stash-daemon install --autostart` and `stash-daemon --autostart
+	// install` both work): parse global flags, then re-parse any remainder.
+	// First pass over everything; flag.ExitOnError stops at the first
+	// non-flag (the subcommand) and leaves the rest in Args().
+	if err := fs.Parse(os.Args[1:]); err != nil && err != flag.ErrHelp {
+		fmt.Fprintln(os.Stderr, "fatal:", err)
+		os.Exit(2)
+	}
 	args := fs.Args()
+	if len(args) > 1 {
+		// Second pass: parse everything after the subcommand so flags can
+		// follow it (`stash-daemon install --autostart`). Preserve the
+		// subcommand (args[0]); it is consumed by the switch below.
+		sub := args[0]
+		if err := fs.Parse(args[1:]); err != nil && err != flag.ErrHelp {
+			fmt.Fprintln(os.Stderr, "fatal:", err)
+			os.Exit(2)
+		}
+		args = append([]string{sub}, fs.Args()...)
+	}
 
 	if len(args) == 0 && looksLikeNMInvocation(os.Args[1:]) {
 		runHost(configDir, "") // browser passed the origin as argv[1]
 		return
 	}
 
+	// The subcommand is the first positional arg from the first pass; keep it
+	// even when the second pass consumes the flags that follow it.
 	cmd := "serve"
 	if len(args) > 0 {
 		cmd = args[0]
+	}
+	if len(args) > 1 {
 		args = args[1:]
 	}
 	switch cmd {
@@ -65,6 +95,10 @@ func main() {
 		runStatus(configDir, jsonOut)
 	case "doctor":
 		runDoctor(configDir, jsonOut)
+	case "install":
+		runInstall(chromeID, autostart)
+	case "uninstall":
+		runUninstall(configDir, yes)
 	default:
 		fmt.Fprintf(os.Stderr, "unknown command %q; run stash-daemon -h\n", cmd)
 		os.Exit(2)
@@ -224,4 +258,60 @@ func runDoctor(configDir string, jsonOut bool) {
 	exe, _ := os.Executable()
 	code := doctor.Run(os.Stdout, paths, exe, jsonOut, buildVersion())
 	os.Exit(code)
+}
+
+// runInstall places the native-messaging host manifests (F10; F1 shape).
+// chromeID overrides the built-in Chrome Web Store extension id.
+func runInstall(chromeID string, autostart bool) {
+	browsers := []string{"chrome", "firefox"}
+	written, err := install.Install("", browsers, chromeID, autostart)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "fatal:", err)
+		os.Exit(1)
+	}
+	for _, p := range written {
+		fmt.Println("installed:", p)
+	}
+	exe, _ := os.Executable()
+	fmt.Printf("\nNext: point the extension at this host (%s), then run `stash-daemon doctor`.\n", exe)
+}
+
+// runUninstall removes host manifests and the autostart unit; with --yes it
+// also deletes the config dir (SQLite, logs, stash.toml) without prompting
+// (spec §7.6: always prompt before deleting the local library).
+func runUninstall(configDir string, yes bool) {
+	if !yes {
+		dir, err := config.Dir(configDir)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "fatal:", err)
+			os.Exit(1)
+		}
+		fmt.Printf("This deletes your local stash library at %s. Export first? [y/N] ", dir)
+		var answer string
+		fmt.Scanln(&answer)
+		switch strings.ToLower(strings.TrimSpace(answer)) {
+		case "y", "yes":
+			fmt.Fprintln(os.Stderr, "export first (see docs), then re-run with --yes to delete data")
+			return
+		case "n", "no", "":
+			// Proceed: remove manifests + unit, keep data.
+		default:
+			fmt.Fprintln(os.Stderr, "aborted")
+			os.Exit(1)
+		}
+	}
+	// --yes skips the prompt and deletes the config dir too (spec §7.6).
+	deleteData := yes
+	removed, err := install.Uninstall(deleteData, configDir)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "fatal:", err)
+		os.Exit(1)
+	}
+	for _, p := range removed {
+		fmt.Println("removed:", p)
+	}
+	if !deleteData {
+		dir, _ := config.Dir(configDir)
+		fmt.Printf("\nData dir kept at %s; delete manually or re-run with --yes.\n", dir)
+	}
 }
