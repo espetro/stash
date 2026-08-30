@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -20,10 +21,11 @@ type Server struct {
 	Store *store.Store
 	Log   *slog.Logger
 
-	// SnapshotFn, when non-nil and at least one browser is attached, serves
-	// stash_snapshot_tabs. In F2 without a browser it stays nil and the tool
-	// returns the defined no_browser_attached error.
-	SnapshotFn func(ctx context.Context) (string, error)
+	// SnapshotFn serves stash_snapshot_tabs over the reverse channel. When
+	// nil the tool returns the defined no_browser_attached error. The fn
+	// receives the optional browser label argument (pairing label) and
+	// returns the harness-facing JSON payload (or a *SnapshotError).
+	SnapshotFn func(ctx context.Context, browser string) (string, error)
 }
 
 // Serve reads newline-delimited JSON-RPC requests until EOF.
@@ -126,8 +128,15 @@ func (s *Server) runTool(ctx context.Context, name string, a map[string]any) (st
 		if s.SnapshotFn == nil {
 			return CallError("no_browser_attached", "no browser attached: pair the extension via native messaging; run stash-daemon doctor to diagnose"), true
 		}
-		out, err := s.SnapshotFn(ctx)
-		return out, err != nil
+		out, err := s.SnapshotFn(ctx, str(a, "browser"))
+		if err != nil {
+			var te *SnapshotError
+			if errors.As(err, &te) {
+				return CallError(te.Code, te.Message), true
+			}
+			return CallError("browser_error", err.Error()), true
+		}
+		return out, false
 	case "stash_list":
 		recs, err := s.Store.ListRecords()
 		if err != nil {
