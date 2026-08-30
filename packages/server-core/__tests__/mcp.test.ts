@@ -156,22 +156,30 @@ describe("GET /.well-known/mcp-server-card", () => {
       },
     ]);
 
-    // Single relay surface; the extension's local MCP server is no longer
-    // mirrored here (its 8 frozen tool names live in the extension + daemon).
+    // The shortener surface plus the local surfaces: the browser-internal
+    // extension port and the daemon stdio entry (desktop MCP clients).
     expect(Array.isArray(card.servers)).toBe(true);
-    expect(card.servers).toHaveLength(1);
+    expect(card.servers).toHaveLength(3);
 
-    const [shortener] = card.servers;
+    const [shortener, extension, daemon] = card.servers;
 
     expect(shortener.name).toBe("stash-shortener");
     expect(shortener.transport).toBe("streamable-http");
     expect(shortener.url).toBe(`${ORIGIN}/mcp`);
-    expect(shortener.portName).toBeUndefined();
     expect(shortener.tools.map((t: any) => t.name)).toEqual([
       "stash_create",
       "stash_get",
       "stash_decode",
     ]);
+
+    expect(extension.name).toBe("stash-extension");
+    expect(extension.transport).toBe("extension-port");
+    expect(extension.portName).toBe("mcp");
+    expect(extension.url).toBeUndefined();
+
+    expect(daemon.name).toBe("stash-daemon");
+    expect(daemon.transport).toBe("stdio");
+    expect(daemon.url).toBeUndefined();
 
     // Legacy flat fields preserved for backwards compat.
     expect(card.url).toBe(`${ORIGIN}/mcp`);
