@@ -47,7 +47,7 @@ describe("MCP /mcp", () => {
     expect(names).toEqual(["stash_create", "stash_get", "stash_decode"]);
   });
 
-  it("stash_create then stash_get roundtrip", async () => {
+  it("stash_create returns a fragment-keyed URL; stash_get fails closed", async () => {
     const created = await rpc("tools/call", {
       name: "stash_create",
       arguments: {
@@ -58,12 +58,15 @@ describe("MCP /mcp", () => {
     });
     const createdData = JSON.parse(created.content[0].text);
     expect(createdData.id).toMatch(/^[A-Z2-7]{6}$/);
-    expect(createdData.url).toBe(`${ORIGIN}/s/${createdData.id}`);
+    // Zero-trust: the transient key is only in the fragment, never stored.
+    expect(createdData.url).toMatch(
+      new RegExp(`^${ORIGIN}/s/${createdData.id}#[A-Za-z0-9_-]{22}$`),
+    );
 
     const got = await rpc("tools/call", { name: "stash_get", arguments: { id: createdData.id } });
+    expect(got.isError).toBe(true);
     const gotData = JSON.parse(got.content[0].text);
-    expect(gotData.title).toBe("MCP Test");
-    expect(gotData.items.map((i: any[]) => i[0])).toContain("https://github.com");
+    expect(gotData.error).toBe("encrypted");
   });
 
   it("stash_decode decodes a codec payload", async () => {

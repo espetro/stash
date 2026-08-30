@@ -8,7 +8,7 @@ import {
   type TabInfo,
   type BrotliFunctions,
 } from "@stash/codec";
-import { parseStashLine } from "@stash/shared";
+import { parseStashLine, generateShareKey, encryptForRelay } from "@stash/shared";
 import { createStash, getStash, isExpired, SERVER_TTL_HOURS, type ServerTtl } from "./store";
 import type { StashServerDeps } from "./config";
 
@@ -71,9 +71,14 @@ export function buildServer(origin: string, deps: StashServerDeps): McpServer {
         return { url, title };
       });
       const payload = await encodePayloadToUrl(createPayload(tabs, ttlDays * 24, title), brotli);
-      const { id } = await createStash(deps.storage, payload, ttl);
+      // Zero-trust relay (F14): encrypt with a transient per-share key.
+      // The key is returned in the share URL fragment and never stored —
+      // the relay cannot decrypt its own entries after this response.
+      const key = generateShareKey();
+      const ciphertext = await encryptForRelay(payload, key);
+      const { id } = await createStash(deps.storage, ciphertext, ttl, { encrypted: true });
       return {
-        content: [{ type: "text", text: JSON.stringify({ id, url: `${origin}/s/${id}` }) }],
+        content: [{ type: "text", text: JSON.stringify({ id, url: `${origin}/s/${id}#${key}` }) }],
       };
     },
   );
@@ -93,6 +98,19 @@ export function buildServer(origin: string, deps: StashServerDeps): McpServer {
       if (isExpired(entry)) {
         return {
           content: [{ type: "text", text: JSON.stringify({ error: "expired" }) }],
+          isError: true,
+        };
+      }
+      if (entry.enc) {
+        // Zero-trust relay: the fragment key never reaches the server, so
+        // relayed entries cannot be decoded server-side. Fail closed.
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({ error: "encrypted" }),
+            },
+          ],
           isError: true,
         };
       }

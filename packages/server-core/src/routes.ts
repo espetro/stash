@@ -6,8 +6,6 @@ import {
   isServerTtl,
   isExpired,
   cacheControlFor,
-  renderMarkdown,
-  renderPlainUrlList,
   jsonHeaders,
   SERVER_TTL_HOURS,
 } from "./store";
@@ -92,7 +90,10 @@ async function routeRequest(
     return new Response(null, { status: 204, headers: cors });
   }
 
-  // POST /api/stash  { payload, ttl } -> { id, url }
+  // POST /api/stash  { ciphertext, ttl } -> { id, url }
+  // Zero-trust relay (F14): the client encrypts the encoded payload with a
+  // per-share AES-GCM key carried in the URL fragment; the server stores
+  // only opaque ciphertext and never sees plaintext or keys.
   if (url.pathname === "/api/stash" && request.method === "POST") {
     meta.route = "api_stash";
     const limiter = deps.rateLimiter;
@@ -102,22 +103,23 @@ async function routeRequest(
     ) {
       return tooManyRequests();
     }
-    let body: { payload?: string; ttl?: string };
+    let body: { ciphertext?: string; payload?: string; ttl?: string };
     try {
       body = await request.json();
     } catch {
       return errorResponse(400, "Invalid JSON body");
     }
 
-    const payload = body.payload;
-    if (typeof payload !== "string" || payload.length === 0) {
-      return errorResponse(400, "Missing required field: payload");
+    // Back-compat alias: a bare `payload` field is treated as ciphertext.
+    const ciphertext = body.ciphertext ?? body.payload;
+    if (typeof ciphertext !== "string" || ciphertext.length === 0) {
+      return errorResponse(400, "Missing required field: ciphertext");
     }
-    if (payload.length > MAX_PAYLOAD_CHARS) {
-      return errorResponse(413, `Payload exceeds ${MAX_PAYLOAD_CHARS} chars`);
+    if (ciphertext.length > MAX_PAYLOAD_CHARS) {
+      return errorResponse(413, `Ciphertext exceeds ${MAX_PAYLOAD_CHARS} chars`);
     }
-    if (payload[0] !== "C" && payload[0] !== "R" && payload[0] !== "D" && payload[0] !== "S") {
-      return errorResponse(400, "Unknown payload prefix");
+    if (!/^[A-Za-z0-9_-]+$/.test(ciphertext)) {
+      return errorResponse(400, "Ciphertext must be a base64url string");
     }
 
     const ttl = body.ttl ?? deps.defaultTtl;
@@ -129,27 +131,16 @@ async function routeRequest(
       return errorResponse(400, `ttl exceeds maximum allowed (${deps.maxTtl})`);
     }
 
-    // Validate the payload decodes before storing
-    let decoded;
     try {
-      const brotli = await deps.getBrotli();
-      decoded = await decodeEncodedPayload(payload, brotli);
-    } catch (error) {
-      if (error instanceof PayloadDecodeError) {
-        return errorResponse(400, "Invalid payload: " + error.message);
-      }
-      throw error;
-    }
-
-    try {
-      const { id, entry } = await createStash(deps.storage, payload, ttl);
+      const { id, entry } = await createStash(deps.storage, ciphertext, ttl, {
+        encrypted: true,
+      });
       return new Response(
         JSON.stringify(
           {
             id,
             url: `${deps.origin}/s/${id}`,
             expiry: entry.e,
-            itemCount: decoded.items.length,
           },
           null,
           2,
@@ -183,9 +174,12 @@ async function routeRequest(
     return new Response(null, { status: 204, headers: cors });
   }
 
-  // GET /s/:id — content negotiation via ?format= then Accept header.
-  // The legacy .json|.md|.txt suffix routes are deprecated for one
-  // release: they 301-redirect to /s/:id?format=<fmt>.
+  // GET /s/:id — zero-trust relay: entries are opaque ciphertext. The
+  // client (viewer/extension) fetches it and decrypts with the fragment
+  // key, which never reaches this server. ?format=json returns the
+  // ciphertext envelope; md/txt negotiation is impossible without the key
+  // and fails closed. HTML redirects into the viewer SPA with the id,
+  // preserving the caller's fragment (the key) across the redirect.
   const match = url.pathname.match(/^\/s\/([A-Za-z2-7]{6})(\.(json|md|txt))?\/?$/);
   if (match && request.method === "GET") {
     const id = match[1].toUpperCase();
@@ -212,36 +206,31 @@ async function routeRequest(
     if (!entry) return errorResponse(404, "Not found or expired");
     if (isExpired(entry)) return errorResponse(410, "Stash expired");
 
-    const brotli = await deps.getBrotli();
-    const decoded = await decodeEncodedPayload(entry.p, brotli);
     const cache = cacheControlFor(entry);
     const baseHeaders = { "Cache-Control": cache, ...cors };
 
-    if (format === "md") {
-      meta.route = "s_view_md";
-      return new Response(renderMarkdown(decoded), {
-        status: 200,
-        headers: { "Content-Type": "text/markdown; charset=utf-8", ...baseHeaders },
-      });
-    }
     if (format === "json") {
       meta.route = "s_view_json";
-      return new Response(JSON.stringify(decoded, null, 2), {
-        status: 200,
-        headers: jsonHeaders(baseHeaders),
-      });
+      // Ciphertext envelope: the caller decrypts client-side with the
+      // fragment key. The server holds no key material and cannot help.
+      return new Response(
+        JSON.stringify({ id, ciphertext: entry.p, expiry: entry.e, encrypted: true }, null, 2),
+        { status: 200, headers: jsonHeaders(baseHeaders) },
+      );
     }
-    if (format === "txt") {
-      meta.route = "s_view_txt";
-      return new Response(renderPlainUrlList(decoded), {
-        status: 200,
-        headers: { "Content-Type": "text/plain; charset=utf-8", ...baseHeaders },
-      });
+    if (format === "md" || format === "txt") {
+      meta.route = format === "md" ? "s_view_md" : "s_view_txt";
+      // Fail closed: the payload is client-encrypted; md/txt rendering
+      // would require the fragment key, which never reaches the server.
+      return errorResponse(409, "Encrypted stash: plaintext formats require the link fragment");
     }
-    // HTML: redirect into the viewer SPA with the payload inline (stateless render)
+    // HTML: redirect into the viewer SPA, preserving the fragment (key).
     meta.route = "s_view_html";
     const viewer = url.searchParams.get("v") ?? `${deps.origin}/s`;
-    return Response.redirect(`${viewer}#p=${entry.p}`, 302);
+    return new Response(null, {
+      status: 302,
+      headers: { Location: `${viewer}?id=${id}${url.hash}`, ...cors },
+    });
   }
 
   // MCP: stateless Streamable-HTTP server

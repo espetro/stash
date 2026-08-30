@@ -27,21 +27,27 @@ function randomId(len = 6): string {
   return out;
 }
 
+/** Server-stored stash entries. Zero-trust relay (F14): `p` is the
+ *  client-encrypted ciphertext (base64url, IV-prefixed AES-256-GCM) — the
+ *  server never sees plaintext payloads or key material. `enc` marks
+ *  entries whose `p` is ciphertext, so decode paths can fail closed
+ *  instead of attempting a server-side decode that cannot succeed. */
 export interface StoredEntry {
-  /** The encoded payload string (prefix + body), exactly as accepted on write */
+  /** Encoded payload or ciphertext, exactly as accepted on write */
   p: string;
   /** Creation time (Unix seconds) */
   c: number;
   /** Expiry time (Unix seconds) */
   e: number;
-  /** Original decoded metadata for listing/debug */
-  t?: string;
+  /** True when `p` is ciphertext (zero-trust relay entry) */
+  enc?: true;
 }
 
 export async function createStash(
   storage: Storage,
   payload: string,
   ttl: ServerTtl,
+  options: { encrypted?: boolean } = {},
 ): Promise<{ id: string; entry: StoredEntry }> {
   const now = Math.floor(Date.now() / 1000);
   const ttlSeconds = SERVER_TTL_HOURS[ttl] * 3600;
@@ -51,7 +57,12 @@ export async function createStash(
   for (let attempt = 0; attempt < 5; attempt++) {
     const id = randomId();
     if (await storage.hasItem(id)) continue;
-    const entry: StoredEntry = { p: payload, c: now, e: expiry };
+    const entry: StoredEntry = {
+      p: payload,
+      c: now,
+      e: expiry,
+      ...(options.encrypted ? { enc: true as const } : {}),
+    };
     await storage.setItem(id, JSON.stringify(entry), { ttl: ttlSeconds });
     return { id, entry };
   }

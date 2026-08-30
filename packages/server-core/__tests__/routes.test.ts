@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { createStorage, type Storage } from "unstorage";
 import memoryDriver from "unstorage/drivers/memory";
-import { decodeEncodedPayload } from "@stash/codec";
 import { loadPayloadFixtures, type PayloadFixture } from "@stash/shared/fixtures";
 import fixturesJson from "@stash/shared/fixtures/payloads.json";
+import { generateShareKey, encryptForRelay, decryptFromRelay } from "@stash/shared";
+import { decodeEncodedPayload } from "@stash/codec";
 import { getTestBrotli as getBrotliFunctions } from "./brotli";
 import { createStashServer } from "../src/index";
 
@@ -37,109 +38,131 @@ function fixturePayload(name: string): string {
 
 const payloadP = fixturePayload("three-tabs");
 
-async function makeStash(ttl = "30d", payload: string = payloadP): Promise<string> {
+/** Encrypt a fixture payload like a real client would, returning the
+ *  ciphertext for POSTing and the key for later decryption. */
+async function encryptFixture(payload: string) {
+  const key = generateShareKey();
+  const ciphertext = await encryptForRelay(payload, key);
+  return { key, ciphertext };
+}
+
+async function makeStash(ttl = "30d", payload: string = payloadP): Promise<{ id: string; key: string }> {
+  const { key, ciphertext } = await encryptFixture(payload);
   const res = await fetchServer(`${ORIGIN}/api/stash`, {
     method: "POST",
-    body: JSON.stringify({ payload, ttl }),
+    body: JSON.stringify({ ciphertext, ttl }),
   });
   const body: any = await res.json();
-  return body.id;
+  return { id: body.id, key };
 }
 
 describe("POST /api/stash", () => {
   it("creates a short stash and returns id + url", async () => {
+    const { ciphertext } = await encryptFixture(payloadP);
     const res = await fetchServer(`${ORIGIN}/api/stash`, {
       method: "POST",
-      body: JSON.stringify({ payload: payloadP, ttl: "7d" }),
+      body: JSON.stringify({ ciphertext, ttl: "7d" }),
     });
     expect(res.status).toBe(201);
     const body: any = await res.json();
     expect(body.id).toMatch(/^[A-Z2-7]{6}$/);
     expect(body.url).toMatch(/^https:\/\/short\.example\.com\/s\/[A-Z2-7]{6}$/);
-    expect(body.itemCount).toBe(3);
+    expect(body.itemCount).toBeUndefined();
   });
 
-  it("rejects invalid payload with 400", async () => {
+  it("accepts the legacy `payload` field as a ciphertext alias", async () => {
+    const { ciphertext } = await encryptFixture(payloadP);
     const res = await fetchServer(`${ORIGIN}/api/stash`, {
       method: "POST",
-      body: JSON.stringify({ payload: "Xgarbage", ttl: "7d" }),
+      body: JSON.stringify({ payload: ciphertext, ttl: "7d" }),
+    });
+    expect(res.status).toBe(201);
+  });
+
+  it("rejects a non-base64url ciphertext with 400", async () => {
+    const res = await fetchServer(`${ORIGIN}/api/stash`, {
+      method: "POST",
+      body: JSON.stringify({ ciphertext: "not valid!b64", ttl: "7d" }),
+    });
+    expect(res.status).toBe(400);
+    expect(((await res.json()) as any).error).toMatch(/base64url/);
+  });
+
+  it("rejects missing ciphertext with 400", async () => {
+    const res = await fetchServer(`${ORIGIN}/api/stash`, {
+      method: "POST",
+      body: JSON.stringify({ ttl: "7d" }),
     });
     expect(res.status).toBe(400);
   });
 
+  it("stores only opaque ciphertext (no plaintext leak)", async () => {
+    const { id } = await makeStash();
+    const raw = (await storage.getItem(id)) as { p: string } | null;
+    expect(raw).not.toBeNull();
+    expect(raw!.p).not.toContain("https://github.com");
+  });
+
   it("rejects bad ttl", async () => {
+    const { ciphertext } = await encryptFixture(payloadP);
     const res = await fetchServer(`${ORIGIN}/api/stash`, {
       method: "POST",
-      body: JSON.stringify({ payload: payloadP, ttl: "never" }),
+      body: JSON.stringify({ ciphertext, ttl: "never" }),
     });
     expect(res.status).toBe(400);
     expect(((await res.json()) as any).error).toMatch(/ttl/);
   });
 
-  it("rejects oversize payload with 413", async () => {
+  it("rejects oversize ciphertext with 413", async () => {
     const res = await fetchServer(`${ORIGIN}/api/stash`, {
       method: "POST",
-      body: JSON.stringify({ payload: "C" + "A".repeat(9000) }),
+      body: JSON.stringify({ ciphertext: "A".repeat(9000) }),
     });
     expect(res.status).toBe(413);
   });
 });
 
 describe("GET /s/:id", () => {
-  it("returns JSON via ?format=json", async () => {
-    const id = await makeStash();
+  it("returns the ciphertext envelope via ?format=json", async () => {
+    const { id, key } = await makeStash();
     const res = await fetchServer(`${ORIGIN}/s/${id}?format=json`);
     expect(res.status).toBe(200);
     expect(res.headers.get("Content-Type")).toContain("application/json");
     const body: any = await res.json();
-    expect(body.items).toHaveLength(3);
+    expect(body.id).toBe(id);
+    expect(body.encrypted).toBe(true);
+    expect(body.expiry).toBeGreaterThan(Math.floor(Date.now() / 1000));
+    expect(body.items).toBeUndefined();
+    // Client-side decrypt + decode still recovers the original payload
+    const brotli = await getBrotliFunctions();
+    const plaintext = await decryptFromRelay(body.ciphertext, key);
+    const decoded = await decodeEncodedPayload(plaintext, brotli);
+    expect(decoded.items).toHaveLength(3);
     expect(res.headers.get("Cache-Control")).toContain("immutable");
   });
 
-  it("returns markdown via ?format=md", async () => {
-    const id = await makeStash();
+  it("fails closed for md format (server cannot decrypt)", async () => {
+    const { id } = await makeStash();
     const res = await fetchServer(`${ORIGIN}/s/${id}?format=md`);
-    expect(res.status).toBe(200);
-    expect(res.headers.get("Content-Type")).toContain("text/markdown");
-    const text = await res.text();
-    expect(text).toContain("[GitHub](https://github.com)");
+    expect(res.status).toBe(409);
+    expect(((await res.json()) as any).error).toMatch(/Encrypted stash/);
   });
 
-  it("returns plain URL list via ?format=txt", async () => {
-    const id = await makeStash();
+  it("fails closed for txt format", async () => {
+    const { id } = await makeStash();
     const res = await fetchServer(`${ORIGIN}/s/${id}?format=txt`);
-    expect(res.status).toBe(200);
-    expect(res.headers.get("Content-Type")).toContain("text/plain");
-    const text = await res.text();
-    expect(text.split("\n")).toEqual([
-      "https://github.com",
-      "https://stackoverflow.com",
-      "https://developer.mozilla.org",
-    ]);
-  });
-
-  it("accepts format aliases (markdown, plain, text)", async () => {
-    const id = await makeStash();
-    for (const [alias, type] of [
-      ["markdown", "text/markdown"],
-      ["plain", "text/plain"],
-      ["text", "text/plain"],
-    ] as const) {
-      const res = await fetchServer(`${ORIGIN}/s/${id}?format=${alias}`);
-      expect(res.status).toBe(200);
-      expect(res.headers.get("Content-Type")).toContain(type);
-    }
+    expect(res.status).toBe(409);
   });
 
   it("301-redirects the legacy .json suffix to ?format=json", async () => {
-    const id = await makeStash();
+    const { id } = await makeStash();
     const res = await fetchServer(`${ORIGIN}/s/${id}.json`, { redirect: "manual" });
     expect(res.status).toBe(301);
     expect(res.headers.get("Location")).toBe(`${ORIGIN}/s/${id}?format=json`);
   });
 
   it("301-redirects the legacy .md and .txt suffixes", async () => {
-    const id = await makeStash();
+    const { id } = await makeStash();
     for (const suffix of ["md", "txt"] as const) {
       const res = await fetchServer(`${ORIGIN}/s/${id}.${suffix}`, { redirect: "manual" });
       expect(res.status).toBe(301);
@@ -148,33 +171,23 @@ describe("GET /s/:id", () => {
   });
 
   it("?format= overrides the Accept header", async () => {
-    const id = await makeStash();
+    const { id } = await makeStash();
     const res = await fetchServer(`${ORIGIN}/s/${id}?format=md`, {
       headers: { Accept: "application/json" },
     });
-    expect(res.headers.get("Content-Type")).toContain("text/markdown");
+    expect(res.status).toBe(409);
   });
 
   it("rejects an unknown format value with 400 JSON", async () => {
-    const id = await makeStash();
+    const { id } = await makeStash();
     const res = await fetchServer(`${ORIGIN}/s/${id}?format=yaml`);
     expect(res.status).toBe(400);
     expect(res.headers.get("Content-Type")).toContain("application/json");
     expect(((await res.json()) as any).error).toMatch(/Unknown format/);
   });
 
-  it("negotiates text/plain via Accept header", async () => {
-    const id = await makeStash();
-    const res = await fetchServer(`${ORIGIN}/s/${id}`, {
-      headers: { Accept: "text/plain" },
-    });
-    expect(res.status).toBe(200);
-    expect(res.headers.get("Content-Type")).toContain("text/plain");
-    expect(await res.text()).toContain("https://github.com");
-  });
-
-  it("negotiates via Accept header", async () => {
-    const id = await makeStash();
+  it("negotiates the JSON envelope via Accept header", async () => {
+    const { id } = await makeStash();
     const res = await fetchServer(`${ORIGIN}/s/${id}`, {
       headers: { Accept: "application/json" },
     });
@@ -182,55 +195,23 @@ describe("GET /s/:id", () => {
     expect(res.headers.get("Content-Type")).toContain("application/json");
   });
 
-  it("two different Accepts against the same id do not cross-contaminate", async () => {
-    const id = await makeStash();
-    const asJson = await fetchServer(`${ORIGIN}/s/${id}`, {
-      headers: { Accept: "application/json" },
-    });
-    expect(asJson.headers.get("Content-Type")).toContain("application/json");
-    const asMd = await fetchServer(`${ORIGIN}/s/${id}`, {
-      headers: { Accept: "text/markdown" },
-    });
-    expect(asMd.headers.get("Content-Type")).toContain("text/markdown");
-    const asTxt = await fetchServer(`${ORIGIN}/s/${id}`, {
-      headers: { Accept: "text/plain" },
-    });
-    expect(asTxt.headers.get("Content-Type")).toContain("text/plain");
-  });
-
-  it("redirects to viewer SPA without a negotiated format", async () => {
-    const id = await makeStash();
+  it("redirects to the viewer SPA without a negotiated format", async () => {
+    const { id } = await makeStash();
     const res = await fetchServer(`${ORIGIN}/s/${id}`, { redirect: "manual" });
     expect(res.status).toBe(302);
-    expect(res.headers.get("Location")).toMatch(/\/s#p=/);
+    expect(res.headers.get("Location")).toBe(`https://short.example.com/s?id=${id}`);
   });
 
   it("404s unknown id", async () => {
     const res = await fetchServer(`${ORIGIN}/s/AAAAAA?format=json`);
     expect(res.status).toBe(404);
   });
+});
 
-  it("decodes a #q= (base32 QR) fixture via ?format=json", async () => {
-    const id = await makeStash("7d", fixturePayload("qr-single-tab"));
-    const res = await fetchServer(`${ORIGIN}/s/${id}?format=json`);
-    expect(res.status).toBe(200);
-    const body: any = await res.json();
-    expect(body.items).toHaveLength(1);
-    expect(body.items[0][0]).toBe("https://github.com");
-    expect(body.items[0][1]).toBe("GitHub");
-  });
+let ct: string;
 
-  it("v6 metadata (title/tags/note) survives the roundtrip", async () => {
-    const spec = fixture("tagged-stash");
-    const id = await makeStash("7d", fixturePayload("tagged-stash"));
-    const res = await fetchServer(`${ORIGIN}/s/${id}?format=json`);
-    expect(res.status).toBe(200);
-    const body: any = await res.json();
-    expect(body.title).toBe(spec.title);
-    expect(body.tags).toEqual(spec.tags);
-    expect(body.note).toBe(spec.note);
-    expect(body.items).toHaveLength(spec.itemCount);
-  });
+beforeAll(async () => {
+  ct = await encryptForRelay(payloadP, generateShareKey());
 });
 
 describe("maxTtl", () => {
@@ -245,7 +226,7 @@ describe("maxTtl", () => {
     const res = await cappedServer.handle(
       new Request(`${ORIGIN}/api/stash`, {
         method: "POST",
-        body: JSON.stringify({ payload: payloadP, ttl: "30d" }),
+        body: JSON.stringify({ ciphertext: ct, ttl: "30d" }),
       }),
     );
     expect(res.status).toBe(400);
@@ -256,7 +237,7 @@ describe("maxTtl", () => {
     const res = await cappedServer.handle(
       new Request(`${ORIGIN}/api/stash`, {
         method: "POST",
-        body: JSON.stringify({ payload: payloadP, ttl: "7d" }),
+        body: JSON.stringify({ ciphertext: ct, ttl: "7d" }),
       }),
     );
     expect(res.status).toBe(201);
@@ -265,7 +246,7 @@ describe("maxTtl", () => {
 
 describe("DELETE /api/stash/:id", () => {
   it("revokes a stash before TTL expiry (204, then 404 on read)", async () => {
-    const id = await makeStash();
+    const { id } = await makeStash();
     const del = await fetchServer(`${ORIGIN}/api/stash/${id}`, { method: "DELETE" });
     expect(del.status).toBe(204);
     const get = await fetchServer(`${ORIGIN}/s/${id}?format=json`);
@@ -283,14 +264,14 @@ describe("DELETE /api/stash/:id", () => {
   });
 
   it("deleting an already-deleted stash returns 404", async () => {
-    const id = await makeStash();
+    const { id } = await makeStash();
     await fetchServer(`${ORIGIN}/api/stash/${id}`, { method: "DELETE" });
     const again = await fetchServer(`${ORIGIN}/api/stash/${id}`, { method: "DELETE" });
     expect(again.status).toBe(404);
   });
 
   it("accepts a lowercase id", async () => {
-    const id = await makeStash();
+    const { id } = await makeStash();
     const res = await fetchServer(`${ORIGIN}/api/stash/${id.toLowerCase()}`, { method: "DELETE" });
     expect(res.status).toBe(204);
   });
@@ -308,7 +289,7 @@ describe("defaultTtl (relay config default)", () => {
     const res = await srv.handle(
       new Request(`${ORIGIN}/api/stash`, {
         method: "POST",
-        body: JSON.stringify({ payload: payloadP }),
+        body: JSON.stringify({ ciphertext: ct }),
       }),
     );
     expect(res.status).toBe(201);
@@ -329,7 +310,7 @@ describe("defaultTtl (relay config default)", () => {
     const res = await capped.handle(
       new Request(`${ORIGIN}/api/stash`, {
         method: "POST",
-        body: JSON.stringify({ payload: payloadP, ttl: "30d" }),
+        body: JSON.stringify({ ciphertext: ct, ttl: "30d" }),
       }),
     );
     expect(res.status).toBe(400);
@@ -373,13 +354,15 @@ describe("GET /health", () => {
 });
 
 describe("roundtrip through real storage", () => {
-  it("stored payload decodes back identically", async () => {
-    const id = await makeStash("1d");
+  it("stored entry is ciphertext, marked enc, and decrypts client-side", async () => {
+    const { id, key } = await makeStash("1d");
     const raw = await storage.getItem(id);
     expect(raw).not.toBeNull();
-    const entry = raw as { p: string };
+    const entry = raw as { p: string; enc?: true };
+    expect(entry.enc).toBe(true);
+    const plaintext = await decryptFromRelay(entry.p, key);
     const brotli = await getBrotliFunctions();
-    const decoded = await decodeEncodedPayload(entry.p, brotli);
+    const decoded = await decodeEncodedPayload(plaintext, brotli);
     expect(decoded.items).toHaveLength(3);
     expect(decoded.items.map(([url]) => url)).toContain("https://github.com");
   });
@@ -421,7 +404,7 @@ describe("rate limiting", () => {
     return srv.handle(
       new Request(`${ORIGIN}/api/stash`, {
         method: "POST",
-        body: JSON.stringify({ payload: payloadP, ttl: "7d" }),
+        body: JSON.stringify({ ciphertext: ct, ttl: "7d" }),
       }),
     );
   }
