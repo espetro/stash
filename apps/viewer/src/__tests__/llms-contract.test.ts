@@ -105,7 +105,7 @@ describe("OpenAPI spec stays within handled viewer routes", () => {
   it("advertises exactly the paths the surfaces handle", () => {
     // The viewer handles /s; server-core handles /api/stash and /s/{id}.
     // Both are asserted structurally; suffix stubs are forbidden.
-    expect(Object.keys(spec.paths).sort()).toEqual(["/api/stash", "/s", "/s/{id}"]);
+    expect(Object.keys(spec.paths).sort()).toEqual(["/api/stash", "/api/stash/{id}", "/s", "/s/{id}"]);
   });
 
   it("documents the format query param on /s/{id} (consolidated ?format= API)", () => {
