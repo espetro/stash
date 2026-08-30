@@ -35,7 +35,7 @@ file: apps/extension/entrypoints/popup/components/LinkResult.tsx
 | Meta line | default | "N item(s) · expires in X" (expiry omitted for `never`) |
 | Meta line | truncated | "N of M tabs (URL budget limit)" |
 | URL box | readOnly mono input | Click selects all; shows `displayUrl` (payload or shortened) |
-| Hint | dynamic | payload: "Self-contained link. Tab data lives in the URL. Expires in X."; short: "Short link. A copy is stored on the shortener for up to 7 days."; failed: "Couldn't shorten, using self-contained link." |
+| Hint | dynamic | payload: "Self-contained link. Tab data lives in the URL. Expires in X."; short: "Encrypted short link. Only the key in the link can read it; a copy is stored on the shortener for up to 7 days."; failed: "Couldn't shorten, using self-contained link." |
 | QR | render or error | lean-qr of `displayUrl`; "URL too large for QR code" fallback |
 | Copy link | primary, flips to secondary "Copied!" for 2s | Copies `copyUrl` (updated after shortening) |
 | Shorten link | secondary | Only when `shortenerEnabled` and URL contains `#p=`; "Shortening..." while busy; disabled after failure |
@@ -47,7 +47,7 @@ file: apps/extension/entrypoints/popup/components/LinkResult.tsx
 
 - Shown either fresh from creation (App state `shareUrl`) or from History
   (`historyLinkResult`; back chevron returns to History, not main).
-- Shorten calls `shortenShareUrl(displayUrl, shortenerOrigin)`; on success
+- Shorten calls `shortenShareUrl(displayUrl, shortenerOrigin)` (encrypts client-side, uploads ciphertext, returns `/s/<id>#<key>`); on success
   replaces displayed URL, sets state `short`, fires `shortener_used`, and
   updates the URL used by Copy link via `onShortened`.
 - Copy as JSON / Markdown uses `exportToJSON` / `exportToMarkdown` over the
