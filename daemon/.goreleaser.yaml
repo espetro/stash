@@ -38,7 +38,7 @@ builds:
     binary: stash-daemon
     env:
       - CGO_ENABLED=1
-      - CC=zig cc -target {{ .Env.ZIG_TARGET }}
+      - CC=zig cc -target {{- if eq .Arch "amd64" }} x86_64 {{- else }} aarch64 {{- end }}-linux-gnu
       - CGO_LDFLAGS=-lunwind
     goos: [linux]
     goarch: [amd64, arm64]
