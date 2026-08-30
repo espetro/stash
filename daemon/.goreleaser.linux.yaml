@@ -1,0 +1,34 @@
+# GoReleaser partial config for Linux builds (cross-compiled with zig cc).
+# Used by the daemon-release workflow on the ubuntu runner; artifacts are
+# merged into the final release by `goreleaser continue` (see
+# .goreleaser.yaml header for the flow).
+version: 2
+
+project_name: stash-daemon
+
+builds:
+  - id: linux
+    main: ./cmd/stash-daemon
+    binary: stash-daemon
+    env:
+      - CGO_ENABLED=1
+      - CC=zig cc -target {{ .Env.ZIG_TARGET }}
+      - CGO_LDFLAGS=-lunwind
+    goos: [linux]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+archives:
+  - id: main
+    name_template: >-
+      {{ .ProjectName }}_{{ .Os }}_{{ .Arch }}
+    formats: [tar.gz]
+    files:
+      - none*
+
+checksum:
+  name_template: checksums.txt
+
+release:
+  disable: true

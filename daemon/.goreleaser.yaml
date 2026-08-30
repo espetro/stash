@@ -1,0 +1,89 @@
+# GoReleaser config for the Stash daemon (F10).
+#
+# cgo is mandatory (automerge-go vendors prebuilt C cores; CGO_ENABLED=0 does
+# not compile — spec §4.1/§7.1), so cross-compilation needs per-target C
+# toolchains:
+#   - darwin builds run on a macOS runner with the native Apple toolchain
+#     (zig cannot target Darwin — Apple does not redistribute the SDK).
+#   - linux builds cross-compile with zig cc on the macOS runner (spike A
+#     recipe: CC="zig cc -target <triple>", CGO_LDFLAGS="-lunwind").
+#
+# Release flow: `goreleaser release --split` on each runner publishes
+# partial artifacts, then `goreleaser continue` merges them into the final
+# GitHub release on the linux runner. Triggered by the `daemon-vX.Y.Z` tag
+# (decoupled from the pnpm/changesets `vX.Y.Z` pipeline, spec §7.5).
+version: 2
+
+project_name: stash-daemon
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  # Native macOS builds (macOS runner; Xcode CLT toolchain).
+  - id: darwin
+    main: ./cmd/stash-daemon
+    binary: stash-daemon
+    env:
+      - CGO_ENABLED=1
+    goos: [darwin]
+    goarch: [arm64, amd64]
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+  # Linux builds cross-compiled with zig cc (works from any runner).
+  - id: linux
+    main: ./cmd/stash-daemon
+    binary: stash-daemon
+    env:
+      - CGO_ENABLED=1
+      - CC=zig cc -target {{ .Env.ZIG_TARGET }}
+      - CGO_LDFLAGS=-lunwind
+    goos: [linux]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+archives:
+  - id: main
+    # Standard layout stash-daemon_<os>_<arch> — required by the mise
+    # `github:` backend (spec §7.2).
+    name_template: >-
+      {{ .ProjectName }}_{{ .Os }}_{{ .Arch }}
+    formats: [tar.gz]
+    files:
+      - none*
+
+checksum:
+  name_template: checksums.txt
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+
+release:
+  # Final release is created by `goreleaser continue` on the merge runner.
+  disable: true
+
+# Homebrew tap (macOS channel, spec §7.2). GoReleaser v2.16+ deprecated
+# `brews` in favour of `homebrew_casks`; a CLI daemon fits the cask shape.
+# Requires HOMEBREW_TAP_TOKEN (a fine-grained PAT with push access to
+# <org>/homebrew-tap).
+homebrew_casks:
+  - name: stash-daemon
+    description: "Local-first stash daemon: stdio MCP server and native-messaging host"
+    homepage: "https://stash.illo.fyi"
+    repository:
+      owner: "{{ .Env.GITHUB_REPOSITORY_OWNER }}"
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    binaries:
+      - stash-daemon
