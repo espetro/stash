@@ -1,6 +1,7 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+  - 'daemon'
 allowBuilds:
   '@getgauge/cli': false
   esbuild: true

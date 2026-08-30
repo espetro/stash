@@ -5,17 +5,31 @@
       "cache": false
     },
     "build": {
-      "dependsOn": ["^build", "clean"],
-      "outputs": [".output/**", "dist/**"],
-      "env": ["VITE_VIEWER_ORIGIN"]
+      "dependsOn": [
+        "^build",
+        "clean"
+      ],
+      "outputs": [
+        ".output/**",
+        "dist/**",
+        "daemon/bin/**"
+      ],
+      "env": [
+        "VITE_VIEWER_ORIGIN",
+        "VITE_EMBEDDED_VIEWER"
+      ]
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
     "zip": {
-      "dependsOn": ["build"],
-      "outputs": [".output/**"]
+      "dependsOn": [
+        "build"
+      ],
+      "outputs": [
+        ".output/**"
+      ]
     },
     "format": {
       "dependsOn": []
@@ -24,7 +38,9 @@
       "dependsOn": []
     },
     "tscheck": {
-      "dependsOn": ["^tscheck"]
+      "dependsOn": [
+        "^tscheck"
+      ]
     },
     "test": {
       "cache": false
