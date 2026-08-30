@@ -17,6 +17,7 @@
     "generate:fixtures": "tsx fixtures/generate.ts"
   },
   "dependencies": {
+    "@oslojs/encoding": "^1.1.0",
     "@stash/codec": "workspace:*",
     "brotli-wasm": "^3.0.0",
     "valibot": "^1.4.2"

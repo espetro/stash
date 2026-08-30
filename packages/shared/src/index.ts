@@ -20,3 +20,4 @@ export {
   type LineValidation,
   type ParsedStashLine,
 } from "./schemas";
+export { generateShareKey, encryptForRelay, decryptFromRelay } from "./crypto";
