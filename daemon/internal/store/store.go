@@ -125,10 +125,12 @@ type Record struct {
 	CRDTSeq   int64
 }
 
-// PutRecord writes a record and appends the opaque CRDT blob placeholder in
-// one transaction; the read model and crdt_doc stay consistent (F6 swaps the
-// blob producer). It also appends an outbox entry for the future relay (F7).
-func (s *Store) PutRecord(r Record, blob []byte, peerID, op string) error {
+// PutRecord writes a record and appends the Automerge delta produced by the
+// caller (an incremental change from a crdt.Doc mutation) in one transaction;
+// the read model and crdt_doc stay consistent (F6/W2: the blob placeholder is
+// now a real Automerge delta, but the store remains agnostic). It also
+// appends an outbox entry for the future relay (F7).
+func (s *Store) PutRecord(r Record, delta []byte, peerID, op string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	tx, err := s.db.Begin()
@@ -145,11 +147,11 @@ func (s *Store) PutRecord(r Record, blob []byte, peerID, op string) error {
 		return err
 	}
 	if _, err := tx.Exec(`INSERT INTO crdt_doc(id, blob, updated_at) VALUES(1, ?, ?)
-		ON CONFLICT(id) DO UPDATE SET blob=excluded.blob, updated_at=excluded.updated_at`, blob, now); err != nil {
+		ON CONFLICT(id) DO UPDATE SET blob=excluded.blob, updated_at=excluded.updated_at`, delta, now); err != nil {
 		return err
 	}
 	if _, err := tx.Exec(`INSERT INTO outbox(peer_id, op, payload, created_at) VALUES(?,?,?,?)`,
-		peerID, op, blob, now); err != nil {
+		peerID, op, delta, now); err != nil {
 		return err
 	}
 	return tx.Commit()
@@ -285,7 +287,9 @@ func (s *Store) SyncPeers() ([]SyncPeer, error) {
 	return out, rows.Err()
 }
 
-// CRDTDoc returns the opaque blob placeholder and its updated_at.
+// CRDTDoc returns the latest stored Automerge state blob (F6/W2: the full
+// serialized document, produced by crdt.Doc.Save() via the daemon write
+// pipeline) and its updated_at.
 func (s *Store) CRDTDoc() ([]byte, int64, error) {
 	var blob []byte
 	var ts int64
