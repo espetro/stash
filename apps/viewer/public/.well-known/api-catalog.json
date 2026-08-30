@@ -1,0 +1,45 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Stash API Catalog",
+    "version": "1.2.0",
+    "description": "Machine-readable catalog of Stash HTTP surfaces. Full request/response details: https://stash.illo.fyi/openapi.json and https://stash.illo.fyi/llms.txt"
+  },
+  "apis": [
+    {
+      "name": "viewer-decode",
+      "base": "https://stash.illo.fyi",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/s?p={payload}",
+          "description": "Decode a stash payload (the share-URL fragment value). Negotiate output with Accept: application/json | text/markdown | text/plain; fallback query param format=json|md|txt.",
+          "rateLimit": "~30 req/min per IP, 429 with Retry-After: 60"
+        }
+      ]
+    },
+    {
+      "name": "shortener",
+      "base": "https://s.illo.fyi",
+      "endpoints": [
+        { "method": "GET", "path": "/s/{id}", "description": "Resolve a 6-char base32 short id. Same negotiation rules as viewer-decode; without negotiation 302-redirects to the HTML viewer." },
+        { "method": "POST", "path": "/api/stash", "description": "Create a short link from a list of URLs. Unauthenticated, rate-limited." },
+        { "method": "DELETE", "path": "/api/stash/{id}", "description": "Revoke a short link before TTL expiry. Unauthenticated, rate-limited." },
+        { "method": "POST", "path": "/mcp", "description": "MCP Streamable-HTTP endpoint (stash_create, stash_get, stash_decode). ~60 req/min." },
+        { "method": "GET", "path": "/openapi.json", "description": "OpenAPI spec hosted on the shortener origin." }
+      ]
+    },
+    {
+      "name": "profile-local-browser-agent",
+      "base": "https://stash.illo.fyi",
+      "description": "For browser-class agents running inside the user's profile (ChromeClaw, NanoBrowser, BrowserOS). Not a fetch endpoint.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/stashes/?agent=json",
+          "description": "Open in the browser, wait for data-stash-status=\"ready\" on <pre id=\"agent-export\">, read its text (canonical StashExport JSON). ?agent=markdown variant at <pre id=\"agent-export-md\">."
+        }
+      ]
+    }
+  ]
+}

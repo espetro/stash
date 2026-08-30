@@ -1,0 +1,30 @@
+{
+  "entries": [
+    {
+      "identifier": "urn:air:stash.illo.fyi:server:stash-shortener",
+      "displayName": "Stash short-link MCP server",
+      "type": "application/mcp-server+json",
+      "url": "https://stash.illo.fyi/.well-known/mcp-server-card.json",
+      "capabilities": ["stash_create", "stash_get", "stash_decode"],
+      "description": "MCP server (Streamable-HTTP at https://s.illo.fyi/mcp) for bundling groups of links into short shareable stash URLs, resolving them, and decoding payload strings.",
+      "representativeQueries": [
+        "share these five links as one stash URL",
+        "resolve the short stash link AHK7QY",
+        "decode this stash payload into a list of URLs"
+      ]
+    },
+    {
+      "identifier": "urn:air:stash.illo.fyi:api:viewer-decode",
+      "displayName": "Stash viewer decode API",
+      "type": "text/plain",
+      "url": "https://stash.illo.fyi/llms.txt",
+      "capabilities": ["GET /s?p={payload}"],
+      "description": "Stateless HTTP decode of stash payloads from share URLs with JSON, Markdown and plain-text content negotiation.",
+      "representativeQueries": [
+        "read the links from a stash share URL",
+        "convert a stash payload to markdown",
+        "list URLs contained in a stash payload"
+      ]
+    }
+  ]
+}
