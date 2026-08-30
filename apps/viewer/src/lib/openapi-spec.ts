@@ -107,7 +107,8 @@ export function buildOpenApiSpec() {
                       type: "string",
                       enum: ["1d", "7d", "14d", "30d"],
                       default: "7d",
-                      description: "Server-side TTL bucket; defaults from relay config when omitted",
+                      description:
+                        "Server-side TTL bucket; defaults from relay config when omitted",
                     },
                   },
                 },
