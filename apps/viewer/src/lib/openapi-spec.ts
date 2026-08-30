@@ -10,7 +10,7 @@ export function buildOpenApiSpec() {
       title: "Stash API",
       version: "1.2.0",
       description:
-        "API documentation for AI agents consuming Stash endpoints. Three surfaces: (1) the viewer's canonical decode at https://stash.illo.fyi (GET /s?p=<payload> with Accept or ?format= negotiation), (2) the shortener at https://s.illo.fyi (POST /api/stash, GET /s/<id>?format=json|md|txt), and (3) a profile-local browser-agent surface at https://stash.illo.fyi/stashes — this last surface is for browser-class agents that run inside the user's profile (ChromeClaw, NanoBrowser, BrowserOS); fetch-only agents cannot use it and should use the hosted share-link endpoints. The `p` parameter contains the payload string taken from the share URL fragment (everything after #p= or #q=).",
+        "API documentation for AI agents consuming Stash endpoints. Three surfaces: (1) the viewer's canonical decode at https://stash.illo.fyi (GET /s?p=<payload> with Accept or ?format= negotiation), (2) the relay at https://s.illo.fyi (POST /api/stash, DELETE /api/stash/<id>, GET /s/<id>?format=json|md|txt), and (3) a profile-local browser-agent surface at https://stash.illo.fyi/stashes — this last surface is for browser-class agents that run inside the user's profile (ChromeClaw, NanoBrowser, BrowserOS); fetch-only agents cannot use it and should use the hosted share-link endpoints. The `p` parameter contains the payload string taken from the share URL fragment (everything after #p= or #q=).",
     },
     servers: [
       { url: "https://stash.illo.fyi", description: "Stash viewer (decode endpoints)" },
@@ -107,7 +107,7 @@ export function buildOpenApiSpec() {
                       type: "string",
                       enum: ["1d", "7d", "14d", "30d"],
                       default: "7d",
-                      description: "Server-side TTL bucket",
+                      description: "Server-side TTL bucket; defaults from relay config when omitted",
                     },
                   },
                 },
@@ -133,6 +133,45 @@ export function buildOpenApiSpec() {
             },
             "413": {
               description: "Payload too large",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/ErrorResponse" },
+                },
+              },
+            },
+            "429": {
+              description: "Rate limit exceeded",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/ErrorResponse" },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/api/stash/{id}": {
+        delete: {
+          summary: "Revoke a short stash",
+          description:
+            "Deletes the stored entry for the given short id before its TTL expiry. 204 on success, 404 when absent (or already deleted/expired). No auth in v1: the 6-char base32 id is the unguessable shared secret; abuse is bounded by the rate limiter.",
+          servers: [{ url: "https://s.illo.fyi" }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+                pattern: "^[A-Z2-7]{6}$",
+                description: "6-char base32 stash id",
+              },
+            },
+          ],
+          responses: {
+            "204": { description: "Stash deleted" },
+            "404": {
+              description: "Unknown id",
               content: {
                 "application/json": {
                   schema: { $ref: "#/components/schemas/ErrorResponse" },

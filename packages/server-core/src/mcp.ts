@@ -12,6 +12,10 @@ import { parseStashLine } from "@stash/shared";
 import { createStash, getStash, isExpired, SERVER_TTL_HOURS, type ServerTtl } from "./store";
 import type { StashServerDeps } from "./config";
 
+/** The relay's MCP surface: the only tools the hosted/self-hosted relay
+ *  advertises. The 8 frozen daemon tool names live in the extension
+ *  (`apps/extension/lib/mcp/server.ts`) and the daemon (F2) — this module
+ *  no longer mirrors them. */
 export const MCP_TOOLS = [
   {
     name: "stash_create",
@@ -29,50 +33,6 @@ export const MCP_TOOLS = [
   },
 ] as const;
 
-/**
- * Mirror of the tool surface exposed by the browser extension's local MCP
- * server (`apps/extension/lib/mcp/server.ts`). Kept here as a static literal
- * because server-core cannot import the extension without a workspace
- * dependency cycle. If the extension adds/removes tools, update this list.
- */
-export const EXTENSION_MCP_TOOLS = [
-  {
-    name: "stash_snapshot_tabs",
-    description:
-      "Read-only snapshot of the tabs currently open in this browser window (url + title).",
-  },
-  {
-    name: "stash_list",
-    description: "List local stashes (id, title, tags, item counts, timestamps).",
-  },
-  {
-    name: "stash_get",
-    description: "Fetch a local stash by id, including its full item list.",
-  },
-  {
-    name: "stash_create",
-    description:
-      "Create and persist a new local stash from a list of URLs (with optional titles), title, tags and note.",
-  },
-  {
-    name: "stash_update",
-    description: "Update a local stash's title, tags, note, or items by id.",
-  },
-  {
-    name: "stash_delete",
-    description: "Delete a local stash by id.",
-  },
-  {
-    name: "stash_search",
-    description: "Search local stashes by a substring match over title, tags and note.",
-  },
-  {
-    name: "stash_decode",
-    description:
-      "Decode a stash payload string (the ?p= value from a stash share URL) into its title, items, tags and note.",
-  },
-] as const;
-
 export function buildServer(origin: string, deps: StashServerDeps): McpServer {
   const server = new McpServer(
     { name: "stash-shortener", version: "0.1.0" },
@@ -87,8 +47,10 @@ export function buildServer(origin: string, deps: StashServerDeps): McpServer {
       urls: z.array(z.string()).min(1).describe("URLs to include in the stash"),
       ttlDays: z
         .union([z.literal(1), z.literal(7), z.literal(14), z.literal(30)])
-        .default(7)
-        .describe("TTL in days: 1, 7 (default), 14 or 30"),
+        .default(Math.round(SERVER_TTL_HOURS[deps.defaultTtl] / 24) as 1 | 7 | 14 | 30)
+        .describe(
+          `TTL in days: 1, 7, 14 or 30 (default ${Math.round(SERVER_TTL_HOURS[deps.defaultTtl] / 24)})`,
+        ),
     },
     async ({ title, urls, ttlDays }) => {
       const ttl: ServerTtl = `${ttlDays}d` as ServerTtl;
@@ -186,10 +148,6 @@ export async function handleMcpRequest(request: Request, deps: StashServerDeps):
 /** GET /.well-known/mcp-server-card — agent discovery card. */
 export function serverCardResponse(origin: string): Response {
   const shortenerTools = MCP_TOOLS.map(({ name, description }) => ({ name, description }));
-  const extensionTools = EXTENSION_MCP_TOOLS.map(({ name, description }) => ({
-    name,
-    description,
-  }));
   const card = {
     name: "stash",
     version: "0.1.0",
@@ -209,18 +167,14 @@ export function serverCardResponse(origin: string): Response {
         description: "LLM-oriented documentation for agents consuming Stash.",
       },
     ],
+    // The relay advertises only its own surface; the extension's local MCP
+    // server (8 frozen daemon tools) is discovered via the daemon card (F2).
     servers: [
       {
         name: "stash-shortener",
         url: `${origin}/mcp`,
         transport: "streamable-http",
         tools: shortenerTools,
-      },
-      {
-        name: "stash-extension",
-        transport: "extension-port",
-        portName: "mcp",
-        tools: extensionTools,
       },
     ],
     // Legacy flat fields kept for backwards compatibility with existing

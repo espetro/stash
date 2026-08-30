@@ -10,7 +10,7 @@ export interface StashServer {
 /** Build a runtime-agnostic stash server. Adapters (CF worker, extension
  *  background) supply the ports via config and relay Request/Response. */
 export function createStashServer(config: StashServerConfig): StashServer {
-  const deps: StashServerDeps = config;
+  const deps: StashServerDeps = { defaultTtl: "7d", ...config };
   return {
     handle: (request: Request) => handleRequest(request, deps),
   };
@@ -21,6 +21,7 @@ export { handleMcpRequest, serverCardResponse, buildServer, MCP_TOOLS } from "./
 export {
   createStash,
   getStash,
+  removeItem,
   isServerTtl,
   isExpired,
   cacheControlFor,
