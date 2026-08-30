@@ -11,11 +11,13 @@ const distIndex = path.resolve(__dirname, "../../dist/s/index.html");
 const hasDist = existsSync(distIndex);
 
 describe.runIf(hasDist)("built /s HTML advertises alternate links", () => {
-  const html = readFileSync(distIndex, "utf8").replace(/&amp;/g, "&");
+  // Read lazily inside each test: an eager read in the describe body
+  // executes even when the suite is skipped (runIf only skips its tests).
+  const html = () => readFileSync(distIndex, "utf8").replace(/&amp;/g, "&");
 
   it("emits a JSON alternate link matching /s?p=...&format=json", () => {
     const hrefs = [
-      ...html.matchAll(/<link rel="alternate" type="application\/json" href="([^"]+)"/g),
+      ...html().matchAll(/<link rel="alternate" type="application\/json" href="([^"]+)"/g),
     ].map((m) => m[1]);
     expect(hrefs.length).toBeGreaterThan(0);
     for (const href of hrefs) {
@@ -27,7 +29,7 @@ describe.runIf(hasDist)("built /s HTML advertises alternate links", () => {
 
   it("emits a Markdown alternate link matching /s?p=...&format=md", () => {
     const hrefs = [
-      ...html.matchAll(/<link rel="alternate" type="text\/markdown" href="([^"]+)"/g),
+      ...html().matchAll(/<link rel="alternate" type="text\/markdown" href="([^"]+)"/g),
     ].map((m) => m[1]);
     expect(hrefs.length).toBeGreaterThan(0);
     for (const href of hrefs) {
@@ -38,7 +40,7 @@ describe.runIf(hasDist)("built /s HTML advertises alternate links", () => {
   it("resolves alternate hrefs to the configured viewer origin, never localhost", () => {
     const expectedOrigin = process.env.VITE_VIEWER_ORIGIN || "https://stash.illo.fyi";
     const hrefs = [
-      ...html.matchAll(
+      ...html().matchAll(
         /<link rel="alternate" type="(?:application\/json|text\/markdown)" href="([^"]+)"/g,
       ),
     ].map((m) => m[1]);
