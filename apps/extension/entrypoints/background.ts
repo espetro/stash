@@ -10,8 +10,17 @@ import {
   senderDebugInfo,
   startMcpServerOverPort,
 } from "../lib/mcp/background-server";
+import { HOST_NAME } from "../lib/native-messaging/manifest";
+import { SyncClient } from "../lib/sync/sync-client";
 
 export default defineBackground(() => {
+  // F5: pair with the local stash-daemon over the F1 native-messaging port.
+  // Local-first invariants hold regardless: browser.storage.local stays the
+  // materialized view, local writes never block on the daemon, and every
+  // sync failure surfaces through the sync status (read by the popup).
+  const syncClient = new SyncClient({ hostName: HOST_NAME });
+  void syncClient.restoreStatus().then(() => syncClient.start());
+  void syncClient.flushOutbox();
   // MCP server over runtime ports (fresh server + transport per connection).
   // Defence in depth: the `externally_connectable` manifest field gates
   // *who can initiate* a connection, but `port.sender` is still trusted to
