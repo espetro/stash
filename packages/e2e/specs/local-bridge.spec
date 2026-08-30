@@ -47,3 +47,27 @@ run build`) and the viewer dev server is running on
 * The viewer server is running on localhost:4321
 * A plain GET of /stashes returns an HTML shell with no extension records
 * A hosted /s decode with format json returns the canonical payload
+
+## Bridge fed by the daemon materialized view
+The daemon scenario (plan W3): the daemon's seeded library reaches the
+extension through the F5 sync client and the bridge, sharing the same
+canonical seed as the extension-fed scenarios. Note: the full
+native-messaging pairing loop (browser-spawned host) cannot run in a
+headless harness, so this scenario asserts surface parity instead — the
+daemon library is seeded over its stdio MCP surface with the same
+canonical seed, the extension bridge carries the seed over the
+postMessage channel, and both must report identical materialized data.
+Requires the daemon binary:
+`go build -o /tmp/stash-daemon ./daemon/cmd/stash-daemon`.
+* The stash daemon is running in serve mode
+* The agent seeds the daemon library with the canonical seed
+* The browser is launched with the built Stash extension and the options page is open
+* The agent connects to the extension MCP port
+* The agent seeds the extension library with the canonical seed
+* The user sets localLibraryViewerEnabled to true
+* The viewer server is running on localhost:4321
+* The user navigates to /stashes
+* The page source chip should be extension
+* The JSON island parses to a StashExport matching the seed
+* viewer localStorage contains no extension record titles or URLs
+* viewer IndexedDB contains no extension stash titles or URLs
