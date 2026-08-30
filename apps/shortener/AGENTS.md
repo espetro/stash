@@ -1,28 +1,55 @@
-# apps/shortener
+# Stash Relay
 
-Cloudflare Worker providing opt-in short links (`POST /api/stash`,
-`s/<id>`) and the hosted MCP endpoint (`POST /mcp`, discovery card at
-`/.well-known/mcp-server-card`). All logic lives in
-`@stash/server-core`; this app only wires bindings.
+The Cloudflare Worker in `apps/shortener` is deployed as **the Stash relay**:
+a small, stateless, explicitly self-hostable service that stores opaque,
+TTL-bound payloads behind 6-character short links. It never holds a library:
+a stored entry is the encoded payload string plus creation/expiry timestamps,
+nothing else.
 
-Short-link reads use the consolidated `?format=` API:
-`GET /s/<id>?format=json|md|txt` (or `Accept` negotiation) returns the
-decoded payload; an unknown `format` value is a `400` JSON error. The
-legacy `.json`/`.md`/`.txt` suffix routes 301-redirect to the `?format=`
-form for one release and are then removed.
+All logic lives in `@stash/server-core` (runtime-agnostic over `unstorage`);
+this app only wires Cloudflare bindings. Any runtime that can supply the
+`StashServerConfig` ports (a `unstorage` `Storage`, an origin, a brotli
+loader, optional rate limiting / telemetry) can host a relay.
 
-The discovery card advertises **two** MCP surfaces under `servers[]`:
+## HTTP surface
 
-- `stash-shortener` — this worker, `transport: "streamable-http"`,
-  `url: <origin>/mcp`.
-- `stash-extension` — the browser extension's local MCP server,
-  `transport: "extension-port"`, `portName: "mcp"`. No `url` (Chrome
-  runtime port, not HTTP). See `apps/extension/lib/mcp/` and
-  `apps/extension/AGENTS.md` for client wiring.
+- `POST /api/stash` — store a payload, returns `{ id, url, expiry, itemCount }`
+- `GET /s/:id?format=json|md|txt` (or `Accept` negotiation) — fetch a stash;
+  no format means a 302 into the viewer SPA (`#p=`)
+- `DELETE /api/stash/:id` — revoke a short link before TTL expiry
+- `POST /mcp`, `GET /mcp` — stateless Streamable-HTTP MCP server with the 3
+  relay tools (`stash_create`, `stash_get`, `stash_decode`)
+- `GET /.well-known/mcp-server-card` — agent discovery card
+- `GET /health`
 
-Legacy flat `url` / `transport` / `tools` fields at the top of the card
-mirror the shortener entry and are kept for backwards compatibility with
-existing agent integrations.
+## TTL semantics
+
+TTL is a property of a **relay upload**, not of stash creation: the daemon
+never expires anything locally, only uploads do. The per-upload `ttl` (HTTP)
+/ `ttlDays` (MCP) defaults from relay config (`defaultTtl`, default `7d`) and
+is capped by `maxTtl` when configured.
+
+## DELETE endpoint
+
+`DELETE /api/stash/:id` removes the stored entry (204) or 404s if absent, so
+a user can revoke a link before TTL expiry. There is **no auth in v1**: the
+id is a 6-char base32 value (~30 bits, unguessable by enumeration at
+internet scale) which acts as the shared secret. The residual brute-force
+surface is bounded by the per-IP rate limiter. Self-hosters who want
+stronger revocation auth can proxy the endpoint behind their own gate.
+
+## Self-hosting
+
+Deploy `apps/shortener` with your own Cloudflare account, or re-host the
+logic on any runtime with `unstorage` drivers (memory, fs, Redis, …) via
+`createStashServer` from `@stash/server-core`:
+
+- omit `maxTtl` to allow the full 1d-30d upload range (hosted caps at `7d`)
+- omit `telemetry` for zero outbound reporting
+- rate limiting is optional; when a binding is present, write paths
+  (`POST /api/stash`, `POST /mcp`, `DELETE`) **fail closed**: a degraded
+  limiter blocks writes rather than admitting unbounded traffic. Missing
+  bindings allow (relevant for self-hosters without one).
 
 ## Bindings (wrangler.toml)
 
@@ -32,9 +59,8 @@ existing agent integrations.
 - `STASH_ANALYTICS` — optional Analytics Engine sink for anonymous
   aggregate counters
 
-Rate limiting fails closed: a missing binding blocks the route rather
-than allowing unlimited traffic. brotli-wasm is vendored (workerd forbids
-runtime wasm compilation); see the `[alias]` and `[[rules]]` blocks.
+brotli-wasm is vendored (workerd forbids runtime wasm compilation); see the
+`[alias]` and `[[rules]]` blocks.
 
 ## Commands
 
