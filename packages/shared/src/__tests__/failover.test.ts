@@ -14,7 +14,7 @@ const MIRROR = "https://mirror.example";
 /** Controllable fetch: unreachable while `down`, else any HTTP status. */
 function fakeFetch(down = { current: false }) {
   return Object.assign(
-    vi.fn(async (_url: string | URL, init?: RequestInit) => {
+    vi.fn(async (_url: string | URL | Request, init?: RequestInit) => {
       if (down.current) {
         return await new Promise<never>((_, reject) => {
           init?.signal?.addEventListener("abort", () =>
@@ -55,7 +55,7 @@ describe("probeOrigin", () => {
   });
 
   it("HEADs /llms.txt with a 2s budget", async () => {
-    const fetchFn = vi.fn(async (url: string | URL, init?: RequestInit) => {
+    const fetchFn = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
       expect(url).toBe(PRIMARY + "/llms.txt");
       expect(init?.method).toBe("HEAD");
       expect(init?.signal).toBeInstanceOf(AbortSignal);
@@ -68,7 +68,7 @@ describe("probeOrigin", () => {
   it("aborts at the budget boundary", async () => {
     vi.useFakeTimers();
     const fetchFn = vi.fn(
-      (_url: string | URL, init?: RequestInit) =>
+      (_url: string | URL | Request, init?: RequestInit) =>
         new Promise<Response>((_, reject) => {
           init?.signal?.addEventListener("abort", () =>
             reject(new DOMException("aborted", "AbortError")),
