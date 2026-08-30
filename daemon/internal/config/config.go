@@ -78,9 +78,9 @@ func Layout(dir string) Paths {
 // TOML mirrors the daemon config contract. The four relay keys are defined
 // by F7 but parsed and stored from this milestone on (unused in F2).
 type TOML struct {
-	DefaultRelayTtl     string `toml:"defaultRelayTtl"`
-	RelayEndpoint       string `toml:"relayEndpoint"`
-	MirrorEndpoint      string `toml:"mirrorEndpoint"`
+	DefaultRelayTtl       string `toml:"defaultRelayTtl"`
+	RelayEndpoint         string `toml:"relayEndpoint"`
+	MirrorEndpoint        string `toml:"mirrorEndpoint"`
 	DefaultShareTransport string `toml:"defaultShareTransport"`
 }
 
@@ -99,4 +99,78 @@ func ReadTOML(path string) (TOML, error) {
 		return t, fmt.Errorf("parse %s: %w", path, err)
 	}
 	return t, nil
+}
+
+// Built-in defaults for the four relay keys (F7 contract, §8.2).
+const (
+	DefaultRelayTtl       = "7d"
+	DefaultRelayEndpoint  = "https://stash.illo.fyi"
+	DefaultShareTransport = "relay"
+)
+
+// RelaySettings carries the four resolved relay keys.
+type RelaySettings struct {
+	DefaultRelayTtl       string
+	RelayEndpoint         string
+	MirrorEndpoint        string // may be empty; consumed by F13
+	DefaultShareTransport string
+}
+
+// RelaySettings returns the TOML-provided relay values, without defaults.
+func (t TOML) RelaySettings() RelaySettings {
+	return RelaySettings{
+		DefaultRelayTtl:       t.DefaultRelayTtl,
+		RelayEndpoint:         t.RelayEndpoint,
+		MirrorEndpoint:        t.MirrorEndpoint,
+		DefaultShareTransport: t.DefaultShareTransport,
+	}
+}
+
+// ValidRelayTtl reports whether v is one of the relay TTL values accepted
+// by the relay's write paths (1d, 7d, 14d, 30d).
+func ValidRelayTtl(v string) bool {
+	switch v {
+	case "1d", "7d", "14d", "30d":
+		return true
+	}
+	return false
+}
+
+// ResolveRelay resolves the four relay keys with precedence:
+//  1. TOML value (stash.toml in the config dir)
+//  2. SQLite config table (persisted earlier; lookup returns "" if absent)
+//  3. built-in default
+//
+// lookup is a store.GetConfig-style accessor, injected to avoid a
+// dependency on the store package. A nonzero error from lookup aborts.
+// An invalid defaultRelayTtl from either source is an error.
+func ResolveRelay(t TOML, lookup func(key string) (string, error)) (RelaySettings, error) {
+	toml_ := t.RelaySettings()
+	db := make(map[string]string, 4)
+	for _, k := range []string{"defaultRelayTtl", "relayEndpoint", "mirrorEndpoint", "defaultShareTransport"} {
+		v, err := lookup(k)
+		if err != nil {
+			return RelaySettings{}, fmt.Errorf("read config key %s: %w", k, err)
+		}
+		db[k] = v
+	}
+	pick := func(fromTOML, key, def string) string {
+		if fromTOML != "" {
+			return fromTOML
+		}
+		if db[key] != "" {
+			return db[key]
+		}
+		return def
+	}
+	r := RelaySettings{
+		DefaultRelayTtl:       pick(toml_.DefaultRelayTtl, "defaultRelayTtl", DefaultRelayTtl),
+		RelayEndpoint:         pick(toml_.RelayEndpoint, "relayEndpoint", DefaultRelayEndpoint),
+		MirrorEndpoint:        pick(toml_.MirrorEndpoint, "mirrorEndpoint", ""),
+		DefaultShareTransport: pick(toml_.DefaultShareTransport, "defaultShareTransport", DefaultShareTransport),
+	}
+	if !ValidRelayTtl(r.DefaultRelayTtl) {
+		return r, fmt.Errorf("invalid defaultRelayTtl %q (want 1d, 7d, 14d or 30d)", r.DefaultRelayTtl)
+	}
+	return r, nil
 }

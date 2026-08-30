@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -70,5 +71,60 @@ func TestReadTOML(t *testing.T) {
 	}
 	if tm.DefaultRelayTtl != "7d" || tm.RelayEndpoint != "wss://r.example" || tm.MirrorEndpoint != "https://m.example" || tm.DefaultShareTransport != "relay" {
 		t.Fatalf("parsed: %+v", tm)
+	}
+}
+
+func TestResolveRelay(t *testing.T) {
+	tomlEmpty := TOML{}
+
+	// all defaults when TOML and SQLite are empty
+	r, err := ResolveRelay(tomlEmpty, func(string) (string, error) { return "", nil })
+	if err != nil {
+		t.Fatal(err)
+	}
+	if r.DefaultRelayTtl != "7d" || r.RelayEndpoint != "https://stash.illo.fyi" ||
+		r.MirrorEndpoint != "" || r.DefaultShareTransport != "relay" {
+		t.Fatalf("defaults: %+v", r)
+	}
+
+	// SQLite fallback when TOML unset
+	dbVals := map[string]string{"relayEndpoint": "https://self.example"}
+	r, err = ResolveRelay(tomlEmpty, func(k string) (string, error) { return dbVals[k], nil })
+	if err != nil {
+		t.Fatal(err)
+	}
+	if r.RelayEndpoint != "https://self.example" || r.DefaultRelayTtl != "7d" {
+		t.Fatalf("sqlite fallback: %+v", r)
+	}
+
+	// TOML wins over SQLite
+	r, err = ResolveRelay(TOML{RelayEndpoint: "https://toml.example"},
+		func(k string) (string, error) { return dbVals[k], nil })
+	if err != nil {
+		t.Fatal(err)
+	}
+	if r.RelayEndpoint != "https://toml.example" {
+		t.Fatalf("toml precedence: %+v", r)
+	}
+
+	// invalid TTL from either source is an error
+	_, err = ResolveRelay(TOML{DefaultRelayTtl: "90d"}, func(string) (string, error) { return "", nil })
+	if err == nil {
+		t.Fatal("expected invalid toml ttl error")
+	}
+	_, err = ResolveRelay(tomlEmpty, func(k string) (string, error) {
+		if k == "defaultRelayTtl" {
+			return "never", nil
+		}
+		return "", nil
+	})
+	if err == nil {
+		t.Fatal("expected invalid sqlite ttl error")
+	}
+
+	// lookup error propagates
+	_, err = ResolveRelay(tomlEmpty, func(string) (string, error) { return "", fmt.Errorf("db closed") })
+	if err == nil {
+		t.Fatal("expected lookup error")
 	}
 }
