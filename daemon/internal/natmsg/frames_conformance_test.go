@@ -178,3 +178,52 @@ func TestConformanceNewlineDelimitedStream(t *testing.T) {
 		t.Fatalf("wire round-trip: %+v vs %+v", env, first)
 	}
 }
+
+// F4 reverse-channel fixtures: the daemon-to-extension request and the
+// extension-to-daemon replies for stash_snapshot_tabs. The extension side
+// lands in F5 (plan: ...-f05-extension-sync-client.md); these pin the wire
+// contract it must answer (F4 plan, "Cross-issue interfaces" / W2 note).
+func TestConformanceSnapshotTabsFixtures(t *testing.T) {
+	req := decodeFixture(t, "snapshot_request.json")
+	if req.Type != TypeOp || req.CorrelationID != "daemon-snap0001" {
+		t.Fatalf("snapshot request envelope: %+v", req)
+	}
+	var op OpPayload
+	if err := json.Unmarshal(req.Payload, &op); err != nil {
+		t.Fatal(err)
+	}
+	if op.Tool != "stash_snapshot_tabs" {
+		t.Fatalf("request tool: %q", op.Tool)
+	}
+
+	reply := decodeFixture(t, "snapshot_reply.json")
+	if reply.Type != TypeOpResult || reply.CorrelationID != req.CorrelationID {
+		t.Fatalf("reply must echo the correlation id verbatim: %+v", reply)
+	}
+	var or OpResultPayload
+	if err := json.Unmarshal(reply.Payload, &or); err != nil {
+		t.Fatal(err)
+	}
+	var res struct {
+		Items   []Tab  `json:"items"`
+		Warning string `json:"warning"`
+	}
+	if err := json.Unmarshal(or.Result, &res); err != nil {
+		t.Fatal(err)
+	}
+	if len(res.Items) != 1 || res.Items[0].URL != "https://github.com" || res.Items[0].Title != "GitHub" {
+		t.Fatalf("reply items: %+v", res.Items)
+	}
+
+	errReply := decodeFixture(t, "snapshot_reply_error.json")
+	if errReply.Type != TypeError || errReply.CorrelationID != req.CorrelationID {
+		t.Fatalf("error reply envelope: %+v", errReply)
+	}
+	var fe FrameError
+	if err := json.Unmarshal(errReply.Payload, &fe); err != nil {
+		t.Fatal(err)
+	}
+	if fe.Code != "TABS_PERMISSION_DENIED" || fe.Message != "tabs.query failed" {
+		t.Fatalf("error payload: %+v", fe)
+	}
+}

@@ -68,7 +68,7 @@ func TestHandshakeAndMCPRouting(t *testing.T) {
 	EncodeFrame(&in, &Envelope{Type: TypeMCP, CorrelationID: "ext-h0000002", Payload: []byte(`{"jsonrpc":"2.0","id":1,"method":"tools/list"}`)})
 	// run synchronously: the reader hits EOF after the last frame and the
 	// loop exits cleanly.
-	if err := runHostConn(st, lw, &in, &out, NewRegistry()); err != nil {
+	if err := runHostConn(st, lw, &in, &out, NewHub()); err != nil {
 		t.Fatalf("host: %v", err)
 	}
 
@@ -105,7 +105,7 @@ func TestVersionRejection(t *testing.T) {
 	lw, _ := logging.New(t.TempDir()+"/l", 1024, 1)
 	var in, out bytes.Buffer
 	EncodeFrame(&in, &Envelope{Type: TypeHello, CorrelationID: "ext-x0000001", Payload: []byte(`{"protocolVersion":"2.0.0","supportedRange":">=1.0.0 <2.0.0","extension":{"name":"Stash","version":"0.9.0"}}`)})
-	if err := runHostConn(st, lw, &in, &out, NewRegistry()); err != nil {
+	if err := runHostConn(st, lw, &in, &out, NewHub()); err != nil {
 		t.Fatalf("host: %v", err)
 	}
 	env, err := DecodeFrame(&out)

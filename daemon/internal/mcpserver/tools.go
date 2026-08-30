@@ -31,7 +31,7 @@ var Tools = []ToolDef{
 	{
 		Name:        "stash_snapshot_tabs",
 		Description: "Read-only snapshot of the tabs currently open in this browser window (url + title).",
-		InputSchema: rawSchema(`{"type":"object","properties":{}}`),
+		InputSchema: rawSchema(`{"type":"object","properties":{"browser":{"type":"string","description":"Optional pairing label of the browser to ask (see stash-daemon status); defaults to the most recently active browser"}}}`),
 	},
 	{
 		Name:        "stash_list",
@@ -132,6 +132,17 @@ const (
 	CodeInvalidParams  = -32602
 	CodeInternalError  = -32603
 )
+
+// SnapshotError is a defined stash_snapshot_tabs tool error (F4.W1): the
+// code surfaces verbatim as the CallError code (no_browser_attached,
+// browser_not_found, browser_timeout, browser_disconnected, browser_error).
+type SnapshotError struct {
+	Code    string
+	Message string
+}
+
+func (e *SnapshotError) Error() string     { return e.Message }
+func (e *SnapshotError) ErrorCode() string { return e.Code }
 
 // CallError is the MCP tool-error payload (isError result, not RPC error).
 func CallError(code, message string) string {
