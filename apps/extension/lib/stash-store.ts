@@ -1,4 +1,6 @@
 import { StorageItem } from "webext-storage";
+import { recordCreate, recordDelete, recordUpdate } from "./sync/outbox";
+import { getProfileId, materializationGuard } from "./sync/profile";
 
 export interface StashItem {
   url: string;
@@ -34,6 +36,24 @@ export const stashesItem = new StorageItem<StashRecord[]>("stash-records", {
   defaultValue: [],
 });
 
+/**
+ * Wrap a local user write: after the local write lands, append the change to
+ * the sync outbox (F5.W2). Daemon-origin (materialized) writes call with
+ * `fromDaemon = true` (F5.W3) and never hit the outbox — a writer-identity
+ * guard, not a time-based heuristic, so echo loops are impossible.
+ */
+async function afterWrite(
+  op: "create" | "update" | "delete",
+  record: StashRecord,
+  fromDaemon = false,
+): Promise<void> {
+  if (fromDaemon || materializationGuard.active) return;
+  const origin = await getProfileId();
+  if (op === "create") return recordCreate(record, origin);
+  if (op === "update") return recordUpdate(record, origin);
+  return recordDelete(record.id, origin);
+}
+
 async function getAll(): Promise<StashRecord[]> {
   try {
     return (await stashesItem.get()) ?? [];
@@ -51,6 +71,23 @@ export async function getStash(id: string): Promise<StashRecord | undefined> {
   return stashes.find((s) => s.id === id);
 }
 
+/**
+ * Daemon-side materialization path (F5.W3): write a whole record set into the
+ * local store WITHOUT recording outbox changes. Used by the sync client so a
+ * materialized write and a local user write are serialized through one path.
+ */
+export async function materializeStashes(
+  upsert: (stashes: StashRecord[]) => StashRecord[],
+): Promise<void> {
+  materializationGuard.active = true;
+  try {
+    const stashes = await getAll();
+    await stashesItem.set(upsert(stashes));
+  } finally {
+    materializationGuard.active = false;
+  }
+}
+
 export async function createStash(input: CreateStashInput): Promise<StashRecord> {
   const now = Date.now();
   const record: StashRecord = {
@@ -64,6 +101,7 @@ export async function createStash(input: CreateStashInput): Promise<StashRecord>
   };
   const stashes = await getAll();
   await stashesItem.set([...stashes, record]);
+  await afterWrite("create", record);
   return record;
 }
 
@@ -86,6 +124,7 @@ export async function updateStash(
   const next = [...stashes];
   next[index] = updated;
   await stashesItem.set(next);
+  await afterWrite("update", updated);
   return updated;
 }
 
@@ -94,6 +133,7 @@ export async function deleteStash(id: string): Promise<boolean> {
   const next = stashes.filter((s) => s.id !== id);
   if (next.length === stashes.length) return false;
   await stashesItem.set(next);
+  await afterWrite("delete", { ...stashes.find((s) => s.id === id)!, id });
   return true;
 }
 
