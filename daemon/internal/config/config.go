@@ -77,11 +77,15 @@ func Layout(dir string) Paths {
 
 // TOML mirrors the daemon config contract. The four relay keys are defined
 // by F7 but parsed and stored from this milestone on (unused in F2).
+// F12 adds a single serve-disable flag under that contract: when
+// viewerDisabled is true the daemon does not start the loopback viewer
+// server. No new key namespace is introduced.
 type TOML struct {
 	DefaultRelayTtl       string `toml:"defaultRelayTtl"`
 	RelayEndpoint         string `toml:"relayEndpoint"`
 	MirrorEndpoint        string `toml:"mirrorEndpoint"`
 	DefaultShareTransport string `toml:"defaultShareTransport"`
+	ViewerDisabled        bool   `toml:"viewerDisabled"`
 }
 
 // ReadTOML reads <config>/stash.toml. A missing file yields the zero TOML

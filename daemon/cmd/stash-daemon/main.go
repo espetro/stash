@@ -18,6 +18,8 @@ import (
 	"github.com/espetro/stash/daemon/internal/mcpserver"
 	"github.com/espetro/stash/daemon/internal/natmsg"
 	"github.com/espetro/stash/daemon/internal/store"
+	"github.com/espetro/stash/daemon/internal/viewer"
+	"net/http"
 )
 
 // version is injected via -ldflags "-X main.version=vX.Y.Z" at build time.
@@ -142,6 +144,29 @@ func runServe(configDir string) {
 	}
 
 	lw.Info("serve start", map[string]any{"version": buildVersion(), "config_dir": paths.Dir})
+
+	// F12: serve the embedded viewer shell on loopback unless disabled via
+	// stash.toml (viewerDisabled). Loopback only, no new external surface.
+	if tm, tmErr := config.ReadTOML(paths.TOMLFile); tmErr == nil && tm.ViewerDisabled {
+		lw.Info("viewer disabled by config", nil)
+	} else if viewer.Placeholder() {
+		lw.Event("warn", "viewer dist placeholder embedded; build the viewer before packaging the daemon", nil)
+	} else if vs, err := viewer.NewServer(); err != nil {
+		lw.Error("viewer server init", map[string]any{"err": err.Error()})
+	} else if ln, err := vs.Listen(viewer.Options{}); err != nil {
+		lw.Error("viewer listen", map[string]any{"err": err.Error()})
+	} else {
+		lw.Info("viewer listening", map[string]any{"url": "http://" + ln.Addr().String() + "/"})
+		_ = st.SetConfig("viewerURL", "http://"+ln.Addr().String())
+		fmt.Fprintf(os.Stderr, "stash viewer: http://%s/\n", ln.Addr().String())
+		go func() {
+			srvErr := http.Serve(ln, vs.Handler())
+			if srvErr != nil && srvErr != http.ErrServerClosed {
+				lw.Error("viewer serve", map[string]any{"err": srvErr.Error()})
+			}
+		}()
+	}
+
 	srv := &mcpserver.Server{Store: st, Log: logger}
 	if err := srv.Serve(context.Background(), os.Stdin, os.Stdout); err != nil {
 		lw.Error("serve exit", map[string]any{"err": err.Error()})
@@ -190,11 +215,17 @@ func runStatus(configDir string, jsonOut bool) {
 	peers, _ := st.SyncPeers()
 	alive, pid := doctor.CheckPidfile(paths.PidFile)
 
+	// F12: surface the loopback viewer URL written by the serve loop (empty
+	// when the daemon has not served since this config db was created or
+	// when the viewer is disabled).
+	viewerURL, _ := st.GetConfig("viewerURL")
+
 	if jsonOut {
 		out, _ := json.MarshalIndent(map[string]any{
 			"configDir": paths.Dir, "pid": pid, "alive": alive,
 			"browsers":    peers,
 			"outboxDepth": depth,
+			"viewerURL":   viewerURL,
 		}, "", "  ")
 		fmt.Println(string(out))
 		return
@@ -212,6 +243,9 @@ func runStatus(configDir string, jsonOut bool) {
 		fmt.Printf("browser:      %s (status %s)\n", p.PeerID, p.Status.String)
 	}
 	fmt.Printf("outbox depth: %d\n", depth)
+	if viewerURL != "" {
+		fmt.Printf("viewer:       %s\n", viewerURL)
+	}
 }
 
 func runDoctor(configDir string, jsonOut bool) {
