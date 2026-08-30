@@ -9,6 +9,7 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.2.3 // indirect
+	github.com/automerge/automerge-go v0.0.0-20241030180337-6fb4f2d08244 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
