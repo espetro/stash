@@ -1,0 +1,136 @@
+# Daemon release pipeline (F10, spec §7.1/§7.5).
+#
+# Parallel to the extension's `v*` / release.yml pipeline: the Go daemon is
+# not a pnpm workspace package, so changesets does not version it. Cutting a
+# daemon release = `git tag daemon-vX.Y.Z && git push origin daemon-vX.Y.Z`.
+#
+# cgo is mandatory (automerge-go), so:
+#   - darwin builds run on a macOS runner (native toolchain; zig cannot
+#     target Darwin).
+#   - linux builds run on ubuntu with zig cc as the cross C toolchain.
+# Each job publishes partial artifacts with `goreleaser release --split`;
+# the linux job then merges them into the final GitHub release with
+# `goreleaser continue` and pushes the Homebrew formula.
+name: Daemon Release
+
+on:
+  push:
+    tags:
+      - 'daemon-v*'
+
+permissions:
+  contents: write
+
+env:
+  HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+
+jobs:
+  darwin:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Setup zig (linux cross toolchain lives on the linux job only)
+        run: echo "darwin uses the native Apple toolchain"
+
+      - name: Run GoReleaser (darwin partial)
+        working-directory: daemon
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#daemon-v}"
+          goreleaser release --split --clean --version "$VERSION"
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Setup zig
+        uses: mlugg/setup-zig@v1
+        with:
+          version: latest
+
+      - name: Install goreleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: latest
+          install-only: true
+
+      - name: Build linux/amd64 partial
+        working-directory: daemon
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ZIG_TARGET: x86_64-linux-gnu
+        run: |
+          VERSION="${GITHUB_REF_NAME#daemon-v}"
+          goreleaser release --split --clean --version "$VERSION" \
+            --config .goreleaser.linux.yaml
+
+      - name: Build linux/arm64 partial
+        working-directory: daemon
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ZIG_TARGET: aarch64-linux-gnu
+        run: |
+          VERSION="${GITHUB_REF_NAME#daemon-v}"
+          goreleaser release --split --clean --version "$VERSION" \
+            --config .goreleaser.linux.yaml
+
+      # goreleaser continue must run from a full checkout of the tag.
+      - name: Checkout (full, for continue)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Merge partials into the final release
+        working-directory: daemon
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#daemon-v}"
+          goreleaser continue --version "$VERSION"
+
+  # Homebrew formula push runs after the merge so the tap references a
+  # published release. Requires the HOMEBREW_TAP_TOKEN secret.
+  homebrew:
+    needs: [darwin, linux]
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'espetro'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Install goreleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: latest
+          install-only: true
+
+      - name: Publish Homebrew cask
+        working-directory: daemon
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#daemon-v}"
+          goreleaser publish --clean --version "$VERSION" --skip=validate
