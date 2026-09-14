@@ -128,3 +128,31 @@ func TestResolveRelay(t *testing.T) {
 		t.Fatal("expected lookup error")
 	}
 }
+
+// F12: viewerDisabled is the single serve-disable flag under the F2/F7 TOML
+// contract. Missing key means enabled (zero value).
+func TestReadTOMLViewerDisabled(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "stash.toml")
+	if err := os.WriteFile(path, []byte("viewerDisabled = true\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	got, err := ReadTOML(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !got.ViewerDisabled {
+		t.Fatal("viewerDisabled = false, want true")
+	}
+	// absent key stays enabled
+	if err := os.WriteFile(path, []byte("relayEndpoint = \"https://x.example\"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	got, err = ReadTOML(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.ViewerDisabled {
+		t.Fatal("viewerDisabled default should be false")
+	}
+}

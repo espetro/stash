@@ -1,0 +1,17 @@
+{
+  "name": "@stash/daemon",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Stash local-first daemon (Go). Packaging only: the build script embeds the built viewer.",
+  "scripts": {
+    "build": "sh scripts/build.sh",
+    "clean": "git clean -fqX internal/viewer/dist",
+    "test": "go test ./... -race",
+    "lint": "go vet ./...",
+    "format": "gofmt -w cmd internal",
+    "tscheck": "go vet ./..."
+  },
+  "dependencies": {
+    "stash-viewer": "workspace:*"
+  }
+}

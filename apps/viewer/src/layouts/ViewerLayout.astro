@@ -8,6 +8,9 @@ interface Props {
 const { title } = Astro.props;
 const posthogKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
 const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST ?? 'https://eu.posthog.com';
+// F12: the daemon-embedded build makes zero network requests, so PostHog
+// and Google Fonts are compiled out of the loopback shell.
+const embedded = Boolean(import.meta.env.VITE_EMBEDDED_VIEWER);
 
 // Build-time origin, not Astro.url.origin — the latter resolves to the
 // prerender/build server (localhost) for prerendered pages in production.
@@ -42,7 +45,7 @@ const viewerOrigin = validateViewerOrigin(rawViewerOrigin).success
       <link rel="alternate" type="text/markdown" href={viewerOrigin + '/stashes/?agent=markdown'} title="Stashes as Markdown" />
     </>
   )}
-  {posthogKey && posthogHost && (
+  {!embedded && posthogKey && posthogHost && (
     <script is:inline define:vars={{ posthogKey, posthogHost }}>
       (function() {
         var script = document.createElement('script');
@@ -63,9 +66,9 @@ const viewerOrigin = validateViewerOrigin(rawViewerOrigin).success
       })();
     </script>
   )}
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  {!embedded && <link rel="preconnect" href="https://fonts.googleapis.com">}
+  {!embedded && <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>}
+  {!embedded && <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">}
   <script>
     import { initTheme } from '@stash/theme';
     initTheme(localStorage);

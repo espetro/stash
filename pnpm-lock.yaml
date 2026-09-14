@@ -303,6 +303,12 @@ importers:
         specifier: ^3.0.0
         version: 3.2.4(@types/debug@4.1.13)(@types/node@24.12.4)(happy-dom@20.9.0)(jiti@2.7.0)(jsdom@29.1.1)(lightningcss@1.32.0)(tsx@4.22.3)(yaml@2.9.0)
 
+  daemon:
+    dependencies:
+      stash-viewer:
+        specifier: workspace:*
+        version: link:../apps/viewer
+
   packages/codec:
     dependencies:
       '@msgpack/msgpack':

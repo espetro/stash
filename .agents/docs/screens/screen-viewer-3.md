@@ -56,3 +56,14 @@ format value returns `400` JSON. See the agent notice comment in
   last clicked row; "Select all" resets the anchor.
 - JSON and Markdown formats bypass the card entirely and render raw `<pre>`
   output.
+
+## Loopback serving (F12)
+
+The daemon (`stash-daemon serve`) embeds this same shell and serves it at
+`http://127.0.0.1:<random port>/`, including the `?p=` content-negotiated
+route (same contract: explicit `?format=` wins, Accept negotiation,
+`X-Robots-Tag: noindex` everywhere, decode errors as a readable error page
+or 400 JSON). `viewerDisabled: true` in stash.toml turns it off;
+`stash-daemon status` prints the current viewer URL. The fragment `#p=`
+never reaches the daemon; decoding of fragment links happens client-side
+with zero egress.
