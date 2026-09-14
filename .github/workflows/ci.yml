@@ -7,6 +7,66 @@ on:
     branches: [main]
 
 jobs:
+  # F11 (plan W5): Go conformance gate for the daemon module. Runs on
+  # any change to daemon code, the shared codec vectors, or the e2e
+  # daemon specs. `go test ./...` at the module root can never enter
+  # spikes/ (the Go module root is daemon/), keeping the spike tree
+  # isolated per spec Appendix A; the conformance package additionally
+  # guards against spike references at test time.
+  go-conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute changed paths
+        if: github.event_name == 'pull_request'
+        id: paths
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            daemon:
+              - 'daemon/**'
+              - 'packages/shared/fixtures/**'
+              - 'packages/codec/**'
+              - 'packages/e2e/**'
+
+      - name: Set path flag
+        id: paths_check
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "daemon=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "daemon=${{ steps.paths.outputs.daemon }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip (unrelated paths)
+        if: steps.paths_check.outputs.daemon != 'true'
+        run: echo "no daemon-relevant changes; skipping Go conformance" && exit 0
+
+      - name: Setup Go
+        if: steps.paths_check.outputs.daemon == 'true'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache-dependency-path: daemon/go.sum
+
+      - name: Build daemon
+        if: steps.paths_check.outputs.daemon == 'true'
+        working-directory: daemon
+        run: go build ./...
+
+      - name: Vet daemon
+        if: steps.paths_check.outputs.daemon == 'true'
+        working-directory: daemon
+        run: go vet ./...
+
+      - name: Test daemon (race, conformance included)
+        if: steps.paths_check.outputs.daemon == 'true'
+        working-directory: daemon
+        run: go test ./... -race
+
   build:
     runs-on: ubuntu-latest
 
@@ -51,11 +111,21 @@ jobs:
       - name: Validate e2e steps (dry-run)
         run: pnpm --filter @stash/e2e run validate:steps
 
+      - name: Setup Go and build the daemon binary for the integration spec
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache-dependency-path: daemon/go.sum
+
+      - name: Build stash-daemon binary
+        working-directory: daemon
+        run: go build -o /tmp/stash-daemon ./cmd/stash-daemon
+
       - name: Run e2e tests
         run: pnpm --filter @stash/e2e exec playwright test --reporter=list
         env:
           CI: 'true'
-
+          STASH_DAEMON_BIN: /tmp/stash-daemon
       - name: Upload extension artifact
         uses: actions/upload-artifact@v4
         with:

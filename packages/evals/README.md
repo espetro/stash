@@ -48,6 +48,26 @@ the same port `packages/e2e/playwright.config.ts` binds for the e2e suite.
 **Do not run `pnpm eval:agents` and `pnpm --filter @stash/e2e run test`
 concurrently** — they will fight over `:4321`.
 
+### Daemon-fed scenarios (F11 W4)
+
+The plan marks the evals daemon re-baseline as blocked until the daemon
+agent surface (F11 W2 + W3) is merged and stable. The harness hook
+already exists: `@stash/e2e/helpers/mcp-daemon` exports
+`connectDaemonRpc` / `seedDaemonLibrary`, a stdio MCP client against
+the spawned `stash-daemon` binary using the same canonical
+`EXTENSION_SEED` and the same frozen 8-tool registry as the extension
+evals. To add a daemon-fed eval scenario once the surface is stable:
+
+1. Build the binary: `pnpm run daemon:build`
+   (`go build -o /tmp/stash-daemon ./daemon/cmd/stash-daemon`).
+2. `await connectDaemonRpc()` in the eval setup (mirrors
+   `connectMcpPort`), then `seedDaemonLibrary(rpc)` — identical seed
+   assertions as `seedExtensionLibrary`.
+3. Re-run the full suite and re-baseline `report.json` after a
+   deliberate diff review of grade deltas (see below).
+
+`report.json` re-baselining requires LLM credentials; see "Env vars".
+
 ## Usage
 
 Preconditions: viewer built (`pnpm --filter stash-viewer run build`). The

@@ -1,0 +1,594 @@
+[
+  {
+    "name": "single-tab",
+    "description": "One shareable tab URL",
+    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZGSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWI",
+    "itemCount": 1,
+    "items": [
+      {
+        "url": "https://github.com",
+        "title": "GitHub"
+      }
+    ]
+  },
+  {
+    "name": "three-tabs",
+    "description": "Three tab URLs",
+    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZOSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWKSuWh0dHBzOi8vc3RhY2tvdmVyZmxvdy5jb22uU3RhY2sgT3ZlcmZsb3eSvWh0dHBzOi8vZGV2ZWxvcGVyLm1vemlsbGEub3JnrE1ETiBXZWIgRG9jcw",
+    "itemCount": 3,
+    "items": [
+      {
+        "url": "https://github.com",
+        "title": "GitHub"
+      },
+      {
+        "url": "https://stackoverflow.com",
+        "title": "Stack Overflow"
+      },
+      {
+        "url": "https://developer.mozilla.org",
+        "title": "MDN Web Docs"
+      }
+    ]
+  },
+  {
+    "name": "five-tabs",
+    "description": "Five tab URLs across categories",
+    "fragment": "#p=CG9IAIJwJdmyVwdohN8rBUNmfPxfJCuRvAtEXzesWf2BXbdFV6VwGjDY7bYFiErW1to4CCoIPAN8pPdkEhXwETncyb8ztQay5D_7I9HH9yquN5nwjCkmAZ3TKSjdDLiUpLiMwqZ4CvslKtNErIVdyOXW4LjWzDYpLzRL-K7AK27L8apyfgmltw7Kb69CLQhQEuNW0WZao4ovLdWBHIzQ2",
+    "itemCount": 5,
+    "items": [
+      {
+        "url": "https://github.com",
+        "title": "GitHub"
+      },
+      {
+        "url": "https://stackoverflow.com",
+        "title": "Stack Overflow"
+      },
+      {
+        "url": "https://developer.mozilla.org",
+        "title": "MDN Web Docs"
+      },
+      {
+        "url": "https://www.reddit.com/r/webdev",
+        "title": "Reddit - webdev"
+      },
+      {
+        "url": "https://css-tricks.com",
+        "title": "CSS-Tricks"
+      }
+    ]
+  },
+  {
+    "name": "long-title",
+    "description": "Long-title tab to verify truncation",
+    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZGS2SFodHRwczovL2V4YW1wbGUuY29tL2xvbmctdXJsLXBhdGjZWVRoaXMgaXMgYSB2ZXJ5IGxvbmcgdGl0bGUgdGhhdCBleGNlZWRzIHRoZSB0aGlydHkgY2hhcmFjdGVyIGxpbWl0IGFuZCBzaG91bGQgYmUgdHJ1bmNhdGVk",
+    "itemCount": 1,
+    "items": [
+      {
+        "url": "https://example.com/long-url-path",
+        "title": "This is a very long title that exceeds the thirty character limit and should be truncated"
+      }
+    ]
+  },
+  {
+    "name": "special-chars",
+    "description": "URL and title with reserved/special characters",
+    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZGS2TZodHRwczovL2V4YW1wbGUuY29tL3BhdGg_cXVlcnk9dmFsdWUmb3RoZXI9MTIzI3NlY3Rpb268VVJMIHdpdGggc3BlY2lhbCBjaGFycyAmICMgPw",
+    "itemCount": 1,
+    "items": [
+      {
+        "url": "https://example.com/path?query=value&other=123#section",
+        "title": "URL with special chars & # ?"
+      }
+    ]
+  },
+  {
+    "name": "unicode",
+    "description": "URL path and title in Japanese",
+    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZGS2SdodHRwczovL2V4YW1wbGUuY29tL-aXpeacrOiqni_jg4bjgrnjg4jZJOaXpeacrOiqnuOBruODmuODvOOCuCAtIFVuaWNvZGUgVGVzdA",
+    "itemCount": 1,
+    "items": [
+      {
+        "url": "https://example.com/日本語/テスト",
+        "title": "日本語のページ - Unicode Test"
+      }
+    ]
+  },
+  {
+    "name": "chrome-mixed",
+    "description": "URLs including chrome:// entries",
+    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZOSs2Nocm9tZTovL2V4dGVuc2lvbnOqRXh0ZW5zaW9uc5KxY2hyb21lOi8vc2V0dGluZ3OoU2V0dGluZ3OSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWI",
+    "itemCount": 3,
+    "items": [
+      {
+        "url": "chrome://extensions",
+        "title": "Extensions"
+      },
+      {
+        "url": "chrome://settings",
+        "title": "Settings"
+      },
+      {
+        "url": "https://github.com",
+        "title": "GitHub"
+      }
+    ]
+  },
+  {
+    "name": "empty-items",
+    "description": "No shared tabs",
+    "fragment": "#p=",
+    "itemCount": 0,
+    "items": []
+  },
+  {
+    "name": "expired",
+    "description": "An expired share link payload",
+    "fragment": "#p=Rg6F2BqFlzmqKvRGhaZGSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWI",
+    "itemCount": 1,
+    "items": [
+      {
+        "url": "https://github.com",
+        "title": "GitHub"
+      }
+    ]
+  },
+  {
+    "name": "hundred-tabs",
+    "description": "100 tabs to force budget truncation",
+    "fragment": "#p=CGz8v4J0HdoNzhxBnJLrNHuvw2ggGGrRZEFd9FT_RKc6CU0kDlNz6pVZoOXO3QRijJIjqQAHgdrNw8_MoScBqNex4S3WoUt3Gluu4BD0RDfuPH24gqGGAEvkHr2H6CvjvBADe4zRHpqX3hcavsJ85M8On9xAl_xjyHuTzr90sfMfzGsVzeHo3v37Z-QWtmYolZymVmq1ceo5KmblUlTW36rLnUVPOvGrLnU_do24QO_GDwKR-kwCgY0kgp1LAzqVBXMqAclUWaNdlg3FTDli35YJzF94uHAk3BUDHkkBOpYCdS4O4lAHlqizQrssG46YcsG7LBecuvN04Mm4agI4lgZxKATuXBnEpA8pVWaBdlw3GTTlg3ZYLzl14e3AU3AwAHUsCOZUCdi4N4lIGlKuyQLsuG4ybcsC6LRecu_D2wlHhZgHQsSSQUylg59IgLmVAuSoLtOuywbgpB6zbcsG5C29vHDVuNgAdSwI5lQJ2Lg3iUgaUq7JAuy4bjJtywLotF5y78PbB0eDmANCxJJBTKWDn0iAuZUC5Kgu067LBuCkHrNtywbkLb18cLW4uAB1LAjmVAnYuDeJSBpSrskC7LhuMm3LAui0XnLvw9sPR4eYB0LEkkFMpYOfSIC5lQLkqC7TrssG4KQes23LBuXvMAQ",
+    "itemCount": 100,
+    "items": [
+      {
+        "url": "https://example-0000.stash.illo.fyi/path/0/?ref=stash",
+        "title": "Example tab number 0 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0001.stash.illo.fyi/path/1/?ref=stash",
+        "title": "Example tab number 1 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0002.stash.illo.fyi/path/2/?ref=stash",
+        "title": "Example tab number 2 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0003.stash.illo.fyi/path/3/?ref=stash",
+        "title": "Example tab number 3 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0004.stash.illo.fyi/path/4/?ref=stash",
+        "title": "Example tab number 4 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0005.stash.illo.fyi/path/5/?ref=stash",
+        "title": "Example tab number 5 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0006.stash.illo.fyi/path/6/?ref=stash",
+        "title": "Example tab number 6 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0007.stash.illo.fyi/path/7/?ref=stash",
+        "title": "Example tab number 7 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0008.stash.illo.fyi/path/8/?ref=stash",
+        "title": "Example tab number 8 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0009.stash.illo.fyi/path/9/?ref=stash",
+        "title": "Example tab number 9 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0010.stash.illo.fyi/path/10/?ref=stash",
+        "title": "Example tab number 10 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0011.stash.illo.fyi/path/11/?ref=stash",
+        "title": "Example tab number 11 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0012.stash.illo.fyi/path/12/?ref=stash",
+        "title": "Example tab number 12 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0013.stash.illo.fyi/path/13/?ref=stash",
+        "title": "Example tab number 13 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0014.stash.illo.fyi/path/14/?ref=stash",
+        "title": "Example tab number 14 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0015.stash.illo.fyi/path/15/?ref=stash",
+        "title": "Example tab number 15 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0016.stash.illo.fyi/path/16/?ref=stash",
+        "title": "Example tab number 16 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0017.stash.illo.fyi/path/17/?ref=stash",
+        "title": "Example tab number 17 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0018.stash.illo.fyi/path/18/?ref=stash",
+        "title": "Example tab number 18 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0019.stash.illo.fyi/path/19/?ref=stash",
+        "title": "Example tab number 19 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0020.stash.illo.fyi/path/20/?ref=stash",
+        "title": "Example tab number 20 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0021.stash.illo.fyi/path/21/?ref=stash",
+        "title": "Example tab number 21 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0022.stash.illo.fyi/path/22/?ref=stash",
+        "title": "Example tab number 22 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0023.stash.illo.fyi/path/23/?ref=stash",
+        "title": "Example tab number 23 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0024.stash.illo.fyi/path/24/?ref=stash",
+        "title": "Example tab number 24 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0025.stash.illo.fyi/path/25/?ref=stash",
+        "title": "Example tab number 25 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0026.stash.illo.fyi/path/26/?ref=stash",
+        "title": "Example tab number 26 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0027.stash.illo.fyi/path/27/?ref=stash",
+        "title": "Example tab number 27 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0028.stash.illo.fyi/path/28/?ref=stash",
+        "title": "Example tab number 28 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0029.stash.illo.fyi/path/29/?ref=stash",
+        "title": "Example tab number 29 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0030.stash.illo.fyi/path/30/?ref=stash",
+        "title": "Example tab number 30 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0031.stash.illo.fyi/path/31/?ref=stash",
+        "title": "Example tab number 31 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0032.stash.illo.fyi/path/32/?ref=stash",
+        "title": "Example tab number 32 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0033.stash.illo.fyi/path/33/?ref=stash",
+        "title": "Example tab number 33 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0034.stash.illo.fyi/path/34/?ref=stash",
+        "title": "Example tab number 34 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0035.stash.illo.fyi/path/35/?ref=stash",
+        "title": "Example tab number 35 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0036.stash.illo.fyi/path/36/?ref=stash",
+        "title": "Example tab number 36 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0037.stash.illo.fyi/path/37/?ref=stash",
+        "title": "Example tab number 37 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0038.stash.illo.fyi/path/38/?ref=stash",
+        "title": "Example tab number 38 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0039.stash.illo.fyi/path/39/?ref=stash",
+        "title": "Example tab number 39 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0040.stash.illo.fyi/path/40/?ref=stash",
+        "title": "Example tab number 40 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0041.stash.illo.fyi/path/41/?ref=stash",
+        "title": "Example tab number 41 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0042.stash.illo.fyi/path/42/?ref=stash",
+        "title": "Example tab number 42 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0043.stash.illo.fyi/path/43/?ref=stash",
+        "title": "Example tab number 43 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0044.stash.illo.fyi/path/44/?ref=stash",
+        "title": "Example tab number 44 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0045.stash.illo.fyi/path/45/?ref=stash",
+        "title": "Example tab number 45 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0046.stash.illo.fyi/path/46/?ref=stash",
+        "title": "Example tab number 46 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0047.stash.illo.fyi/path/47/?ref=stash",
+        "title": "Example tab number 47 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0048.stash.illo.fyi/path/48/?ref=stash",
+        "title": "Example tab number 48 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0049.stash.illo.fyi/path/49/?ref=stash",
+        "title": "Example tab number 49 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0050.stash.illo.fyi/path/50/?ref=stash",
+        "title": "Example tab number 50 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0051.stash.illo.fyi/path/51/?ref=stash",
+        "title": "Example tab number 51 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0052.stash.illo.fyi/path/52/?ref=stash",
+        "title": "Example tab number 52 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0053.stash.illo.fyi/path/53/?ref=stash",
+        "title": "Example tab number 53 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0054.stash.illo.fyi/path/54/?ref=stash",
+        "title": "Example tab number 54 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0055.stash.illo.fyi/path/55/?ref=stash",
+        "title": "Example tab number 55 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0056.stash.illo.fyi/path/56/?ref=stash",
+        "title": "Example tab number 56 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0057.stash.illo.fyi/path/57/?ref=stash",
+        "title": "Example tab number 57 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0058.stash.illo.fyi/path/58/?ref=stash",
+        "title": "Example tab number 58 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0059.stash.illo.fyi/path/59/?ref=stash",
+        "title": "Example tab number 59 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0060.stash.illo.fyi/path/60/?ref=stash",
+        "title": "Example tab number 60 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0061.stash.illo.fyi/path/61/?ref=stash",
+        "title": "Example tab number 61 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0062.stash.illo.fyi/path/62/?ref=stash",
+        "title": "Example tab number 62 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0063.stash.illo.fyi/path/63/?ref=stash",
+        "title": "Example tab number 63 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0064.stash.illo.fyi/path/64/?ref=stash",
+        "title": "Example tab number 64 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0065.stash.illo.fyi/path/65/?ref=stash",
+        "title": "Example tab number 65 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0066.stash.illo.fyi/path/66/?ref=stash",
+        "title": "Example tab number 66 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0067.stash.illo.fyi/path/67/?ref=stash",
+        "title": "Example tab number 67 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0068.stash.illo.fyi/path/68/?ref=stash",
+        "title": "Example tab number 68 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0069.stash.illo.fyi/path/69/?ref=stash",
+        "title": "Example tab number 69 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0070.stash.illo.fyi/path/70/?ref=stash",
+        "title": "Example tab number 70 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0071.stash.illo.fyi/path/71/?ref=stash",
+        "title": "Example tab number 71 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0072.stash.illo.fyi/path/72/?ref=stash",
+        "title": "Example tab number 72 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0073.stash.illo.fyi/path/73/?ref=stash",
+        "title": "Example tab number 73 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0074.stash.illo.fyi/path/74/?ref=stash",
+        "title": "Example tab number 74 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0075.stash.illo.fyi/path/75/?ref=stash",
+        "title": "Example tab number 75 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0076.stash.illo.fyi/path/76/?ref=stash",
+        "title": "Example tab number 76 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0077.stash.illo.fyi/path/77/?ref=stash",
+        "title": "Example tab number 77 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0078.stash.illo.fyi/path/78/?ref=stash",
+        "title": "Example tab number 78 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0079.stash.illo.fyi/path/79/?ref=stash",
+        "title": "Example tab number 79 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0080.stash.illo.fyi/path/80/?ref=stash",
+        "title": "Example tab number 80 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0081.stash.illo.fyi/path/81/?ref=stash",
+        "title": "Example tab number 81 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0082.stash.illo.fyi/path/82/?ref=stash",
+        "title": "Example tab number 82 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0083.stash.illo.fyi/path/83/?ref=stash",
+        "title": "Example tab number 83 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0084.stash.illo.fyi/path/84/?ref=stash",
+        "title": "Example tab number 84 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0085.stash.illo.fyi/path/85/?ref=stash",
+        "title": "Example tab number 85 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0086.stash.illo.fyi/path/86/?ref=stash",
+        "title": "Example tab number 86 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0087.stash.illo.fyi/path/87/?ref=stash",
+        "title": "Example tab number 87 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0088.stash.illo.fyi/path/88/?ref=stash",
+        "title": "Example tab number 88 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0089.stash.illo.fyi/path/89/?ref=stash",
+        "title": "Example tab number 89 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0090.stash.illo.fyi/path/90/?ref=stash",
+        "title": "Example tab number 90 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0091.stash.illo.fyi/path/91/?ref=stash",
+        "title": "Example tab number 91 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0092.stash.illo.fyi/path/92/?ref=stash",
+        "title": "Example tab number 92 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0093.stash.illo.fyi/path/93/?ref=stash",
+        "title": "Example tab number 93 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0094.stash.illo.fyi/path/94/?ref=stash",
+        "title": "Example tab number 94 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0095.stash.illo.fyi/path/95/?ref=stash",
+        "title": "Example tab number 95 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0096.stash.illo.fyi/path/96/?ref=stash",
+        "title": "Example tab number 96 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0097.stash.illo.fyi/path/97/?ref=stash",
+        "title": "Example tab number 97 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0098.stash.illo.fyi/path/98/?ref=stash",
+        "title": "Example tab number 98 demonstrating budget overflow on purpose"
+      },
+      {
+        "url": "https://example-0099.stash.illo.fyi/path/99/?ref=stash",
+        "title": "Example tab number 99 demonstrating budget overflow on purpose"
+      }
+    ]
+  },
+  {
+    "name": "qr-single-tab",
+    "description": "One tab encoded for QR (#q= base32 fragment)",
+    "fragment": "#q=DBMKIBA5BOYDKCZOONKGBZINBNGIZFMTIOR2HA4Z2F4XWO2LUNB2WELTDN5W2MR3JOREHKYQD",
+    "itemCount": 1,
+    "items": [
+      {
+        "url": "https://github.com",
+        "title": "GitHub"
+      }
+    ]
+  },
+  {
+    "name": "qr-three-tabs",
+    "description": "Three tabs encoded for QR (#q= base32 fragment)",
+    "fragment": "#q=DDN7ABIE4BG3M3CD4FTHDDEJXZLAVBWP7XNEXE5YFSTIFYQD3CN6LAJXV6KMVPE6OMXAKRE6TQPZOLVGW3K5GAEAA42LNWGAOZ5IE6WF7S54TFB3HKFZRV7EN5GFNGIIZXXA7EEAA2FYDXUYPV2P7PSCALWHNBNCBYMPVJSOBVQBS7ZB6GVLKPBI6ZXLH4DY",
+    "itemCount": 3,
+    "items": [
+      {
+        "url": "https://github.com",
+        "title": "GitHub"
+      },
+      {
+        "url": "https://stackoverflow.com",
+        "title": "Stack Overflow"
+      },
+      {
+        "url": "https://developer.mozilla.org",
+        "title": "MDN Web Docs"
+      }
+    ]
+  },
+  {
+    "name": "tagged-stash",
+    "description": "One tab with title, tags and note metadata",
+    "fragment": "#p=RhqF2BqFlzmqMHKGhaZGSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWKhdKVUaXRsZaFnkahyZXNlYXJjaKFupmEgbm90ZQ",
+    "itemCount": 1,
+    "items": [
+      {
+        "url": "https://github.com",
+        "title": "GitHub"
+      }
+    ],
+    "title": "Title",
+    "tags": [
+      "research"
+    ],
+    "note": "a note"
+  }
+]

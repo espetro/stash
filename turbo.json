@@ -32,6 +32,10 @@
     "daemon:test": {
       "cache": false
     },
+    "daemon:conformance": {
+      "cache": false,
+      "inputs": ["daemon/**", "packages/shared/fixtures/**"]
+    },
     "validate": {
       "cache": false
     }
