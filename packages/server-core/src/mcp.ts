@@ -167,13 +167,26 @@ export function serverCardResponse(origin: string): Response {
         description: "LLM-oriented documentation for agents consuming Stash.",
       },
     ],
-    // The relay advertises only its own surface; the extension's local MCP
-    // server (8 frozen daemon tools) is discovered via the daemon card (F2).
+    // The shortener advertises only its own HTTP surface. Local surfaces:
+    // the extension MCP server is browser-internal (reachable only from the
+    // extension's own pages / allowlisted peers, not from desktop clients);
+    // the daemon's stdio entry is the local surface for desktop MCP clients.
     servers: [
       {
         name: "stash-shortener",
         url: `${origin}/mcp`,
         transport: "streamable-http",
+        tools: shortenerTools,
+      },
+      {
+        name: "stash-extension",
+        transport: "extension-port",
+        portName: "mcp",
+        tools: shortenerTools,
+      },
+      {
+        name: "stash-daemon",
+        transport: "stdio",
         tools: shortenerTools,
       },
     ],

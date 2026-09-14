@@ -34,8 +34,8 @@ export default defineConfig({
       // - `mhipkdochajohklmmjinmicahanmldbj` is MCP-B's production extension id
       //   (see @mcp-b/native-server docs), the only external extension that
       //   needs to talk to the in-extension MCP server.
-      // - localhost / 127.0.0.1 allow a local stdio relay (@stash/mcp-relay)
-      //   to attach as a web page over a loopback origin.
+      // - localhost / 127.0.0.1 keep loopback origins reachable for local
+      //   development against the in-extension MCP server.
       ids: ["mhipkdochajohklmmjinmicahanmldbj"],
       matches: [
         "https://stash.illo.fyi/*",
