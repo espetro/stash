@@ -104,9 +104,13 @@ func TestActiveOriginTTLExpiryRetriesPrimary(t *testing.T) {
 }
 
 func TestRecoveryFlipsBackImmediately(t *testing.T) {
+	var mu sync.Mutex
 	down := true
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if down {
+		mu.Lock()
+		d := down
+		mu.Unlock()
+		if d {
 			<-r.Context().Done()
 		}
 		w.WriteHeader(200)
@@ -119,7 +123,9 @@ func TestRecoveryFlipsBackImmediately(t *testing.T) {
 	if m.ActiveOrigin() != OriginMirror {
 		t.Fatal("expected mirror while primary down")
 	}
+	mu.Lock()
 	down = false
+	mu.Unlock()
 	if _, err := m.Probe(context.Background()); err != nil {
 		t.Fatal(err)
 	}
