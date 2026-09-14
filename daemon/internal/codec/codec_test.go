@@ -4,9 +4,9 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"os"
 	"path/filepath"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -25,9 +25,9 @@ func fixturePath(t *testing.T) string {
 }
 
 type fixture struct {
-	Name      string   `json:"name"`
-	Fragment  string   `json:"fragment"`
-	ItemCount int      `json:"itemCount"`
+	Name      string `json:"name"`
+	Fragment  string `json:"fragment"`
+	ItemCount int    `json:"itemCount"`
 	Items     []struct {
 		URL   string `json:"url"`
 		Title string `json:"title"`

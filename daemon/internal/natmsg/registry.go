@@ -78,4 +78,3 @@ func (r *Registry) Peers() []Peer {
 	}
 	return out
 }
-

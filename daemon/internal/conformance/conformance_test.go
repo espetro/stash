@@ -32,10 +32,10 @@ import (
 // (packages/shared/fixtures/payloads.json, promoted from the spike B
 // corpus). Schema docs: packages/shared/fixtures/payloads.md.
 type fixtures struct {
-	Name       string `json:"name"`
-	Fragment   string `json:"fragment"`
-	ItemCount  int    `json:"itemCount"`
-	Items      []struct {
+	Name      string `json:"name"`
+	Fragment  string `json:"fragment"`
+	ItemCount int    `json:"itemCount"`
+	Items     []struct {
 		URL   string `json:"url"`
 		Title string `json:"title"`
 	} `json:"items"`

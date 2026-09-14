@@ -17,8 +17,8 @@
 package crdt
 
 import (
-	"strings"
 	"fmt"
+	"strings"
 
 	automerge "github.com/automerge/automerge-go"
 )

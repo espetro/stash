@@ -116,11 +116,11 @@ func checkSQLite(p config.Paths) Result {
 
 // NMManifest is the native-messaging manifest shape doctor verifies.
 type NMManifest struct {
-	Name            string   `json:"name"`
-	Type            string   `json:"type"`
-	Path            string   `json:"path"`
-	AllowedOrigins  []string `json:"allowed_origins,omitempty"`
-	AllowedExts     []string `json:"allowed_extensions,omitempty"`
+	Name           string   `json:"name"`
+	Type           string   `json:"type"`
+	Path           string   `json:"path"`
+	AllowedOrigins []string `json:"allowed_origins,omitempty"`
+	AllowedExts    []string `json:"allowed_extensions,omitempty"`
 }
 
 // NMManifestPaths returns the expected manifest paths per browser for the
@@ -158,8 +158,8 @@ func checkNMManifests(exePath string) Result {
 		abs, _ := filepath.Abs(m.Path)
 		if abs != exePath {
 			return Result{Check: "nm manifests", Status: Fail,
-				Detail:    fmt.Sprintf("%s points at %s, not this binary", filepath.Base(mp), m.Path),
-				Hint:      fmt.Sprintf("expected %s; re-run stash-daemon doctor after reinstalling the daemon", exePath)}
+				Detail: fmt.Sprintf("%s points at %s, not this binary", filepath.Base(mp), m.Path),
+				Hint:   fmt.Sprintf("expected %s; re-run stash-daemon doctor after reinstalling the daemon", exePath)}
 		}
 	}
 	if found == 0 {
@@ -256,5 +256,3 @@ func CheckPidfile(path string) (bool, int) {
 	}
 	return true, pid
 }
-
-

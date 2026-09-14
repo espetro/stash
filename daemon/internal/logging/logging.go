@@ -13,12 +13,12 @@ import (
 // Writer writes JSON lines and rotates the file at maxSize (keeping
 // maxBackups rotated files). Logs never contain stash payload contents.
 type Writer struct {
-	mu          sync.Mutex
-	path        string
-	maxSize     int64
-	maxBackups  int
-	file        *os.File
-	size        int64
+	mu         sync.Mutex
+	path       string
+	maxSize    int64
+	maxBackups int
+	file       *os.File
+	size       int64
 }
 
 // New opens (creating dirs) a log writer that rotates at maxSize bytes and

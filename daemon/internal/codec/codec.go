@@ -75,13 +75,13 @@ type Item struct {
 
 // DecodedPayload mirrors the TS DecodedPayload shape.
 type DecodedPayload struct {
-	Version   int64  `json:"version"`
-	Expiry    int64  `json:"expiry"`
-	Items     []Item `json:"items"`
-	IsExpired bool   `json:"isExpired"`
-	Title     string `json:"title,omitempty"`
+	Version   int64    `json:"version"`
+	Expiry    int64    `json:"expiry"`
+	Items     []Item   `json:"items"`
+	IsExpired bool     `json:"isExpired"`
+	Title     string   `json:"title,omitempty"`
 	Tags      []string `json:"tags"`
-	Note      string `json:"note,omitempty"`
+	Note      string   `json:"note,omitempty"`
 }
 
 // wireItem decodes a msgpack [url, title, kind?] tuple.
@@ -89,12 +89,12 @@ type wireItem []interface{}
 
 // wirePayload is the v6 msgpack schema: object with string keys.
 type wirePayload struct {
-	V int64    `msgpack:"v"`
-	E int64    `msgpack:"e"`
+	V int64      `msgpack:"v"`
+	E int64      `msgpack:"e"`
 	I []wireItem `msgpack:"i"`
-	T string   `msgpack:"t"`
-	G []string `msgpack:"g"`
-	N string   `msgpack:"n"`
+	T string     `msgpack:"t"`
+	G []string   `msgpack:"g"`
+	N string     `msgpack:"n"`
 }
 
 func toItems(wi []wireItem) ([]Item, error) {

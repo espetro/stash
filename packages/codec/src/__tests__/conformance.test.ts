@@ -50,9 +50,7 @@ describe("canonical payload fixture conformance (packages/shared/fixtures)", () 
       const decoded = await decodeShareUrl(f.fragment, brotli);
       expect(decoded.version).toBe(6);
       expect(decoded.items).toHaveLength(f.itemCount);
-      expect(decoded.items.map((i) => [i[0], i[1]])).toEqual(
-        f.items.map((i) => [i.url, i.title]),
-      );
+      expect(decoded.items.map((i) => [i[0], i[1]])).toEqual(f.items.map((i) => [i.url, i.title]));
       if (f.title !== undefined) expect(decoded.title).toBe(f.title);
       if (f.tags !== undefined) expect(decoded.tags).toEqual(f.tags);
       if (f.note !== undefined) expect(decoded.note).toBe(f.note);

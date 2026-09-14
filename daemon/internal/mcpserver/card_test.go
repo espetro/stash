@@ -19,10 +19,10 @@ func TestWriteServerCard(t *testing.T) {
 	}
 	var card struct {
 		Servers []struct {
-			Name     string   `json:"name"`
-			Transport string  `json:"transport"`
-			Command  string   `json:"command"`
-			Tools    []struct{ Name string } `json:"tools"`
+			Name      string                  `json:"name"`
+			Transport string                  `json:"transport"`
+			Command   string                  `json:"command"`
+			Tools     []struct{ Name string } `json:"tools"`
 		} `json:"servers"`
 	}
 	if err := json.Unmarshal(b, &card); err != nil {

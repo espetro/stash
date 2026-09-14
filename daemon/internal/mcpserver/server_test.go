@@ -162,7 +162,7 @@ func TestStashDecodeRealPayload(t *testing.T) {
 	if isErr {
 		t.Fatalf("decode five-tabs: %s", text)
 	}
-	if !strings.Contains(text, `"itemCount"` ) && !strings.Contains(text, `"items"`) {
+	if !strings.Contains(text, `"itemCount"`) && !strings.Contains(text, `"items"`) {
 		t.Fatalf("decode output missing items: %s", text)
 	}
 	if !strings.Contains(text, "css-tricks.com") {
