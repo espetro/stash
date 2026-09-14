@@ -1,0 +1,28 @@
+{
+  "name": "@stash/mirror",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Non-Cloudflare mirror origin (F13): portable relay + decode surface deployable to Deno Deploy / Vercel / Netlify / Fly",
+  "scripts": {
+    "dev": "node --experimental-strip-types ./src/dev-server.ts",
+    "start": "MIRROR_STORAGE=memory node --experimental-strip-types ./src/dev-server.ts",
+    "test": "vitest run",
+    "tscheck": "tsc --noEmit",
+    "format": "oxfmt --write 'src/**/*.ts'",
+    "lint": "oxlint src --ignore-pattern '**/*.d.ts'"
+  },
+  "dependencies": {
+    "@stash/codec": "workspace:*",
+    "@stash/server-core": "workspace:*",
+    "@stash/shared": "workspace:*",
+    "unstorage": "^1.17.5"
+  },
+  "devDependencies": {
+    "@stash/shortener": "workspace:*",
+    "@types/node": "^26.4.0",
+    "deno-types": "^1.25.0",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.7"
+  }
+}

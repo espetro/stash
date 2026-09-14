@@ -2,9 +2,10 @@ import { defineConfig } from "vitest/config";
 import path from "path";
 import fs from "fs";
 
-// Cloudflare's bundler gives Pages Functions a WebAssembly.Module for
-// .wasm imports; in vitest there is no such rule, so serve the raw bytes
-// (decode.ts compiles them itself as its fallback branch).
+// Post-build contract config for dist-alternates.test.ts. Runs AFTER
+// `astro build` (see package.json test:dist); the default vitest.config.ts
+// excludes this file so the pre-build unit run stays green.
+// Mirrors wasmBytes() from vitest.config.ts.
 function wasmBytes() {
   return {
     name: "wasm-bytes",
@@ -25,10 +26,7 @@ export default defineConfig({
       "brotli-wasm": path.resolve(__dirname, "node_modules/brotli-wasm/index.node.js"),
       "@": path.resolve(__dirname, "src"),
     },
-    // dist-alternates is a post-build contract test, run explicitly via
-    // `pnpm run test:dist` after `astro build` (matches CI ordering);
-    // excluded from the pre-build unit run so it can't fail spuriously.
-    exclude: ["node_modules", "dist", "src/__tests__/dist-alternates.test.ts"],
+    exclude: ["node_modules", "dist"],
   },
   resolve: {
     alias: {
