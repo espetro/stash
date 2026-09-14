@@ -7,7 +7,18 @@ export interface StashItem {
   title: string;
 }
 
+/** One share of a record (F8): the generated link plus its lifecycle. */
+export interface ShareEvent {
+  url: string;
+  itemCount: number;
+  truncated: boolean;
+  createdAt: number;
+  expiresAt: number;
+}
+
 export interface StashRecord {
+  /** Share history (F8): appended by the share flow, absent on pre F8 records. */
+  shares?: ShareEvent[];
   id: string;
   title?: string;
   tags: string[];
@@ -96,6 +107,7 @@ export async function createStash(input: CreateStashInput): Promise<StashRecord>
     tags: input.tags ?? [],
     note: input.note,
     items: input.items,
+    shares: [],
     createdAt: now,
     updatedAt: now,
   };
@@ -121,6 +133,30 @@ export async function updateStash(
     Object.entries(patch).filter(([, value]) => value !== undefined),
   );
   const updated: StashRecord = { ...stashes[index], ...definedPatch, updatedAt: Date.now() };
+  const next = [...stashes];
+  next[index] = updated;
+  await stashesItem.set(next);
+  await afterWrite("update", updated);
+  return updated;
+}
+
+/**
+ * Append one share to a record's `shares[]` (F8). Additive and optional, so
+ * pre F8 records without the field upgrade in place; daemon-origin writes
+ * are guarded the same way as every other user write.
+ */
+export async function appendShareEvent(
+  recordId: string,
+  event: ShareEvent,
+): Promise<StashRecord | undefined> {
+  const stashes = await getAll();
+  const index = stashes.findIndex((s) => s.id === recordId);
+  if (index === -1) return undefined;
+  const updated: StashRecord = {
+    ...stashes[index],
+    shares: [...(stashes[index].shares ?? []), event],
+    updatedAt: Date.now(),
+  };
   const next = [...stashes];
   next[index] = updated;
   await stashesItem.set(next);

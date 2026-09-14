@@ -4,15 +4,15 @@ import { TabList } from "./components/TabList";
 import { SelectAllToggle } from "./components/SelectAllToggle";
 import { LinkResult } from "./components/LinkResult";
 import { ErrorMessage } from "./components/ErrorMessage";
-import { HistoryView } from "./components/HistoryView";
 import { StashesView } from "./components/StashesView";
 import { SyncStatusBar } from "./components/SyncStatusBar";
 import { Button } from "@/components/ui/Button";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import { getBrotliFunctions } from "@stash/shared";
 import { getSettings, type Settings } from "@/lib/settings";
-import { addToHistory, type HistoryEntry } from "@/lib/history";
-import { createStash } from "@/lib/stash-store";
+import { addToHistory } from "@/lib/history";
+import { appendShareEvent } from "@/lib/stash-store";
+import { createStash, listStashes } from "@/lib/stash-store";
 import { recordEvent } from "@/lib/telemetry";
 import { SaveStashForm } from "./components/SaveStashForm";
 import Header from "./components/Header";
@@ -35,8 +35,7 @@ export default function App() {
   const [linkTruncated, setLinkTruncated] = useState(false);
   const [linkTabs, setLinkTabs] = useState<Array<{ url: string; title: string }>>([]);
   const [copyUrl, setCopyUrl] = useState<string | null>(null);
-  const [view, setView] = useState<"main" | "history" | "stashes" | "saveStash">("main");
-  const [historyLinkResult, setHistoryLinkResult] = useState<HistoryEntry | null>(null);
+  const [view, setView] = useState<"main" | "stashes" | "saveStash">("main");
   const [stashToSave, setStashToSave] = useState<Array<{ url: string; title: string }>>([]);
   const hasRecordedTabSelection = useRef(false);
 
@@ -82,15 +81,34 @@ export default function App() {
 
       await navigator.clipboard.writeText(finalUrl);
 
-      const expiresAt = Date.now() + expiryHours * 3600 * 1000;
+      const now = Date.now();
+      const expiresAt = now + expiryHours * 3600 * 1000;
       await addToHistory({
-        id: Date.now().toString(36),
+        id: now.toString(36),
         url: finalUrl,
         itemCount: result.itemCount,
         truncated: result.truncated,
-        createdAt: Date.now(),
+        createdAt: now,
         expiresAt,
       });
+
+      // F8: also append the share to any saved stash sharing this payload
+      // (payload identity = same set of item urls), so the Saved view shows
+      // the full share history. stash-history keeps writing during the
+      // one-release downgrade window (plan W5).
+      const shareEvent = {
+        url: finalUrl,
+        itemCount: result.itemCount,
+        truncated: result.truncated,
+        createdAt: now,
+        expiresAt,
+      };
+      const stashes = await listStashes();
+      const tabUrls = new Set(tabInfos.map((t) => t.url));
+      const match = stashes.find(
+        (s) => s.items.length === tabInfos.length && s.items.every((i) => tabUrls.has(i.url)),
+      );
+      if (match) await appendShareEvent(match.id, shareEvent);
 
       setShareUrl(finalUrl);
       setCopyUrl(finalUrl);
@@ -148,7 +166,6 @@ export default function App() {
   function handleBack() {
     setShareUrl(null);
     setCopyUrl(null);
-    setHistoryLinkResult(null);
     setIsCopied(false);
     setLinkTabs([]);
   }
@@ -157,24 +174,8 @@ export default function App() {
     selectAll(maxCount);
   }
 
-  function handleShowLinkResult(entry: HistoryEntry) {
-    setHistoryLinkResult(entry);
-    setCopyUrl(entry.url);
-  }
-
-  function handleBackFromHistory() {
-    setHistoryLinkResult(null);
-    setCopyUrl(null);
-    setIsCopied(false);
-    setView("history");
-  }
-
   function handleHeaderBack() {
-    if (view === "history" && historyLinkResult) {
-      handleBackFromHistory();
-      return;
-    }
-    if (view === "stashes" || view === "saveStash" || view === "history") {
+    if (view === "stashes" || view === "saveStash") {
       setView("main");
       setStashToSave([]);
       return;
@@ -193,14 +194,11 @@ export default function App() {
   return (
     <div className="popup-container">
       <Header
-        onBack={
-          view !== "main" || shareUrl || historyLinkResult ? () => handleHeaderBack() : undefined
-        }
+        onBack={view !== "main" || shareUrl ? () => handleHeaderBack() : undefined}
         onClickStashes={() => {
           recordEvent("stash_list_viewed");
           setView("stashes");
         }}
-        onClickHistory={() => setView("history")}
         onClickSettings={() => browser.runtime.openOptionsPage()}
       />
 
@@ -221,20 +219,6 @@ export default function App() {
             setView("main");
           }}
         />
-      ) : view === "history" ? (
-        historyLinkResult ? (
-          <LinkResult
-            url={historyLinkResult.url}
-            onCopy={handleCopy}
-            isCopied={isCopied}
-            itemCount={historyLinkResult.itemCount}
-            tabs={[]}
-            truncated={historyLinkResult.truncated}
-            totalCount={historyLinkResult.itemCount}
-          />
-        ) : (
-          <HistoryView onShowLinkResult={handleShowLinkResult} />
-        )
       ) : (
         <>
           {shareUrl ? (
