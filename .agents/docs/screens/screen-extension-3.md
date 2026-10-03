@@ -36,7 +36,7 @@ Expanded stash item (`StashItem.tsx`):
 
 | Element | State | Description |
 |---|---|---|
-| Sync status line | hidden when paired & drained | Persistent status surface (`SyncStatusBar`); variants: never paired, offline (with last seen), protocol refused, pending backlog. Error copy names `stash-daemon doctor`. Popup saving/sharing fully functional in every state. |
+| Sync status line | hidden when paired & drained | Persistent status surface (`SyncStatusBar`); variants: never paired, offline (with last seen), protocol refused, pending backlog. Never-paired variant also shows the extension id and a "Copy install command" button copying `stash-daemon install --chrome-id <id>` (plain `stash-daemon install` on Firefox). Error copy names `stash-daemon doctor`. Popup saving/sharing fully functional in every state. |
 | Export icon | header, disabled when empty | LuDownload, downloads `stash-export-<ts>.json`; fires `export_used` |
 | Import icon | header | LuUpload, opens hidden file input (JSON only); fires `import_used`, skips existing ids |
 | Search | only when stashes exist | Filters by title, note, tags |

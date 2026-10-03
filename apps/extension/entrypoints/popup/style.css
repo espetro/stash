@@ -735,6 +735,30 @@ body {
   color: var(--destructive, #dc2626);
 }
 
+.sync-status-setup {
+  flex-basis: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sync-status-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: inherit;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.sync-status-copy:hover {
+  color: var(--foreground);
+}
+
 
 .stash-header {
   display: flex;
