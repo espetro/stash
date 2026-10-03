@@ -301,9 +301,11 @@ func runDoctor(configDir string, jsonOut bool) {
 }
 
 // runInstall places the native-messaging host manifests (F10; F1 shape).
-// chromeID overrides the built-in Chrome Web Store extension id.
+// chromeID overrides the built-in Chrome Web Store extension id; without it
+// the store id is used and dev-build users get pointed at --chrome-id.
 func runInstall(chromeID string, autostart bool) {
 	browsers := []string{"chrome", "firefox"}
+	usedStoreDefault := chromeID == ""
 	written, err := install.Install("", browsers, chromeID, autostart)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "fatal:", err)
@@ -313,6 +315,17 @@ func runInstall(chromeID string, autostart bool) {
 		fmt.Println("installed:", p)
 	}
 	exe, _ := os.Executable()
+	if usedStoreDefault {
+		fmt.Printf(`
+Chrome was registered for the Web Store extension id (%s).
+Running an unpacked or dev build? Its id differs — copy it from
+chrome://extensions (Developer mode) or the extension's sync banner, then
+re-run:
+
+  %s install --chrome-id <id>
+
+`, install.ChromeExtensionID, exe)
+	}
 	fmt.Printf("\nNext: point the extension at this host (%s), then run `stash-daemon doctor`.\n", exe)
 }
 

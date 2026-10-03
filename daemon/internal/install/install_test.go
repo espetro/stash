@@ -99,6 +99,27 @@ func TestInstallWritesManifests(t *testing.T) {
 	}
 }
 
+func TestInstallDefaultsChromeToStoreID(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+
+	daemon := filepath.Join(home, "bin", "stash-daemon")
+	if _, err := Install(daemon, []string{"chrome"}, "", false); err != nil {
+		t.Fatal(err)
+	}
+	paths, err := manifestPaths(home)
+	if err != nil {
+		t.Fatal(err)
+	}
+	chrome := manifestJSON(t, paths["chrome"])
+	want := "chrome-extension://" + ChromeExtensionID + "/"
+	origins, _ := chrome["allowed_origins"].([]any)
+	if len(origins) != 1 || origins[0] != want {
+		t.Fatalf("allowed_origins = %v, want [%s]", origins, want)
+	}
+}
+
 func TestManifestPathsMatchF1Locations(t *testing.T) {
 	home := "/home/x"
 	if runtime.GOOS == "linux" {

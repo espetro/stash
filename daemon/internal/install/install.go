@@ -80,7 +80,13 @@ func buildManifest(browser, daemonPath, chromeExtensionID string) (*HostManifest
 
 // Install writes the host manifest(s) and optionally the autostart unit.
 // browsers selects which manifests to write ("chrome", "firefox" or both).
+// An empty chromeExtensionID installs for the Web Store id; dev/unpacked
+// builds pass their own id (see the extension's sync banner or
+// chrome://extensions).
 func Install(daemonPath string, browsers []string, chromeExtensionID string, autostart bool) ([]string, error) {
+	if chromeExtensionID == "" {
+		chromeExtensionID = ChromeExtensionID
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return nil, fmt.Errorf("resolve home: %w", err)
