@@ -25,6 +25,27 @@ func setupPaths(t *testing.T) config.Paths {
 func TestDoctorCleanTempConfigDir(t *testing.T) {
 	p := setupPaths(t)
 	exe, _ := os.Executable()
+	// The NM check verifies whichever manifests exist on the machine and
+	// requires them to point at the running binary. On a dev machine with a
+	// real manifest pointing at an installed daemon, this test binary cannot
+	// match it; the check correctly reports FAIL there. Neutralize real
+	// manifests for the duration of the test so the clean-dir expectation
+	// (zero manifests -> WARN, exit 0) holds everywhere.
+	var restore []func()
+	for _, mp := range NMManifestPaths() {
+		if b, err := os.ReadFile(mp); err == nil {
+			path := mp
+			os.Remove(path)
+			restore = append(restore, func() { os.WriteFile(path, b, 0o644) })
+		}
+	}
+	if len(restore) > 0 {
+		t.Cleanup(func() {
+			for _, f := range restore {
+				f()
+			}
+		})
+	}
 	var buf bytes.Buffer
 	code := Run(&buf, p, exe, false, "dev")
 	out := buf.String()
@@ -44,6 +65,13 @@ func TestDoctorCleanTempConfigDir(t *testing.T) {
 func TestDoctorJSON(t *testing.T) {
 	p := setupPaths(t)
 	exe, _ := os.Executable()
+	for _, mp := range NMManifestPaths() {
+		if b, err := os.ReadFile(mp); err == nil {
+			path := mp
+			os.Remove(path)
+			t.Cleanup(func() { os.WriteFile(path, b, 0o644) })
+		}
+	}
 	var buf bytes.Buffer
 	Run(&buf, p, exe, true, "dev")
 	var doc struct {

@@ -13,6 +13,7 @@ import (
 	"syscall"
 
 	"github.com/espetro/stash/daemon/internal/config"
+	"github.com/espetro/stash/daemon/internal/install"
 	"github.com/espetro/stash/daemon/internal/store"
 )
 
@@ -131,10 +132,10 @@ func NMManifestPaths() []string {
 	// Paths are populated by F1's installer; verify whichever exist. Include
 	// the canonical Chrome + Firefox locations for darwin/linux.
 	for _, p := range []string{
-		filepath.Join(home, "Library/Application Support/Google/Chrome/NativeMessagingHosts/com.espetro.stash.json"),
-		filepath.Join(home, ".config/google-chrome/NativeMessagingHosts/com.espetro.stash.json"),
-		filepath.Join(home, "Library/Application Support/Mozilla/NativeMessagingHosts/com.espetro.stash.json"),
-		filepath.Join(home, ".mozilla/native-messaging-hosts/com.espetro.stash.json"),
+		filepath.Join(home, "Library/Application Support/Google/Chrome/NativeMessagingHosts/"+install.HostName+".json"),
+		filepath.Join(home, ".config/google-chrome/NativeMessagingHosts/"+install.HostName+".json"),
+		filepath.Join(home, "Library/Application Support/Mozilla/NativeMessagingHosts/"+install.HostName+".json"),
+		filepath.Join(home, ".mozilla/native-messaging-hosts/"+install.HostName+".json"),
 	} {
 		paths = append(paths, p)
 	}

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"runtime/debug"
 	"strings"
 
@@ -290,6 +291,11 @@ func runDoctor(configDir string, jsonOut bool) {
 	}
 	paths := config.Layout(dir)
 	exe, _ := os.Executable()
+	// Match the manifest's path form: install symlinks-resolves the daemon
+	// path (EvalSymlinks), so /tmp/... and /private/tmp/... agree on macOS.
+	if resolved, err := filepath.EvalSymlinks(exe); err == nil {
+		exe = resolved
+	}
 	code := doctor.Run(os.Stdout, paths, exe, jsonOut, buildVersion())
 	os.Exit(code)
 }
