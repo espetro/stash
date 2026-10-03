@@ -47,6 +47,25 @@ export function SyncStatusBar() {
     }
   }
 
+  // The SyncClient persists "offline" as soon as connectNative drops on
+  // Chrome, so a daemon that was never seen still lands here — surface the
+  // setup row whenever no lastSeenAt is recorded, not only on the absent
+  // "disconnected" fallback (which real users rarely render).
+  const setupRow = (
+    <span className="sync-status-setup">
+      Extension id: <code>{extensionId}</code>
+      <button
+        type="button"
+        className="sync-status-copy"
+        onClick={copyInstallCommand}
+        title={installCommand}
+      >
+        {copied ? <LuCheck aria-hidden /> : <LuCopy aria-hidden />}
+        {copied ? "Copied" : "Copy install command"}
+      </button>
+    </span>
+  );
+
   if (state === "paired") {
     if (backlog > 0) {
       return (
@@ -65,6 +84,7 @@ export function SyncStatusBar() {
         {status.lastSeenAt ? `, last seen ${formatLastSeen(status.lastSeenAt)}` : ""}. Changes will
         sync when it reconnects. If this persists, run <code>stash-daemon doctor</code>.
         {backlog > 0 && ` ${backlog} change${backlog === 1 ? "" : "s"} pending.`}
+        {!status.lastSeenAt && setupRow}
       </div>
     );
   }
@@ -86,18 +106,7 @@ export function SyncStatusBar() {
       <code>stash-daemon</code> to sync across devices (setup: <code>stash-daemon doctor</code>).
       Saving and sharing work locally.
       {backlog > 0 && ` ${backlog} change${backlog === 1 ? "" : "s"} waiting to sync.`}
-      <span className="sync-status-setup">
-        Extension id: <code>{extensionId}</code>
-        <button
-          type="button"
-          className="sync-status-copy"
-          onClick={copyInstallCommand}
-          title={installCommand}
-        >
-          {copied ? <LuCheck aria-hidden /> : <LuCopy aria-hidden />}
-          {copied ? "Copied" : "Copy install command"}
-        </button>
-      </span>
+      {setupRow}
     </div>
   );
 }
