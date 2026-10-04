@@ -2,7 +2,7 @@
   {
     "name": "single-tab",
     "description": "One shareable tab URL",
-    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZGSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWI",
+    "fragment": "#p=Rg6F2BqFlzwAAAAEmukTqoWmRkrJodHRwczovL2dpdGh1Yi5jb22mR2l0SHVi",
     "itemCount": 1,
     "items": [
       {
@@ -14,7 +14,7 @@
   {
     "name": "three-tabs",
     "description": "Three tab URLs",
-    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZOSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWKSuWh0dHBzOi8vc3RhY2tvdmVyZmxvdy5jb22uU3RhY2sgT3ZlcmZsb3eSvWh0dHBzOi8vZGV2ZWxvcGVyLm1vemlsbGEub3JnrE1ETiBXZWIgRG9jcw",
+    "fragment": "#p=Rg6F2BqFlzwAAAAEmukTqoWmTkrJodHRwczovL2dpdGh1Yi5jb22mR2l0SHVikrlodHRwczovL3N0YWNrb3ZlcmZsb3cuY29trlN0YWNrIE92ZXJmbG93kr1odHRwczovL2RldmVsb3Blci5tb3ppbGxhLm9yZ6xNRE4gV2ViIERvY3M",
     "itemCount": 3,
     "items": [
       {
@@ -34,7 +34,7 @@
   {
     "name": "five-tabs",
     "description": "Five tab URLs across categories",
-    "fragment": "#p=CG9IAIJwJdmyVwdohN8rBUNmfPxfJCuRvAtEXzesWf2BXbdFV6VwGjDY7bYFiErW1to4CCoIPAN8pPdkEhXwETncyb8ztQay5D_7I9HH9yquN5nwjCkmAZ3TKSjdDLiUpLiMwqZ4CvslKtNErIVdyOXW4LjWzDYpLzRL-K7AK27L8apyfgmltw7Kb69CLQhQEuNW0WZao4ovLdWBHIzQ2",
+    "fragment": "#p=CG9YAIIzURvNYYvr_792L7FL2SmBP_nsfD-yCNdY2Lw0qn2122gLFJGprbR0FFAQfAL7T4-vJJijkI3C6L_1BaCBMCInFn-n_QAmPX5kekuLLAdugT3NCeeAjOp7PcBqfkhTbFphQU-AnWcm2xFrIpbysK-kq9AQW0hbn4W8NlivwvOKP9OImI4HlhXDX9AIKEPBa05znUZ8z9tYy1WrRtgE",
     "itemCount": 5,
     "items": [
       {
@@ -62,7 +62,7 @@
   {
     "name": "long-title",
     "description": "Long-title tab to verify truncation",
-    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZGS2SFodHRwczovL2V4YW1wbGUuY29tL2xvbmctdXJsLXBhdGjZWVRoaXMgaXMgYSB2ZXJ5IGxvbmcgdGl0bGUgdGhhdCBleGNlZWRzIHRoZSB0aGlydHkgY2hhcmFjdGVyIGxpbWl0IGFuZCBzaG91bGQgYmUgdHJ1bmNhdGVk",
+    "fragment": "#p=Rg6F2BqFlzwAAAAEmukTqoWmRktkhaHR0cHM6Ly9leGFtcGxlLmNvbS9sb25nLXVybC1wYXRo2VlUaGlzIGlzIGEgdmVyeSBsb25nIHRpdGxlIHRoYXQgZXhjZWVkcyB0aGUgdGhpcnR5IGNoYXJhY3RlciBsaW1pdCBhbmQgc2hvdWxkIGJlIHRydW5jYXRlZA",
     "itemCount": 1,
     "items": [
       {
@@ -74,7 +74,7 @@
   {
     "name": "special-chars",
     "description": "URL and title with reserved/special characters",
-    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZGS2TZodHRwczovL2V4YW1wbGUuY29tL3BhdGg_cXVlcnk9dmFsdWUmb3RoZXI9MTIzI3NlY3Rpb268VVJMIHdpdGggc3BlY2lhbCBjaGFycyAmICMgPw",
+    "fragment": "#p=Rg6F2BqFlzwAAAAEmukTqoWmRktk2aHR0cHM6Ly9leGFtcGxlLmNvbS9wYXRoP3F1ZXJ5PXZhbHVlJm90aGVyPTEyMyNzZWN0aW9uvFVSTCB3aXRoIHNwZWNpYWwgY2hhcnMgJiAjID8",
     "itemCount": 1,
     "items": [
       {
@@ -86,7 +86,7 @@
   {
     "name": "unicode",
     "description": "URL path and title in Japanese",
-    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZGS2SdodHRwczovL2V4YW1wbGUuY29tL-aXpeacrOiqni_jg4bjgrnjg4jZJOaXpeacrOiqnuOBruODmuODvOOCuCAtIFVuaWNvZGUgVGVzdA",
+    "fragment": "#p=Rg6F2BqFlzwAAAAEmukTqoWmRktknaHR0cHM6Ly9leGFtcGxlLmNvbS_ml6XmnKzoqp4v44OG44K544OI2STml6XmnKzoqp7jga7jg5rjg7zjgrggLSBVbmljb2RlIFRlc3Q",
     "itemCount": 1,
     "items": [
       {
@@ -98,7 +98,7 @@
   {
     "name": "chrome-mixed",
     "description": "URLs including chrome:// entries",
-    "fragment": "#p=Rg6F2BqFlzmqMHKGhaZOSs2Nocm9tZTovL2V4dGVuc2lvbnOqRXh0ZW5zaW9uc5KxY2hyb21lOi8vc2V0dGluZ3OoU2V0dGluZ3OSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWI",
+    "fragment": "#p=Rg6F2BqFlzwAAAAEmukTqoWmTkrNjaHJvbWU6Ly9leHRlbnNpb25zqkV4dGVuc2lvbnOSsWNocm9tZTovL3NldHRpbmdzqFNldHRpbmdzkrJodHRwczovL2dpdGh1Yi5jb22mR2l0SHVi",
     "itemCount": 3,
     "items": [
       {
@@ -125,7 +125,7 @@
   {
     "name": "expired",
     "description": "An expired share link payload",
-    "fragment": "#p=Rg6F2BqFlzmqKvRGhaZGSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWI",
+    "fragment": "#p=Rg6F2BqFlzmrCGNqhaZGSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWI",
     "itemCount": 1,
     "items": [
       {
@@ -137,7 +137,7 @@
   {
     "name": "hundred-tabs",
     "description": "100 tabs to force budget truncation",
-    "fragment": "#p=CGz8v4J0HdoNzhxBnJLrNHuvw2ggGGrRZEFd9FT_RKc6CU0kDlNz6pVZoOXO3QRijJIjqQAHgdrNw8_MoScBqNex4S3WoUt3Gluu4BD0RDfuPH24gqGGAEvkHr2H6CvjvBADe4zRHpqX3hcavsJ85M8On9xAl_xjyHuTzr90sfMfzGsVzeHo3v37Z-QWtmYolZymVmq1ceo5KmblUlTW36rLnUVPOvGrLnU_do24QO_GDwKR-kwCgY0kgp1LAzqVBXMqAclUWaNdlg3FTDli35YJzF94uHAk3BUDHkkBOpYCdS4O4lAHlqizQrssG46YcsG7LBecuvN04Mm4agI4lgZxKATuXBnEpA8pVWaBdlw3GTTlg3ZYLzl14e3AU3AwAHUsCOZUCdi4N4lIGlKuyQLsuG4ybcsC6LRecu_D2wlHhZgHQsSSQUylg59IgLmVAuSoLtOuywbgpB6zbcsG5C29vHDVuNgAdSwI5lQJ2Lg3iUgaUq7JAuy4bjJtywLotF5y78PbB0eDmANCxJJBTKWDn0iAuZUC5Kgu067LBuCkHrNtywbkLb18cLW4uAB1LAjmVAnYuDeJSBpSrskC7LhuMm3LAui0XnLvw9sPR4eYB0LEkkFMpYOfSIC5lQLkqC7TrssG4KQes23LBuXvMAQ",
+    "fragment": "#p=CG0Mv4J0HtvOUHTqe0egW44mOXZZJNqhsLJIfY_ETnWIm3CINqHbfHvVa95lbXRqESUK8f6DAVX53Pfj5-ShtwWolaFJdfKOhT21uY0vwbFdRJ6Jhbz_coBLxf5gQhy5UnoQV03uTL7T-fI8zO1rWjePC6q_jOXzw-sxe1Uo_k7oJef3l24Xv9bxHcRugHu6v7yX9QqwZCiVmKpacpVRqtnLpOSpl5lZd9jxqyplXbbnzqbvWDXKN-oHCpH8TBQCHEoCOJYGcSgE7lwZxKQPaddlg3JQD1m254NyFt2ZtsU6yABxKADqWBHIqBexcGsSlDGjXZYNxUw5Yt-WCcxfeWrWlOqkCcCgB6FgSyKkUsHNpEJcyoF2XDcZNOWDdlgvOXXhr15brpAvAoQSgY0kgp1LAzqVBXMqAdl02GDflgHVbLjh34a1TW6mTKQCHEoCOJYGcSgE7lwZxKQPaddlg3JQD1m254NyFt-7a6jrZBeBQAtCxJJBTKWDn0iAuZUC7LhuMm3LAui0XnLvw1lNbUyenABxKADqWBHIqBexcGsSlDGjXZYNxUw5Yt-WCcxfeemtr6-QWgEMJQMeSQE6lgJ1Lg7iUAe26bDBuygHrtlxw7sJbX21dnbwCcCgB6FgSyKkUsHNpEJcyoF2XDcZNOWDdlgvO3XUO",
     "itemCount": 100,
     "items": [
       {
@@ -545,7 +545,7 @@
   {
     "name": "qr-single-tab",
     "description": "One tab encoded for QR (#q= base32 fragment)",
-    "fragment": "#q=DBMKIBA5BOYDKCZOONKGBZINBNGIZFMTIOR2HA4Z2F4XWO2LUNB2WELTDN5W2MR3JOREHKYQD",
+    "fragment": "#q=DBMLIBA5BOYDKCZOPAAAAAAJGXJCOVILJSGJLE2DUORYHGORPF5TWS5DIOVRC4Y3PNWTEO2LUJB2WEAY",
     "itemCount": 1,
     "items": [
       {
@@ -557,7 +557,7 @@
   {
     "name": "qr-three-tabs",
     "description": "Three tabs encoded for QR (#q= base32 fragment)",
-    "fragment": "#q=DDN7ABIE4BG3M3CD4FTHDDEJXZLAVBWP7XNEXE5YFSTIFYQD3CN6LAJXV6KMVPE6OMXAKRE6TQPZOLVGW3K5GAEAA42LNWGAOZ5IE6WF7S54TFB3HKFZRV7EN5GFNGIIZXXA7EEAA2FYDXUYPV2P7PSCALWHNBNCBYMPVJSOBVQBS7ZB6GVLKPBI6ZXLH4DY",
+    "fragment": "#q=DDOBABIEM2RIC2PC3IPL7YFR6PJ6KCLXO3JAAM5TAJNNFXIVME2PXK4T2KC7JZWS2LMLQYAWAAAWLOMI4T2QZ5MD6F6N63GW2UYIQIQPJG7557FXA6MR5HFMXJOYYVBWLSMAIRBRPM7TCLDHLFYM2RKZDGQYGR6ALVLUGAVUCK5ZJ6NKWA5ARUANWR5TQ",
     "itemCount": 3,
     "items": [
       {
@@ -577,7 +577,7 @@
   {
     "name": "tagged-stash",
     "description": "One tab with title, tags and note metadata",
-    "fragment": "#p=RhqF2BqFlzmqMHKGhaZGSsmh0dHBzOi8vZ2l0aHViLmNvbaZHaXRIdWKhdKVUaXRsZaFnkahyZXNlYXJjaKFupmEgbm90ZQ",
+    "fragment": "#p=RhqF2BqFlzwAAAAEmukTqoWmRkrJodHRwczovL2dpdGh1Yi5jb22mR2l0SHVioXSlVGl0bGWhZ5GocmVzZWFyY2ihbqZhIG5vdGU",
     "itemCount": 1,
     "items": [
       {
