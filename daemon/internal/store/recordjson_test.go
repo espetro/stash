@@ -82,13 +82,13 @@ func TestRecordFromJSONDefaults(t *testing.T) {
 
 func TestRecordFromJSONInvalid(t *testing.T) {
 	for name, raw := range map[string]string{
-		"empty id":     `{"id":"","items":[],"createdAt":1,"updatedAt":1}`,
-		"missing id":   `{"items":[],"createdAt":1,"updatedAt":1}`,
-		"bad items":    `{"id":"x","items":"nope","createdAt":1,"updatedAt":1}`,
-		"bad created":  `{"id":"x","items":[],"createdAt":"x","updatedAt":1}`,
-		"bad updated":  `{"id":"x","items":[],"createdAt":1,"updatedAt":false}`,
-		"bad tags":     `{"id":"x","items":[],"createdAt":1,"updatedAt":1,"tags":"x"}`,
-		"bad json":     `{oops`,
+		"empty id":    `{"id":"","items":[],"createdAt":1,"updatedAt":1}`,
+		"missing id":  `{"items":[],"createdAt":1,"updatedAt":1}`,
+		"bad items":   `{"id":"x","items":"nope","createdAt":1,"updatedAt":1}`,
+		"bad created": `{"id":"x","items":[],"createdAt":"x","updatedAt":1}`,
+		"bad updated": `{"id":"x","items":[],"createdAt":1,"updatedAt":false}`,
+		"bad tags":    `{"id":"x","items":[],"createdAt":1,"updatedAt":1,"tags":"x"}`,
+		"bad json":    `{oops`,
 	} {
 		if _, err := RecordFromJSON(json.RawMessage(raw)); err == nil {
 			t.Fatalf("%s: want error", name)

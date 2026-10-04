@@ -127,13 +127,13 @@ func (s *Store) CurrentVersion() (int, error) {
 // Record is one stash_records row: the full StashRecord plus tombstone
 // and change-feed metadata.
 type Record struct {
-	ID        string
-	Title     string
-	URL       string // first item URL, derived
-	ItemsJSON string
-	TagsJSON  string
-	Note      sql.NullString
-	Kept      bool
+	ID         string
+	Title      string
+	URL        string // first item URL, derived
+	ItemsJSON  string
+	TagsJSON   string
+	Note       sql.NullString
+	Kept       bool
 	SharesJSON string
 	// ExtraJSON holds unknown optional StashRecord fields verbatim so they
 	// round-trip back out in ToJSON (forward compat).
@@ -141,14 +141,14 @@ type Record struct {
 	CreatedAt int64
 	UpdatedAt int64 // ms; the LWW clock
 	Origin    sql.NullString
-	Deleted   bool // tombstone: kept so stale seeds can't resurrect the id
+	Deleted   bool  // tombstone: kept so stale seeds can't resurrect the id
 	CRDTSeq   int64 // legacy column, unused since migration 0002
 	Rev       int64 // monotonic change-feed position
 }
 
 // Change is one writer's intent; ApplyChange arbitrates it under LWW.
 type Change struct {
-	Op        string  // "create" | "update" | "delete"
+	Op        string // "create" | "update" | "delete"
 	ID        string
 	Record    *Record // nil for delete
 	UpdatedAt int64   // ms; the writer's clock for this change
@@ -308,7 +308,7 @@ func (s *Store) SearchRecords(q string) ([]Record, error) {
 
 // ListRecords returns all non-deleted records newest-updated first.
 func (s *Store) ListRecords() ([]Record, error) {
-	rows, err := s.db.Query(`SELECT `+recordCols+` FROM stash_records WHERE deleted = 0 ORDER BY updated_at DESC`)
+	rows, err := s.db.Query(`SELECT ` + recordCols + ` FROM stash_records WHERE deleted = 0 ORDER BY updated_at DESC`)
 	if err != nil {
 		return nil, err
 	}

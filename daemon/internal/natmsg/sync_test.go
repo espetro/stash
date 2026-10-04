@@ -18,12 +18,12 @@ import (
 // pipeHost runs runHostConn over io.Pipes so tests can interleave frames and
 // observe the daemon's pushes, unlike the synchronous bytes.Buffer harness.
 type pipeHost struct {
-	st     *store.Store
-	dbPath string
-	hub    *Hub
-	inW    *io.PipeWriter
-	frames chan *Envelope // drained continuously so host writes never block
-	done   chan error
+	st       *store.Store
+	dbPath   string
+	hub      *Hub
+	inW      *io.PipeWriter
+	frames   chan *Envelope // drained continuously so host writes never block
+	done     chan error
 	doneSeen atomic.Bool // a test may consume done itself; cleanup skips then
 }
 
