@@ -9,6 +9,7 @@ export interface StashRecord {
   tags: string[];
   note?: string;
   items: StashItem[];
+  kept?: boolean;
   createdAt: number;
   updatedAt: number;
 }
