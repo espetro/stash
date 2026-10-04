@@ -10,15 +10,15 @@ file: apps/viewer/src/components/MyStashes.tsx
 | [<]          + New stash   My stashes   (theme) (lang)       |
 +--------------------------------------------------------------+
 | + My Stashes ------------------------------------------------+ |
-| | [(source chip) This browser's extension library]          | |
-| | [Read-only mirror of the extension library; ...]          | |
 | | [(search) Search by title, tag or note            ]        | |
 | | From the extension                                         | |
+| | Read-only mirror of the extension library; edit from popup | |
 | | +------------------------------------------------------+   | |
 | | | Recent stash [Recent]                (read-only)     |   | |
 | | | [tag] 3 items · Aug 22, 2026 10:04                   |   | |
 | | +------------------------------------------------------+   | |
 | | Saved in this browser                                     | |
+| | Only in this browser; not synced to the extension.        | |
 | | +------------------------------------------------------+   | |
 | | | Local stash [Kept]                   (edit) (delete) |   | |
 | | +------------------------------------------------------+   | |
@@ -42,11 +42,11 @@ file: apps/viewer/src/components/MyStashes.tsx
 |---|---|---|
 | AppHeader | always | Back chevron, New stash / My stashes links, theme and language |
 | Mobile header | below 640px | AppHeader navigation links are icon-only. |
-| Source chip | always | "This browser's extension library" or "Saved in this browser."; `[data-stash-source]` |
-| Read-only hint | extension source only | "Read-only mirror of the extension library; ..." |
+| Source chip | viewer-local source only | "Saved in this browser." |
+| Source marker | always, normal view | `[data-stash-source]` on the page root |
 | Search | always | FaMagnifyingGlass icon inside the input; filters the library |
-| Extension section | bridge source only | "From the extension"; records are read-only and show localized Kept / Recent badges |
-| Viewer-local section | bridge source only | "Saved in this browser"; viewer-local records remain editable |
+| Extension section | bridge source only | "From the extension" with a muted read-only hint below; records are read-only and show localized Kept / Recent badges |
+| Viewer-local section | bridge source only | "Saved in this browser" with a muted "Only in this browser; not synced to the extension." hint; viewer-local records remain editable |
 | Stash card | collapsed / expanded | Title (or "Untitled"), tag chips, "N items · date"; expanding fires `stash_reopened` |
 | Edit (pen) | viewer-local records only | Opens StashEditForm |
 | Delete (trash) | viewer-local records only | Opens confirm dialog |
@@ -68,10 +68,11 @@ file: apps/viewer/src/components/MyStashes.tsx
   Otherwise the page falls back to viewer-local `localStorage`.
 - With an extension bridge response, the page shows extension records
   in a read-only section and viewer-local records in a separate editable
-  section. Without the bridge, the existing viewer-local-only layout is
-  preserved.
-- The active bridge source is shown as a chip above the sections. The
-  agent JSON export contract remains extension-sourced when the bridge
+  section, with a muted explanatory hint under each heading. The top
+  source and read-only chips are omitted. Without the bridge, the existing
+  viewer-local-only layout and source chip are preserved.
+- The active source is marked by `[data-stash-source]` on the page root.
+  The agent JSON export contract remains extension-sourced when the bridge
   is available; viewer-local records are not merged into that export.
 - Extension records cannot be edited or deleted from the viewer.
 - Outbound item anchors use `rel="noopener noreferrer nofollow"` and

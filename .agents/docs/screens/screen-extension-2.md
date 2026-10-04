@@ -20,8 +20,9 @@ file: apps/extension/entrypoints/popup/components/LinkResult.tsx
 |            |   QR code  |                        |
 |            +------------+                       |
 | [ Keep in Library ]                              |
-| Added to Library as Recent. It's removed when the |
-| link expires unless you keep it.                 |
+| Added to Library as Recent. Recent shares clear  |
+| after 30 days, or sooner if the link expires,     |
+| unless you keep them.                            |
 | [ Copy link ]  [ Shorten link ]                  |
 |        or: [ Copy link ] Shortened               |
 | [ Copy as... v ]                                 |

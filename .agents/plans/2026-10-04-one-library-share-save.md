@@ -45,11 +45,20 @@ export interface StashRecord {
   kept?: boolean;
 }
 export const isKept = (r: StashRecord) => r.kept !== false;
-export const recentExpiresAt = (r: StashRecord) => Math.max(0, ...(r.shares ?? []).map((s) => s.expiresAt));
+export const RECENT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+export const recentExpiresAt = (r: StashRecord): number => {
+  const shares = r.shares ?? [];
+  if (shares.length === 0) return r.createdAt + RECENT_MAX_AGE_MS;
+  const linkExpiry = Math.max(...shares.map((s) => s.expiresAt));
+  const lastShare = Math.max(...shares.map((s) => s.createdAt));
+  return Math.min(linkExpiry, lastShare + RECENT_MAX_AGE_MS);
+};
 ```
 
 No codec or payload change (the payload stays at v6). `kept` travels inside the full record that
 the outbox/sync already carries.
+
+- Recent retention: a Recent record clears at `min(latest link expiry, last share + 30 days)`. The default expiry mode is `never`, so without the cap Recent would grow forever. 30 days matches the old `stash-history` retention. Pruning never revokes short links; only explicit deletes do.
 
 ## Store API (`apps/extension/lib/stash-store.ts`)
 
@@ -61,12 +70,12 @@ the outbox/sync already carries.
 - `keepStash(id)`: sets `kept: true` through `updateStash`, so it produces an outbox `update`.
 - `attachShortUrl(id, payloadUrl, shortUrl)`: sets `shortUrl` on the share whose `url === payloadUrl`.
 - `pruneExpiredRecent(now = Date.now())`: deletes every record with `kept === false` and
-  `recentExpiresAt(r) <= now`, via `deleteStash` (so outbox, history cleanup and revocation all
-  run). Returns the deleted ids.
-- `deleteStash(id)`, on top of PR A's history cleanup: for each share with a `shortUrl`, send
+  `recentExpiresAt(r) <= now`, via `deleteStash(id, { revoke: false })` (so outbox and history
+  cleanup run without revoking short links). Returns the deleted ids.
+- `deleteStash(id, options: { revoke?: boolean } = {})`, on top of PR A's history cleanup: for each share with a `shortUrl`, send
   `DELETE {shortenerOrigin}/api/stash/{ID}` (helper `revokeShortLink(shortUrl)` in
-  `lib/shortener.ts`). Fire-and-forget, failures swallowed. Only revoke when the short URL's
-  origin equals the configured shortener origin.
+  `lib/shortener.ts`) unless `revoke` is false. Fire-and-forget, failures swallowed. Only revoke
+  when the short URL's origin equals the configured shortener origin.
 
 ## Popup flow
 
@@ -76,16 +85,16 @@ the outbox/sync already carries.
 - `LinkResult.onShortened(shortUrl)`: also call `attachShortUrl(linkRecordId, finalUrl, shortUrl)`.
 - Under the link, add a **Keep in Library** button (Lucide `LuPin`). Clicking it calls
   `keepStash(linkRecordId)` and switches to "Kept ✓". Hint text: "Added to Library as Recent.
-  It's removed when the link expires unless you keep it."
+  Recent shares clear after 30 days, or sooner if the link expires, unless you keep them."
 - Library view (`StashesView`): rename the visible title "My Stashes" → "Library". Add filter
   chips **All · Kept · Recent** (default All; counts in the chips).
 - `StashItem`:
-  - Recent rows show a "Recent · expires in X" badge (`formatRemainingTime`, or "link never
-    expires" when `expiresAt` ≥ now + 50y) and a **Keep** button.
+  - Recent rows show "Recent · clears in {formatRemainingTime(...)}" and a **Keep** button.
   - Every row gets a **Share** action that encodes its items with the current settings, copies
-    the link, and calls `recordShare({ items, title, sourceId: stash.id, share })`, which appends.
-  - Title fallback when `title` is empty: `${items[0].title || host} + N more`, or
-    "Untitled stash" when there are no items.
+    the link, calls `recordShare({ items, title, sourceId: stash.id, share })`, which appends, and
+    shows "Copied!" with `LuCheck` for two seconds on success.
+  - The title fallback is shared by popup and viewer via `stashDisplayTitle`; when `title` is
+    empty it uses `${items[0].title || host} + N more`, or "Untitled stash" when there are no items.
 - On popup open (`useStashes` initial load) and on background startup, run `pruneExpiredRecent()`.
   No `alarms` permission.
 

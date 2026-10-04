@@ -13,7 +13,7 @@ file: apps/extension/entrypoints/popup/components/StashesView.tsx
 | [ All · N ] [ Kept · N ] [ Recent · N ]         |
 | [ Search by title, tag, or note... ]             |
 | +----------------------------------------------+ |
-| | v Example + 1 more    [Recent · expires in…]  | |
+| | v Example + 1 more [Recent · clears in Xd…]     |
 | |   [Share] [Keep] [trash]                      | |
 | |   3 items · Aug 22, 2026 10:04              | |
 | |   [tag] [tag] [Shared 1 time]                 | |
@@ -26,7 +26,7 @@ file: apps/extension/entrypoints/popup/components/StashesView.tsx
 Expanded stash item (`StashItem.tsx`):
 
 ```text
-| v Stash title  [Recent · expires in…]            |
+| v Stash title [Recent · clears in Xd…]            |
 |   [Share] [Keep] [trash]                         |
 |   Title  [ Untitled stash ]                      |
 |   Tags   [tag x] [tag x] [ Add tag... ] (+)      |
@@ -44,8 +44,8 @@ Expanded stash item (`StashItem.tsx`):
 | Import icon | header | LuUpload, opens hidden file input (JSON only); fires `import_used`, skips existing ids |
 | Filter chips | when stashes exist | All / Kept / Recent, each with a count; All is selected initially |
 | Search | only when stashes exist | Filters by title, note, tags after applying the selected filter |
-| Stash row | collapsed / expanded | Chevron + title fallback + item count/date, Recent expiry badge, optional shared count and tags; expanding fires `stash_reopened` |
-| Share | every row | Encodes with current settings, copies the URL, records history and attaches the share to the same Library record |
+| Stash row | collapsed / expanded | Chevron + shared title fallback + item count/date, `Recent · clears in {formatRemainingTime(...)}` badge, optional shared count and tags; expanding fires `stash_reopened` |
+| Share | every row | Encodes with current settings, copies the URL, records history and attaches the share to the same Library record; shows `Copied!` with `LuCheck` for 2s after success |
 | Keep | Recent rows only | Changes the row to Kept |
 | Trash | one-click arm, 3s window | Second click deletes; title flips to "Click again to confirm" |
 | Title / Tags / Note editors | expanded | Inline inputs, saved on blur; tag editor has remove-x per chip, input plus LuPlus add button (Enter also adds) |
