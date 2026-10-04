@@ -16,6 +16,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -64,14 +65,41 @@ func loadVectors(t *testing.T) []fixtures {
 	return fs
 }
 
-// clock: fixtures share expiry 1787567265 (the expired vector uses
-// 1787477265). Any fixed clock between the two works.
+// conformanceNow is a fixed instant for encode→decode round-trips (any
+// value works there; payload expiry is relative to it).
 var conformanceNow = time.Unix(1787522265, 0)
+
+// clock: the fixture set is regenerated per release so its expiries move.
+// The expired vector carries creation-1h and the live vectors creation+24h,
+// so any instant between the min and max payload expiry reproduces
+// "expired vs live" — derive it from the vectors themselves.
+func conformanceNowFor(t *testing.T, fs []fixtures) time.Time {
+	t.Helper()
+	var minExp, maxExp int64 = math.MaxInt64, 0
+	for _, f := range fs {
+		if f.Name == "empty-items" {
+			continue
+		}
+		got, err := codec.DecodeShareURLAt(f.Fragment, time.Unix(0, 0))
+		if err != nil {
+			t.Fatalf("%s: probe decode: %v", f.Name, err)
+		}
+		if got.Expiry < minExp {
+			minExp = got.Expiry
+		}
+		if got.Expiry > maxExp {
+			maxExp = got.Expiry
+		}
+	}
+	return time.Unix((minExp+maxExp)/2, 0)
+}
 
 // TestConformanceCodecDecode runs every canonical vector through the Go
 // decoder and asserts the semantic shape against the fixture metadata.
 func TestConformanceCodecDecode(t *testing.T) {
-	for _, f := range loadVectors(t) {
+	fs := loadVectors(t)
+	conformanceNow := conformanceNowFor(t, fs)
+	for _, f := range fs {
 		t.Run(f.Name, func(t *testing.T) {
 			if f.Name == "empty-items" {
 				// Parity by refusal: empty fragment is rejected.
