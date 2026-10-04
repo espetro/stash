@@ -68,6 +68,7 @@ describe("viewer app i18n keys", () => {
     for (const key of [
       "myStashes.fromExtension",
       "myStashes.savedInBrowser",
+      "myStashes.viewerLocalHint",
       "myStashes.kept",
       "myStashes.recent",
       "myStashes.extensionEmpty",

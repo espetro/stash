@@ -239,6 +239,7 @@
     "sourceViewer": "Saved in this browser.",
     "fromExtension": "Из расширения",
     "savedInBrowser": "Сохранено в этом браузере",
+    "viewerLocalHint": "Только в этом браузере; не синхронизируется с расширением.",
     "kept": "Сохранено",
     "recent": "Недавнее",
     "extensionEmpty": "В библиотеке расширения пока нет стешей.",

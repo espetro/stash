@@ -21,7 +21,7 @@ import {
 import { TabListItem } from "@/components/TabListItem";
 import { useStashLibrary } from "@/hooks/useStashLibrary";
 import type { StashRecord } from "@/lib/stash-store";
-import { formatDateTime } from "@stash/shared";
+import { formatDateTime, stashDisplayTitle } from "@stash/shared";
 import { recordEvent } from "@/lib/telemetry";
 import { probeLocalBridge } from "@/lib/local-bridge";
 import type { StashExportRecord, StashExport } from "@stash/shared/agent-export";
@@ -163,7 +163,7 @@ function StashCard({
         <div className="flex min-w-0 flex-col gap-1">
           <div className="flex min-w-0 items-center gap-2">
             <span data-stash-title className="truncate text-sm font-semibold text-foreground">
-              {record.title || t("myStashes.untitled", undefined, lang)}
+              {stashDisplayTitle(record, t("myStashes.untitled", undefined, lang))}
             </span>
             {readOnly && (
               <span
@@ -495,29 +495,27 @@ export default function MyStashes() {
   }
 
   return (
-    <div data-stash-root className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8">
+    <div
+      data-stash-root
+      data-stash-source={source}
+      className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8"
+    >
       <AppHeader />
 
       <SharedCard>
         <SharedCardHeader title={t("myStashes.title", undefined, lang)} />
 
         <SharedCardContent>
-          <div className="flex flex-wrap items-center gap-2">
-            <span
-              data-testid="stash-source-chip"
-              data-stash-source={source}
-              className="rounded-full bg-muted px-3 py-1 text-[11px] font-medium text-muted-foreground"
-            >
-              {isExtensionSource
-                ? t("myStashes.sourceExtension", undefined, lang)
-                : t("myStashes.sourceViewer", undefined, lang)}
-            </span>
-            {isExtensionSource && (
-              <span className="rounded-full bg-secondary px-3 py-1 text-[11px] text-muted-foreground">
-                {t("myStashes.readOnlyHint", undefined, lang)}
+          {!isExtensionSource && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                data-testid="stash-source-chip"
+                className="rounded-full bg-muted px-3 py-1 text-[11px] font-medium text-muted-foreground"
+              >
+                {t("myStashes.sourceViewer", undefined, lang)}
               </span>
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="relative">
             <FaMagnifyingGlass className="pointer-events-none absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -539,6 +537,9 @@ export default function MyStashes() {
                 >
                   {t("myStashes.fromExtension", undefined, lang)}
                 </h3>
+                <p className="mb-2 text-xs text-muted-foreground">
+                  {t("myStashes.readOnlyHint", undefined, lang)}
+                </p>
                 {filteredExtensionRecords.length === 0 ? (
                   <p className="rounded-xl border border-dashed border-border p-5 text-center text-sm text-muted-foreground">
                     {query.trim()
@@ -569,6 +570,9 @@ export default function MyStashes() {
                 >
                   {t("myStashes.savedInBrowser", undefined, lang)}
                 </h3>
+                <p className="mb-2 text-xs text-muted-foreground">
+                  {t("myStashes.viewerLocalHint", undefined, lang)}
+                </p>
                 {filteredViewerRecords.length === 0 ? (
                   <p className="rounded-xl border border-dashed border-border p-5 text-center text-sm text-muted-foreground">
                     {query.trim()

@@ -164,6 +164,7 @@
   "myStashes.sourceViewer": "Saved in this browser.",
   "myStashes.fromExtension": "From the extension",
   "myStashes.savedInBrowser": "Saved in this browser",
+  "myStashes.viewerLocalHint": "Only in this browser; not synced to the extension.",
   "myStashes.kept": "Kept",
   "myStashes.recent": "Recent",
   "myStashes.extensionEmpty": "No stashes in the extension library.",

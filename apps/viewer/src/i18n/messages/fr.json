@@ -239,6 +239,7 @@
     "sourceViewer": "Saved in this browser.",
     "fromExtension": "Depuis l’extension",
     "savedInBrowser": "Enregistrés dans ce navigateur",
+    "viewerLocalHint": "Uniquement dans ce navigateur ; non synchronisé avec l’extension.",
     "kept": "Conservé",
     "recent": "Récent",
     "extensionEmpty": "Aucun stash dans la bibliothèque de l’extension.",
