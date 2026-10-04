@@ -40,6 +40,7 @@ file: apps/viewer/src/components/NewStashForm.tsx
 | Element | State | Description |
 |---|---|---|
 | AppHeader | always | Back chevron ghost button when `history.length > 1` (else spacer); "New stash" FaPlus link, "My stashes" FaBoxArchive link, ThemeSwitcher, LanguageSelector |
+| Mobile header | below 640px | AppHeader navigation links are icon-only. |
 | Stash title input | always | Optional title embedded in the payload |
 | URLs textarea | always | Mono, one URL per line; parsing feeds line errors and budget meter |
 | Expiry select | always | 24h / 7d / 30d / never options |
