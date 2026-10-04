@@ -5,11 +5,19 @@ import { FakeDaemonPort, installFakeDaemon } from "./test-fakes";
 import { SYNC_STATUS_KEY, SYNC_TOOLS } from "./protocol";
 import { getOutbox, recordCreate } from "./outbox";
 import { resetProfileId } from "./profile";
-import { createStash, listStashes, type StashRecord } from "../stash-store";
+import { createStash, listStashes, materializeStashes, type StashRecord } from "../stash-store";
 import { decodeFrames, makeFrame, mintCorrelationId } from "../transport/frames";
 
 function rec(id: string): StashRecord {
   return { id, tags: [], items: [{ url: "https://x", title: "x" }], createdAt: 1, updatedAt: 2 };
+}
+
+/** The opResult the client sends back for a daemon push (correlates on result.ack). */
+function ackIn(port: FakeDaemonPort, pushCid: string) {
+  return port.received.find(
+    (f) =>
+      f.type === "opResult" && (f.payload as { result?: { ack?: string } }).result?.ack === pushCid,
+  );
 }
 
 /**
@@ -97,6 +105,82 @@ describe("SyncClient over a fake daemon port", () => {
     expect(invalidated).toBeGreaterThan(0);
     // no echo
     expect(await getOutbox()).toHaveLength(0);
+  });
+
+  it("materialize LWW: newer daemon upsert applies; older upsert is skipped but still acked (W3)", async () => {
+    await materializeStashes((stashes) => [
+      ...stashes,
+      { ...rec("s1"), title: "local", updatedAt: 200 },
+    ]);
+    startClient();
+    await vi.waitFor(() => expect(client.getState()).toBe("paired"));
+
+    // (a) daemon upsert newer than local → applied into the stash list
+    const newer = makeFrame("op", mintCorrelationId("daemon"), {
+      tool: SYNC_TOOLS.change,
+      args: {
+        op: "update",
+        id: "s1",
+        updatedAt: 300,
+        origin: "daemon",
+        record: { ...rec("s1"), title: "daemon-newer", updatedAt: 300 },
+      },
+    });
+    port.deliverToExtension(newer);
+    // The push is acked on result.ack with a freshly minted correlationId,
+    // never an echo of the push's id (wire contract §2.2).
+    await vi.waitFor(() => expect(ackIn(port, newer.correlationId)).toBeDefined());
+    const newAck = ackIn(port, newer.correlationId)!;
+    expect(newAck.correlationId).not.toBe(newer.correlationId);
+    expect(newAck.correlationId).toMatch(/^ext-/);
+    const applied = (await listStashes()).find((s) => s.id === "s1");
+    expect(applied?.title).toBe("daemon-newer");
+    expect(applied?.updatedAt).toBe(300);
+
+    // (b) daemon upsert OLDER than local updatedAt → skipped, still acked so
+    // the daemon cursor advances
+    const stale = makeFrame("op", mintCorrelationId("daemon"), {
+      tool: SYNC_TOOLS.change,
+      args: {
+        op: "update",
+        id: "s1",
+        updatedAt: 100,
+        origin: "daemon",
+        record: { ...rec("s1"), title: "stale", updatedAt: 100 },
+      },
+    });
+    port.deliverToExtension(stale);
+    await vi.waitFor(() => expect(ackIn(port, stale.correlationId)).toBeDefined());
+    const kept = (await listStashes()).find((s) => s.id === "s1");
+    expect(kept?.title).toBe("daemon-newer");
+    expect(kept?.updatedAt).toBe(300);
+  });
+
+  it("materialize LWW: older daemon delete is skipped but acked; newer delete removes the row (W3)", async () => {
+    await materializeStashes((stashes) => [
+      ...stashes,
+      { ...rec("s1"), title: "local", updatedAt: 200 },
+    ]);
+    startClient();
+    await vi.waitFor(() => expect(client.getState()).toBe("paired"));
+
+    // (c) daemon delete older than local → skipped, still acked
+    const stale = makeFrame("op", mintCorrelationId("daemon"), {
+      tool: SYNC_TOOLS.change,
+      args: { op: "delete", id: "s1", updatedAt: 100, origin: "daemon" },
+    });
+    port.deliverToExtension(stale);
+    await vi.waitFor(() => expect(ackIn(port, stale.correlationId)).toBeDefined());
+    expect((await listStashes()).map((s) => s.id)).toContain("s1");
+
+    // (d) daemon delete newer than local → row removed, acked
+    const fresh = makeFrame("op", mintCorrelationId("daemon"), {
+      tool: SYNC_TOOLS.change,
+      args: { op: "delete", id: "s1", updatedAt: 300, origin: "daemon" },
+    });
+    port.deliverToExtension(fresh);
+    await vi.waitFor(() => expect(ackIn(port, fresh.correlationId)).toBeDefined());
+    expect((await listStashes()).map((s) => s.id)).not.toContain("s1");
   });
 
   it("missed pong flips to offline with persisted lastSeen; health via correlated ping (W4)", async () => {
