@@ -295,21 +295,30 @@ export class SyncClient {
     }
   }
 
-  /** W3: apply a daemon-pushed change into the materialized view. */
+  /**
+   * W3: apply a daemon-pushed change into the materialized view, under
+   * record-level LWW: a local record with a newer updatedAt wins, so an
+   * upsert or delete arriving from an older daemon-side edit is skipped.
+   * The push is still acked either way (the daemon cursor must advance).
+   */
   private async materialize(change: ChangeRecord): Promise<void> {
     if (!change || typeof change.id !== "string") {
       console.warn("[sync] malformed change frame; ignoring");
       return;
     }
     await materializeStashes((stashes) => {
+      const index = stashes.findIndex((s) => s.id === change.id);
+      const local = index === -1 ? undefined : stashes[index];
+      const localIsNewer = local !== undefined && local.updatedAt > change.updatedAt;
       if (change.op === "delete") {
+        if (localIsNewer) return stashes;
         return stashes.filter((s) => s.id !== change.id);
       }
       if (!change.record) {
         console.warn("[sync] upsert change without record; ignoring");
         return stashes;
       }
-      const index = stashes.findIndex((s) => s.id === change.id);
+      if (localIsNewer) return stashes;
       const next = [...stashes];
       if (index === -1) next.push(change.record!);
       else next[index] = change.record!;
