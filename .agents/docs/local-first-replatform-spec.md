@@ -621,6 +621,26 @@ boolean field. Recommendation: keep hard delete; the "newest wins on a field,
 delete wins over edit" behaviour matches user expectation for a bookmark
 library and avoids tombstone accumulation.
 
+### 6.8 Deviation: shipped sync is record-level LWW, not Automerge
+
+The daemon–extension sync path as implemented does not use Automerge. The
+`automerge-go` binding had no production caller, and every flow between the
+two sides — pairing seed, outbox drain, daemon push — ships whole
+`StashRecord`s, never doc diffs, so `stash_records` in SQLite is the
+canonical store and conflicts resolve as per-record last-writer-wins on
+`updatedAt` (ms). §6.7's no-resurrect guarantee is preserved by the
+tie-break order: delete wins equal `updatedAt`, then the higher `origin`
+string. Deletes write tombstones, which §6.7 avoided, because every pairing
+re-seeds the full library — without them a stale profile would resurrect
+records deleted elsewhere. A monotonic `rev` column backs the
+daemon→extension push cursor (`sync_state.last_sent_seq`).
+
+One wire-contract subtlety: pushes do not correlate on the envelope
+`correlationId`. The extension acks each push with a freshly minted
+`opResult` carrying `result.ack = <push correlationId>`; the daemon matches
+on `result.ack`. `internal/crdt` remains in the tree but is not on the sync
+path; removing it or adopting it for tier 3 is an open issue.
+
 ---
 
 ## 7. Distribution, lifecycle, release coordination
