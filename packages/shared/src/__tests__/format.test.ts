@@ -5,6 +5,7 @@ import {
   formatDateTime,
   estimateCreatedAt,
   buildCaption,
+  stashDisplayTitle,
 } from "../format";
 
 describe("formatRemainingTime", () => {
@@ -85,6 +86,47 @@ describe("formatDateTime", () => {
   it("returns formatted date for older dates", () => {
     const result = formatDateTime(new Date("2025-06-10T15:00:00").getTime());
     expect(result).toContain("Jun 10");
+  });
+});
+
+describe("stashDisplayTitle", () => {
+  it("uses a non-empty stash title", () => {
+    expect(
+      stashDisplayTitle(
+        { title: "  Research trip  ", items: [{ url: "https://example.com", title: "Example" }] },
+        "Untitled stash",
+      ),
+    ).toBe("Research trip");
+  });
+
+  it("uses the first item title and remaining count when the stash has no title", () => {
+    expect(
+      stashDisplayTitle(
+        {
+          items: [
+            { url: "https://example.com", title: "Example" },
+            { url: "https://github.com", title: "GitHub" },
+          ],
+        },
+        "Untitled stash",
+      ),
+    ).toBe("Example + 1 more");
+  });
+
+  it("uses a cleaned host when the first item has no title", () => {
+    expect(
+      stashDisplayTitle(
+        { items: [{ url: "https://www.example.com/path", title: "" }] },
+        "Untitled stash",
+      ),
+    ).toBe("example.com");
+  });
+
+  it("uses the untitled fallback for empty records and invalid URL fallbacks", () => {
+    expect(stashDisplayTitle({ items: [] }, "Untitled stash")).toBe("Untitled stash");
+    expect(
+      stashDisplayTitle({ items: [{ url: "not a URL", title: "" }] }, "Untitled stash"),
+    ).toBe("not a URL");
   });
 });
 
