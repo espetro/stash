@@ -32,6 +32,8 @@ export interface StashServerConfig {
   storage: Storage;
   /** Reported origin for share URLs and the MCP server card. */
   origin: string;
+  /** Origin that serves the viewer SPA; defaults to `origin`. */
+  viewerOrigin?: string;
   /** Lazily-loaded brotli (worker: vendored wasm; extension: @stash/shared). */
   getBrotli: () => Promise<BrotliFunctions>;
   /** Optional per-IP rate limiting via runtime bindings. Write paths
@@ -54,6 +56,7 @@ export interface StashServerConfig {
 export interface StashServerDeps {
   storage: Storage;
   origin: string;
+  viewerOrigin: string;
   getBrotli: () => Promise<BrotliFunctions>;
   defaultTtl: ServerTtl;
   rateLimiter?: RateLimiterConfig;

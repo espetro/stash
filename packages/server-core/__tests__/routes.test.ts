@@ -202,7 +202,37 @@ describe("GET /s/:id", () => {
     const id = await makeStash();
     const res = await fetchServer(`${ORIGIN}/s/${id}`, { redirect: "manual" });
     expect(res.status).toBe(302);
-    expect(res.headers.get("Location")).toMatch(/\/s#p=/);
+    expect(res.headers.get("Location")).toBe(`${ORIGIN}/s#p=${payloadP}`);
+  });
+
+  it("redirects to the configured viewer origin", async () => {
+    const id = await makeStash();
+    const viewerServer = createStashServer({
+      storage,
+      origin: ORIGIN,
+      viewerOrigin: "https://viewer.example",
+      getBrotli: getBrotliFunctions,
+    });
+    const res = await viewerServer.handle(new Request(`${ORIGIN}/s/${id}`, { redirect: "manual" }));
+
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toBe(`https://viewer.example/s#p=${payloadP}`);
+  });
+
+  it("lets ?v= override the configured viewer origin", async () => {
+    const id = await makeStash();
+    const viewerServer = createStashServer({
+      storage,
+      origin: ORIGIN,
+      viewerOrigin: "https://viewer.example",
+      getBrotli: getBrotliFunctions,
+    });
+    const res = await viewerServer.handle(
+      new Request(`${ORIGIN}/s/${id}?v=https://custom.example/view`, { redirect: "manual" }),
+    );
+
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toBe(`https://custom.example/view#p=${payloadP}`);
   });
 
   it("404s unknown id", async () => {

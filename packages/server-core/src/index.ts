@@ -10,7 +10,11 @@ export interface StashServer {
 /** Build a runtime-agnostic stash server. Adapters (CF worker, extension
  *  background) supply the ports via config and relay Request/Response. */
 export function createStashServer(config: StashServerConfig): StashServer {
-  const deps: StashServerDeps = { defaultTtl: "7d", ...config };
+  const deps: StashServerDeps = {
+    defaultTtl: "7d",
+    ...config,
+    viewerOrigin: config.viewerOrigin ?? config.origin,
+  };
   return {
     handle: (request: Request) => handleRequest(request, deps),
   };
