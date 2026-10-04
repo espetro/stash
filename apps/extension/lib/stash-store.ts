@@ -57,10 +57,17 @@ export interface UpdateStashInput {
   kept?: boolean;
 }
 
+export const RECENT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+
 export const isKept = (record: StashRecord): boolean => record.kept !== false;
 
-export const recentExpiresAt = (record: StashRecord): number =>
-  Math.max(0, ...(record.shares ?? []).map((share) => share.expiresAt));
+export const recentExpiresAt = (record: StashRecord): number => {
+  const shares = record.shares ?? [];
+  if (shares.length === 0) return record.createdAt + RECENT_MAX_AGE_MS;
+  const linkExpiry = Math.max(...shares.map((share) => share.expiresAt));
+  const lastShare = Math.max(...shares.map((share) => share.createdAt));
+  return Math.min(linkExpiry, lastShare + RECENT_MAX_AGE_MS);
+};
 
 export const stashesItem = new StorageItem<StashRecord[]>("stash-records", {
   area: "local",
@@ -261,12 +268,15 @@ export async function pruneExpiredRecent(now = Date.now()): Promise<string[]> {
   );
   const deletedIds: string[] = [];
   for (const record of expired) {
-    if (await deleteStash(record.id)) deletedIds.push(record.id);
+    if (await deleteStash(record.id, { revoke: false })) deletedIds.push(record.id);
   }
   return deletedIds;
 }
 
-export async function deleteStash(id: string): Promise<boolean> {
+export async function deleteStash(
+  id: string,
+  options: { revoke?: boolean } = {},
+): Promise<boolean> {
   const stashes = await getAll();
   const deleted = stashes.find((stash) => stash.id === id);
   if (!deleted) return false;
@@ -277,10 +287,12 @@ export async function deleteStash(id: string): Promise<boolean> {
   if (shareUrls.length > 0) {
     await removeHistoryByUrls(shareUrls);
   }
-  for (const shortUrl of deleted.shares?.flatMap((share) =>
-    share.shortUrl ? [share.shortUrl] : [],
-  ) ?? []) {
-    void revokeShortLink(shortUrl);
+  if (options.revoke !== false) {
+    for (const shortUrl of deleted.shares?.flatMap((share) =>
+      share.shortUrl ? [share.shortUrl] : [],
+    ) ?? []) {
+      void revokeShortLink(shortUrl);
+    }
   }
   return true;
 }
