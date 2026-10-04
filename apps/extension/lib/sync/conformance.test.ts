@@ -3,15 +3,10 @@
  * (daemon/internal/natmsg/sync_test.go, TestSyncFixtures): one NDJSON frame
  * per file under daemon/internal/natmsg/testdata/.
  *
- * The shared fixtures use human-readable correlationIds ("ping-1",
- * "seed-1", "chg-1") outside the ext|daemon sender-mint convention that
- * `parseFrame` enforces — the Go codec's DecodeFrame and the extension's
- * live transport path (native-transport safeDecode) both treat
- * correlationId as an opaque string echoed verbatim, so fixtures are
- * envelope-decoded the same way here and their payloads run through the
- * extension's per-type schemas. Fixtures whose ids do follow the mint
- * convention (sync_push, sync_push_ack) additionally go through
- * `parseFrame` itself.
+ * Every fixture carries a sender-minted correlationId matching the
+ * `ext|daemon-xxxxxxxx` convention, so all of them go through the
+ * extension's strict `parseFrame` validator and then the per-type
+ * payload schemas.
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -22,31 +17,25 @@ import type { StashRecord } from "../stash-store";
 
 const FIXTURE_DIR = join(import.meta.dirname, "../../../../daemon/internal/natmsg/testdata");
 
-interface FixtureEnvelope {
-  type: string;
-  correlationId: string;
-  payload: unknown;
-}
-
-function readFixture(name: string): FixtureEnvelope {
+function readFixture(name: string): unknown {
   const raw = readFileSync(join(FIXTURE_DIR, name), "utf8");
-  return JSON.parse(raw) as FixtureEnvelope;
+  return JSON.parse(raw);
 }
 
 describe("sync wire fixtures (shared with daemon/internal/natmsg)", () => {
   it("sync_ping: op frame carrying stash_sync_ping", () => {
-    const env = readFixture("sync_ping.json");
-    expect(env.type).toBe("op");
-    expect(env.correlationId).toBe("ping-1");
-    const payload = OP_PAYLOAD.parse(env.payload);
+    const frame = parseFrame(readFixture("sync_ping.json"));
+    expect(frame.type).toBe("op");
+    expect(frame.correlationId).toBe("ext-pingfix1");
+    const payload = OP_PAYLOAD.parse(frame.payload);
     expect(payload.tool).toBe(SYNC_TOOLS.ping);
     expect(payload.args).toEqual({});
   });
 
   it("sync_seed: SeedPayload; unknown record keys survive the parse", () => {
-    const env = readFixture("sync_seed.json");
-    expect(env.type).toBe("op");
-    const payload = OP_PAYLOAD.parse(env.payload);
+    const frame = parseFrame(readFixture("sync_seed.json"));
+    expect(frame.type).toBe("op");
+    const payload = OP_PAYLOAD.parse(frame.payload);
     expect(payload.tool).toBe(SYNC_TOOLS.seed);
     const seed = payload.args as SeedPayload;
     expect(seed.origin).toBe("profile-1");
@@ -59,9 +48,9 @@ describe("sync wire fixtures (shared with daemon/internal/natmsg)", () => {
   });
 
   it("sync_change: ChangeRecord args for an update", () => {
-    const env = readFixture("sync_change.json");
-    expect(env.type).toBe("op");
-    const payload = OP_PAYLOAD.parse(env.payload);
+    const frame = parseFrame(readFixture("sync_change.json"));
+    expect(frame.type).toBe("op");
+    const payload = OP_PAYLOAD.parse(frame.payload);
     expect(payload.tool).toBe(SYNC_TOOLS.change);
     const change = payload.args as ChangeRecord;
     expect(change.op).toBe("update");

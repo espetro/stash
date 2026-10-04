@@ -504,7 +504,7 @@ func TestDisconnectMidPushKeepsCursor(t *testing.T) {
 func TestSyncFixtures(t *testing.T) {
 	fixtures := map[string]func(t *testing.T, env *Envelope){
 		"sync_ping.json": func(t *testing.T, env *Envelope) {
-			if env.Type != TypeOp || env.CorrelationID != "ping-1" {
+			if env.Type != TypeOp || env.CorrelationID != "ext-pingfix1" {
 				t.Fatalf("ping fixture: %+v", env)
 			}
 			var op OpPayload
