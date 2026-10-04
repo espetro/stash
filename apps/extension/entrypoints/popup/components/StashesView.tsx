@@ -74,7 +74,7 @@ export function StashesView() {
     }
   }
 
-  async function handleShare(stash: StashRecord) {
+  async function handleShare(stash: StashRecord): Promise<boolean> {
     try {
       const settings = await getSettings();
       const brotli = await getBrotliFunctions();
@@ -113,8 +113,10 @@ export function StashesView() {
           expiresAt,
         },
       });
+      return true;
     } catch {
       setError("Failed to create share link");
+      return false;
     }
   }
 

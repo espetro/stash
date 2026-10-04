@@ -126,7 +126,8 @@ export function LinkResult({
             {isKept ? "Kept ✓" : "Keep in Library"}
           </button>
           <p className="link-hint">
-            Added to Library as Recent. It's removed when the link expires unless you keep it.
+            Added to Library as Recent. Recent shares clear after 30 days, or sooner if the link
+            expires, unless you keep them.
           </p>
         </div>
       )}

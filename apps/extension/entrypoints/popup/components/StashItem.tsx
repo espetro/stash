@@ -1,5 +1,6 @@
-import { useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import {
+  LuCheck,
   LuChevronDown,
   LuChevronRight,
   LuLink2,
@@ -9,7 +10,7 @@ import {
   LuTrash2,
   LuX,
 } from "react-icons/lu";
-import { formatDateTime, formatRemainingTime } from "@stash/shared";
+import { formatDateTime, formatRemainingTime, stashDisplayTitle } from "@stash/shared";
 import { recordEvent } from "../../../lib/telemetry";
 import { isKept, recentExpiresAt, type StashRecord } from "../../../lib/stash-store";
 
@@ -21,46 +22,47 @@ interface StashItemProps {
   onShare: () => Promise<unknown>;
 }
 
-function getDisplayTitle(stash: StashRecord): string {
-  const title = stash.title?.trim();
-  if (title) return title;
-  if (stash.items.length === 0) return "Untitled stash";
-
-  const firstItem = stash.items[0];
-  let host = firstItem.url;
-  try {
-    host = new URL(firstItem.url).hostname.replace(/^www\./, "");
-  } catch {
-    // Keep the original value for non-URL items.
-  }
-  const firstTitle = firstItem.title || host;
-  return stash.items.length > 1 ? `${firstTitle} + ${stash.items.length - 1} more` : firstTitle;
-}
-
 export function StashItem({ stash, onUpdate, onDelete, onKeep, onShare }: StashItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const [titleDraft, setTitleDraft] = useState(stash.title ?? "");
   const [noteDraft, setNoteDraft] = useState(stash.note ?? "");
   const [tagDraft, setTagDraft] = useState("");
+  const shareFeedbackTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [sharesExpanded, setSharesExpanded] = useState(false);
+
+  useEffect(
+    () => () => {
+      if (shareFeedbackTimeout.current !== null) clearTimeout(shareFeedbackTimeout.current);
+    },
+    [],
+  );
 
   const itemText = stash.items.length === 1 ? "1 item" : `${stash.items.length} items`;
   const shares = stash.shares ?? [];
   const recent = !isKept(stash);
   const expiresAt = recentExpiresAt(stash);
-  const linkNeverExpires = expiresAt >= Date.now() + 50 * 365 * 24 * 60 * 60 * 1000;
-  const recentExpiryLabel = linkNeverExpires
-    ? "link never expires"
-    : `expires in ${formatRemainingTime(Math.max(0, expiresAt - Date.now()))}`;
 
   async function handleShareClick(event: MouseEvent<HTMLButtonElement>) {
     event.stopPropagation();
+    if (shareFeedbackTimeout.current !== null) {
+      clearTimeout(shareFeedbackTimeout.current);
+      shareFeedbackTimeout.current = null;
+    }
+    setIsCopied(false);
     setIsSharing(true);
     try {
-      await onShare();
+      const succeeded = await onShare();
+      if (succeeded !== false) {
+        setIsCopied(true);
+        shareFeedbackTimeout.current = setTimeout(() => {
+          setIsCopied(false);
+          shareFeedbackTimeout.current = null;
+        }, 2000);
+      }
     } finally {
       setIsSharing(false);
     }
@@ -117,13 +119,14 @@ export function StashItem({ stash, onUpdate, onDelete, onKeep, onShare }: StashI
           {isExpanded ? <LuChevronDown /> : <LuChevronRight />}
         </span>
         <div className="stash-item-summary">
-          <span className="stash-item-title">{getDisplayTitle(stash)}</span>
+          <span className="stash-item-title">{stashDisplayTitle(stash, "Untitled stash")}</span>
           <span className="stash-item-meta">
             {itemText} · {formatDateTime(stash.updatedAt)}
           </span>
           {recent && (
             <span className="stash-state-badge stash-recent-badge">
-              Recent · {recentExpiryLabel}
+              Recent · clears in{" "}
+              {formatRemainingTime(Math.max(0, expiresAt - Date.now())).replace(/^Expires in /, "")}
             </span>
           )}
           {stash.tags.length > 0 && (
@@ -160,8 +163,8 @@ export function StashItem({ stash, onUpdate, onDelete, onKeep, onShare }: StashI
             disabled={isSharing}
             type="button"
           >
-            <LuShare2 aria-hidden />
-            {isSharing ? "Sharing..." : "Share"}
+            {isCopied ? <LuCheck aria-hidden /> : <LuShare2 aria-hidden />}
+            {isSharing ? "Sharing..." : isCopied ? "Copied!" : "Share"}
           </button>
           {recent && (
             <button
