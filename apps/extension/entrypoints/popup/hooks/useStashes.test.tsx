@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { fakeBrowser } from "wxt/testing/fake-browser";
+import { materializeStashes } from "../../../lib/stash-store";
 import { useStashes } from "./useStashes";
 
 describe("useStashes", () => {
@@ -18,6 +19,49 @@ describe("useStashes", () => {
     });
 
     expect(result.current.stashes).toEqual([]);
+  });
+
+  it("prunes expired Recent stashes during the initial load", async () => {
+    const expired = {
+      id: "expired",
+      tags: [],
+      items: [],
+      shares: [
+        {
+          url: "https://stash.illo.fyi/#p=expired",
+          itemCount: 1,
+          truncated: false,
+          createdAt: 1,
+          expiresAt: Date.now() - 1,
+        },
+      ],
+      createdAt: 1,
+      updatedAt: 1,
+      kept: false,
+    };
+    const kept = {
+      id: "kept",
+      tags: [],
+      items: [],
+      shares: [
+        {
+          url: "https://stash.illo.fyi/#p=kept",
+          itemCount: 1,
+          truncated: false,
+          createdAt: 1,
+          expiresAt: Date.now() - 1,
+        },
+      ],
+      createdAt: 1,
+      updatedAt: 1,
+      kept: true,
+    };
+    await materializeStashes(() => [expired, kept]);
+
+    const { result } = renderHook(() => useStashes());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.stashes.map((stash) => stash.id)).toEqual(["kept"]);
   });
 
   it("create adds a stash to state", async () => {

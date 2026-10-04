@@ -11,8 +11,7 @@ import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import { getBrotliFunctions } from "@stash/shared";
 import { getSettings, type Settings } from "@/lib/settings";
 import { addToHistory } from "@/lib/history";
-import { appendShareEvent } from "@/lib/stash-store";
-import { createStash, listStashes } from "@/lib/stash-store";
+import { attachShortUrl, createStash, keepStash, recordShare } from "@/lib/stash-store";
 import { recordEvent } from "@/lib/telemetry";
 import { SaveStashForm } from "./components/SaveStashForm";
 import Header from "./components/Header";
@@ -30,6 +29,8 @@ export default function App() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [isSettingsLoading, setIsSettingsLoading] = useState(true);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [linkRecordId, setLinkRecordId] = useState<string | null>(null);
+  const [linkKept, setLinkKept] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [linkItemCount, setLinkItemCount] = useState(0);
   const [linkTruncated, setLinkTruncated] = useState(false);
@@ -92,10 +93,6 @@ export default function App() {
         expiresAt,
       });
 
-      // F8: also append the share to any saved stash sharing this payload
-      // (payload identity = same set of item urls), so the Saved view shows
-      // the full share history. stash-history keeps writing during the
-      // one-release downgrade window (plan W5).
       const shareEvent = {
         url: finalUrl,
         itemCount: result.itemCount,
@@ -103,13 +100,10 @@ export default function App() {
         createdAt: now,
         expiresAt,
       };
-      const stashes = await listStashes();
-      const tabUrls = new Set(tabInfos.map((t) => t.url));
-      const match = stashes.find(
-        (s) => s.items.length === tabInfos.length && s.items.every((i) => tabUrls.has(i.url)),
-      );
-      if (match) await appendShareEvent(match.id, shareEvent);
+      const record = await recordShare({ items: tabInfos, share: shareEvent });
 
+      setLinkRecordId(record.id);
+      setLinkKept(false);
       setShareUrl(finalUrl);
       setCopyUrl(finalUrl);
       setLinkItemCount(result.itemCount);
@@ -165,9 +159,22 @@ export default function App() {
 
   function handleBack() {
     setShareUrl(null);
+    setLinkRecordId(null);
+    setLinkKept(false);
     setCopyUrl(null);
     setIsCopied(false);
     setLinkTabs([]);
+  }
+
+  async function handleKeepLink() {
+    if (!linkRecordId) return;
+    try {
+      const kept = await keepStash(linkRecordId);
+      if (kept) setLinkKept(true);
+    } catch (err) {
+      console.error("handleKeepLink error:", err);
+      setError("Failed to keep stash");
+    }
   }
 
   function handleSelectAll(maxCount: number) {
@@ -233,7 +240,16 @@ export default function App() {
               expiresLabel={EXPIRY_LABELS[settings?.expiryMode ?? "never"]}
               shortenerEnabled={settings?.shortenerEnabled ?? false}
               shortenerOrigin={settings?.shortenerOrigin}
-              onShortened={(shortUrl) => setCopyUrl(shortUrl)}
+              isKept={linkKept}
+              onKeep={handleKeepLink}
+              onShortened={(shortUrl) => {
+                setCopyUrl(shortUrl);
+                if (linkRecordId && shareUrl) {
+                  void attachShortUrl(linkRecordId, shareUrl, shortUrl).catch((err) =>
+                    console.error("Failed to attach short URL:", err),
+                  );
+                }
+              }}
             />
           ) : (
             <>

@@ -1,18 +1,46 @@
-import { useState } from "react";
-import { LuChevronDown, LuChevronRight, LuLink2, LuPlus, LuTrash2, LuX } from "react-icons/lu";
+import { useState, type MouseEvent } from "react";
+import {
+  LuChevronDown,
+  LuChevronRight,
+  LuLink2,
+  LuPin,
+  LuPlus,
+  LuShare2,
+  LuTrash2,
+  LuX,
+} from "react-icons/lu";
 import { formatDateTime, formatRemainingTime } from "@stash/shared";
 import { recordEvent } from "../../../lib/telemetry";
-import type { StashRecord } from "../../../lib/stash-store";
+import { isKept, recentExpiresAt, type StashRecord } from "../../../lib/stash-store";
 
 interface StashItemProps {
   stash: StashRecord;
   onUpdate: (patch: { title?: string; tags?: string[]; note?: string }) => unknown;
   onDelete: () => unknown;
+  onKeep: () => unknown;
+  onShare: () => Promise<unknown>;
 }
 
-export function StashItem({ stash, onUpdate, onDelete }: StashItemProps) {
+function getDisplayTitle(stash: StashRecord): string {
+  const title = stash.title?.trim();
+  if (title) return title;
+  if (stash.items.length === 0) return "Untitled stash";
+
+  const firstItem = stash.items[0];
+  let host = firstItem.url;
+  try {
+    host = new URL(firstItem.url).hostname.replace(/^www\./, "");
+  } catch {
+    // Keep the original value for non-URL items.
+  }
+  const firstTitle = firstItem.title || host;
+  return stash.items.length > 1 ? `${firstTitle} + ${stash.items.length - 1} more` : firstTitle;
+}
+
+export function StashItem({ stash, onUpdate, onDelete, onKeep, onShare }: StashItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const [titleDraft, setTitleDraft] = useState(stash.title ?? "");
   const [noteDraft, setNoteDraft] = useState(stash.note ?? "");
   const [tagDraft, setTagDraft] = useState("");
@@ -21,6 +49,22 @@ export function StashItem({ stash, onUpdate, onDelete }: StashItemProps) {
 
   const itemText = stash.items.length === 1 ? "1 item" : `${stash.items.length} items`;
   const shares = stash.shares ?? [];
+  const recent = !isKept(stash);
+  const expiresAt = recentExpiresAt(stash);
+  const linkNeverExpires = expiresAt >= Date.now() + 50 * 365 * 24 * 60 * 60 * 1000;
+  const recentExpiryLabel = linkNeverExpires
+    ? "link never expires"
+    : `expires in ${formatRemainingTime(Math.max(0, expiresAt - Date.now()))}`;
+
+  async function handleShareClick(event: MouseEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+    setIsSharing(true);
+    try {
+      await onShare();
+    } finally {
+      setIsSharing(false);
+    }
+  }
 
   function handleTitleBlur() {
     const trimmed = titleDraft.trim();
@@ -73,10 +117,15 @@ export function StashItem({ stash, onUpdate, onDelete }: StashItemProps) {
           {isExpanded ? <LuChevronDown /> : <LuChevronRight />}
         </span>
         <div className="stash-item-summary">
-          <span className="stash-item-title">{stash.title || "Untitled stash"}</span>
+          <span className="stash-item-title">{getDisplayTitle(stash)}</span>
           <span className="stash-item-meta">
             {itemText} · {formatDateTime(stash.updatedAt)}
           </span>
+          {recent && (
+            <span className="stash-state-badge stash-recent-badge">
+              Recent · {recentExpiryLabel}
+            </span>
+          )}
           {stash.tags.length > 0 && (
             <div className="stash-tags">
               {stash.tags.map((tag) => (
@@ -104,17 +153,42 @@ export function StashItem({ stash, onUpdate, onDelete }: StashItemProps) {
             </button>
           )}
         </div>
-        <button
-          className={`stash-delete-btn ${confirmingDelete ? "stash-delete-btn-confirm" : ""}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDeleteClick();
-          }}
-          aria-label="Delete stash"
-          title={confirmingDelete ? "Click again to confirm" : "Delete stash"}
-        >
-          <LuTrash2 />
-        </button>
+        <div className="stash-row-actions">
+          <button
+            className="stash-row-action"
+            onClick={handleShareClick}
+            disabled={isSharing}
+            type="button"
+          >
+            <LuShare2 aria-hidden />
+            {isSharing ? "Sharing..." : "Share"}
+          </button>
+          {recent && (
+            <button
+              className="stash-row-action"
+              onClick={(event) => {
+                event.stopPropagation();
+                onKeep();
+              }}
+              type="button"
+            >
+              <LuPin aria-hidden />
+              Keep
+            </button>
+          )}
+          <button
+            className={`stash-delete-btn ${confirmingDelete ? "stash-delete-btn-confirm" : ""}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteClick();
+            }}
+            aria-label="Delete stash"
+            title={confirmingDelete ? "Click again to confirm" : "Delete stash"}
+            type="button"
+          >
+            <LuTrash2 />
+          </button>
+        </div>
       </div>
 
       {isExpanded && (
