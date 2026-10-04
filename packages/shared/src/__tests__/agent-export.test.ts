@@ -34,12 +34,23 @@ describe("toStashExport", () => {
     expect(out.stashes).toHaveLength(1);
     expect(out.stashes[0].title).toBeNull();
     expect(out.stashes[0].note).toBeNull();
+    expect(out.stashes[0].kept).toBe(true);
   });
 
   it("preserves source as 'extension'", () => {
     const out = toStashExport([baseRecord], "extension");
     expect(out.source).toBe("extension");
     expect(out.version).toBe(1);
+  });
+
+  it("exports Recent state and treats missing state as Kept", () => {
+    const recent = toStashExport([{ ...baseRecord, kept: false }], "extension");
+    const kept = toStashExport([{ ...baseRecord, kept: true }], "viewer-local");
+    const local = toStashExport([{ ...baseRecord, kept: false }], "viewer-local");
+
+    expect(recent.stashes[0].kept).toBe(false);
+    expect(kept.stashes[0].kept).toBe(true);
+    expect(local.stashes[0].kept).toBe(true);
   });
 
   it("preserves source as 'viewer-local'", () => {
@@ -87,6 +98,21 @@ describe("isStashExport", () => {
   it("accepts canonical output", () => {
     const out = toStashExport([baseRecord], "extension");
     expect(isStashExport(out)).toBe(true);
+  });
+
+  it("accepts absent kept metadata and rejects non-boolean values", () => {
+    const canonical = toStashExport([baseRecord], "extension");
+    const absent = {
+      ...canonical,
+      stashes: canonical.stashes.map(({ kept: _kept, ...stash }) => stash),
+    };
+    const invalid = {
+      ...canonical,
+      stashes: canonical.stashes.map((stash) => ({ ...stash, kept: "recent" })),
+    };
+
+    expect(isStashExport(absent)).toBe(true);
+    expect(isStashExport(invalid)).toBe(false);
   });
 
   it("rejects wrong version", () => {

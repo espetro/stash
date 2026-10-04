@@ -16,8 +16,16 @@ describe("stash export (F8 v2)", () => {
   it("exports version 2 and round-trips unchanged", () => {
     const stashes = [
       record({
+        kept: false,
         shares: [
-          { url: "https://s/1", itemCount: 1, truncated: false, createdAt: 5, expiresAt: 6 },
+          {
+            url: "https://s/1",
+            shortUrl: "https://s.illo.fyi/s/ABC234",
+            itemCount: 1,
+            truncated: false,
+            createdAt: 5,
+            expiresAt: 6,
+          },
         ],
       }),
     ];
@@ -50,6 +58,14 @@ describe("stash export (F8 v2)", () => {
 
   it("rejects malformed shares in a v2 file", () => {
     const bad = { version: 2, stashes: [record({ shares: [{ url: 1 }] as never })] };
+    expect(() => parseStashesImport(JSON.stringify(bad))).toThrow("Not a valid stash export file");
+  });
+
+  it("rejects non-boolean kept metadata", () => {
+    const bad = {
+      version: 2,
+      stashes: [{ ...record(), kept: "recent" }],
+    };
     expect(() => parseStashesImport(JSON.stringify(bad))).toThrow("Not a valid stash export file");
   });
 

@@ -21,6 +21,7 @@ export interface StashExportRecord {
   tags: string[];
   note: string | null;
   items: StashExportItem[];
+  kept?: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -42,6 +43,7 @@ export interface StashRecordLike {
   tags: string[];
   note?: string | null;
   items: { url: string; title: string }[];
+  kept?: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -75,6 +77,7 @@ function isValidStashRecord(value: unknown): value is StashExportRecord {
   if (!value.items.every(isValidItem)) return false;
   if (typeof value.createdAt !== "number") return false;
   if (typeof value.updatedAt !== "number") return false;
+  if (value.kept !== undefined && typeof value.kept !== "boolean") return false;
   return true;
 }
 
@@ -112,6 +115,7 @@ export function toStashExport(
       tags: [...record.tags],
       note: record.note ?? null,
       items: items.map((it) => ({ url: it.url, title: it.title })),
+      kept: source === "viewer-local" || record.kept !== false,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
     });
