@@ -14,6 +14,8 @@ vi.mock("@stash/shared", () => ({
   getBrotliFunctions: vi.fn(async () => ({})),
   formatDateTime: vi.fn(() => "today"),
   formatRemainingTime: vi.fn(() => "1 day"),
+  stashDisplayTitle: (record: { title?: string | null }, untitled: string) =>
+    record.title?.trim() || untitled,
 }));
 vi.mock("../../../lib/settings", () => ({
   getSettings: vi.fn(async () => ({
@@ -25,26 +27,29 @@ vi.mock("../../../lib/telemetry", () => ({
   recordEvent: vi.fn(),
 }));
 
-const testStash = (id: string, title: string, kept: boolean): StashRecord => ({
-  id,
-  title,
-  tags: [],
-  items: [{ url: `https://${id}.example`, title }],
-  shares: kept
-    ? []
-    : [
-        {
-          url: `https://stash.illo.fyi/#p=${id}`,
-          itemCount: 1,
-          truncated: false,
-          createdAt: 100,
-          expiresAt: Date.now() + 24 * 60 * 60 * 1000,
-        },
-      ],
-  createdAt: 100,
-  updatedAt: 100,
-  kept,
-});
+const testStash = (id: string, title: string, kept: boolean): StashRecord => {
+  const now = Date.now();
+  return {
+    id,
+    title,
+    tags: [],
+    items: [{ url: `https://${id}.example`, title }],
+    shares: kept
+      ? []
+      : [
+          {
+            url: `https://stash.illo.fyi/#p=${id}`,
+            itemCount: 1,
+            truncated: false,
+            createdAt: now,
+            expiresAt: now + 24 * 60 * 60 * 1000,
+          },
+        ],
+    createdAt: now,
+    updatedAt: now,
+    kept,
+  };
+};
 
 beforeEach(() => {
   fakeBrowser.reset();
@@ -85,6 +90,7 @@ describe("StashesView", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: "Share" }));
 
+    expect(await screen.findByRole("button", { name: "Copied!" })).toBeTruthy();
     await waitFor(async () => {
       expect((await listStashes())[0]?.shares).toHaveLength(1);
     });

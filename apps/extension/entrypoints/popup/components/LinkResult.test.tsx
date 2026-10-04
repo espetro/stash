@@ -91,7 +91,7 @@ describe("LinkResult shorten state", () => {
     expect(screen.getByRole("button", { name: "Kept ✓" })).toBeTruthy();
     expect(
       screen.getByText(
-        "Added to Library as Recent. It's removed when the link expires unless you keep it.",
+        "Added to Library as Recent. Recent shares clear after 30 days, or sooner if the link expires, unless you keep them.",
       ),
     ).toBeTruthy();
   });
