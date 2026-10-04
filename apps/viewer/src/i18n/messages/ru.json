@@ -237,6 +237,13 @@
     "importError": "Не удалось импортировать файл",
     "sourceExtension": "This browser's extension library",
     "sourceViewer": "Saved in this browser.",
+    "fromExtension": "Из расширения",
+    "savedInBrowser": "Сохранено в этом браузере",
+    "kept": "Сохранено",
+    "recent": "Недавнее",
+    "extensionEmpty": "В библиотеке расширения пока нет стешей.",
+    "browserEmpty": "В этом браузере пока нет сохранённых стешей.",
+    "noMatches": "Подходящих стешей не найдено.",
     "readOnlyHint": "Read-only mirror of the extension library; edit stashes from the extension popup."
   }
 }

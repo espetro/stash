@@ -24,6 +24,7 @@ function makeExportStash(args: {
   title?: string | null;
   tags?: string[];
   note?: string | null;
+  kept?: boolean;
 }) {
   return {
     id: args.id ?? "ext-1",
@@ -36,6 +37,7 @@ function makeExportStash(args: {
     ],
     createdAt: 1,
     updatedAt: 2,
+    ...(args.kept === undefined ? {} : { kept: args.kept }),
   };
 }
 
@@ -46,6 +48,47 @@ beforeEach(() => {
 });
 
 describe("MyStashes — extension source", () => {
+  it("shows extension and viewer-local sections with read-only status badges", async () => {
+    probeMock.mockResolvedValue({
+      available: true,
+      export: {
+        version: 1,
+        source: "extension",
+        stashes: [
+          makeExportStash({ id: "ext-recent", title: "Recent extension stash", kept: false }),
+        ],
+      },
+    });
+    localStorage.setItem(
+      "stash:records",
+      JSON.stringify([
+        {
+          id: "local-1",
+          title: "Local stash",
+          tags: [],
+          note: "",
+          items: [{ url: "https://example.org", title: "Example" }],
+          createdAt: 10,
+          updatedAt: 20,
+        },
+      ]),
+    );
+
+    render(
+      <LocaleProvider>
+        <MyStashes />
+      </LocaleProvider>,
+    );
+
+    expect(await screen.findByRole("heading", { name: "From the extension" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Saved in this browser" })).toBeTruthy();
+    expect(screen.getByText("Recent extension stash")).toBeTruthy();
+    expect(screen.getByText("Recent")).toBeTruthy();
+    expect(screen.getByText("Local stash")).toBeTruthy();
+    expect(screen.getByLabelText("Edit")).toBeTruthy();
+    expect(screen.getByLabelText("Delete")).toBeTruthy();
+  });
+
   it("renders the extension chip, hides edit/delete buttons, and never calls localStorage.setItem when the bridge returns source: 'extension'", async () => {
     probeMock.mockResolvedValue({
       available: true,
