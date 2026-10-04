@@ -11,6 +11,7 @@ import {
   listStashes,
   materializeStashes,
   pruneExpiredRecent,
+  RECENT_MAX_AGE_MS,
   recentExpiresAt,
   recordShare,
   updateStash,
@@ -263,6 +264,78 @@ describe("shares[] (F8)", () => {
     expect(recentExpiresAt(active)).toBe(500);
     expect(await pruneExpiredRecent(200)).toEqual([expired.id]);
     expect((await listStashes()).map((stash) => stash.id)).toEqual([active.id, kept.id]);
+  });
+
+  it("prunes never-expiring Recent records after 30 days but preserves Kept records", async () => {
+    const lastShareAt = 1_000;
+    const recent: StashRecord = {
+      id: "never-expiring",
+      items: [],
+      shares: [share({ createdAt: lastShareAt, expiresAt: Number.MAX_SAFE_INTEGER })],
+      createdAt: lastShareAt,
+      updatedAt: lastShareAt,
+      tags: [],
+      kept: false,
+    };
+    const kept: StashRecord = { ...recent, id: "kept", kept: true };
+    const expiresAt = lastShareAt + RECENT_MAX_AGE_MS;
+    await materializeStashes(() => [recent, kept]);
+
+    expect(recentExpiresAt(recent)).toBe(expiresAt);
+    expect(await pruneExpiredRecent(expiresAt)).toEqual([recent.id]);
+    expect((await listStashes()).map((stash) => stash.id)).toEqual([kept.id]);
+  });
+
+  it("rescheduling a share pushes the Recent retention date out", async () => {
+    const firstShareAt = 10_000;
+    const recent: StashRecord = {
+      id: "reshared",
+      items: [],
+      shares: [share({ createdAt: firstShareAt, expiresAt: Number.MAX_SAFE_INTEGER })],
+      createdAt: firstShareAt,
+      updatedAt: firstShareAt,
+      tags: [],
+      kept: false,
+    };
+    await materializeStashes(() => [recent]);
+
+    const nextShareAt = firstShareAt + 10 * 24 * 60 * 60 * 1000;
+    const updated = await recordShare({
+      items: recent.items,
+      sourceId: recent.id,
+      share: share({ createdAt: nextShareAt, expiresAt: Number.MAX_SAFE_INTEGER }),
+    });
+
+    expect(recentExpiresAt(updated)).toBe(nextShareAt + RECENT_MAX_AGE_MS);
+    expect(await pruneExpiredRecent(firstShareAt + RECENT_MAX_AGE_MS)).toEqual([]);
+    expect((await listStashes()).map((stash) => stash.id)).toEqual([recent.id]);
+  });
+
+  it("does not revoke short links when pruning expired Recent records", async () => {
+    const fetchMock = vi.fn();
+    vi.spyOn(globalThis, "fetch").mockImplementation(fetchMock);
+    const lastShareAt = 2_000;
+    const recent: StashRecord = {
+      id: "expired-short-link",
+      items: [],
+      shares: [
+        share({
+          createdAt: lastShareAt,
+          expiresAt: Number.MAX_SAFE_INTEGER,
+          shortUrl: "https://s.illo.fyi/s/ABC234",
+        }),
+      ],
+      createdAt: lastShareAt,
+      updatedAt: lastShareAt,
+      tags: [],
+      kept: false,
+    };
+    await materializeStashes(() => [recent]);
+
+    expect(await pruneExpiredRecent(lastShareAt + RECENT_MAX_AGE_MS)).toEqual([recent.id]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("revokes a saved short link when deleting its stash", async () => {
