@@ -48,7 +48,26 @@ beforeEach(() => {
 });
 
 describe("MyStashes — extension source", () => {
-  it("shows extension and viewer-local sections with read-only status badges", async () => {
+  it("uses the shared title fallback for untitled extension records", async () => {
+    probeMock.mockResolvedValue({
+      available: true,
+      export: {
+        version: 1,
+        source: "extension",
+        stashes: [makeExportStash({ id: "untitled", title: "" })],
+      },
+    });
+
+    render(
+      <LocaleProvider>
+        <MyStashes />
+      </LocaleProvider>,
+    );
+
+    expect(await screen.findByText("Example + 1 more")).toBeTruthy();
+  });
+
+  it("shows extension and viewer-local sections with their hints and status badges", async () => {
     probeMock.mockResolvedValue({
       available: true,
       export: {
@@ -85,11 +104,17 @@ describe("MyStashes — extension source", () => {
     expect(screen.getByText("Recent extension stash")).toBeTruthy();
     expect(screen.getByText("Recent")).toBeTruthy();
     expect(screen.getByText("Local stash")).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Read-only mirror of the extension library; edit stashes from the extension popup.",
+      ),
+    ).toBeTruthy();
+    expect(screen.getByText("Only in this browser; not synced to the extension.")).toBeTruthy();
     expect(screen.getByLabelText("Edit")).toBeTruthy();
     expect(screen.getByLabelText("Delete")).toBeTruthy();
   });
 
-  it("renders the extension chip, hides edit/delete buttons, and never calls localStorage.setItem when the bridge returns source: 'extension'", async () => {
+  it("omits the extension source chips, hides edit/delete buttons, and never writes localStorage when the bridge returns source: 'extension'", async () => {
     probeMock.mockResolvedValue({
       available: true,
       export: {
@@ -107,11 +132,12 @@ describe("MyStashes — extension source", () => {
       </LocaleProvider>,
     );
 
-    // Wait for the source chip to flip to extension.
+    // Wait for the root source marker to flip to extension.
     await waitFor(() => {
-      const chip = screen.getByTestId("stash-source-chip");
-      expect(chip.textContent).toContain("This browser's extension library");
+      expect(document.querySelector('[data-stash-source="extension"]')).not.toBeNull();
     });
+
+    expect(screen.queryByTestId("stash-source-chip")).toBeNull();
 
     // Edit / delete buttons must NOT be rendered.
     expect(screen.queryByLabelText("Edit")).toBeNull();
