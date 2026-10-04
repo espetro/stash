@@ -29,7 +29,7 @@ Elements from `App.tsx`, `Header.tsx`, `SelectAllToggle.tsx`, `TabItem.tsx`.
 |---|---|---|
 | Back chevron | hidden on main view | `LuArrowLeft` top-left; appears only in subviews or link result |
 | Stash title | always | Header `<h1>Stash</h1>` next to back chevron |
-| Header buttons | always | LuArchive (My Stashes), LuClock (History), LuCog (Options) |
+| Header buttons | always | LuArchive (Library), LuCog (Options) |
 | Select All / Deselect All | toggles by `allSelected` | Secondary button; Select All respects URL budget (`findMaxTabsWithinBudget`) |
 | Selected count | always | "N of M selected" text right of the toggle |
 | Budget message | only when `maxTabCount < tabs.length` | "URL budget limit reached" |

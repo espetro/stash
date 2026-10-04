@@ -75,6 +75,12 @@ step("The user clicks Create Link", async () => {
   await button.click();
 });
 
+step("The user shares the selected tabs from the popup", async () => {
+  const button = popupPage!.getByRole("button", { name: /^Share tabs \(2\)$/ });
+  await button.click();
+  await expect(popupPage!.locator(".link-result")).toBeVisible();
+});
+
 step("The user clicks Create Link without selecting any tabs", async () => {
   const button = popupPage!.locator('button:has-text("Create Link")');
   await button.click();
@@ -83,6 +89,38 @@ step("The user clicks Create Link without selecting any tabs", async () => {
 step("The popup should show the link result", async () => {
   const linkResult = popupPage!.locator(".link-result");
   await expect(linkResult).toBeVisible();
+});
+
+step("The user opens the Library from the popup", async () => {
+  await popupPage!.getByRole("button", { name: "View my stashes" }).click();
+  await expect(popupPage!.getByText("Library", { exact: true })).toBeVisible();
+});
+
+step("The Library should show one Recent row and zero Kept stashes", async () => {
+  await expect(popupPage!.getByRole("button", { name: "All · 1" })).toBeVisible();
+  await expect(popupPage!.getByRole("button", { name: "Kept · 0" })).toBeVisible();
+  await expect(popupPage!.getByRole("button", { name: "Recent · 1" })).toBeVisible();
+  const row = popupPage!.locator(".stash-item");
+  await expect(row).toHaveCount(1);
+  await expect(row.locator(".stash-state-badge")).toContainText("Recent");
+  await expect(row).toContainText("2 items");
+});
+
+step("The user keeps the Recent row in the Library", async () => {
+  const row = popupPage!.locator(".stash-item");
+  await row.getByRole("button", { name: "Keep" }).click();
+  await expect(row.locator(".stash-state-badge")).toHaveCount(0);
+});
+
+step("The user filters the Library to Kept", async () => {
+  await popupPage!.getByRole("button", { name: "Kept · 1" }).click();
+});
+
+step("The kept share should appear in the Library", async () => {
+  const row = popupPage!.locator(".stash-item");
+  await expect(row).toHaveCount(1);
+  await expect(row).toContainText("2 items");
+  await expect(row.locator(".stash-state-badge")).toHaveCount(0);
 });
 
 step("The user clicks the copy button", async () => {
