@@ -1,9 +1,12 @@
 ---
 screen: extension-4
-name: History
+name: Retired History view
 route: extension popup, history view
 file: apps/extension/entrypoints/popup/components/HistoryView.tsx
 ---
+
+Retired: the popup History view has been replaced by the Library. History
+records continue to be written during the downgrade compatibility window.
 
 ```text
 +--------------------------------------------------+

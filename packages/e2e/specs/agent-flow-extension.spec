@@ -27,6 +27,25 @@ same frozen tool registry. Prerequisite for those scenarios:
 * stash_get should return a seeded stash with 3 items and title Docs deep dive
 * stash_search for "reading list" should return the matching seeded stash
 
+## Share tabs and keep the Recent stash in the Library
+* The browser is launched with the built Stash extension and the options page is open
+* A new tab is opened with URL "https://example.com/research-one"
+* The tab title is "Research tab one"
+* A new tab is opened with URL "https://example.org/research-two"
+* The tab title is "Research tab two"
+* The user clicks the extension icon
+* The popup should open
+* The popup should display 2 tabs
+* The user clicks Select All
+* The user shares the selected tabs from the popup
+* The popup should show the link result
+* The user opens the Library from the popup
+* The Library should show one Recent row and zero Kept stashes
+* The user keeps the Recent row in the Library
+* The user filters the Library to Kept
+* The kept share should appear in the Library
+* The popup is closed
+
 ## Daemon tool discovery parity
 * The stash daemon is running in serve mode
 * The agent connects to the daemon stdio MCP surface

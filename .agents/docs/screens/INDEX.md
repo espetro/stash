@@ -10,17 +10,16 @@ whenever you touch UI layout, copy, or flows.
 
 ```
 Extension popup (main)
-  -> select tabs -> "Share tabs (N)"  -> Link result
+  -> select tabs -> "Share tabs (N)"  -> Link result -> Keep in Library
   -> select tabs -> "Save locally"    -> Save stash form -> main
-  -> header stashes                   -> My Stashes
-  -> header history                   -> History -> (active entry) Link result
+  -> header Library                   -> Library (All / Kept / Recent)
   -> header settings                  -> browser options page
 
 Viewer
   /            landing
   /s/new       create form -> result block (copy / save locally / shorten)
   /s/<payload> tab viewer -> QR dialog | Share drawer (JSON / Markdown)
-  /stashes     My Stashes (expand / edit / delete / import / export)
+  /stashes     Library (extension mirror + viewer-local records)
   /privacy /terms  static legal pages
   /docs/...    Starlight docs shell
 ```
@@ -30,9 +29,8 @@ Viewer
 | Name | Route / surface | File |
 |---|---|---|
 | Popup selection view | extension popup, main view | `screen-extension-1.md` |
-| Link result | extension popup, after share or from History | `screen-extension-2.md` |
-| My Stashes (popup) | extension popup, stashes view | `screen-extension-3.md` |
-| History | extension popup, history view | `screen-extension-4.md` |
+| Link result | extension popup, after sharing tabs | `screen-extension-2.md` |
+| Library (popup) | extension popup, stashes view | `screen-extension-3.md` |
 | Options page | extension options page (Shortener/Telemetry forms) | `screen-extension-5.md` |
 | Landing | viewer `/` | `screen-viewer-1.md` |
 | Create stash | viewer `/s/new` | `screen-viewer-2.md` |
@@ -49,6 +47,8 @@ Do not reintroduce these; they were removed on purpose.
 
 - Bottom back-button rows in popup subviews (history, stashes): replaced by
   the header top-left back chevron (`Header.tsx` `onBack`).
+- Popup History view: replaced by the Library; `stash-history` writes
+  remain during the downgrade compatibility window.
 - Footer theme + language cluster in the viewer tab viewer card footer:
   replaced by the compact ThemeSwitcher + LanguageSelector row inside
   `SharedCardContent` (tab viewer) and the AppHeader on `/s/new`, `/stashes`.
