@@ -8,6 +8,8 @@ export interface DecodedData {
   version: number;
   items: [string, string, ("url" | "note")?][];
   title?: string;
+  tags?: string[];
+  note?: string;
 }
 
 export type DecodeState =
