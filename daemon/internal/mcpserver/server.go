@@ -201,6 +201,9 @@ func (s *Server) runTool(ctx context.Context, name string, a map[string]any) (st
 			rec.Kept = k
 		}
 		now := nowMillis()
+		if now <= rec.UpdatedAt {
+			now = rec.UpdatedAt + 1
+		}
 		rec.UpdatedAt = now
 		if _, err := s.Store.ApplyChange(store.Change{
 			Op: "update", ID: id, Record: rec, UpdatedAt: now, Origin: "daemon",
@@ -217,8 +220,12 @@ func (s *Server) runTool(ctx context.Context, name string, a map[string]any) (st
 		if rec == nil {
 			return CallError("not_found", "no stash with that id"), true
 		}
+		delAt := nowMillis()
+		if delAt <= rec.UpdatedAt {
+			delAt = rec.UpdatedAt + 1
+		}
 		if _, err := s.Store.ApplyChange(store.Change{
-			Op: "delete", ID: id, UpdatedAt: nowMillis(), Origin: "daemon",
+			Op: "delete", ID: id, UpdatedAt: delAt, Origin: "daemon",
 		}); err != nil {
 			return CallError("internal_error", err.Error()), true
 		}
