@@ -9,6 +9,10 @@ beforeEach(() => {
 
 // Mock @stash/shared to avoid brotli-wasm side effects
 vi.mock("@stash/shared", () => ({
+  getBrotliFunctions: vi.fn(async () => ({
+    compress: (data: Uint8Array) => data,
+    decompress: (data: Uint8Array) => data,
+  })),
   getDomain: vi.fn((url: string) => {
     try {
       return new URL(url).hostname;
