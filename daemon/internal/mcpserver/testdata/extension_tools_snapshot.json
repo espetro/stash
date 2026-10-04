@@ -5,11 +5,11 @@
   },
   {
     "name": "stash_list",
-    "description": "List local stashes (id, title, tags, item counts, timestamps)."
+    "description": "List local stashes (id, title, tags, item counts, kept status, timestamps). Recent stashes (kept: false) are auto-removed when their links expire."
   },
   {
     "name": "stash_get",
-    "description": "Fetch a local stash by id, including its full item list."
+    "description": "Fetch a local stash by id, including its full item list and kept status. Recent stashes (kept: false) are auto-removed when their links expire."
   },
   {
     "name": "stash_create",
@@ -17,7 +17,7 @@
   },
   {
     "name": "stash_update",
-    "description": "Update a local stash's title, tags, note, or items by id."
+    "description": "Update a local stash's title, tags, note, items, or kept status by id. Recent stashes (kept: false) are auto-removed when their links expire."
   },
   {
     "name": "stash_delete",
@@ -25,7 +25,7 @@
   },
   {
     "name": "stash_search",
-    "description": "Search local stashes by a substring match over title, tags and note."
+    "description": "Search local stashes by a substring match over title, tags and note. Results include kept status; Recent stashes (kept: false) are auto-removed when their links expire."
   },
   {
     "name": "stash_decode",

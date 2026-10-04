@@ -1,10 +1,17 @@
 // Package store provides the SQLite storage layer: WAL mode, embedded
 // migrations, single-writer enforcement.
+//
+// Since migration 0002 the daemon is the durable stash store
+// (plan .agents/plans/2026-10-04-daemon-store-extension-library.md):
+// record-level last-write-wins on updated_at (ms), soft-delete tombstones
+// so a stale re-seed cannot resurrect deleted records, and a monotonic rev
+// change feed the host pushes to paired extensions.
 package store
 
 import (
 	"database/sql"
 	"embed"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -21,18 +28,23 @@ import (
 var migrationsFS embed.FS
 
 // Store wraps the SQLite database. A single connection plus a mutex
-// enforces the single-writer rule (spec 4.3).
+// enforces the single-writer rule (spec 4.3); _txlock=immediate serializes
+// writers across the separate serve/host processes on one DB file.
 type Store struct {
 	db *sql.DB
 	mu sync.Mutex // serializes writers; readers share the same single conn
 }
+
+// recordCols is the full stash_records column list read by every SELECT.
+const recordCols = `id,title,url,items_json,created_at,updated_at,origin,deleted,crdt_seq,
+	tags_json,note,kept,shares_json,extra_json,rev`
 
 // Open opens (creating) the database at path and applies pending migrations.
 func Open(path string) (*Store, error) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		return nil, err
 	}
-	dsn := "file:" + path + "?_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)&_pragma=foreign_keys(1)"
+	dsn := "file:" + path + "?_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)&_pragma=foreign_keys(1)&_txlock=immediate"
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, err
@@ -112,84 +124,181 @@ func (s *Store) CurrentVersion() (int, error) {
 	return v, err
 }
 
-// Record is one stash record row of the materialized read model.
+// Record is one stash_records row: the full StashRecord plus tombstone
+// and change-feed metadata.
 type Record struct {
 	ID        string
 	Title     string
-	URL       string
+	URL       string // first item URL, derived
 	ItemsJSON string
+	TagsJSON  string
+	Note      sql.NullString
+	Kept      bool
+	SharesJSON string
+	// ExtraJSON holds unknown optional StashRecord fields verbatim so they
+	// round-trip back out in ToJSON (forward compat).
+	ExtraJSON string
 	CreatedAt int64
-	UpdatedAt int64
+	UpdatedAt int64 // ms; the LWW clock
 	Origin    sql.NullString
-	Deleted   bool
-	CRDTSeq   int64
+	Deleted   bool // tombstone: kept so stale seeds can't resurrect the id
+	CRDTSeq   int64 // legacy column, unused since migration 0002
+	Rev       int64 // monotonic change-feed position
 }
 
-// PutRecord writes a record and appends the Automerge delta produced by the
-// caller (an incremental change from a crdt.Doc mutation) in one transaction;
-// the read model and crdt_doc stay consistent (F6/W2: the blob placeholder is
-// now a real Automerge delta, but the store remains agnostic). It also
-// appends an outbox entry for the future relay (F7).
-func (s *Store) PutRecord(r Record, delta []byte, peerID, op string) error {
+// Change is one writer's intent; ApplyChange arbitrates it under LWW.
+type Change struct {
+	Op        string  // "create" | "update" | "delete"
+	ID        string
+	Record    *Record // nil for delete
+	UpdatedAt int64   // ms; the writer's clock for this change
+	Origin    string  // extension profileId, or "daemon" for MCP writes
+}
+
+// ApplyChange applies c under record-level LWW (see plan §3.3). It returns
+// applied=false when c loses to the current row — a stale change is not an
+// error. A delete of an unknown id still writes a tombstone so a later stale
+// seed can't resurrect the record. Every applied change advances rev.
+func (s *Store) ApplyChange(c Change) (applied bool, err error) {
+	if c.ID == "" {
+		return false, errors.New("change has empty id")
+	}
+	switch c.Op {
+	case "create", "update":
+		if c.Record == nil {
+			return false, fmt.Errorf("change op %q without record", c.Op)
+		}
+		if c.Record.ID != "" && c.Record.ID != c.ID {
+			return false, fmt.Errorf("change id %q != record id %q", c.ID, c.Record.ID)
+		}
+	case "delete":
+	default:
+		return false, fmt.Errorf("unknown change op %q", c.Op)
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	tx, err := s.db.Begin()
 	if err != nil {
-		return err
+		return false, err
 	}
 	defer tx.Rollback()
-	now := time.Now().Unix()
-	if _, err := tx.Exec(`INSERT INTO stash_records(id,title,url,items_json,created_at,updated_at,origin,deleted,crdt_seq)
-		VALUES(?,?,?,?,?,?,?,?,?)
+
+	var exUpdatedAt int64
+	var exOrigin sql.NullString
+	var exDeleted int
+	var exists bool
+	err = tx.QueryRow(`SELECT updated_at, origin, deleted FROM stash_records WHERE id = ?`, c.ID).
+		Scan(&exUpdatedAt, &exOrigin, &exDeleted)
+	switch {
+	case err == sql.ErrNoRows:
+	case err != nil:
+		return false, err
+	default:
+		exists = true
+	}
+
+	apply := false
+	switch {
+	case !exists:
+		// Upsert creates the row; delete creates a tombstone.
+		apply = true
+	case c.Op == "delete":
+		if exDeleted != 0 {
+			// Already a tombstone: a strictly newer delete refreshes it.
+			apply = c.UpdatedAt > exUpdatedAt
+		} else {
+			// Delete wins timestamp ties over edits.
+			apply = c.UpdatedAt >= exUpdatedAt
+		}
+	default: // upsert
+		if exDeleted != 0 {
+			// Only an edit strictly newer than the delete resurrects.
+			apply = c.UpdatedAt > exUpdatedAt
+		} else {
+			apply = c.UpdatedAt > exUpdatedAt ||
+				(c.UpdatedAt == exUpdatedAt && c.Origin > exOrigin.String)
+		}
+	}
+	if !apply {
+		return false, nil
+	}
+
+	var rev int64
+	if err := tx.QueryRow(`SELECT COALESCE(MAX(rev),0)+1 FROM stash_records`).Scan(&rev); err != nil {
+		return false, err
+	}
+	origin := sql.NullString{String: c.Origin, Valid: c.Origin != ""}
+
+	if c.Op == "delete" {
+		if exists {
+			_, err = tx.Exec(`UPDATE stash_records SET deleted = 1, updated_at = ?, origin = ?, rev = ? WHERE id = ?`,
+				c.UpdatedAt, origin, rev, c.ID)
+		} else {
+			_, err = tx.Exec(`INSERT INTO stash_records(id,title,url,items_json,created_at,updated_at,origin,deleted,crdt_seq,tags_json,note,kept,shares_json,extra_json,rev)
+				VALUES(?,?,?,?,?,?,?,1,0,'[]',NULL,0,'[]','{}',?)`,
+				c.ID, "", "", "[]", c.UpdatedAt, c.UpdatedAt, origin, rev)
+		}
+		if err != nil {
+			return false, err
+		}
+		return true, tx.Commit()
+	}
+
+	r := c.Record
+	_, err = tx.Exec(`INSERT INTO stash_records(id,title,url,items_json,created_at,updated_at,origin,deleted,crdt_seq,tags_json,note,kept,shares_json,extra_json,rev)
+		VALUES(?,?,?,?,?,?,?,0,0,?,?,?,?,?,?)
 		ON CONFLICT(id) DO UPDATE SET title=excluded.title, url=excluded.url, items_json=excluded.items_json,
-		updated_at=excluded.updated_at, origin=excluded.origin, deleted=excluded.deleted, crdt_seq=excluded.crdt_seq`,
-		r.ID, r.Title, r.URL, r.ItemsJSON, r.CreatedAt, r.UpdatedAt, r.Origin, boolInt(r.Deleted), r.CRDTSeq); err != nil {
-		return err
+		created_at=excluded.created_at, updated_at=excluded.updated_at, origin=excluded.origin, deleted=0,
+		crdt_seq=excluded.crdt_seq, tags_json=excluded.tags_json, note=excluded.note, kept=excluded.kept,
+		shares_json=excluded.shares_json, extra_json=excluded.extra_json, rev=excluded.rev`,
+		r.ID, r.Title, r.URL, orDefault(r.ItemsJSON, "[]"), r.CreatedAt, c.UpdatedAt, origin,
+		orDefault(r.TagsJSON, "[]"), r.Note, boolInt(r.Kept), orDefault(r.SharesJSON, "[]"),
+		orDefault(r.ExtraJSON, "{}"), rev)
+	if err != nil {
+		return false, err
 	}
-	if _, err := tx.Exec(`INSERT INTO crdt_doc(id, blob, updated_at) VALUES(1, ?, ?)
-		ON CONFLICT(id) DO UPDATE SET blob=excluded.blob, updated_at=excluded.updated_at`, delta, now); err != nil {
-		return err
+	return true, tx.Commit()
+}
+
+// ChangesSince returns rows (live and tombstones) with rev > since,
+// ascending by rev — the daemon→extension push feed.
+func (s *Store) ChangesSince(since int64, limit int) ([]Record, error) {
+	rows, err := s.db.Query(`SELECT `+recordCols+` FROM stash_records WHERE rev > ? ORDER BY rev ASC LIMIT ?`, since, limit)
+	if err != nil {
+		return nil, err
 	}
-	if _, err := tx.Exec(`INSERT INTO outbox(peer_id, op, payload, created_at) VALUES(?,?,?,?)`,
-		peerID, op, delta, now); err != nil {
-		return err
-	}
-	return tx.Commit()
+	defer rows.Close()
+	return scanRecords(rows)
+}
+
+// LiveCount returns the number of non-deleted records.
+func (s *Store) LiveCount() (int, error) {
+	var n int
+	err := s.db.QueryRow(`SELECT COUNT(*) FROM stash_records WHERE deleted = 0`).Scan(&n)
+	return n, err
+}
+
+// MaxRev returns the current change-feed head (0 for an empty store).
+func (s *Store) MaxRev() (int64, error) {
+	var n int64
+	err := s.db.QueryRow(`SELECT COALESCE(MAX(rev),0) FROM stash_records`).Scan(&n)
+	return n, err
 }
 
 // GetRecord fetches a non-deleted record by id.
 func (s *Store) GetRecord(id string) (*Record, error) {
-	row := s.db.QueryRow(`SELECT id,title,url,items_json,created_at,updated_at,origin,deleted,crdt_seq
-		FROM stash_records WHERE id = ? AND deleted = 0`, id)
-	var r Record
-	var del int
-	if err := row.Scan(&r.ID, &r.Title, &r.URL, &r.ItemsJSON, &r.CreatedAt, &r.UpdatedAt, &r.Origin, &del, &r.CRDTSeq); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
-		return nil, err
-	}
-	r.Deleted = del != 0
-	return &r, nil
+	row := s.db.QueryRow(`SELECT `+recordCols+` FROM stash_records WHERE id = ? AND deleted = 0`, id)
+	return scanOne(row)
 }
 
-// DeleteRecord soft-deletes a record; returns whether a row was affected.
-func (s *Store) DeleteRecord(id string) (bool, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	res, err := s.db.Exec(`UPDATE stash_records SET deleted = 1, updated_at = ? WHERE id = ? AND deleted = 0`, time.Now().Unix(), id)
-	if err != nil {
-		return false, err
-	}
-	n, _ := res.RowsAffected()
-	return n > 0, nil
-}
-
-// SearchRecords does a substring match over title and url (F6 may upgrade).
+// SearchRecords does a substring match over title, url, tags and note —
+// the surface stash_search advertises.
 func (s *Store) SearchRecords(q string) ([]Record, error) {
 	like := "%" + q + "%"
-	rows, err := s.db.Query(`SELECT id,title,url,items_json,created_at,updated_at,origin,deleted,crdt_seq
-		FROM stash_records WHERE deleted = 0 AND (title LIKE ? OR url LIKE ?) ORDER BY updated_at DESC`, like, like)
+	rows, err := s.db.Query(`SELECT `+recordCols+` FROM stash_records
+		WHERE deleted = 0 AND (title LIKE ? OR url LIKE ? OR tags_json LIKE ? OR note LIKE ?)
+		ORDER BY updated_at DESC`, like, like, like, like)
 	if err != nil {
 		return nil, err
 	}
@@ -199,8 +308,7 @@ func (s *Store) SearchRecords(q string) ([]Record, error) {
 
 // ListRecords returns all non-deleted records newest-updated first.
 func (s *Store) ListRecords() ([]Record, error) {
-	rows, err := s.db.Query(`SELECT id,title,url,items_json,created_at,updated_at,origin,deleted,crdt_seq
-		FROM stash_records WHERE deleted = 0 ORDER BY updated_at DESC`)
+	rows, err := s.db.Query(`SELECT `+recordCols+` FROM stash_records WHERE deleted = 0 ORDER BY updated_at DESC`)
 	if err != nil {
 		return nil, err
 	}
@@ -208,15 +316,33 @@ func (s *Store) ListRecords() ([]Record, error) {
 	return scanRecords(rows)
 }
 
+func scanOne(row *sql.Row) (*Record, error) {
+	var r Record
+	var del, kept int
+	err := row.Scan(&r.ID, &r.Title, &r.URL, &r.ItemsJSON, &r.CreatedAt, &r.UpdatedAt, &r.Origin,
+		&del, &r.CRDTSeq, &r.TagsJSON, &r.Note, &kept, &r.SharesJSON, &r.ExtraJSON, &r.Rev)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	r.Deleted = del != 0
+	r.Kept = kept != 0
+	return &r, nil
+}
+
 func scanRecords(rows *sql.Rows) ([]Record, error) {
 	var out []Record
 	for rows.Next() {
 		var r Record
-		var del int
-		if err := rows.Scan(&r.ID, &r.Title, &r.URL, &r.ItemsJSON, &r.CreatedAt, &r.UpdatedAt, &r.Origin, &del, &r.CRDTSeq); err != nil {
+		var del, kept int
+		if err := rows.Scan(&r.ID, &r.Title, &r.URL, &r.ItemsJSON, &r.CreatedAt, &r.UpdatedAt, &r.Origin,
+			&del, &r.CRDTSeq, &r.TagsJSON, &r.Note, &kept, &r.SharesJSON, &r.ExtraJSON, &r.Rev); err != nil {
 			return nil, err
 		}
 		r.Deleted = del != 0
+		r.Kept = kept != 0
 		out = append(out, r)
 	}
 	return out, rows.Err()
@@ -241,20 +367,15 @@ func (s *Store) GetConfig(key string) (string, error) {
 	return v, err
 }
 
-// OutboxDepth returns the number of pending outbox entries.
-func (s *Store) OutboxDepth() (int, error) {
-	var n int
-	err := s.db.QueryRow(`SELECT COUNT(*) FROM outbox`).Scan(&n)
-	return n, err
-}
-
-// SyncPeer is one sync_state row.
+// SyncPeer is one sync_state row plus its push lag (unacked rev distance
+// between the feed head and the last rev this peer confirmed).
 type SyncPeer struct {
 	PeerID      string
 	LastSyncAt  sql.NullInt64
 	LastSentSeq sql.NullInt64
 	LastRecvSeq sql.NullInt64
 	Status      sql.NullString
+	Lag         int64
 }
 
 // UpsertSyncState records sync bookkeeping for a peer.
@@ -269,9 +390,11 @@ func (s *Store) UpsertSyncState(p SyncPeer) error {
 	return err
 }
 
-// SyncPeers lists all sync_state rows.
+// SyncPeers lists all sync_state rows with per-peer push lag.
 func (s *Store) SyncPeers() ([]SyncPeer, error) {
-	rows, err := s.db.Query(`SELECT peer_id, last_sync_at, last_sent_seq, last_recv_seq, status FROM sync_state`)
+	rows, err := s.db.Query(`SELECT peer_id, last_sync_at, last_sent_seq, last_recv_seq, status,
+		(SELECT COALESCE(MAX(rev),0) FROM stash_records) - COALESCE(last_sent_seq,0) AS lag
+		FROM sync_state`)
 	if err != nil {
 		return nil, err
 	}
@@ -279,7 +402,7 @@ func (s *Store) SyncPeers() ([]SyncPeer, error) {
 	var out []SyncPeer
 	for rows.Next() {
 		var p SyncPeer
-		if err := rows.Scan(&p.PeerID, &p.LastSyncAt, &p.LastSentSeq, &p.LastRecvSeq, &p.Status); err != nil {
+		if err := rows.Scan(&p.PeerID, &p.LastSyncAt, &p.LastSentSeq, &p.LastRecvSeq, &p.Status, &p.Lag); err != nil {
 			return nil, err
 		}
 		out = append(out, p)
@@ -287,17 +410,11 @@ func (s *Store) SyncPeers() ([]SyncPeer, error) {
 	return out, rows.Err()
 }
 
-// CRDTDoc returns the latest stored Automerge state blob (F6/W2: the full
-// serialized document, produced by crdt.Doc.Save() via the daemon write
-// pipeline) and its updated_at.
-func (s *Store) CRDTDoc() ([]byte, int64, error) {
-	var blob []byte
-	var ts int64
-	err := s.db.QueryRow(`SELECT blob, updated_at FROM crdt_doc WHERE id = 1`).Scan(&blob, &ts)
-	if err == sql.ErrNoRows {
-		return nil, 0, nil
+func orDefault(v, def string) string {
+	if v == "" {
+		return def
 	}
-	return blob, ts, err
+	return v
 }
 
 func boolInt(b bool) int {
