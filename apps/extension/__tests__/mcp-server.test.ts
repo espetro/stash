@@ -57,6 +57,9 @@ describe("MCP server tools", () => {
         "stash_decode",
       ].sort(),
     );
+    expect(tools.find((tool) => tool.name === "stash_list")?.description).toContain(
+      "auto-removed when their links expire",
+    );
     await client.close();
   });
 
@@ -90,17 +93,23 @@ describe("MCP server tools", () => {
     expect(stash.id).toBeTruthy();
     expect(stash.title).toBe("My Stash");
     expect(stash.tags).toEqual(["research"]);
+    expect(stash.kept).toBe(true);
 
     const listed = textOf(await client.callTool({ name: "stash_list", arguments: {} }));
-    expect(listed.stashes.some((s: { id: string }) => s.id === stash.id)).toBe(true);
+    expect(
+      listed.stashes.some((s: { id: string; kept: boolean }) => s.id === stash.id && s.kept),
+    ).toBe(true);
 
     const fetched = textOf(await client.callTool({ name: "stash_get", arguments: { id: stash.id } }));
     expect(fetched.items).toEqual(stash.items);
+    expect(fetched.kept).toBe(true);
 
     const searched = textOf(
       await client.callTool({ name: "stash_search", arguments: { query: "research" } }),
     );
-    expect(searched.stashes.some((s: { id: string }) => s.id === stash.id)).toBe(true);
+    expect(
+      searched.stashes.some((s: { id: string; kept: boolean }) => s.id === stash.id && s.kept),
+    ).toBe(true);
     await client.close();
   });
 
@@ -124,10 +133,20 @@ describe("MCP server tools", () => {
     const updated = textOf(
       await client.callTool({
         name: "stash_update",
-        arguments: { id: created.id, title: "Renamed" },
+        arguments: { id: created.id, title: "Renamed", kept: false },
       }),
     );
     expect(updated.title).toBe("Renamed");
+    expect(updated.kept).toBe(false);
+
+    const listed = textOf(await client.callTool({ name: "stash_list", arguments: {} }));
+    expect(listed.stashes[0].kept).toBe(false);
+    const fetched = textOf(await client.callTool({ name: "stash_get", arguments: { id: created.id } }));
+    expect(fetched.kept).toBe(false);
+    const searched = textOf(
+      await client.callTool({ name: "stash_search", arguments: { query: "Renamed" } }),
+    );
+    expect(searched.stashes[0].kept).toBe(false);
     await client.close();
   });
 

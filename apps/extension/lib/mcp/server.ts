@@ -9,6 +9,7 @@ import {
   updateStash,
   deleteStash,
   searchStashes,
+  isKept,
   type StashItem,
 } from "../stash-store";
 import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
@@ -21,6 +22,7 @@ function stashSummary(stash: {
   tags: string[];
   note?: string;
   items: StashItem[];
+  kept?: boolean;
   createdAt: number;
   updatedAt: number;
 }) {
@@ -29,6 +31,7 @@ function stashSummary(stash: {
     title: stash.title,
     tags: stash.tags,
     itemCount: stash.items.length,
+    kept: isKept(stash),
     createdAt: stash.createdAt,
     updatedAt: stash.updatedAt,
   };
@@ -59,7 +62,7 @@ export function buildMcpServer(): McpServer {
 
   server.tool(
     "stash_list",
-    "List local stashes (id, title, tags, item counts, timestamps).",
+    "List local stashes (id, title, tags, item counts, kept status, timestamps). Recent stashes (kept: false) are auto-removed when their links expire.",
     {},
     async () => {
       const stashes = await listStashes();
@@ -71,7 +74,7 @@ export function buildMcpServer(): McpServer {
 
   server.tool(
     "stash_get",
-    "Fetch a local stash by id, including its full item list.",
+    "Fetch a local stash by id, including its full item list and kept status. Recent stashes (kept: false) are auto-removed when their links expire.",
     { id: z.string().describe("The stash id") },
     async ({ id }) => {
       const stash = await getStash(id);
@@ -81,7 +84,9 @@ export function buildMcpServer(): McpServer {
           isError: true,
         };
       }
-      return { content: [{ type: "text", text: JSON.stringify(stash) }] };
+      return {
+        content: [{ type: "text", text: JSON.stringify({ ...stash, kept: isKept(stash) }) }],
+      };
     },
   );
 
@@ -102,16 +107,20 @@ export function buildMcpServer(): McpServer {
 
   server.tool(
     "stash_update",
-    "Update a local stash's title, tags, note, or items by id.",
+    "Update a local stash's title, tags, note, items, or kept status by id. Recent stashes (kept: false) are auto-removed when their links expire.",
     {
       id: z.string().describe("The stash id"),
       title: z.string().optional(),
       tags: z.array(z.string()).optional(),
       note: z.string().optional(),
       items: z.array(stashItemSchema).optional(),
+      kept: z
+        .boolean()
+        .optional()
+        .describe("false marks Recent; it is auto-removed when links expire"),
     },
-    async ({ id, title, tags, note, items }) => {
-      const stash = await updateStash(id, { title, tags, note, items });
+    async ({ id, title, tags, note, items, kept }) => {
+      const stash = await updateStash(id, { title, tags, note, items, kept });
       if (!stash) {
         return {
           content: [{ type: "text", text: JSON.stringify({ error: "not_found" }) }],
@@ -140,7 +149,7 @@ export function buildMcpServer(): McpServer {
 
   server.tool(
     "stash_search",
-    "Search local stashes by a substring match over title, tags and note.",
+    "Search local stashes by a substring match over title, tags and note. Results include kept status; Recent stashes (kept: false) are auto-removed when their links expire.",
     { query: z.string().describe("Search query") },
     async ({ query }) => {
       const stashes = await searchStashes(query);
