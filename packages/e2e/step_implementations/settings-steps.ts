@@ -50,9 +50,9 @@ step("A new tab should open with the settings page", async () => {
   const pages = context.pages();
 
   const extensionId = await getExtensionId(context);
-  const optionsUrl = `chrome-extension://${extensionId}/options.html`;
+  const optionsUrl = `chrome-extension://${extensionId}/library.html#settings`;
 
-  optionsPage = pages.find((page) => page.url().includes("options.html")) || null;
+  optionsPage = pages.find((page) => page.url().includes("library.html")) || null;
 
   if (!optionsPage) {
     throw new Error("Options page not found after clicking settings button");
@@ -72,7 +72,7 @@ step("The user navigates to the options page", async () => {
   }
 
   optionsPage = await context.newPage();
-  await optionsPage.goto(`chrome-extension://${extensionId}/options.html`);
+  await optionsPage.goto(`chrome-extension://${extensionId}/library.html#settings`);
   await optionsPage.waitForLoadState("networkidle");
 });
 

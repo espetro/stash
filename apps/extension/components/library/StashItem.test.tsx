@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { StashItem } from "./StashItem";
-import type { StashRecord } from "../../../lib/stash-store";
+import type { StashRecord } from "../../lib/stash-store";
 
 const stash: StashRecord = {
   id: "saved",

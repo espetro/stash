@@ -30,6 +30,9 @@ export default defineConfig({
       "nativeMessaging",
     ],
     action: { default_popup: "popup/index.html" },
+    // Settings moved into the unlisted library.html page (PR E); keep the
+    // options_ui entry so browser-level "Extension options" links land there.
+    options_ui: { page: "library.html#settings", open_in_tab: true },
     // @ts-ignore - WXT doesn't expose externally_connectable in its manifest types yet
     externally_connectable: {
       // Allowlist (NOT `["*"]`): any extension the user installs would otherwise

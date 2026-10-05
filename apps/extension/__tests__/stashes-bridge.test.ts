@@ -77,7 +77,7 @@ describe("stashes-bridge", () => {
     bridgeDetach = undefined;
   });
 
-  it("registers no message listener when the setting is disabled", async () => {
+  it("registers the listener even when the data bridge is disabled", async () => {
     vi.spyOn(settingsModule, "getSettings").mockResolvedValue({
       expiryMode: "never",
       viewerOrigin: ALLOWED,
@@ -89,8 +89,135 @@ describe("stashes-bridge", () => {
     const addSpy = vi.spyOn(window, "addEventListener");
 
     await startBridge();
-    // The content-script bootstrap does not register the message listener.
-    expect(addSpy).not.toHaveBeenCalledWith("message", expect.any(Function));
+    // PR E: the listener always attaches — per-type gating decides what
+    // each request may do (presence works, data replies bridge_disabled).
+    expect(addSpy).toHaveBeenCalledWith("message", expect.any(Function));
+  });
+
+  it("answers presence pings when the data bridge is disabled", async () => {
+    vi.spyOn(settingsModule, "getSettings").mockResolvedValue({
+      expiryMode: "never",
+      viewerOrigin: ALLOWED,
+      shortenerOrigin: "https://s.illo.fyi",
+      shortenerEnabled: false,
+      telemetryEnabled: false,
+      localLibraryViewerEnabled: false,
+    });
+    const { calls } = spyPostMessage();
+    await startBridge();
+
+    dispatchMessage({ type: "stash:viewer:presence", version: 1, requestId: "p-1" });
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(calls).toHaveLength(1);
+    const reply = calls[0].message as PostedMessage;
+    expect(reply.status).toBe("ok");
+    expect(reply.payload).toEqual({ present: true });
+  });
+
+  it("rejects the data request with bridge_disabled when the setting is off", async () => {
+    vi.spyOn(settingsModule, "getSettings").mockResolvedValue({
+      expiryMode: "never",
+      viewerOrigin: ALLOWED,
+      shortenerOrigin: "https://s.illo.fyi",
+      shortenerEnabled: false,
+      telemetryEnabled: false,
+      localLibraryViewerEnabled: false,
+    });
+    const { calls } = spyPostMessage();
+    await startBridge();
+
+    dispatchMessage({ type: REQUEST_TYPE, version: 1, requestId: "off-1" });
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(calls).toHaveLength(1);
+    const reply = calls[0].message as PostedMessage;
+    expect(reply.status).toBe("error");
+    expect(reply.error).toBe("bridge_disabled");
+  });
+
+  it("relays stash:viewer:open to the background worker", async () => {
+    vi.spyOn(settingsModule, "getSettings").mockResolvedValue({
+      expiryMode: "never",
+      viewerOrigin: ALLOWED,
+      shortenerOrigin: "https://s.illo.fyi",
+      shortenerEnabled: false,
+      telemetryEnabled: false,
+      localLibraryViewerEnabled: false,
+    });
+    const sendSpy = vi.spyOn(fakeBrowser.runtime, "sendMessage").mockResolvedValue({ ok: true });
+    const { calls } = spyPostMessage();
+    await startBridge();
+
+    dispatchMessage({ type: "stash:viewer:open", version: 1, requestId: "o-1" });
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(sendSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "stash:ext:open-library" }),
+    );
+    expect(calls).toHaveLength(1);
+    expect((calls[0].message as PostedMessage).status).toBe("ok");
+  });
+
+  it("relays a valid stash:viewer:handoff payload; rejects invalid ones", async () => {
+    vi.spyOn(settingsModule, "getSettings").mockResolvedValue({
+      expiryMode: "never",
+      viewerOrigin: ALLOWED,
+      shortenerOrigin: "https://s.illo.fyi",
+      shortenerEnabled: false,
+      telemetryEnabled: false,
+      localLibraryViewerEnabled: false,
+    });
+    const sendSpy = vi.spyOn(fakeBrowser.runtime, "sendMessage").mockResolvedValue({ ok: true });
+    const { calls } = spyPostMessage();
+    await startBridge();
+
+    const handoff = {
+      version: 1,
+      source: "viewer-local",
+      stashes: [
+        {
+          id: "s-1",
+          title: "From viewer",
+          tags: [],
+          note: null,
+          items: [{ url: "https://example.com", title: "Example" }],
+          kept: false,
+          createdAt: 1,
+          updatedAt: 2,
+        },
+      ],
+    };
+    dispatchMessage({
+      type: "stash:viewer:handoff",
+      version: 1,
+      requestId: "h-1",
+      payload: handoff,
+    });
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(sendSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "stash:ext:open-library",
+        hash: "#pending-import",
+        handoff: { records: handoff.stashes, source: "viewer-local" },
+      }),
+    );
+    expect((calls[0].message as PostedMessage).status).toBe("ok");
+
+    // Wrong source → invalid_payload, no relay.
+    sendSpy.mockClear();
+    dispatchMessage({
+      type: "stash:viewer:handoff",
+      version: 1,
+      requestId: "h-2",
+      payload: { ...handoff, source: "extension" },
+    });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(sendSpy).not.toHaveBeenCalled();
+    const errReply = calls[1].message as PostedMessage;
+    expect(errReply.status).toBe("error");
+    expect(errReply.error).toBe("invalid_payload");
   });
 
   it("registers a message listener when the setting is enabled", async () => {

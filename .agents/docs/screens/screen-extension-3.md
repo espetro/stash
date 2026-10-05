@@ -1,37 +1,59 @@
 ---
 screen: extension-3
-name: Library (popup)
-route: extension popup, stashes view
-file: apps/extension/entrypoints/popup/components/StashesView.tsx
+name: Library page
+route: extension page `library.html` (unlisted; opened from popup "Open Library", the `/stashes` CTA, or browser "Extension options" → `#settings`)
+file: apps/extension/entrypoints/library/App.tsx, entrypoints/library/components/LibraryView.tsx
 ---
 
 ```text
-+--------------------------------------------------+
-| [<] Stash                         (library) (cog) |
-+--------------------------------------------------+
-| Library                           (export) (import)|
-| [ All · N ] [ Kept · N ] [ Recent · N ]         |
-| [ Search by title, tag, or note... ]             |
-| +----------------------------------------------+ |
-| | v Example + 1 more [Recent · clears in Xd…]     |
-| |   [Share] [Keep] [trash]                      | |
-| |   3 items · Aug 22, 2026 10:04              | |
-| |   [tag] [tag] [Shared 1 time]                 | |
-| +----------------------------------------------+ |
-| | > Kept stash                         [Share] [trash] |
-| +----------------------------------------------+ |
-+--------------------------------------------------+
++----------------------------------------------------------+
+| Stash Library          [ Library ] [ Settings ]   (tabs) |
++----------------------------------------------------------+
+| (import banner) N stashes from the Stash website are     |
+|   ready to import into this profile's library.           |
+|   [ Import ]  [x]                                        |
++----------------------------------------------------------+
+| (sync bar — hidden when paired & drained)                |
+| (backup hint — only while never paired)                  |
+|   Not backed up: this library only lives in this browser |
+|   profile. Install the Stash daemon or export a copy.    |
++----------------------------------------------------------+
+| Library                        (export) (import)         |
+| [ All · N ] [ Kept · N ] [ Recent · N ]                  |
+| [ Search by title, tag, or note... ]                     |
+| +------------------------------------------------------+ |
+| | v Example + 1 more [Recent · clears in Xd…]           |
+| |   [Share] (qr) (open-all) [Keep] [trash]              |
+| |   3 items · Aug 22, 2026 10:04                        |
+| |   [tag] [tag] [Shared 1 time]                         |
+| +------------------------------------------------------+ |
+| | > Kept stash             [Share] (qr) (open-all) [trash] |
+| +------------------------------------------------------+ |
++----------------------------------------------------------+
 ```
 
-Expanded stash item (`StashItem.tsx`):
+Expanded stash item (`components/library/StashItem.tsx`):
 
 ```text
-| v Stash title [Recent · clears in Xd…]            |
-|   [Share] [Keep] [trash]                         |
-|   Title  [ Untitled stash ]                      |
-|   Tags   [tag x] [tag x] [ Add tag... ] (+)      |
-|   Note   [ Add a note... ]                       |
-|   Items  - https://example.com/page (link)       |
+| v Stash title [Recent · clears in Xd…]                   |
+|   [Share] (qr) (open-all) [trash]                        |
+|   Title  [ Untitled stash ]                              |
+|   Tags   [tag x] [tag x] [ Add tag... ] (+)              |
+|   Note   [ Add a note... ]                               |
+|   Shares (expanded) — url · date · N tabs · time left    |
+|   Items  - https://example.com/page (link)               |
++----------------------------------------------------------+
+```
+
+QR dialog (`QrDialog.tsx`, native `<dialog>`):
+
+```text
++--------------------------------------------------+
+|              +----------------+                  |
+|              |    QR code     |                  |
+|              +----------------+                  |
+| https://viewer.example.com/s#p=... (mono, wraps) |
+| [ x Close ]                                      |
 +--------------------------------------------------+
 ```
 
@@ -39,30 +61,29 @@ Expanded stash item (`StashItem.tsx`):
 
 | Element | State | Description |
 |---|---|---|
-| Sync status line | hidden when paired & drained | Persistent status surface (`SyncStatusBar`); variants: never paired, offline (with last seen), protocol refused, pending backlog. Error copy names `stash-daemon doctor`. Popup saving/sharing fully functional in every state. |
+| Library/Settings tabs | always | Hash-routed (`#library` / `#settings`); `#pending-import` lands on Library and shows the import banner |
+| Pending-import banner | only when `pending-import` storage slot set | viewer→extension handoff confirm surface; Import merges records + clears slot; Dismiss clears slot |
+| Sync status line | hidden when paired & drained | `SyncStatusBar`; never-paired / offline / refused / backlog variants |
+| Backup hint | only when `state === "disconnected"` | "Not backed up … Install the Stash daemon or export a copy" |
 | Export icon | header, disabled when empty | LuDownload, downloads `stash-export-<ts>.json`; fires `export_used` |
 | Import icon | header | LuUpload, opens hidden file input (JSON only); fires `import_used`, skips existing ids |
-| Filter chips | when stashes exist | All / Kept / Recent, each with a count; All is selected initially |
-| Search | only when stashes exist | Filters by title, note, tags after applying the selected filter |
-| Stash row | collapsed / expanded | Chevron + shared title fallback + item count/date, `Recent · clears in {formatRemainingTime(...)}` badge, optional shared count and tags; expanding fires `stash_reopened` |
-| Share | every row | Encodes with current settings, copies the URL, records history and attaches the share to the same Library record; shows `Copied!` with `LuCheck` for 2s after success |
-| Keep | Recent rows only | Changes the row to Kept |
-| Trash | one-click arm, 3s window | Second click deletes; title flips to "Click again to confirm" |
-| Title / Tags / Note editors | expanded | Inline inputs, saved on blur; tag editor has remove-x per chip, input plus LuPlus add button (Enter also adds) |
-| Items list | expanded | Plain links opening in new tab |
-| Empty state | no stashes / no match | LuArchive icon + "No stashes yet" / "No matching stashes" |
+| Filter chips | when stashes exist | All / Kept / Recent, each with a count |
+| Search | only when stashes exist | Filters by title, note, tags within the selected filter |
+| Stash row | collapsed / expanded | Chevron + title + item count/date, `Recent · clears in …` badge, shared count, tags |
+| Share | every row | Encodes with current settings, copies URL, records history + attaches share to the record; `Copied!` 2s |
+| QR | every row | LuQrCode icon button; encodes the same share link (records history + share) and opens the QR dialog; fires `stash_qr_shared` |
+| Open all | every row | LuSquareArrowOutUpRight icon button; opens every item in new background tabs; fires `stash_open_all` |
+| Keep | Recent rows only | Marks the row Kept |
+| Trash | one-click arm, 3s window | Second click deletes |
 
 ## Behavior
 
-- Stashes sorted by `updatedAt` descending within the selected filter.
-- Back chevron returns to the main selection view.
-- Import errors surface through the shared `ErrorMessage` banner.
-ts, saved on blur; tag editor has remove-x per chip, input plus LuPlus add button (Enter also adds) |
-| Items list | expanded | Plain links opening in new tab |
-| Empty state | no stashes / no match | LuArchive icon + "No stashes yet" / "No matching stashes" |
-
-## Behavior
-
-- Stashes sorted by `updatedAt` descending.
-- Back chevron returns to the main selection view.
-- Import errors surface through the shared `ErrorMessage` banner.
+- The popup no longer embeds the Library; its header archive button opens
+  `library.html` in a new tab (`lib/open-library.ts`).
+- The viewer `/stashes` page can open this page via the bridge
+  (`stash:viewer:open`) and park records via `stash:viewer:handoff` → the
+  pending-import banner is the only merge surface.
+- `#settings` renders the same sections the retired `options.html` page
+  had (`entrypoints/library/components/settings/*`); `options_ui` in the
+  manifest points at `library.html#settings` so browser-level
+  "Extension options" links keep working.

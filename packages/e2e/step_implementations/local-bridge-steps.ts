@@ -124,7 +124,7 @@ step("The user sets localLibraryViewerEnabled to <value>", async (value) => {
     // extension-origin page for `chrome.storage.sync` to exist.
     const extensionId = await getExtensionId(ctx);
     page = await ctx.newPage();
-    await page.goto(`chrome-extension://${extensionId}/options.html`);
+    await page.goto(`chrome-extension://${extensionId}/library.html#settings`);
   }
   await page.evaluate(async (flag) => {
     // `webext-storage`'s StorageItem stores the settings object RAW

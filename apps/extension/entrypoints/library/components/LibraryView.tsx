@@ -2,9 +2,11 @@ import { useMemo, useRef, useState } from "react";
 import { LuArchive, LuDownload, LuUpload } from "react-icons/lu";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import { getBrotliFunctions } from "@stash/shared";
+import { browser } from "wxt/browser";
 import { useStashes } from "../hooks/useStashes";
-import { StashItem } from "./StashItem";
-import { ErrorMessage } from "./ErrorMessage";
+import { QrDialog } from "./QrDialog";
+import { StashItem } from "../../../components/library/StashItem";
+import { ErrorMessage } from "../../../components/ErrorMessage";
 import { exportStashesToJSON, parseStashesImport } from "../../../lib/stash-io";
 import { addToHistory } from "../../../lib/history";
 import { getSettings } from "../../../lib/settings";
@@ -15,11 +17,16 @@ const sortByUpdatedDesc = (a: StashRecord, b: StashRecord) => b.updatedAt - a.up
 
 type LibraryFilter = "all" | "kept" | "recent";
 
-export function StashesView() {
+interface ShareResult {
+  url: string;
+}
+
+export default function LibraryView() {
   const { stashes, isLoading, error, setError, update, keep, recordShare, remove, importRecords } =
     useStashes();
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<LibraryFilter>("all");
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filteredStashes = useMemo(() => {
@@ -74,7 +81,7 @@ export function StashesView() {
     }
   }
 
-  async function handleShare(stash: StashRecord): Promise<boolean> {
+  async function createShare(stash: StashRecord): Promise<ShareResult | null> {
     try {
       const settings = await getSettings();
       const brotli = await getBrotliFunctions();
@@ -92,7 +99,6 @@ export function StashesView() {
       const now = Date.now();
       const expiresAt = now + expiryHours * 3600 * 1000;
 
-      await navigator.clipboard.writeText(result.url);
       await addToHistory({
         id: now.toString(36),
         url: result.url,
@@ -113,11 +119,38 @@ export function StashesView() {
           expiresAt,
         },
       });
-      return true;
+      return { url: result.url };
     } catch {
       setError("Failed to create share link");
+      return null;
+    }
+  }
+
+  async function handleShare(stash: StashRecord): Promise<boolean> {
+    const share = await createShare(stash);
+    if (!share) return false;
+    try {
+      await navigator.clipboard.writeText(share.url);
+    } catch {
+      setError("Share link created, but copying to the clipboard failed");
       return false;
     }
+    return true;
+  }
+
+  async function handleQr(stash: StashRecord) {
+    const share = await createShare(stash);
+    if (share) {
+      recordEvent("stash_qr_shared");
+      setQrUrl(share.url);
+    }
+  }
+
+  async function handleOpenAll(stash: StashRecord) {
+    recordEvent("stash_open_all");
+    await Promise.all(
+      stash.items.map((item) => browser.tabs.create({ url: item.url, active: false })),
+    );
   }
 
   if (isLoading) {
@@ -165,6 +198,8 @@ export function StashesView() {
       </div>
 
       {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}
+
+      {qrUrl && <QrDialog url={qrUrl} onClose={() => setQrUrl(null)} />}
 
       {stashes.length > 0 && (
         <>
@@ -229,6 +264,8 @@ export function StashesView() {
               onDelete={() => remove(stash.id)}
               onKeep={() => keep(stash.id)}
               onShare={() => handleShare(stash)}
+              onQr={() => void handleQr(stash)}
+              onOpenAll={() => void handleOpenAll(stash)}
             />
           ))}
         </div>

@@ -246,5 +246,12 @@
     "browserEmpty": "Aucun stash enregistré dans ce navigateur.",
     "noMatches": "Aucun stash correspondant.",
     "readOnlyHint": "Read-only mirror of the extension library; edit stashes from the extension popup."
-  }
+  },
+  "myStashes.extensionDetected": "L'extension Stash est installée dans ce navigateur.",
+  "myStashes.openInExtension": "Ouvrir votre bibliothèque dans l'extension",
+  "myStashes.moveToExtension": "Déplacer vers la bibliothèque de l'extension",
+  "myStashes.moveToExtensionBusy": "Déplacement...",
+  "myStashes.moveToExtensionDone": "{count} stash(es) déplacé(s) — confirmez l'import dans la page Bibliothèque de l'extension.",
+  "myStashes.moveToExtensionError": "Impossible de transférer les stashes vers l'extension.",
+  "myStashes.readOnlyHint": "Miroir en lecture seule de la bibliothèque de l'extension ; modifiez les stashes depuis la page Bibliothèque de l'extension."
 }

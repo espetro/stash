@@ -246,5 +246,12 @@
     "browserEmpty": "В этом браузере пока нет сохранённых стешей.",
     "noMatches": "Подходящих стешей не найдено.",
     "readOnlyHint": "Read-only mirror of the extension library; edit stashes from the extension popup."
-  }
+  },
+  "myStashes.extensionDetected": "Расширение Stash установлено в этом браузере.",
+  "myStashes.openInExtension": "Открыть библиотеку в расширении",
+  "myStashes.moveToExtension": "Перенести в библиотеку расширения",
+  "myStashes.moveToExtensionBusy": "Перенос...",
+  "myStashes.moveToExtensionDone": "Перенесено: {count} — подтвердите импорт на странице библиотеки расширения.",
+  "myStashes.moveToExtensionError": "Не удалось передать стэши в расширение.",
+  "myStashes.readOnlyHint": "Зеркало библиотеки расширения только для чтения; редактируйте стэши на странице библиотеки расширения."
 }

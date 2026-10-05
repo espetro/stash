@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { fakeBrowser } from "wxt/testing/fake-browser";
 import { materializeStashes, listStashes, type StashRecord } from "../../../lib/stash-store";
 import { historyItem } from "../../../lib/history";
-import { StashesView } from "./StashesView";
+import LibraryView from "./LibraryView";
 
 const encodeShareMock = vi.hoisted(() => vi.fn());
 vi.mock("@stash/codec", () => ({
@@ -64,13 +64,13 @@ beforeEach(() => {
   });
 });
 
-describe("StashesView", () => {
+describe("LibraryView", () => {
   it("filters the Library by All, Kept, and Recent", async () => {
     await materializeStashes(() => [
       testStash("saved", "Saved links", true),
       testStash("recent", "Recent links", false),
     ]);
-    render(<StashesView />);
+    render(<LibraryView />);
 
     expect(await screen.findByText("Saved links")).toBeTruthy();
     expect(screen.getByText("Recent links")).toBeTruthy();
@@ -86,7 +86,7 @@ describe("StashesView", () => {
   it("shares a row against its existing stash", async () => {
     const stash = testStash("saved", "Saved links", true);
     await materializeStashes(() => [stash]);
-    render(<StashesView />);
+    render(<LibraryView />);
 
     fireEvent.click(await screen.findByRole("button", { name: "Share" }));
 

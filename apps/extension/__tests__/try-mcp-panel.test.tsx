@@ -85,7 +85,7 @@ vi.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
 
 // --- Tests --------------------------------------------------------------
 
-import TryMcpPanel from "../entrypoints/options/components/TryMcpPanel";
+import TryMcpPanel from "../entrypoints/library/components/settings/TryMcpPanel";
 
 describe("TryMcpPanel", () => {
   beforeEach(() => {

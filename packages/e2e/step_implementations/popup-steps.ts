@@ -13,6 +13,7 @@ import { setCurrentPage } from "./common-steps";
 void _pwTest;
 
 let popupPage: Page | null = null;
+let libraryPage: Page | null = null;
 
 function requireExtensionContext(): BrowserContext {
   const ctx = getActiveState().extensionContext;
@@ -92,32 +93,40 @@ step("The popup should show the link result", async () => {
 });
 
 step("The user opens the Library from the popup", async () => {
-  await popupPage!.getByRole("button", { name: "View my stashes" }).click();
-  await expect(popupPage!.getByText("Library", { exact: true })).toBeVisible();
+  // PR E: the Library lives on the unlisted library.html page; the popup's
+  // "Open Library" button opens it in a new extension tab.
+  const context = requireExtensionContext();
+  const [page] = await Promise.all([
+    context.waitForEvent("page"),
+    popupPage!.getByRole("button", { name: "Open Library" }).click(),
+  ]);
+  libraryPage = page;
+  await libraryPage.waitForLoadState("networkidle");
+  await expect(libraryPage.getByRole("heading", { name: "Stash Library" })).toBeVisible();
 });
 
 step("The Library should show one Recent row and zero Kept stashes", async () => {
-  await expect(popupPage!.getByRole("button", { name: "All · 1" })).toBeVisible();
-  await expect(popupPage!.getByRole("button", { name: "Kept · 0" })).toBeVisible();
-  await expect(popupPage!.getByRole("button", { name: "Recent · 1" })).toBeVisible();
-  const row = popupPage!.locator(".stash-item");
+  await expect(libraryPage!.getByRole("button", { name: "All · 1" })).toBeVisible();
+  await expect(libraryPage!.getByRole("button", { name: "Kept · 0" })).toBeVisible();
+  await expect(libraryPage!.getByRole("button", { name: "Recent · 1" })).toBeVisible();
+  const row = libraryPage!.locator(".stash-item");
   await expect(row).toHaveCount(1);
   await expect(row.locator(".stash-state-badge")).toContainText("Recent");
   await expect(row).toContainText("2 items");
 });
 
 step("The user keeps the Recent row in the Library", async () => {
-  const row = popupPage!.locator(".stash-item");
+  const row = libraryPage!.locator(".stash-item");
   await row.getByRole("button", { name: "Keep" }).click();
   await expect(row.locator(".stash-state-badge")).toHaveCount(0);
 });
 
 step("The user filters the Library to Kept", async () => {
-  await popupPage!.getByRole("button", { name: "Kept · 1" }).click();
+  await libraryPage!.getByRole("button", { name: "Kept · 1" }).click();
 });
 
 step("The kept share should appear in the Library", async () => {
-  const row = popupPage!.locator(".stash-item");
+  const row = libraryPage!.locator(".stash-item");
   await expect(row).toHaveCount(1);
   await expect(row).toContainText("2 items");
   await expect(row.locator(".stash-state-badge")).toHaveCount(0);
@@ -164,5 +173,9 @@ step("The popup is closed", async () => {
   if (popupPage) {
     await popupPage.close();
     popupPage = null;
+  }
+  if (libraryPage) {
+    await libraryPage.close();
+    libraryPage = null;
   }
 });

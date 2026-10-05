@@ -170,5 +170,11 @@
   "myStashes.extensionEmpty": "No stashes in the extension library.",
   "myStashes.browserEmpty": "No stashes saved in this browser.",
   "myStashes.noMatches": "No matching stashes.",
-  "myStashes.readOnlyHint": "Read-only mirror of the extension library; edit stashes from the extension popup."
+  "myStashes.readOnlyHint": "Read-only mirror of the extension library; edit stashes from the extension's Library page.",
+  "myStashes.extensionDetected": "The Stash extension is installed in this browser.",
+  "myStashes.openInExtension": "Open your Library in the extension",
+  "myStashes.moveToExtension": "Move to extension Library",
+  "myStashes.moveToExtensionBusy": "Moving...",
+  "myStashes.moveToExtensionDone": "Moved {count} stash(es) — confirm the import on the extension's Library page.",
+  "myStashes.moveToExtensionError": "Could not hand off stashes to the extension."
 }

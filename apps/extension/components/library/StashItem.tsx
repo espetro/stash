@@ -6,13 +6,15 @@ import {
   LuLink2,
   LuPin,
   LuPlus,
+  LuQrCode,
   LuShare2,
+  LuSquareArrowOutUpRight,
   LuTrash2,
   LuX,
 } from "react-icons/lu";
 import { formatDateTime, formatRemainingTime, stashDisplayTitle } from "@stash/shared";
-import { recordEvent } from "../../../lib/telemetry";
-import { isKept, recentExpiresAt, type StashRecord } from "../../../lib/stash-store";
+import { recordEvent } from "../../lib/telemetry";
+import { isKept, recentExpiresAt, type StashRecord } from "../../lib/stash-store";
 
 interface StashItemProps {
   stash: StashRecord;
@@ -20,9 +22,11 @@ interface StashItemProps {
   onDelete: () => unknown;
   onKeep: () => unknown;
   onShare: () => Promise<unknown>;
+  onQr?: () => unknown;
+  onOpenAll?: () => unknown;
 }
 
-export function StashItem({ stash, onUpdate, onDelete, onKeep, onShare }: StashItemProps) {
+export function StashItem({ stash, onUpdate, onDelete, onKeep, onShare, onQr, onOpenAll }: StashItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
@@ -166,6 +170,34 @@ export function StashItem({ stash, onUpdate, onDelete, onKeep, onShare }: StashI
             {isCopied ? <LuCheck aria-hidden /> : <LuShare2 aria-hidden />}
             {isSharing ? "Sharing..." : isCopied ? "Copied!" : "Share"}
           </button>
+          {onQr && (
+            <button
+              className="stash-row-action stash-row-icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                onQr();
+              }}
+              aria-label="Share via QR code"
+              title="Share via QR code"
+              type="button"
+            >
+              <LuQrCode aria-hidden />
+            </button>
+          )}
+          {onOpenAll && (
+            <button
+              className="stash-row-action stash-row-icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenAll();
+              }}
+              aria-label={`Open all ${stash.items.length} items`}
+              title="Open all items"
+              type="button"
+            >
+              <LuSquareArrowOutUpRight aria-hidden />
+            </button>
+          )}
           {recent && (
             <button
               className="stash-row-action"
