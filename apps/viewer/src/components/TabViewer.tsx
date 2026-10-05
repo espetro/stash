@@ -209,7 +209,15 @@ export default function TabViewer() {
       const hoursLeft = Math.max(1, Math.round((data.expiry - Date.now() / 1000) / 3600));
       const never = data.expiry > Date.now() / 1000 + 875000 / 2;
       const expiryHours = never ? EXPIRY_HOURS_MAP.never : hoursLeft;
-      const result = await encodeTabsToShareUrl(tabs, brotli, expiryHours, undefined, data.title);
+      const result = await encodeTabsToShareUrl(
+        tabs,
+        brotli,
+        expiryHours,
+        window.location.origin,
+        data.title,
+        data.tags,
+        data.note,
+      );
       setEditedUrl(result.url);
       setSaveState("saved");
     } catch {

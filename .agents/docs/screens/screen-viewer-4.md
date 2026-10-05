@@ -40,6 +40,7 @@ file: apps/viewer/src/components/MyStashes.tsx
 | Element | State | Description |
 |---|---|---|
 | AppHeader | always | Back chevron, New stash / My stashes links, theme and language |
+| Mobile header | below 640px | AppHeader navigation links are icon-only. |
 | Source chip | always | "This browser's extension library" or "Saved in this browser."; `[data-stash-source]` |
 | Read-only hint | extension source only | "Read-only mirror of the extension library; ..." |
 | Search | always | FaMagnifyingGlass icon inside the input; filters the library |

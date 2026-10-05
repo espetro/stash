@@ -10,7 +10,7 @@ import type { StashRecord } from "../../../lib/stash-store";
 const sortByUpdatedDesc = (a: StashRecord, b: StashRecord) => b.updatedAt - a.updatedAt;
 
 export function StashesView() {
-  const { stashes, isLoading, error, setError, update, remove, create } = useStashes();
+  const { stashes, isLoading, error, setError, update, remove, importRecords } = useStashes();
   const [searchQuery, setSearchQuery] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -52,16 +52,7 @@ export function StashesView() {
       recordEvent("import_used");
       const text = await file.text();
       const imported = parseStashesImport(text);
-      const existingIds = new Set(stashes.map((s) => s.id));
-      for (const record of imported) {
-        if (existingIds.has(record.id)) continue;
-        await create({
-          title: record.title,
-          tags: record.tags,
-          note: record.note,
-          items: record.items,
-        });
-      }
+      await importRecords(imported);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to import stashes");
     }

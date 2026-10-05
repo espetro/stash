@@ -31,15 +31,25 @@ export default function AppHeader() {
 
       <nav className="flex items-center gap-1">
         <Button variant="ghost" size="sm" asChild>
-          <a href="/s/new" className="gap-1.5">
+          <a
+            href="/s/new"
+            aria-label={t("nav.newStash", undefined, lang)}
+            title={t("nav.newStash", undefined, lang)}
+            className="gap-1.5"
+          >
             <FaPlus className="size-3.5" />
-            {t("nav.newStash", undefined, lang)}
+            <span className="sr-only sm:not-sr-only">{t("nav.newStash", undefined, lang)}</span>
           </a>
         </Button>
         <Button variant="ghost" size="sm" asChild>
-          <a href="/stashes" className="gap-1.5">
+          <a
+            href="/stashes"
+            aria-label={t("nav.myStashes", undefined, lang)}
+            title={t("nav.myStashes", undefined, lang)}
+            className="gap-1.5"
+          >
             <FaBoxArchive className="size-3.5" />
-            {t("nav.myStashes", undefined, lang)}
+            <span className="sr-only sm:not-sr-only">{t("nav.myStashes", undefined, lang)}</span>
           </a>
         </Button>
         <ThemeSwitcher />

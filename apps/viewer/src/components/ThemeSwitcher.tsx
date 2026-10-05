@@ -119,7 +119,7 @@ export default function ThemeSwitcher({ className, ...props }: ThemeSwitcherProp
           onClick={handleClick("light")}
           aria-label="Light theme"
           aria-pressed={lightPressed}
-          className="relative z-10 flex flex-1 items-center justify-center h-9 rounded-full border-none bg-none cursor-pointer transition-colors duration-150"
+          className="relative z-10 flex w-9 items-center justify-center h-9 rounded-full border-none bg-none cursor-pointer transition-colors duration-150"
           style={{
             color: lightPressed ? "var(--foreground)" : "var(--muted-foreground)",
           }}
@@ -130,7 +130,7 @@ export default function ThemeSwitcher({ className, ...props }: ThemeSwitcherProp
           onClick={handleClick("system")}
           aria-label="System theme"
           aria-pressed={systemPressed}
-          className="relative z-10 flex flex-1 items-center justify-center h-9 rounded-full border-none bg-none cursor-pointer transition-colors duration-150"
+          className="relative z-10 flex w-9 items-center justify-center h-9 rounded-full border-none bg-none cursor-pointer transition-colors duration-150"
           style={{
             color: systemPressed ? "var(--foreground)" : "var(--muted-foreground)",
           }}
@@ -141,7 +141,7 @@ export default function ThemeSwitcher({ className, ...props }: ThemeSwitcherProp
           onClick={handleClick("dark")}
           aria-label="Dark theme"
           aria-pressed={darkPressed}
-          className="relative z-10 flex flex-1 items-center justify-center h-9 rounded-full border-none bg-none cursor-pointer transition-colors duration-150"
+          className="relative z-10 flex w-9 items-center justify-center h-9 rounded-full border-none bg-none cursor-pointer transition-colors duration-150"
           style={{
             color: darkPressed ? "var(--foreground)" : "var(--muted-foreground)",
           }}

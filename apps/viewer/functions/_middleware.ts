@@ -1,10 +1,8 @@
 // Pages middleware for agent-readiness:
 //
 // 1. Unknown /.well-known/* paths return 404 JSON instead of the SPA's HTML
-//    200 fallback. Agents probing /.well-known/* would otherwise read HTML
-//    as a (broken) discovery document. Real files in public/.well-known/ are
-//    served as static assets before this middleware runs, so they are
-//    unaffected; anything that reaches here does not exist.
+//    200 fallback. Existing static files pass through; only an HTML fallback
+//    or another unsuccessful response is replaced with the JSON 404.
 //
 // 2. `Accept: text/markdown` on the homepage returns an agent-oriented
 //    markdown rendition (pointer to llms.txt + the landing content),
@@ -36,6 +34,12 @@ export const onRequest = async (context: any): Promise<Response> => {
 	const { pathname } = new URL(request.url);
 
 	if (pathname.startsWith("/.well-known/")) {
+		const response = await next();
+		const contentType = response.headers.get("Content-Type") ?? "";
+		if (response.ok && !contentType.toLowerCase().includes("text/html")) {
+			return response;
+		}
+
 		return new Response(JSON.stringify({ error: "not_found" }), {
 			status: 404,
 			headers: {

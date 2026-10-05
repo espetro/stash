@@ -1,4 +1,5 @@
 import { StorageItem } from "webext-storage";
+import { removeHistoryByUrls } from "./history";
 import { recordCreate, recordDelete, recordUpdate } from "./sync/outbox";
 import { getProfileId, materializationGuard } from "./sync/profile";
 
@@ -117,6 +118,30 @@ export async function createStash(input: CreateStashInput): Promise<StashRecord>
   return record;
 }
 
+export async function importStashes(records: StashRecord[]): Promise<StashRecord[]> {
+  const stashes = await getAll();
+  const existingIds = new Set(stashes.map((stash) => stash.id));
+  const added: StashRecord[] = [];
+
+  for (const record of records) {
+    if (existingIds.has(record.id)) continue;
+    existingIds.add(record.id);
+    added.push({
+      ...record,
+      tags: record.tags ?? [],
+      shares: record.shares ?? [],
+    });
+  }
+
+  if (added.length === 0) return [];
+
+  await stashesItem.set([...stashes, ...added]);
+  for (const record of added) {
+    await afterWrite("create", record);
+  }
+  return added;
+}
+
 export async function updateStash(
   id: string,
   patch: UpdateStashInput,
@@ -166,10 +191,15 @@ export async function appendShareEvent(
 
 export async function deleteStash(id: string): Promise<boolean> {
   const stashes = await getAll();
+  const deleted = stashes.find((stash) => stash.id === id);
+  if (!deleted) return false;
   const next = stashes.filter((s) => s.id !== id);
-  if (next.length === stashes.length) return false;
   await stashesItem.set(next);
-  await afterWrite("delete", { ...stashes.find((s) => s.id === id)!, id });
+  await afterWrite("delete", deleted);
+  const shareUrls = deleted.shares?.map((share) => share.url) ?? [];
+  if (shareUrls.length > 0) {
+    await removeHistoryByUrls(shareUrls);
+  }
   return true;
 }
 

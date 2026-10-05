@@ -5,6 +5,7 @@ import { getBrotli } from "./brotli";
 
 export interface Env {
   STASH_KV?: KVNamespace;
+  VIEWER_ORIGIN?: string;
   /** Test seam: inject an in-memory storage instead of the KV binding */
   TEST_STORAGE?: Storage;
   /** Workers ratelimit binding — POST /api/stash, 5/min per IP per PoP */
@@ -56,6 +57,7 @@ export default {
     const server = createStashServer({
       storage,
       origin: new URL(request.url).origin,
+      viewerOrigin: env.VIEWER_ORIGIN ?? "https://stash.illo.fyi",
       getBrotli,
       rateLimiter: { stash: env.RL_STASH, mcp: env.RL_MCP },
       maxTtl: "7d",

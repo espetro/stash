@@ -240,7 +240,7 @@ async function routeRequest(
     }
     // HTML: redirect into the viewer SPA with the payload inline (stateless render)
     meta.route = "s_view_html";
-    const viewer = url.searchParams.get("v") ?? `${deps.origin}/s`;
+    const viewer = url.searchParams.get("v") ?? `${deps.viewerOrigin}/s`;
     return Response.redirect(`${viewer}#p=${entry.p}`, 302);
   }
 
