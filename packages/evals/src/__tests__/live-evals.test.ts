@@ -19,6 +19,11 @@ function input(): EvalInput {
     viewerOrigin: evalContext.viewerOrigin,
     shortenerOrigin: evalContext.shortenerOrigin,
     shortUrl: evalContext.shortUrl,
+    // Zero-trust fields are unset in this suite (it only runs the
+    // plaintext evals); run.ts populates them for the full benchmark.
+    encUrl: "",
+    encId: "",
+    encKey: "",
     llmsTxt: readLlmsTxt(),
   };
 }

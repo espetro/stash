@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import { generateShareKey, encryptForRelay, decryptFromRelay } from "../crypto";
 
 describe("generateShareKey", () => {
-  it("returns base64url of 16 random bytes", () => {
+  it("returns base64url of 32 random bytes (AES-256)", () => {
     const key = generateShareKey();
-    expect(key).toMatch(/^[A-Za-z0-9_-]{22}$/);
+    expect(key).toMatch(/^[A-Za-z0-9_-]{43}$/);
   });
 
   it("is unique across calls", () => {

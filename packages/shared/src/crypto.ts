@@ -3,14 +3,14 @@ import { encodeBase64urlNoPadding, decodeBase64urlIgnorePadding } from "@oslojs/
 /**
  * Zero-trust relay encryption (F14, option B).
  *
- * Per share, the client generates a random 128-bit key that lives ONLY in
+ * Per share, the client generates a random 256-bit key that lives ONLY in
  * the URL fragment (`/s/<id>#<key>`); fragments never reach any server.
- * The encoded payload is AES-256-GCM encrypted client-side and the relay
+ * The encoded payload is AES-256-GCM encrypted client-side (32-byte key) and the relay
  * stores only the opaque ciphertext (base64url, random 96-bit IV prepended).
  * There is no KDF: the key is random per share, nothing is derived.
  */
 
-const KEY_BYTES = 16;
+const KEY_BYTES = 32;
 const IV_BYTES = 12; // 96-bit IV, the GCM-recommended size
 const ALGORITHM = "AES-GCM";
 
@@ -39,7 +39,7 @@ async function importKey(keyB64Url: string): Promise<CryptoKey> {
   ]);
 }
 
-/** Generate a fresh per-share key: 16 random bytes, base64url-encoded.
+/** Generate a fresh per-share key: 32 random bytes (AES-256), base64url-encoded.
  *  This is the value carried in the URL fragment. */
 export function generateShareKey(): string {
   const bytes = new Uint8Array(KEY_BYTES);

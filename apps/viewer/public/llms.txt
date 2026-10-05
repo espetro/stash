@@ -59,11 +59,36 @@ For an encrypted entry:
 - `stash_get` (MCP) returns `{ "error": "encrypted" }`
 
 To read an encrypted entry, decrypt client-side: base64url-decode the
-`#<key>` fragment (16 bytes) and the `ciphertext` field, then AES-256-GCM
+`#<key>` fragment (32 bytes) and the `ciphertext` field, then AES-256-GCM
 decrypt `ciphertext` (layout: `IV(12B) || ciphertext+tag(16B)`) with that
 key. The plaintext is the same `C`/`R`/`D`/`S` payload string described
 above — decode it with the same codec. If you cannot run AES-GCM, ask the
 link's owner for a self-contained `#p=` link instead.
+
+Worked example (WebCrypto), given `url = "https://s.illo.fyi/s/<id>#<key>"`:
+
+```js
+const u = new URL(url);
+const id = u.pathname.split("/").pop();
+const b64u = (s) =>
+  Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) =>
+    c.charCodeAt(0),
+  );
+const env = await (
+  await fetch(`${u.origin}/s/${id}?format=json`)
+).json(); // { ciphertext, ... }
+const raw = b64u(env.ciphertext);
+const plain = await crypto.subtle.decrypt(
+  { name: "AES-GCM", iv: raw.slice(0, 12) },
+  await crypto.subtle.importKey("raw", b64u(u.hash.slice(1)), "AES-GCM", false, [
+    "decrypt",
+  ]),
+  raw.slice(12),
+);
+const payload = new TextDecoder().decode(plain); // the p-style payload string
+// server-side decode on the VIEWER origin (the host serving this llms.txt —
+// NOT the short-link host): GET /s?p=<payload>&format=json
+```
 
 Plaintext entries (created via `POST /api/stash {"payload": ...}` or
 `stash_create`) decode in all three formats exactly as before.

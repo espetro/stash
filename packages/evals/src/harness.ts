@@ -13,7 +13,7 @@ loadEnv({ path: fileURLToPath(new URL("../../../.env", import.meta.url)) });
 export const DEFAULT_MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
 
 const BASE_URL = "https://openrouter.ai/api/v1";
-export const MAX_REQUESTS_PER_RUN = 20;
+export const MAX_REQUESTS_PER_RUN = 60;
 const MAX_TOOL_ROUNDS = 6;
 
 export class BudgetExceededError extends Error {
@@ -82,6 +82,10 @@ export function createClient(fetchImpl: typeof fetch = fetch): LlmClient {
   ): Promise<{ message: ChatMessage; servedModel: string | null }> {
     const res = await fetchImpl(`${BASE_URL}/chat/completions`, {
       method: "POST",
+      // Bound each request: a stalled upstream stream otherwise hangs the
+      // eval forever. Free-tier models have legitimately needed ~300s for a
+      // single completion, so the ceiling stays above that.
+      signal: AbortSignal.timeout(360_000),
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
@@ -169,7 +173,12 @@ export function createClient(fetchImpl: typeof fetch = fetch): LlmClient {
             // Retry once on rate-limit / model-unavailable class errors.
             // OpenRouter wraps upstream 429s in a 400, so sniff the body too.
             const rateLimited = status === 429 || /"code":429|rate-limited/.test(message);
-            if (attempt === 1 && (rateLimited || (status ?? 0) >= 500)) {
+            // Transport-level flakes (undici `terminated`, socket resets) carry no
+            // status — retry those once too instead of failing the whole eval.
+            const transportFlake =
+              status === undefined &&
+              /terminated|ECONNRESET|ETIMEDOUT|fetch failed|socket|UND_ERR|abort|timed? ?out|TimeoutError/i.test(message);
+            if (attempt === 1 && (rateLimited || (status ?? 0) >= 500 || transportFlake)) {
               if (used < MAX_REQUESTS_PER_RUN) {
                 used++;
                 requestsForThisChat++;
