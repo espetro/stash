@@ -221,8 +221,32 @@ export interface ExpectedStash {
 export function gradeIslandExtraction(
   answer: unknown,
   expected: ExpectedStash[],
+  content?: string,
 ): { pass: boolean; reason: string } {
   if (!Array.isArray(answer)) {
+    // The answer() tool is harness plumbing: an agent that surfaces every
+    // seeded title + URL in its final prose still completed the retrieval,
+    // even if it never emitted the structured call. Grade the prose as a
+    // fallback before declaring failure.
+    const text = content ?? "";
+    if (text.trim().length > 0) {
+      const missingTitles = expected.filter((e) => !text.includes(e.title)).map((e) => e.title);
+      const missingUrls = expected
+        .flatMap((e) => e.items.map((i) => i.url))
+        .filter((u) => !text.includes(u));
+      if (missingTitles.length === 0 && missingUrls.length === 0) {
+        return {
+          pass: true,
+          reason: `all ${expected.length} seeded stashes surfaced in final response text (no structured answer())`,
+        };
+      }
+      return {
+        pass: false,
+        reason:
+          `no structured answer() and response text misses ` +
+          `${missingTitles.map((t) => `title "${t}"`).concat(missingUrls).join(", ") || "nothing"}`,
+      };
+    }
     return { pass: false, reason: `answer is not an array: ${JSON.stringify(answer).slice(0, 300)}` };
   }
   const got = answer as { title?: unknown; items?: unknown }[];

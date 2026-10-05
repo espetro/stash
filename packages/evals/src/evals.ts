@@ -471,7 +471,7 @@ export const islandExtraction: Eval = async ({ client, llmsTxt }) => {
     const prompt = [
       `Here is the llms.txt of a link-sharing site:\n\n${llmsTxt}`,
       `The site is running at ${VIEWER_ORIGIN}.`,
-      `Task: list the stashes saved in this browser.`,
+      `Task: list the stashes saved in this browser. Report each stash's own stored title and items — not the page <title>.`,
     ].join("\n\n");
     const result = await client.chat(prompt, DOM_AGENT_CONTEXT, [navigateTool, readDomTool, answerTool]);
     const answer = capturedAnswer ?? tryParseJson(result.content);
@@ -479,7 +479,7 @@ export const islandExtraction: Eval = async ({ client, llmsTxt }) => {
       "island-extraction",
       prompt,
       result,
-      gradeIslandExtraction(answer, EXTENSION_SEED.map((s) => ({ title: s.title, items: s.items }))),
+      gradeIslandExtraction(answer, EXTENSION_SEED.map((s) => ({ title: s.title, items: s.items })), result.content),
     );
   } finally {
     await closeContext(context);
@@ -608,7 +608,7 @@ export const snapshotExtraction: Eval = async ({ client, llmsTxt }) => {
     const prompt = [
       `Here is the llms.txt of a link-sharing site:\n\n${llmsTxt}`,
       `The site is running at ${VIEWER_ORIGIN}.`,
-      `Task: list the stashes saved in this browser.`,
+      `Task: list the stashes saved in this browser. Report each stash's own stored title and items — not the page <title>.`,
     ].join("\n\n");
     const result = await client.chat(prompt, DOM_AGENT_CONTEXT, [navigateTool, readDomTool, answerTool]);
     const answer = capturedAnswer ?? tryParseJson(result.content);
@@ -616,7 +616,7 @@ export const snapshotExtraction: Eval = async ({ client, llmsTxt }) => {
       "snapshot-extraction",
       prompt,
       result,
-      gradeIslandExtraction(answer, EXTENSION_SEED.map((s) => ({ title: s.title, items: s.items }))),
+      gradeIslandExtraction(answer, EXTENSION_SEED.map((s) => ({ title: s.title, items: s.items })), result.content),
     );
   } finally {
     await closeContext(context);

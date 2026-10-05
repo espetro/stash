@@ -155,6 +155,7 @@ export function createClient(fetchImpl: typeof fetch = fetch): LlmClient {
       ];
       let servedModel: string | null = null;
       let requestsForThisChat = 0;
+      let emptyNudges = 0;
       for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
         if (round > 0) {
           if (used >= MAX_REQUESTS_PER_RUN) throw new BudgetExceededError(used, MAX_REQUESTS_PER_RUN);
@@ -194,6 +195,20 @@ export function createClient(fetchImpl: typeof fetch = fetch): LlmClient {
         servedModel = servedModel ?? result.servedModel;
         messages.push(result.message);
         const calls = result.message.tool_calls ?? [];
+        // Some models (gpt-oss harmony format) occasionally emit a truly
+        // empty assistant turn — no content, no tool calls. Treating that as
+        // the final answer discards all prior tool work; nudge instead and
+        // let the model continue. Bounded so a degenerate loop can't spin.
+        if (calls.length === 0 && !result.message.content?.trim() && tools && emptyNudges < 2) {
+          emptyNudges++;
+          messages.push({
+            role: "user",
+            content:
+              "Your last response was empty — no text and no tool call. " +
+              "Continue: either call a tool or write your final answer.",
+          });
+          continue;
+        }
         if (calls.length === 0 || !tools) {
           return {
             content: result.message.content,
@@ -203,7 +218,12 @@ export function createClient(fetchImpl: typeof fetch = fetch): LlmClient {
           };
         }
         for (const call of calls) {
-          const tool = tools.find((t) => t.name === call.function.name);
+          // Harmony-format models (gpt-oss) leak channel markers into tool
+          // names — `answer<|channel|>commentary`. Strip them: the tool
+          // intent and arguments are correct, and real serving stacks
+          // normalize these on dispatch.
+          const toolName = call.function.name.replace(/<\|[^|]*\|>.*$/, "");
+          const tool = tools.find((t) => t.name === toolName);
           let output: string;
           if (!tool) {
             output = `error: unknown tool ${call.function.name}`;
