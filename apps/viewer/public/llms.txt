@@ -34,15 +34,39 @@ host `https://s.illo.fyi`:
 - `GET /s/<id>?format=json|md|txt` (explicit fallback; same precedence
   rules as the viewer)
 - Without negotiation, `GET /s/<id>` 302-redirects to the interactive
-  viewer with the payload inline
+  viewer (plaintext entries carry the payload inline; encrypted
+  entries carry `?id=<id>&relay=<origin>` — see below)
 - An unknown `format` value returns `400` JSON
 - Legacy suffix routes `GET /s/<id>.json`, `/s/<id>.md`, `/s/<id>.txt`
   still resolve but now 301-redirect to the `?format=` form; they will
   be removed in a future release
 
-`<id>` is a 6-character base32 id (e.g. `AHK7QY`). The same three
-output formats (JSON, Markdown, plain URL list) are available as on
-the viewer.
+`<id>` is a 6-character base32 id (e.g. `AHK7QY`).
+
+#### Encrypted (zero-trust) entries
+
+Short links minted by the extension/viewer (since v2.x) are encrypted
+client-side before upload: the relay stores only ciphertext, and the
+AES-256-GCM key travels in the URL fragment (`https://s.illo.fyi/s/<id>#<key>`).
+The fragment never reaches any server, so `?format=md` and `?format=txt`
+cannot be produced server-side for these entries.
+
+For an encrypted entry:
+
+- `GET /s/<id>?format=json` returns the ciphertext envelope:
+  `{ "id": "<id>", "ciphertext": "<base64url>", "expiry": <unix ms>, "encrypted": true }`
+- `?format=md` and `?format=txt` return `409` JSON
+- `stash_get` (MCP) returns `{ "error": "encrypted" }`
+
+To read an encrypted entry, decrypt client-side: base64url-decode the
+`#<key>` fragment (16 bytes) and the `ciphertext` field, then AES-256-GCM
+decrypt `ciphertext` (layout: `IV(12B) || ciphertext+tag(16B)`) with that
+key. The plaintext is the same `C`/`R`/`D`/`S` payload string described
+above — decode it with the same codec. If you cannot run AES-GCM, ask the
+link's owner for a self-contained `#p=` link instead.
+
+Plaintext entries (created via `POST /api/stash {"payload": ...}` or
+`stash_create`) decode in all three formats exactly as before.
 
 ## Worked example: URL → JSON → MD
 
@@ -73,20 +97,29 @@ negotiation, plus `text/plain`.
 
 ## Notes for agents
 
-- **All programmatic reads go through `GET /s?p=<payload>`.** Prefer the
+- **All programmatic reads go through `GET /s?p=<payload>`** (payload
+  links) or `GET /s/<id>?format=json` (short links). Prefer the
   `Accept` header negotiation; `?format=` is a fallback when headers cannot
   be set. Output is identical data across formats.
+- A short link whose URL ends in `#<key>` is a zero-trust entry: the
+  relay cannot decode it. Fetch `?format=json`, decrypt with the
+  fragment key (see "Encrypted (zero-trust) entries"), or request a
+  `#p=` link.
+- `POST /api/stash` accepts `{ "payload", "ttl" }` (stored readable —
+  all formats work) or `{ "ciphertext", "ttl" }` (stored opaque — only
+  the JSON envelope is retrievable).
 - Responses are cached until the payload's expiry timestamp.
 - Expired stashes still decode (check `isExpired` in JSON output).
 - A 400 means the payload string was malformed or truncated, or the
   `format` parameter value was unknown; re-copy the full payload from
-  the share URL or use `format=json|md|txt`.
+  the share URL or use `format=json|md|txt`. A 409 means the entry is
+  encrypted — use `format=json`.
 - Rate limit: ~30 requests/minute per IP, HTTP 429 with `Retry-After: 60`.
 
 ## MCP
 
 - MCP server (Streamable-HTTP, stateless): `https://s.illo.fyi/mcp`
-- Tools: `stash_create` (urls -> short link), `stash_get` (id -> items), `stash_decode` (payload -> items)
+- Tools: `stash_create` (urls -> plaintext short link), `stash_get` (id -> items; returns `{error: "encrypted"}` for zero-trust entries), `stash_decode` (payload -> items)
 - Discovery card: `https://s.illo.fyi/.well-known/mcp-server-card`
 - Short links live on the same host: `https://s.illo.fyi/s/<id>`
 - Rate limit: ~20 creates/min per IP on `/api/stash`, ~60 req/min on `/mcp`; HTTP 429 with `Retry-After: 60`.

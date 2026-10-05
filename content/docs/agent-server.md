@@ -33,7 +33,7 @@ Available tools:
 | Tool | Inputs | Description |
 |------|--------|-------------|
 | `stash_create` | `title?`, `urls` (min 1), `ttlDays` (1, 7 default, 14 or 30) | Create a stash: a short shareable link bundling multiple URLs. Returns the short id and share URL |
-| `stash_get` | `id` (6-character stash id) | Fetch a stash by its short id and return its title and items |
+| `stash_get` | `id` (6-character stash id) | Fetch a stash by its short id and return its title and items. Fails closed with `{error: "encrypted"}` on zero-trust (client-encrypted) entries — decrypt the `?format=json` ciphertext envelope with the key from the share URL's `#<key>` fragment |
 | `stash_decode` | `payload` | Decode a stash payload string (the `?p=` value from a stash share URL) into its title and items |
 
 Note that the hosted tools operate on short links stored in the worker's KV (with a server-side TTL), not on your local stash library.
@@ -44,5 +44,6 @@ The viewer also serves structured data for agents, no MCP needed:
 
 - `/s?p=<payload>` returns the decoded stash; format is negotiated via the `Accept` header (`application/json` returns JSON including `tags` and `note`, `text/markdown` returns Markdown, `text/plain` returns a plain URL list, with an HTML viewer as the default). A `?format=json|md|txt` query parameter is accepted as a fallback for agents that cannot set headers; an unknown value returns `400` JSON.
 - On the shortener, `GET /s/<id>` follows the same rules: `?format=json|md|txt` or `Accept` negotiation, with a 302 redirect to the viewer when neither applies. The legacy `.json`/`.md`/`.txt` suffix routes now 301-redirect to the `?format=` form.
+  - **Zero-trust entries** (created by the extension/viewer with client-side encryption, and by `POST /api/stash {"ciphertext": ...}`) store only ciphertext: `?format=json` returns `{ id, ciphertext, expiry, encrypted: true }`, `?format=md|txt` return `409`, and the HTML path redirects to `viewer?id=<id>&relay=<origin>`. Decrypt client-side with the AES-256-GCM key from the share URL fragment. Plaintext entries (`{"payload": ...}` creates, including `stash_create`) decode in all formats as before.
 - `/api/openapi.json` publishes the OpenAPI schema.
 - `/llms.txt` gives an LLM-oriented overview of the endpoints.

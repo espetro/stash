@@ -108,12 +108,20 @@ It serves the same relay + decode surface as the primary; during a primary
 outage, failover-aware clients emit share links pointing here.
 
 Agent surface:
-- POST /api/stash { payload, ttl } -> { id, url }
-- GET /s/{id}?format=json|md|txt
+- POST /api/stash { payload, ttl } (plaintext) OR { ciphertext, ttl }
+  (zero-trust) -> { id, url }
+- GET /s/{id}?format=json|md|txt — plaintext entries decode; encrypted
+  entries return the ciphertext envelope on format=json, 409 on md/txt,
+  and redirect to viewer?id=<id>&relay=<origin> on HTML
 - DELETE /api/stash/{id} (revoke)
 - GET /s?p=<encoded payload>&format=json|md|txt (stateless decode)
-- POST /mcp (MCP: stash_create, stash_get, stash_decode)
+- POST /mcp (MCP: stash_create, stash_get, stash_decode; stash_get fails
+  closed {error:"encrypted"} on zero-trust entries)
 - GET /.well-known/mcp-server-card
+
+Encrypted entries: the AES-256-GCM key is in the share URL fragment
+(#<key>); decrypt the envelope's ciphertext (IV||CT+tag, base64url)
+client-side to recover the C/R/D/S payload.
 `;
 
 let _default: Storage | null = null;

@@ -6,6 +6,14 @@ TTL-bound payloads behind 6-character short links. It never holds a library:
 a stored entry is the encoded payload string plus creation/expiry timestamps,
 nothing else.
 
+Zero-trust mode (F14): `POST /api/stash` also accepts `{ciphertext}` —
+client-encrypted shares whose key travels only in the share URL fragment
+(`#<key>`). Encrypted entries are marked `enc` in storage: `GET /s/:id`
+returns a ciphertext envelope on `?format=json`, 409s on md/txt, and
+redirects to `viewer?id=<id>&relay=<origin>` on HTML. Plaintext entries
+(`{payload}` creates, including all `stash_create` calls) keep full
+format negotiation so agent flows stay readable server-side.
+
 All logic lives in `@stash/server-core` (runtime-agnostic over `unstorage`);
 this app only wires Cloudflare bindings. Any runtime that can supply the
 `StashServerConfig` ports (a `unstorage` `Storage`, an origin, a brotli
@@ -13,9 +21,11 @@ loader, optional rate limiting / telemetry) can host a relay.
 
 ## HTTP surface
 
-- `POST /api/stash` — store a payload, returns `{ id, url, expiry, itemCount }`
+- `POST /api/stash` — store a `{payload}` or `{ciphertext}`, returns
+  `{ id, url, expiry }` (+ `itemCount` for payload creates)
 - `GET /s/:id?format=json|md|txt` (or `Accept` negotiation) — fetch a stash;
-  no format means a 302 into the viewer SPA (`#p=`)
+  no format means a 302 into the viewer SPA (`#p=` for plaintext,
+  `?id=<id>&relay=<origin>` for encrypted)
 - `DELETE /api/stash/:id` — revoke a short link before TTL expiry
 - `POST /mcp`, `GET /mcp` — stateless Streamable-HTTP MCP server with the 3
   relay tools (`stash_create`, `stash_get`, `stash_decode`)
