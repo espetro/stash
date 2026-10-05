@@ -205,7 +205,7 @@ export default function App() {
           recordEvent("stash_list_viewed");
           void openLibraryPage();
         }}
-        onClickSettings={() => browser.runtime.openOptionsPage()}
+        onClickSettings={() => void openLibraryPage("#settings")}
       />
 
       {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}

@@ -397,10 +397,20 @@ export class SyncClient {
       this.sendHello();
       return;
     }
-    if (status === "disconnected" && (this.state === "paired" || this.state === "hello_sent")) {
+    if (status === "disconnected" && this.state === "paired") {
       this.clearPongTimer();
       this.setState("offline");
       this.setMeta({ ...this.meta, state: "offline" });
+      this.persistMeta();
+      return;
+    }
+    if (status === "disconnected" && this.state === "hello_sent") {
+      // A handshake that never completed is still never-paired: land back
+      // on `disconnected` rather than `offline`, which implies a prior
+      // pairing and hides the "not backed up" hint from real users.
+      this.clearPongTimer();
+      this.setState("disconnected");
+      this.setMeta({ ...this.meta, state: "disconnected" });
       this.persistMeta();
     }
   }

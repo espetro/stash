@@ -40,6 +40,22 @@ async function openFromExtension(hash?: string, handoff?: OpenLibraryHandoff): P
     });
   }
   const url = browser.runtime.getURL(`${LIBRARY_PAGE_PATH}${hash ?? ""}` as `/` & string);
+  // Reuse an existing library tab when one is open — apply the new URL
+  // (incl. fragment) to it rather than spawning duplicates. This must be
+  // fragment-aware: unlike `runtime.openOptionsPage()`, which matches the
+  // path and ignores the hash, `#settings` and `#pending-import` need the
+  // actual navigation. The page's hashchange listener switches tabs.
+  const pattern = browser.runtime.getURL(`${LIBRARY_PAGE_PATH}*` as `/` & string);
+  const [existing] = await browser.tabs
+    .query({ url: pattern as never })
+    .catch(() => [] as Browser.tabs.Tab[]);
+  if (existing?.id !== undefined) {
+    await browser.tabs.update(existing.id, { url, active: true });
+    if (existing.windowId !== undefined) {
+      await browser.windows.update(existing.windowId, { focused: true }).catch(() => {});
+    }
+    return;
+  }
   await browser.tabs.create({ url });
 }
 
