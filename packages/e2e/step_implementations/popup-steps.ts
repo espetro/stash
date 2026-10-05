@@ -105,6 +105,64 @@ step("The user opens the Library from the popup", async () => {
   await expect(libraryPage.getByRole("heading", { name: "Stash Library" })).toBeVisible();
 });
 
+step("The user opens the Library page directly", async () => {
+  const context = requireExtensionContext();
+  const extensionId = await getExtensionId(context);
+  libraryPage = await context.newPage();
+  await libraryPage.goto(`chrome-extension://${extensionId}/library.html`);
+  await libraryPage.waitForLoadState("networkidle");
+  await expect(libraryPage.getByRole("heading", { name: "Stash Library" })).toBeVisible();
+});
+
+step("The Library should show <count> seeded rows", async (countStr) => {
+  const count = parseInt(countStr, 10);
+  await expect(libraryPage!.locator(".stash-item")).toHaveCount(count);
+});
+
+step("The Library should show the not-backed-up hint", async () => {
+  // The e2e profile never pairs with a daemon, so the library page must
+  // nudge toward installing the daemon or exporting a copy.
+  const hint = libraryPage!.locator(".backup-hint");
+  await expect(hint).toBeVisible();
+  await expect(hint).toContainText("Not backed up");
+});
+
+step("The Library row should open the QR dialog", async () => {
+  const row = libraryPage!.locator(".stash-item").first();
+  await row.getByRole("button", { name: "Share via QR code" }).click();
+  const dialog = libraryPage!.locator("dialog.qr-dialog[open]");
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator(".qr-code")).toBeVisible();
+  await dialog.getByRole("button", { name: "Close" }).click();
+  await expect(libraryPage!.locator("dialog.qr-dialog[open]")).toHaveCount(0);
+});
+
+step("The Library settings tab should render", async () => {
+  await libraryPage!.getByRole("tab", { name: "Settings" }).click();
+  await expect(libraryPage!).toHaveURL(/library\.html#settings$/);
+  const settings = libraryPage!.locator(".settings-container");
+  await expect(settings).toBeVisible();
+  await expect(settings.locator("section.settings-section").first()).toBeVisible();
+});
+
+step("The pending-import banner should be visible", async () => {
+  // The handoff spec step stores the freshly opened extension page in
+  // scenario variables; adopt it here so library assertions target it.
+  const handoffPage = getActiveState().variables["handoffPage"] as Page | undefined;
+  if (handoffPage) libraryPage = handoffPage;
+  const banner = libraryPage!.locator(".pending-import-banner");
+  await expect(banner).toBeVisible();
+  await expect(banner).toContainText("ready to import");
+});
+
+step("The user confirms the pending import", async () => {
+  await libraryPage!
+    .locator(".pending-import-banner")
+    .getByRole("button", { name: "Import", exact: true })
+    .click();
+  await expect(libraryPage!.locator(".pending-import-done")).toBeVisible();
+});
+
 step("The Library should show one Recent row and zero Kept stashes", async () => {
   await expect(libraryPage!.getByRole("button", { name: "All · 1" })).toBeVisible();
   await expect(libraryPage!.getByRole("button", { name: "Kept · 0" })).toBeVisible();

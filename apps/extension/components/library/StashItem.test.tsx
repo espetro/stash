@@ -74,4 +74,39 @@ describe("StashItem", () => {
     });
     expect(screen.getByRole("button", { name: "Share" })).toBeTruthy();
   });
+
+  it("fires onQr and onOpenAll from the row icon buttons without expanding", () => {
+    const onQr = vi.fn();
+    const onOpenAll = vi.fn();
+    render(
+      <StashItem
+        stash={stash}
+        onUpdate={vi.fn()}
+        onDelete={vi.fn()}
+        onKeep={vi.fn()}
+        onShare={vi.fn()}
+        onQr={onQr}
+        onOpenAll={onOpenAll}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Share via QR code" }));
+    expect(onQr).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole("button", { name: "Open all 1 items" }));
+    expect(onOpenAll).toHaveBeenCalledOnce();
+  });
+
+  it("omits the QR and open-all buttons when the callbacks are absent", () => {
+    render(
+      <StashItem
+        stash={stash}
+        onUpdate={vi.fn()}
+        onDelete={vi.fn()}
+        onKeep={vi.fn()}
+        onShare={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "Share via QR code" })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Open all/ })).toBeNull();
+  });
 });

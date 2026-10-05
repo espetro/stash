@@ -8,7 +8,10 @@ import { useSyncStatus } from "../hooks/useSyncStatus";
  */
 export function BackupHint({ onExport }: { onExport: () => void }) {
   const { status } = useSyncStatus();
-  if (status.state !== "disconnected") return null;
+  // "Never paired" is broader than `disconnected`: a failed handshake
+  // leaves the profile `offline`/`refused_version` with no daemonId.
+  // daemonId is only ever written on a completed pairing.
+  if (status.daemonId) return null;
 
   return (
     <div className="backup-hint" role="status">

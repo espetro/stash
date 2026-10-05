@@ -51,16 +51,16 @@ const PROTOCOL_VERSION = 1 as const;
 const REPLAY_CAP = 200;
 const REQUEST_TYPES = [REQ_TYPE, PRESENCE_TYPE, OPEN_TYPE, HANDOFF_TYPE] as const;
 
-type ViewerRequestType = (typeof REQUEST_TYPES)[number];
+export type ViewerRequestType = (typeof REQUEST_TYPES)[number];
 
-interface ViewerRequest {
+export interface ViewerRequest {
   type: ViewerRequestType;
   version: typeof PROTOCOL_VERSION;
   requestId: string;
   payload?: unknown;
 }
 
-interface ViewerResponse {
+export interface ViewerResponse {
   type: typeof RES_TYPE;
   version: typeof PROTOCOL_VERSION;
   requestId: string;

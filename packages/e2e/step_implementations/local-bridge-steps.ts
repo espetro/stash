@@ -15,6 +15,7 @@
  * required to flip the gate.
  */
 
+import { expect } from "@playwright/test";
 import { request, type APIRequestContext } from "playwright";
 import type { BrowserContext } from "playwright";
 import { step } from "../lib/step-registry";
@@ -485,4 +486,72 @@ step("A hosted /s decode with format json returns the canonical payload", async 
   if (!url.startsWith(`${VIEWER_ORIGIN}/s/#p=`)) {
     throw new Error(`Unexpected canonical share URL shape: ${url}`);
   }
+});
+
+// ---------------------------------------------------------------------------
+// PR E: presence CTA + one-time viewer→extension handoff.
+// The presence ping answers regardless of `localLibraryViewerEnabled`, so
+// these steps run with the data bridge disabled (its default).
+// ---------------------------------------------------------------------------
+
+step("The /stashes page should show the extension CTA", async () => {
+  const page = getCurrentPage();
+  const cta = page.locator("[data-stash-extension-cta]");
+  await expect(cta).toBeVisible({ timeout: 10_000 });
+  await expect(
+    cta.getByRole("button", { name: "Open your Library in the extension" }),
+  ).toBeVisible();
+});
+
+step("The user seeds a viewer-local stash", async () => {
+  const page = getCurrentPage();
+  await page.evaluate(() => {
+    const record = {
+      id: "viewer-local-handoff-1",
+      title: "Viewer-local handoff stash",
+      tags: ["handoff"],
+      items: [
+        { url: "https://example.com/", title: "Example" },
+        { url: "https://example.org/", title: "Example Org" },
+      ],
+      kept: true,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    localStorage.setItem("stash:records", JSON.stringify([record]));
+  });
+  // MyStashes reads localStorage on mount — reload so the seeded record
+  // renders and the handoff button appears inside the CTA block.
+  await page.reload();
+  const cta = page.locator("[data-stash-extension-cta]");
+  await expect(cta).toBeVisible({ timeout: 10_000 });
+  await expect(cta.getByRole("button", { name: "Move to extension Library" })).toBeVisible();
+});
+
+step("The user moves the viewer-local records to the extension", async () => {
+  const page = getCurrentPage();
+  const context = requireExtensionContext();
+  const [handoffPage] = await Promise.all([
+    context.waitForEvent("page"),
+    page
+      .locator("[data-stash-extension-cta]")
+      .getByRole("button", { name: "Move to extension Library" })
+      .click(),
+  ]);
+  await handoffPage.waitForLoadState("networkidle");
+  // Stash the freshly opened extension page for the popup-steps library
+  // assertions that follow in this scenario.
+  getActiveState().variables["handoffPage"] = handoffPage;
+  expect(handoffPage.url()).toContain("/library.html#pending-import");
+});
+
+step("The viewer-local stash storage should be cleared", async () => {
+  const page = getCurrentPage();
+  // The viewer clears its local copy as soon as the extension acks the
+  // handoff (the merge itself is user-confirmed on the Library page).
+  await expect
+    .poll(async () => page.evaluate(() => localStorage.getItem("stash:records")), {
+      timeout: 10_000,
+    })
+    .toBeNull();
 });
