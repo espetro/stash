@@ -51,6 +51,17 @@ func main() {
 		fmt.Fprintf(os.Stderr, "	stash-daemon <serve|host|status|doctor|install|uninstall> [flags]\n\nFlags:\n")
 		fs.PrintDefaults()
 	}
+	// A browser-launched native-messaging host: the browser passes the
+	// extension origin as an argument (and may add its own flags like
+	// --parent-window, which are not ours). Detect it before flag parsing —
+	// the origin would otherwise land as an unknown subcommand and an
+	// unknown flag would abort the launch. Manual `host` invocations pass
+	// the origin via -origin and still reach the switch below.
+	if org := nmOriginArg(os.Args[1:]); org != "" {
+		runHost(configDir, org)
+		return
+	}
+
 	// Accept flags on either side of the subcommand
 	// (`stash-daemon install --autostart` and `stash-daemon --autostart
 	// install` both work): parse global flags, then re-parse any remainder.
@@ -71,11 +82,6 @@ func main() {
 			os.Exit(2)
 		}
 		args = append([]string{sub}, fs.Args()...)
-	}
-
-	if len(args) == 0 && looksLikeNMInvocation(os.Args[1:]) {
-		runHost(configDir, "") // browser passed the origin as argv[1]
-		return
 	}
 
 	// The subcommand is the first positional arg from the first pass; keep it
@@ -120,16 +126,16 @@ func buildVersion() string {
 	return "dev"
 }
 
-// looksLikeNMInvocation detects a browser-launched host process: the browser
-// passes the extension origin as argv[1] (chrome-extension:// or
-// moz-extension://).
-func looksLikeNMInvocation(args []string) bool {
+// nmOriginArg detects a browser-launched host process and returns the
+// extension origin the browser passed (chrome-extension:// or
+// moz-extension://), "" otherwise.
+func nmOriginArg(args []string) string {
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "chrome-extension://") || strings.HasPrefix(arg, "moz-extension://") {
-			return true
+			return arg
 		}
 	}
-	return false
+	return ""
 }
 
 func setup(configDir string) (config.Paths, *logging.Writer, *store.Store, error) {

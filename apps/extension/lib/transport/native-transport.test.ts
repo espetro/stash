@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { encodeFrame, type Frame } from "./frames";
+import { type Frame } from "./frames";
 import { NativeTransport, type NativePort } from "./native-transport";
 
 interface Harness {
@@ -13,11 +13,11 @@ interface Harness {
 class FakePort implements NativePort {
   messageListeners = new Set<(m: unknown) => void>();
   disconnectListeners = new Set<() => void>();
-  sent: string[] = [];
+  sent: Frame[] = [];
   disconnected = false;
 
   postMessage(message: unknown): void {
-    this.sent.push(message as string);
+    this.sent.push(message as Frame);
   }
   disconnect(): void {
     this.disconnected = true;
@@ -31,7 +31,7 @@ class FakePort implements NativePort {
     removeListener: (fn: () => void) => this.disconnectListeners.delete(fn),
   };
   emit(frame: Frame): void {
-    for (const fn of this.messageListeners) fn(encodeFrame(frame));
+    for (const fn of this.messageListeners) fn(frame);
   }
   kill(): void {
     for (const fn of this.disconnectListeners) fn();
@@ -89,8 +89,7 @@ describe("NativeTransport", () => {
         extension: { name: "Stash", version: "0.9.0" },
       },
     });
-    expect(h.ports[0].sent[0]).toMatch(/\n$/);
-    expect(JSON.parse(h.ports[0].sent[0]).type).toBe("hello");
+    expect(h.ports[0].sent[0].type).toBe("hello");
   });
 
   it("emits parsed frames from port messages", () => {
@@ -98,11 +97,11 @@ describe("NativeTransport", () => {
     h.transport.connect();
     h.ports[0].emit({
       type: "opResult",
-      correlationId: "daemon-r1",
+      correlationId: "daemon-r1000001",
       payload: { result: { ok: true } },
     });
     expect(h.frames).toHaveLength(1);
-    expect(h.frames[0].correlationId).toBe("daemon-r1");
+    expect(h.frames[0].correlationId).toBe("daemon-r1000001");
   });
 
   it("reconnects on disconnect with a fresh port", () => {
