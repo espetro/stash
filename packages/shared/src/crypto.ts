@@ -55,7 +55,11 @@ export async function encryptForRelay(payload: string, key: string): Promise<str
   crypto.getRandomValues(iv);
   const plaintext = new TextEncoder().encode(payload);
   const ciphertext = new Uint8Array(
-    await crypto.subtle.encrypt({ name: ALGORITHM, iv: iv as BufferSource }, cryptoKey, plaintext),
+    await crypto.subtle.encrypt(
+      { name: ALGORITHM, iv: iv.buffer as ArrayBuffer },
+      cryptoKey,
+      plaintext as BufferSource,
+    ),
   );
   const combined = new Uint8Array(iv.length + ciphertext.length);
   combined.set(iv, 0);
