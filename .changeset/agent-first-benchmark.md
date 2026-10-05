@@ -20,3 +20,7 @@ documented (was 16 bytes / AES-128).
 
 docs(viewer): `llms.txt` gains a copy-pasteable WebCrypto decrypt worked
 example and names the viewer origin for `?p=` decode.
+
+fix(viewer): PostHog no longer captures URL fragments — `capture_pageview`
+was shipping the entire `/s#p=` stash payload to PostHog on every pageview;
+`disable_capture_url_hashes` is now set in both layouts.

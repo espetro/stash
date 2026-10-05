@@ -26,6 +26,9 @@ export interface EvalOutcome {
   latencyMs?: number;
   /** Total tool calls the model made across all rounds, counted from the transcript. */
   toolCalls?: number;
+  /** Tokens consumed across all rounds (OpenRouter `usage`), when reported. */
+  promptTokens?: number;
+  completionTokens?: number;
   transcript?: Array<{
     role: string;
     content: unknown;
@@ -116,6 +119,8 @@ function base(
     response: response.content,
     servedModel: response.servedModel,
     toolCalls,
+    promptTokens: response.promptTokens,
+    completionTokens: response.completionTokens,
     transcript: response.transcript.map((m) => ({
       role: m.role,
       content: typeof m.content === "string" ? m.content.slice(0, 2_000) : m.content,

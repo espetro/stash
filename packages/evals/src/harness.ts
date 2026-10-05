@@ -53,6 +53,9 @@ export interface LlmResult {
   servedModel: string | null;
   attempts: number;
   transcript: ChatMessage[];
+  /** Token usage summed over every request in this chat, when reported. */
+  promptTokens?: number;
+  completionTokens?: number;
 }
 
 export interface LlmClient {
@@ -71,7 +74,7 @@ export function envConfig(env: Record<string, string | undefined> = process.env)
   };
 }
 
-export function createClient(fetchImpl: typeof fetch = fetch): LlmClient {
+export function createClient(fetchImpl: typeof fetch = fetch, modelOverride?: string): LlmClient {
   let used = 0;
 
   async function once(
@@ -79,7 +82,7 @@ export function createClient(fetchImpl: typeof fetch = fetch): LlmClient {
     model: string,
     messages: ChatMessage[],
     tools?: FetchTool[],
-  ): Promise<{ message: ChatMessage; servedModel: string | null }> {
+  ): Promise<{ message: ChatMessage; servedModel: string | null; promptTokens: number; completionTokens: number }> {
     const res = await fetchImpl(`${BASE_URL}/chat/completions`, {
       method: "POST",
       // Bound each request: a stalled upstream stream otherwise hangs the
@@ -123,6 +126,7 @@ export function createClient(fetchImpl: typeof fetch = fetch): LlmClient {
           }[];
         };
       }[];
+      usage?: { prompt_tokens?: number; completion_tokens?: number };
     };
     const raw = body.choices?.[0]?.message;
     if (!raw) throw new Error("OpenRouter returned no message");
@@ -139,13 +143,20 @@ export function createClient(fetchImpl: typeof fetch = fetch): LlmClient {
       })),
     };
     const servedModel = res.headers.get("x-or-model") ?? body.model ?? null;
-    return { message, servedModel };
+    const usage = body.usage ?? {};
+    return {
+      message,
+      servedModel,
+      promptTokens: usage.prompt_tokens ?? 0,
+      completionTokens: usage.completion_tokens ?? 0,
+    };
   }
 
   return {
     requestsUsed: () => used,
     async chat(prompt, context, tools) {
-      const { apiKey, model } = envConfig();
+      const { apiKey, model: envModel } = envConfig();
+      const model = modelOverride ?? envModel;
       if (!apiKey) throw new Error("OPENROUTER_API_KEY missing (root .env)");
       if (used >= MAX_REQUESTS_PER_RUN) throw new BudgetExceededError(used, MAX_REQUESTS_PER_RUN);
       used++;
@@ -156,6 +167,8 @@ export function createClient(fetchImpl: typeof fetch = fetch): LlmClient {
       let servedModel: string | null = null;
       let requestsForThisChat = 0;
       let emptyNudges = 0;
+      let promptTokens = 0;
+      let completionTokens = 0;
       for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
         if (round > 0) {
           if (used >= MAX_REQUESTS_PER_RUN) throw new BudgetExceededError(used, MAX_REQUESTS_PER_RUN);
@@ -192,6 +205,8 @@ export function createClient(fetchImpl: typeof fetch = fetch): LlmClient {
         // @ts-expect-result assigned in the loop above on success
         result = result!;
         requestsForThisChat++;
+        promptTokens += result.promptTokens;
+        completionTokens += result.completionTokens;
         servedModel = servedModel ?? result.servedModel;
         messages.push(result.message);
         const calls = result.message.tool_calls ?? [];
@@ -215,6 +230,8 @@ export function createClient(fetchImpl: typeof fetch = fetch): LlmClient {
             servedModel,
             attempts: requestsForThisChat,
             transcript: messages,
+            promptTokens,
+            completionTokens,
           };
         }
         for (const call of calls) {
@@ -242,6 +259,8 @@ export function createClient(fetchImpl: typeof fetch = fetch): LlmClient {
         servedModel,
         attempts: requestsForThisChat,
         transcript: messages,
+        promptTokens,
+        completionTokens,
       };
     },
   };

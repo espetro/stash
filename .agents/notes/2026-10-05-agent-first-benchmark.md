@@ -74,4 +74,25 @@ Run: `OPENROUTER_API_KEY=… OPENROUTER_MODEL_ID=<slug> pnpm --filter @stash/eva
   console.log?" — unblocks models that define-but-never-call functions
   (still insufficient for gpt-oss, which repeated the same pattern 3×).
 - **gpt-oss limits (legit fails)**: leaks `<|channel|>commentary` into tool
-  names; can't produce a top-level `return` in eval_js across retries.
+  names (dispatcher now strips); can't produce a top-level `return` in
+  eval_js across retries — same fail on 20b AND 120b, so it's a family
+  limitation, not a size one.
+- **PostHog was leaking `#p=` payloads**: `capture_pageview` without
+  `disable_capture_url_hashes` ships `$current_url` WITH the fragment —
+  whole stash payload to PostHog EU per pageview. Fixed in both layouts;
+  audit any future client-side analytics/error tracker for the same class.
+
+## Panel results (EVAL_MODELS sweep, 2026-10-05)
+
+| model | pass | calls | tok | mean |
+|---|---|---|---|---|
+| gpt-5-nano | 10/10 | 16 | 127k | 28s |
+| gpt-4o-mini | 10/10 | 26 | — | ~7s |
+| gpt-oss-120b | 9/10 | 25 | 131k | 50s |
+| nemotron-3-super-120b:free | 9/10 | 31 | 260k | 27s |
+| gpt-oss-20b | ~9/10 | ~30 | — | ~60s |
+| ling-3.1-flash | unrunnable (upstream 429) | | | |
+
+Discriminating evals: encrypted-decrypt-roundtrip (gpt-oss family fails
+outright; 4o-mini/5-nano/nemotron pass) and alternate-link-discovery
+`format=json` precision (nemotron + flaky 4o-mini drop the param).
