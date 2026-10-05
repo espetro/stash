@@ -35,23 +35,23 @@ var Tools = []ToolDef{
 	},
 	{
 		Name:        "stash_list",
-		Description: "List local stashes (id, title, tags, item counts, timestamps).",
+		Description: "List local stashes (id, title, tags, item counts, kept status, timestamps). Recent stashes (kept: false) are auto-removed when their links expire.",
 		InputSchema: rawSchema(`{"type":"object","properties":{}}`),
 	},
 	{
 		Name:        "stash_get",
-		Description: "Fetch a local stash by id, including its full item list.",
+		Description: "Fetch a local stash by id, including its full item list and kept status. Recent stashes (kept: false) are auto-removed when their links expire.",
 		InputSchema: rawSchema(`{"type":"object","properties":{"id":{"type":"string","description":"The stash id"}},"required":["id"]}`),
 	},
 	{
 		Name:        "stash_create",
 		Description: "Create and persist a new local stash from a list of URLs (with optional titles), title, tags and note.",
-		InputSchema: rawSchema(`{"type":"object","properties":{"title":{"type":"string","description":"Optional title for the stash"},"tags":{"type":"array","items":{"type":"string"},"description":"Optional tags"},"note":{"type":"string","description":"Optional freeform note"},"items":{"type":"array","items":` + itemSchema + `,"minItems":1,"description":"Items to include in the stash"}},"required":["items"]}`),
+		InputSchema: rawSchema(`{"type":"object","properties":{"title":{"type":"string","description":"Optional title for the stash"},"tags":{"type":"array","items":{"type":"string"},"description":"Optional tags"},"note":{"type":"string","description":"Optional freeform note"},"kept":{"type":"boolean","description":"false marks Recent; it is auto-removed when links expire"},"items":{"type":"array","items":` + itemSchema + `,"minItems":1,"description":"Items to include in the stash"}},"required":["items"]}`),
 	},
 	{
 		Name:        "stash_update",
-		Description: "Update a local stash's title, tags, note, or items by id.",
-		InputSchema: rawSchema(`{"type":"object","properties":{"id":{"type":"string","description":"The stash id"},"title":{"type":"string"},"tags":{"type":"array","items":{"type":"string"}},"note":{"type":"string"},"items":{"type":"array","items":` + itemSchema + `}},"required":["id"]}`),
+		Description: "Update a local stash's title, tags, note, items, or kept status by id. Recent stashes (kept: false) are auto-removed when their links expire.",
+		InputSchema: rawSchema(`{"type":"object","properties":{"id":{"type":"string","description":"The stash id"},"title":{"type":"string"},"tags":{"type":"array","items":{"type":"string"}},"note":{"type":"string"},"items":{"type":"array","items":` + itemSchema + `},"kept":{"type":"boolean","description":"false marks Recent; it is auto-removed when links expire"}},"required":["id"]}`),
 	},
 	{
 		Name:        "stash_delete",
@@ -60,7 +60,7 @@ var Tools = []ToolDef{
 	},
 	{
 		Name:        "stash_search",
-		Description: "Search local stashes by a substring match over title, tags and note.",
+		Description: "Search local stashes by a substring match over title, tags and note. Results include kept status; Recent stashes (kept: false) are auto-removed when their links expire.",
 		InputSchema: rawSchema(`{"type":"object","properties":{"query":{"type":"string","description":"Search query"}},"required":["query"]}`),
 	},
 	{
@@ -173,6 +173,7 @@ type Summary struct {
 	Title     string   `json:"title"`
 	Tags      []string `json:"tags"`
 	ItemCount int      `json:"itemCount"`
+	Kept      bool     `json:"kept"`
 	CreatedAt int64    `json:"createdAt"`
 	UpdatedAt int64    `json:"updatedAt"`
 }

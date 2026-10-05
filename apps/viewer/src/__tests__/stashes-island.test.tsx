@@ -310,6 +310,7 @@ describe("MyStashes — ?agent=json browser-only view", () => {
           ],
           createdAt: 1,
           updatedAt: 2,
+          kept: true,
         },
       ],
     });
@@ -360,6 +361,7 @@ describe("MyStashes — ?agent=json / ?agent=markdown payload parity", () => {
           items: [{ url: "https://example.org", title: "Example" }],
           createdAt: 1,
           updatedAt: 2,
+          kept: true,
         },
       ],
     });

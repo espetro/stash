@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { useState } from "react";
 import { LinkResult } from "./LinkResult";
 
 vi.mock("../../../lib/telemetry", () => ({
@@ -61,6 +62,38 @@ describe("LinkResult shorten state", () => {
     renderLink({ shortenerEnabled: false, expiresLabel: "7 days" });
     expect(screen.getByText("12 items · expires in 7 days")).toBeTruthy();
     expect(screen.getByText(/Self-contained link\./)).toBeTruthy();
+  });
+
+  it("keeps a Recent share in the Library", () => {
+    const onKeep = vi.fn();
+    function KeepHarness() {
+      const [isKept, setIsKept] = useState(false);
+      return (
+        <LinkResult
+          url={PAYLOAD_URL}
+          onCopy={vi.fn()}
+          isCopied={false}
+          itemCount={1}
+          tabs={[{ url: "https://example.com", title: "Example" }]}
+          isKept={isKept}
+          onKeep={() => {
+            onKeep();
+            setIsKept(true);
+          }}
+        />
+      );
+    }
+
+    render(<KeepHarness />);
+    fireEvent.click(screen.getByRole("button", { name: "Keep in Library" }));
+
+    expect(onKeep).toHaveBeenCalledOnce();
+    expect(screen.getByRole("button", { name: "Kept ✓" })).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Added to Library as Recent. Recent shares clear after 30 days, or sooner if the link expires, unless you keep them.",
+      ),
+    ).toBeTruthy();
   });
 
   it("shortens and replaces the URL with the short hint", async () => {

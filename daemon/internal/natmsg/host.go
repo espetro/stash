@@ -46,6 +46,8 @@ func runHostConn(st *store.Store, lw *logging.Writer, r io.Reader, w io.Writer, 
 	write := func(env *Envelope) error { return EncodeFrame(lwrt, env) }
 	ctx := context.Background()
 	dec := NewDecoder(r)
+	cs := newConnSync(st, lw, write)
+	defer cs.stop()
 
 	var peerID string
 	defer func() {
@@ -100,10 +102,19 @@ func runHostConn(st *store.Store, lw *logging.Writer, r io.Reader, w io.Writer, 
 			mu.Lock()
 			EncodeFrame(w, &Envelope{Type: TypePong, CorrelationID: env.CorrelationID, Payload: payload})
 			mu.Unlock()
-		case TypeOp, TypeOpResult:
-			// Reverse channel: the browser's reply to a daemon-initiated
-			// request; correlated and MRU-promoted in the Hub.
-			hub.Deliver(peerID, env)
+		case TypeOp:
+			// Library sync ops (stash_sync_*). The extension's requests are
+			// answered here; daemon-initiated pushes ride the same channel.
+			cs.handleOp(env)
+		case TypeOpResult, TypeError:
+			// A sync-push ack (opResult carrying result.ack) resolves the
+			// push tracker first; anything else is a reverse-channel reply
+			// to a daemon-initiated request, correlated by the Hub.
+			if !cs.acks.delivered(env) {
+				hub.Deliver(peerID, env)
+			} else {
+				hub.TouchPeer(peerID)
+			}
 		case TypeMCP:
 			// Route the browser's MCP request to the shared registry; the
 			// payload is a JSON-RPC request object.

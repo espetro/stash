@@ -1,5 +1,6 @@
 import { StorageItem } from "webext-storage";
 import { removeHistoryByUrls } from "./history";
+import { revokeShortLink } from "./shortener";
 import { recordCreate, recordDelete, recordUpdate } from "./sync/outbox";
 import { getProfileId, materializationGuard } from "./sync/profile";
 
@@ -11,6 +12,7 @@ export interface StashItem {
 /** One share of a record (F8): the generated link plus its lifecycle. */
 export interface ShareEvent {
   url: string;
+  shortUrl?: string;
   itemCount: number;
   truncated: boolean;
   createdAt: number;
@@ -27,6 +29,15 @@ export interface StashRecord {
   items: StashItem[];
   createdAt: number;
   updatedAt: number;
+  /** false = Recent (share-only). Missing = kept, so existing records keep working. */
+  kept?: boolean;
+}
+
+export interface RecordShareInput {
+  items: StashItem[];
+  title?: string;
+  sourceId?: string;
+  share: ShareEvent;
 }
 
 export interface CreateStashInput {
@@ -34,6 +45,8 @@ export interface CreateStashInput {
   tags?: string[];
   note?: string;
   items: StashItem[];
+  kept?: boolean;
+  shares?: ShareEvent[];
 }
 
 export interface UpdateStashInput {
@@ -41,7 +54,20 @@ export interface UpdateStashInput {
   tags?: string[];
   note?: string;
   items?: StashItem[];
+  kept?: boolean;
 }
+
+export const RECENT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+
+export const isKept = (record: StashRecord): boolean => record.kept !== false;
+
+export const recentExpiresAt = (record: StashRecord): number => {
+  const shares = record.shares ?? [];
+  if (shares.length === 0) return record.createdAt + RECENT_MAX_AGE_MS;
+  const linkExpiry = Math.max(...shares.map((share) => share.expiresAt));
+  const lastShare = Math.max(...shares.map((share) => share.createdAt));
+  return Math.min(linkExpiry, lastShare + RECENT_MAX_AGE_MS);
+};
 
 export const stashesItem = new StorageItem<StashRecord[]>("stash-records", {
   area: "local",
@@ -108,9 +134,10 @@ export async function createStash(input: CreateStashInput): Promise<StashRecord>
     tags: input.tags ?? [],
     note: input.note,
     items: input.items,
-    shares: [],
+    shares: input.shares ?? [],
     createdAt: now,
     updatedAt: now,
+    kept: input.kept ?? true,
   };
   const stashes = await getAll();
   await stashesItem.set([...stashes, record]);
@@ -189,7 +216,67 @@ export async function appendShareEvent(
   return updated;
 }
 
-export async function deleteStash(id: string): Promise<boolean> {
+export async function recordShare(input: RecordShareInput): Promise<StashRecord> {
+  if (input.sourceId) {
+    const existing = await appendShareEvent(input.sourceId, input.share);
+    if (existing) return existing;
+  }
+
+  return createStash({
+    items: input.items,
+    title: input.title,
+    kept: false,
+    shares: [input.share],
+  });
+}
+
+export async function keepStash(id: string): Promise<StashRecord | undefined> {
+  return updateStash(id, { kept: true });
+}
+
+export async function attachShortUrl(
+  id: string,
+  payloadUrl: string,
+  shortUrl: string,
+): Promise<StashRecord | undefined> {
+  const stashes = await getAll();
+  const index = stashes.findIndex((stash) => stash.id === id);
+  if (index === -1) return undefined;
+
+  const shares = [...(stashes[index].shares ?? [])];
+  let shareIndex = -1;
+  for (let i = shares.length - 1; i >= 0; i--) {
+    if (shares[i].url === payloadUrl) {
+      shareIndex = i;
+      break;
+    }
+  }
+  if (shareIndex === -1) return undefined;
+
+  shares[shareIndex] = { ...shares[shareIndex], shortUrl };
+  const updated: StashRecord = { ...stashes[index], shares, updatedAt: Date.now() };
+  const next = [...stashes];
+  next[index] = updated;
+  await stashesItem.set(next);
+  await afterWrite("update", updated);
+  return updated;
+}
+
+export async function pruneExpiredRecent(now = Date.now()): Promise<string[]> {
+  const expired = (await getAll()).filter(
+    (record) => !isKept(record) && recentExpiresAt(record) <= now,
+  );
+  const deletedIds: string[] = [];
+  for (const record of expired) {
+    if (await deleteStash(record.id, { revoke: false })) deletedIds.push(record.id);
+  }
+  return deletedIds;
+}
+
+export async function deleteStash(
+  id: string,
+  options: { revoke?: boolean } = {},
+): Promise<boolean> {
   const stashes = await getAll();
   const deleted = stashes.find((stash) => stash.id === id);
   if (!deleted) return false;
@@ -199,6 +286,13 @@ export async function deleteStash(id: string): Promise<boolean> {
   const shareUrls = deleted.shares?.map((share) => share.url) ?? [];
   if (shareUrls.length > 0) {
     await removeHistoryByUrls(shareUrls);
+  }
+  if (options.revoke !== false) {
+    for (const shortUrl of deleted.shares?.flatMap((share) =>
+      share.shortUrl ? [share.shortUrl] : [],
+    ) ?? []) {
+      void revokeShortLink(shortUrl);
+    }
   }
   return true;
 }

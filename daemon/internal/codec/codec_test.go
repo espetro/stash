@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -53,15 +54,41 @@ func loadFixtures(t *testing.T) []fixture {
 	return fs
 }
 
-// fixed "now": the fixtures were generated together and share expiry
-// 1787567265 (plus an intentionally earlier one for the "expired" vector).
-// Any fixed clock between the two works; this one sits in between.
-var fixtureExpiredExpiry int64 = 1787477265
+// fixtureExpiry is a hand-crafted expiry used by tests that build their own
+// payloads. The checked-in fixture set is regenerated per release (its
+// expiries move), so TestDecodeConformance derives its clock from the
+// payloads themselves (see decodeFixtureNow).
 var fixtureExpiry int64 = 1787567265
-var testNow = time.Unix((fixtureExpiredExpiry+fixtureExpiry)/2, 0)
+var testNow = time.Unix(fixtureExpiry/2, 0)
+
+// decodeFixtureNow returns the instant to evaluate fixtures at: the expired
+// vector carries creation-1h while normal vectors carry creation+24h, so any
+// clock between the min and max expiry reproduces "expired vs live".
+func decodeFixtureNow(t *testing.T, fs []fixture) time.Time {
+	t.Helper()
+	var minExp, maxExp int64 = math.MaxInt64, 0
+	for _, f := range fs {
+		if f.Name == "empty-items" {
+			continue
+		}
+		got, err := DecodeShareURLAt(f.Fragment, time.Unix(0, 0))
+		if err != nil {
+			t.Fatalf("%s: probe decode: %v", f.Name, err)
+		}
+		if got.Expiry < minExp {
+			minExp = got.Expiry
+		}
+		if got.Expiry > maxExp {
+			maxExp = got.Expiry
+		}
+	}
+	return time.Unix((minExp+maxExp)/2, 0)
+}
 
 func TestDecodeConformance(t *testing.T) {
-	for _, f := range loadFixtures(t) {
+	fs := loadFixtures(t)
+	decodeNow := decodeFixtureNow(t, fs)
+	for _, f := range fs {
 		t.Run(f.Name, func(t *testing.T) {
 			if f.Name == "empty-items" {
 				// Parity by refusal: empty fragment is rejected by design.
@@ -71,7 +98,7 @@ func TestDecodeConformance(t *testing.T) {
 				}
 				return
 			}
-			got, err := DecodeShareURLAt(f.Fragment, testNow)
+			got, err := DecodeShareURLAt(f.Fragment, decodeNow)
 			if err != nil {
 				t.Fatalf("decode: %v", err)
 			}

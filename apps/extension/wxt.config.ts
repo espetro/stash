@@ -22,6 +22,9 @@ export default defineConfig({
       "clipboardWrite",
       "notifications",
       "storage",
+      // Lift Chrome's 10 MB storage.local cap; the extension store is the
+      // tier-1 fallback when no daemon is installed.
+      "unlimitedStorage",
       // Talks to the locally installed Stash daemon over runtime.connectNative
       // (stdio). Local-only channel; see STORE_LISTING.nativeMessaging.md.
       "nativeMessaging",

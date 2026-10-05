@@ -63,6 +63,22 @@ describe("viewer app i18n keys", () => {
     }
   });
 
+  it.each(["en", "es", "fr", "ru"])("%s has Library section and state labels", (lang) => {
+    const keys = flatten(bundles[lang]);
+    for (const key of [
+      "myStashes.fromExtension",
+      "myStashes.savedInBrowser",
+      "myStashes.viewerLocalHint",
+      "myStashes.kept",
+      "myStashes.recent",
+      "myStashes.extensionEmpty",
+      "myStashes.browserEmpty",
+      "myStashes.noMatches",
+    ]) {
+      expect(keys, `${lang} missing ${key}`).toContain(key);
+    }
+  });
+
   it("shorten idle label is 'Shorten link' in en", () => {
     expect(t("stash.shorten.idle")).toBe("Shorten link");
   });

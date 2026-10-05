@@ -2,7 +2,6 @@
 package doctor
 
 import (
-	"crypto/rand"
 	_ "embed"
 	"encoding/base64"
 	"encoding/json"
@@ -44,7 +43,7 @@ func Run(out io.Writer, paths config.Paths, exePath string, jsonOut bool, versio
 		checkSQLite(paths),
 		checkNMManifests(exePath),
 		checkCodecFixtures(),
-		checkCRDTBinding(paths),
+		checkStoreWrite(paths),
 	}
 	failed := false
 	for _, r := range results {
@@ -201,37 +200,28 @@ func checkCodecFixtures() Result {
 	return Result{Check: "codec fixtures", Status: Pass, Detail: fmt.Sprintf("%d v6 vectors", len(fixtures))}
 }
 
-func checkCRDTBinding(p config.Paths) Result {
-	// Blob placeholder round-trip; real automerge binding arrives in F6.
+// checkStoreWrite proves the store accepts writes: insert a probe row in a
+// transaction, read it back, then roll back so nothing is persisted.
+func checkStoreWrite(p config.Paths) Result {
 	st, err := store.Open(p.DB)
 	if err != nil {
-		return Result{Check: "crdt binding", Status: Fail, Detail: err.Error(), Hint: "re-run stash-daemon doctor"}
+		return Result{Check: "store write", Status: Fail, Detail: err.Error(), Hint: "re-run stash-daemon doctor"}
 	}
 	defer st.Close()
-	blob := make([]byte, 16)
-	rand.Read(blob)
-	rec := store.Record{ID: "__doctor_probe__", Title: "probe", URL: "probe://x", ItemsJSON: "[]",
-		CreatedAt: 1, UpdatedAt: 1, CRDTSeq: 1, Deleted: true}
-	if err := st.PutRecord(rec, blob, "doctor", "probe"); err != nil {
-		return Result{Check: "crdt binding", Status: Fail, Detail: err.Error(), Hint: "re-run stash-daemon doctor"}
+	tx, err := st.DB().Begin()
+	if err != nil {
+		return Result{Check: "store write", Status: Fail, Detail: err.Error(), Hint: "re-run stash-daemon doctor"}
 	}
-	got, _, err := st.CRDTDoc()
-	if err != nil || !bytesEqual(got, blob) {
-		return Result{Check: "crdt binding", Status: Fail, Detail: "blob placeholder did not round-trip", Hint: "re-run stash-daemon doctor"}
+	defer tx.Rollback()
+	if _, err := tx.Exec(`INSERT INTO stash_records(id,title,url,items_json,created_at,updated_at,origin,deleted,crdt_seq,tags_json,note,kept,shares_json,extra_json,rev)
+		VALUES('__doctor_probe__','probe','probe://x','[]',1,1,NULL,0,0,'[]',NULL,1,'[]','{}',0)`); err != nil {
+		return Result{Check: "store write", Status: Fail, Detail: err.Error(), Hint: "re-run stash-daemon doctor"}
 	}
-	return Result{Check: "crdt binding", Status: Pass, Detail: "blob placeholder round-trips (automerge lands in F6)"}
-}
-
-func bytesEqual(a, b []byte) bool {
-	if len(a) != len(b) {
-		return false
+	var title string
+	if err := tx.QueryRow(`SELECT title FROM stash_records WHERE id = '__doctor_probe__'`).Scan(&title); err != nil {
+		return Result{Check: "store write", Status: Fail, Detail: "probe read-back failed: " + err.Error(), Hint: "re-run stash-daemon doctor"}
 	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
+	return Result{Check: "store write", Status: Pass, Detail: "probe row round-trips (rolled back)"}
 }
 
 // CheckPidfile reads <config>/daemon.pid and reports liveness.

@@ -8,19 +8,39 @@
  *
  * Matching: a history entry matches an existing record by payload identity
  * — the share url against the record's own prior share urls, then against
- * its item urls (re-sharing a saved stash). Entries matching nothing become
- * minimal carrier records with `items: []`, carrying just the ShareEvent.
+ * its item urls (re-sharing a saved stash). Unmatched links are decoded into
+ * Recent records; undecodable links remain empty carriers for compatibility.
  */
 import { StorageItem } from "webext-storage";
+import { decodeShareUrl } from "@stash/codec";
+import { getBrotliFunctions } from "@stash/shared";
 import { getHistory, type HistoryEntry } from "./history";
-import { listStashes, materializeStashes, type ShareEvent, type StashRecord } from "./stash-store";
+import {
+  listStashes,
+  materializeStashes,
+  type ShareEvent,
+  type StashItem,
+  type StashRecord,
+} from "./stash-store";
 
 export const HISTORY_MERGED_KEY = "historyMerged";
+export const HISTORY_CARRIERS_REPAIRED_KEY = "historyCarriersRepaired";
 
 const historyMergedItem = new StorageItem<boolean>(HISTORY_MERGED_KEY, {
   area: "local",
   defaultValue: false,
 });
+const historyCarriersRepairedItem = new StorageItem<boolean>(HISTORY_CARRIERS_REPAIRED_KEY, {
+  area: "local",
+  defaultValue: false,
+});
+
+interface DecodedHistoryShare {
+  title?: string;
+  tags: string[];
+  note?: string;
+  items: StashItem[];
+}
 
 function toShareEvent(entry: HistoryEntry): ShareEvent {
   return {
@@ -38,6 +58,59 @@ function matchRecord(entry: HistoryEntry, records: StashRecord[]): StashRecord |
   );
 }
 
+async function decodeHistoryShare(url: string): Promise<DecodedHistoryShare | undefined> {
+  try {
+    const decoded = await decodeShareUrl(new URL(url).hash, await getBrotliFunctions());
+    return {
+      title: decoded.title,
+      tags: decoded.tags ?? [],
+      note: decoded.note,
+      items: decoded.items
+        .filter(([, , kind]) => kind !== "note")
+        .map(([itemUrl, title]) => ({ url: itemUrl, title })),
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+export async function repairCarrierRecords(): Promise<number> {
+  try {
+    if (await historyCarriersRepairedItem.get()) return 0;
+  } catch {
+    // Storage unavailable (tests); treat as unrepaired.
+  }
+
+  const records = await listStashes();
+  const repaired = [...records];
+  let count = 0;
+
+  for (let i = 0; i < repaired.length; i++) {
+    const record = repaired[i];
+    if (record.items.length > 0 || !record.shares?.length) continue;
+    const decoded = await decodeHistoryShare(record.shares[0].url);
+    if (!decoded) continue;
+    repaired[i] = {
+      ...record,
+      title: decoded.title,
+      tags: decoded.tags,
+      note: decoded.note,
+      items: decoded.items,
+      kept: false,
+      updatedAt: Date.now(),
+    };
+    count++;
+  }
+
+  if (count > 0) await materializeStashes(() => repaired);
+  try {
+    await historyCarriersRepairedItem.set(true);
+  } catch {
+    // A later run may repeat the repair; decoding replaces fields idempotently.
+  }
+  return count;
+}
+
 /**
  * Run the migration. Idempotent: after the first successful run the marker
  * makes every subsequent call a no-op. Returns the number of entries merged
@@ -45,7 +118,10 @@ function matchRecord(entry: HistoryEntry, records: StashRecord[]): StashRecord |
  */
 export async function migrateHistoryToShares(): Promise<number> {
   try {
-    if (await historyMergedItem.get()) return 0;
+    if (await historyMergedItem.get()) {
+      await repairCarrierRecords();
+      return 0;
+    }
   } catch {
     // Storage unavailable (tests); treat as unmerged.
   }
@@ -63,15 +139,17 @@ export async function migrateHistoryToShares(): Promise<number> {
       match.shares = [...(match.shares ?? []), event];
       match.updatedAt = now;
     } else {
+      const decoded = await decodeHistoryShare(entry.url);
       merged.push({
         id: `h${entry.id}`,
-        title: undefined,
-        tags: [],
-        note: undefined,
-        items: [],
+        title: decoded?.title,
+        tags: decoded?.tags ?? [],
+        note: decoded?.note,
+        items: decoded?.items ?? [],
         shares: [event],
         createdAt: entry.createdAt,
         updatedAt: now,
+        kept: false,
       });
     }
     count++;
@@ -85,5 +163,6 @@ export async function migrateHistoryToShares(): Promise<number> {
     // idempotent, but the record set is rebuilt from `stash-records` which
     // now carries shares, so the fallback keeps duplicates out of items.
   }
+  await repairCarrierRecords();
   return count;
 }

@@ -1,3 +1,5 @@
+import { getSettings } from "./settings";
+
 export interface CreateShortLinkParams {
   payload: string;
   ttlDays: 1 | 7 | 14 | 30;
@@ -43,4 +45,15 @@ export async function shortenShareUrl(
     ttlDays: 7,
     shortenerOrigin,
   });
+}
+
+export async function revokeShortLink(shortUrl: string): Promise<void> {
+  try {
+    const url = new URL(shortUrl);
+    const settings = await getSettings();
+    const shortenerOrigin = new URL(settings.shortenerOrigin).origin;
+    const match = url.pathname.match(/^\/s\/([A-Z2-7]{6})\/?$/i);
+    if (url.origin !== shortenerOrigin || !match) return;
+    await fetch(`${shortenerOrigin}/api/stash/${match[1]}`, { method: "DELETE" });
+  } catch {}
 }

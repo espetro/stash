@@ -72,6 +72,27 @@ export function formatDateTime(timestampMs: number): string {
   }
 }
 
+export function stashDisplayTitle(
+  record: { title?: string | null; items: { url: string; title: string }[] },
+  untitled: string,
+): string {
+  const title = record.title?.trim();
+  if (title) return title;
+  if (record.items.length === 0) return untitled;
+
+  const firstItem = record.items[0];
+  let host = firstItem.url;
+  try {
+    host = new URL(firstItem.url).hostname.replace(/^www\./, "");
+  } catch {
+    // Keep the original value for non-URL items.
+  }
+  const firstTitle = firstItem.title || host;
+  return record.items.length > 1
+    ? `${firstTitle} + ${record.items.length - 1} more`
+    : firstTitle;
+}
+
 export function estimateCreatedAt(expiryTimestampSeconds: number): number {
   const now = Math.floor(Date.now() / 1000);
   const DEFAULT_EXPIRY_HOURS = 24;

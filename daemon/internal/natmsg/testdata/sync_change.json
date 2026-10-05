@@ -1,0 +1,1 @@
+{"type":"op","correlationId":"ext-chgfix91","payload":{"tool":"stash_sync_change","args":{"op":"update","id":"s1","updatedAt":1700000000100,"origin":"profile-1","record":{"id":"s1","title":"Fixture Change","tags":["fixture","change"],"note":"updated","items":[{"url":"https://fixture.test/change"}],"kept":false,"createdAt":1700000000000,"updatedAt":1700000000100}}}}

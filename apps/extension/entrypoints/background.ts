@@ -13,6 +13,7 @@ import {
 import { HOST_NAME } from "../lib/native-messaging/manifest";
 import { SyncClient } from "../lib/sync/sync-client";
 import { migrateHistoryToShares } from "../lib/history-merge";
+import { pruneExpiredRecent } from "../lib/stash-store";
 
 export default defineBackground(() => {
   // F5: pair with the local stash-daemon over the F1 native-messaging port.
@@ -23,9 +24,9 @@ export default defineBackground(() => {
   void syncClient.restoreStatus().then(() => syncClient.start());
   void syncClient.flushOutbox();
   // F8.W5: one-time fold of stash-history into record shares[]; idempotent.
-  void migrateHistoryToShares().catch((err) =>
-    console.warn("[history-merge] migration failed; will retry on next start", err),
-  );
+  void migrateHistoryToShares()
+    .then(() => pruneExpiredRecent())
+    .catch((err) => console.warn("[background] library startup cleanup failed", err));
   // MCP server over runtime ports (fresh server + transport per connection).
   // Defence in depth: the `externally_connectable` manifest field gates
   // *who can initiate* a connection, but `port.sender` is still trusted to

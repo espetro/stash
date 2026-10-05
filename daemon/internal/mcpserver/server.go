@@ -3,6 +3,7 @@ package mcpserver
 import (
 	"bufio"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -159,9 +160,17 @@ func (s *Server) runTool(ctx context.Context, name string, a map[string]any) (st
 		now := nowMillis()
 		rec := store.Record{
 			ID: id, Title: strOr(a, "title", ""), URL: firstURL(items),
-			ItemsJSON: string(items), CreatedAt: now, UpdatedAt: now, CRDTSeq: now,
+			ItemsJSON: string(items), TagsJSON: tagsJSON(a["tags"]),
+			Note: noteArg(a), Kept: true,
+			SharesJSON: "[]", ExtraJSON: "{}",
+			CreatedAt: now, UpdatedAt: now,
 		}
-		if err := s.Store.PutRecord(rec, []byte(items), "local", "create"); err != nil {
+		if k, ok := a["kept"].(bool); ok {
+			rec.Kept = k
+		}
+		if _, err := s.Store.ApplyChange(store.Change{
+			Op: "create", ID: id, Record: &rec, UpdatedAt: now, Origin: "daemon",
+		}); err != nil {
 			return CallError("internal_error", err.Error()), true
 		}
 		return stashJSON(&rec), false
@@ -182,20 +191,45 @@ func (s *Server) runTool(ctx context.Context, name string, a map[string]any) (st
 			rec.ItemsJSON = string(b)
 			rec.URL = firstURL(b)
 		}
-		rec.UpdatedAt = nowMillis()
-		if err := s.Store.PutRecord(*rec, []byte(rec.ItemsJSON), "local", "update"); err != nil {
+		if _, ok := a["tags"]; ok {
+			rec.TagsJSON = tagsJSON(a["tags"])
+		}
+		if n, ok := a["note"].(string); ok {
+			rec.Note = sql.NullString{String: n, Valid: true}
+		}
+		if k, ok := a["kept"].(bool); ok {
+			rec.Kept = k
+		}
+		now := nowMillis()
+		if now <= rec.UpdatedAt {
+			now = rec.UpdatedAt + 1
+		}
+		rec.UpdatedAt = now
+		if _, err := s.Store.ApplyChange(store.Change{
+			Op: "update", ID: id, Record: rec, UpdatedAt: now, Origin: "daemon",
+		}); err != nil {
 			return CallError("internal_error", err.Error()), true
 		}
 		return stashJSON(rec), false
 	case "stash_delete":
-		ok, err := s.Store.DeleteRecord(str(a, "id"))
+		id := str(a, "id")
+		rec, err := s.Store.GetRecord(id)
 		if err != nil {
 			return CallError("internal_error", err.Error()), true
 		}
-		if !ok {
+		if rec == nil {
 			return CallError("not_found", "no stash with that id"), true
 		}
-		out, _ := json.Marshal(map[string]any{"id": str(a, "id"), "deleted": true})
+		delAt := nowMillis()
+		if delAt <= rec.UpdatedAt {
+			delAt = rec.UpdatedAt + 1
+		}
+		if _, err := s.Store.ApplyChange(store.Change{
+			Op: "delete", ID: id, UpdatedAt: delAt, Origin: "daemon",
+		}); err != nil {
+			return CallError("internal_error", err.Error()), true
+		}
+		out, _ := json.Marshal(map[string]any{"id": id, "deleted": true})
 		return string(out), false
 	case "stash_search":
 		recs, err := s.Store.SearchRecords(str(a, "query"))
@@ -216,20 +250,58 @@ func summaries(recs []store.Record) []Summary {
 	for _, r := range recs {
 		var items []json.RawMessage
 		json.Unmarshal([]byte(r.ItemsJSON), &items)
-		tags := []string{}
-		out = append(out, Summary{ID: r.ID, Title: r.Title, Tags: tags, ItemCount: len(items), CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt})
+		out = append(out, Summary{
+			ID: r.ID, Title: r.Title, Tags: tagsSlice(r.TagsJSON), ItemCount: len(items),
+			Kept: r.Kept, CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt,
+		})
 	}
 	return out
 }
 
 func stashJSON(r *store.Record) string {
 	var items json.RawMessage = json.RawMessage(r.ItemsJSON)
-	b, _ := json.Marshal(map[string]any{
+	var shares json.RawMessage = json.RawMessage(r.SharesJSON)
+	if len(shares) == 0 {
+		shares = json.RawMessage("[]")
+	}
+	out := map[string]any{
 		"id": r.ID, "title": r.Title, "items": items,
-		"tags": []string{}, "note": "",
+		"tags": tagsSlice(r.TagsJSON), "kept": r.Kept, "shares": shares,
 		"createdAt": r.CreatedAt, "updatedAt": r.UpdatedAt,
-	})
+	}
+	if r.Note.Valid {
+		out["note"] = r.Note.String
+	}
+	b, _ := json.Marshal(out)
 	return string(b)
+}
+
+// tagsJSON normalizes a tool argument into a JSON string array column value.
+func tagsJSON(v any) string {
+	arr, _ := v.([]any)
+	tags := make([]string, 0, len(arr))
+	for _, t := range arr {
+		if s, ok := t.(string); ok {
+			tags = append(tags, s)
+		}
+	}
+	b, _ := json.Marshal(tags)
+	return string(b)
+}
+
+func tagsSlice(tagsJSON string) []string {
+	tags := []string{}
+	if tagsJSON != "" {
+		json.Unmarshal([]byte(tagsJSON), &tags)
+	}
+	return tags
+}
+
+func noteArg(a map[string]any) sql.NullString {
+	if n, ok := a["note"].(string); ok {
+		return sql.NullString{String: n, Valid: true}
+	}
+	return sql.NullString{}
 }
 
 func firstURL(itemsJSON []byte) string {

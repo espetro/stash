@@ -237,6 +237,14 @@
     "importError": "No se pudo importar el archivo",
     "sourceExtension": "This browser's extension library",
     "sourceViewer": "Saved in this browser.",
+    "fromExtension": "Desde la extensión",
+    "savedInBrowser": "Guardados en este navegador",
+    "viewerLocalHint": "Solo en este navegador; no se sincroniza con la extensión.",
+    "kept": "Guardado",
+    "recent": "Reciente",
+    "extensionEmpty": "No hay stashes en la biblioteca de la extensión.",
+    "browserEmpty": "No hay stashes guardados en este navegador.",
+    "noMatches": "No hay stashes que coincidan.",
     "readOnlyHint": "Read-only mirror of the extension library; edit stashes from the extension popup."
   }
 }

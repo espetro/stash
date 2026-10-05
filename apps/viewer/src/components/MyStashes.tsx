@@ -21,7 +21,7 @@ import {
 import { TabListItem } from "@/components/TabListItem";
 import { useStashLibrary } from "@/hooks/useStashLibrary";
 import type { StashRecord } from "@/lib/stash-store";
-import { formatDateTime } from "@stash/shared";
+import { formatDateTime, stashDisplayTitle } from "@stash/shared";
 import { recordEvent } from "@/lib/telemetry";
 import { probeLocalBridge } from "@/lib/local-bridge";
 import type { StashExportRecord, StashExport } from "@stash/shared/agent-export";
@@ -54,6 +54,7 @@ function exportRecordToStashRecord(rec: StashExportRecord): StashRecord {
     tags: [...rec.tags],
     note: rec.note ?? undefined,
     items: rec.items.filter((it) => isSafeHttpUrl(it.url)),
+    kept: rec.kept !== false,
     createdAt: rec.createdAt,
     updatedAt: rec.updatedAt,
   };
@@ -160,9 +161,22 @@ function StashCard({
         className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
       >
         <div className="flex min-w-0 flex-col gap-1">
-          <span data-stash-title className="truncate text-sm font-semibold text-foreground">
-            {record.title || t("myStashes.untitled", undefined, lang)}
-          </span>
+          <div className="flex min-w-0 items-center gap-2">
+            <span data-stash-title className="truncate text-sm font-semibold text-foreground">
+              {stashDisplayTitle(record, t("myStashes.untitled", undefined, lang))}
+            </span>
+            {readOnly && (
+              <span
+                className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                  record.kept === false
+                    ? "bg-secondary text-secondary-foreground"
+                    : "bg-primary/10 text-primary"
+                }`}
+              >
+                {t(record.kept === false ? "myStashes.recent" : "myStashes.kept", undefined, lang)}
+              </span>
+            )}
+          </div>
           <div className="flex flex-wrap items-center gap-1.5">
             {record.tags.map((tag) => (
               <span
@@ -399,7 +413,16 @@ export default function MyStashes() {
     });
   }, [extensionRecords, query]);
 
-  const records = source === "extension" ? filteredExtensionRecords : viewerRecords;
+  const filteredViewerRecords = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return viewerRecords;
+    return viewerRecords.filter((r) => {
+      const haystack = [r.title ?? "", ...r.tags, r.note ?? ""].join(" ").toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [viewerRecords, query]);
+
+  const records = source === "extension" ? filteredExtensionRecords : filteredViewerRecords;
 
   const handleNew = useCallback(() => {
     window.location.href = "/s/new";
@@ -437,9 +460,8 @@ export default function MyStashes() {
   );
   const islandJson = useMemo(() => JSON.stringify(islandExport), [islandExport]);
 
-  // `?agent=json` serializes the same `records` list `?agent=markdown`
-  // uses — everything the user can see on the page — unlike the
-  // `#stash-local-export` island, which stays narrow (extension-only).
+  // Agent views keep their existing single-source contract; the
+  // extension bridge remains authoritative when available.
   const agentExportJson = useMemo(
     () => JSON.stringify(toStashExport(records, source)),
     [records, source],
@@ -473,29 +495,27 @@ export default function MyStashes() {
   }
 
   return (
-    <div data-stash-root className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8">
+    <div
+      data-stash-root
+      data-stash-source={source}
+      className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8"
+    >
       <AppHeader />
 
       <SharedCard>
         <SharedCardHeader title={t("myStashes.title", undefined, lang)} />
 
         <SharedCardContent>
-          <div className="flex flex-wrap items-center gap-2">
-            <span
-              data-testid="stash-source-chip"
-              data-stash-source={source}
-              className="rounded-full bg-muted px-3 py-1 text-[11px] font-medium text-muted-foreground"
-            >
-              {isExtensionSource
-                ? t("myStashes.sourceExtension", undefined, lang)
-                : t("myStashes.sourceViewer", undefined, lang)}
-            </span>
-            {isExtensionSource && (
-              <span className="rounded-full bg-secondary px-3 py-1 text-[11px] text-muted-foreground">
-                {t("myStashes.readOnlyHint", undefined, lang)}
+          {!isExtensionSource && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                data-testid="stash-source-chip"
+                className="rounded-full bg-muted px-3 py-1 text-[11px] font-medium text-muted-foreground"
+              >
+                {t("myStashes.sourceViewer", undefined, lang)}
               </span>
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="relative">
             <FaMagnifyingGlass className="pointer-events-none absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -508,7 +528,75 @@ export default function MyStashes() {
             />
           </div>
 
-          {records.length === 0 ? (
+          {isExtensionSource ? (
+            <div className="flex flex-col gap-5">
+              <section aria-labelledby="extension-stashes-heading">
+                <h3
+                  id="extension-stashes-heading"
+                  className="mb-2 text-sm font-semibold text-foreground"
+                >
+                  {t("myStashes.fromExtension", undefined, lang)}
+                </h3>
+                <p className="mb-2 text-xs text-muted-foreground">
+                  {t("myStashes.readOnlyHint", undefined, lang)}
+                </p>
+                {filteredExtensionRecords.length === 0 ? (
+                  <p className="rounded-xl border border-dashed border-border p-5 text-center text-sm text-muted-foreground">
+                    {query.trim()
+                      ? t("myStashes.noMatches", undefined, lang)
+                      : t("myStashes.extensionEmpty", undefined, lang)}
+                  </p>
+                ) : (
+                  <div data-stash-list className="flex flex-col gap-2">
+                    {filteredExtensionRecords.map((record) => (
+                      <div data-stash-record-id={record.id} key={record.id}>
+                        <StashCard
+                          record={record}
+                          lang={lang}
+                          onRename={rename}
+                          onDelete={remove}
+                          readOnly
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              <section aria-labelledby="viewer-stashes-heading">
+                <h3
+                  id="viewer-stashes-heading"
+                  className="mb-2 text-sm font-semibold text-foreground"
+                >
+                  {t("myStashes.savedInBrowser", undefined, lang)}
+                </h3>
+                <p className="mb-2 text-xs text-muted-foreground">
+                  {t("myStashes.viewerLocalHint", undefined, lang)}
+                </p>
+                {filteredViewerRecords.length === 0 ? (
+                  <p className="rounded-xl border border-dashed border-border p-5 text-center text-sm text-muted-foreground">
+                    {query.trim()
+                      ? t("myStashes.noMatches", undefined, lang)
+                      : t("myStashes.browserEmpty", undefined, lang)}
+                  </p>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    {filteredViewerRecords.map((record) => (
+                      <div data-stash-record-id={record.id} key={record.id}>
+                        <StashCard
+                          record={record}
+                          lang={lang}
+                          onRename={rename}
+                          onDelete={remove}
+                          readOnly={false}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </div>
+          ) : records.length === 0 ? (
             <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
               {t("myStashes.empty", undefined, lang)}
             </p>

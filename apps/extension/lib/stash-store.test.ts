@@ -1,12 +1,19 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fakeBrowser } from "wxt/testing/fake-browser";
 import {
+  attachShortUrl,
   appendShareEvent,
   createStash,
   deleteStash,
   importStashes,
+  isKept,
+  keepStash,
   listStashes,
   materializeStashes,
+  pruneExpiredRecent,
+  RECENT_MAX_AGE_MS,
+  recentExpiresAt,
+  recordShare,
   updateStash,
   type ShareEvent,
   type StashRecord,
@@ -14,10 +21,15 @@ import {
 import { addToHistory, historyItem } from "./history";
 import { getProfileId, resetProfileId } from "./sync/profile";
 import { getOutbox } from "./sync/outbox";
+import { revokeShortLink } from "./shortener";
 
 beforeEach(() => {
   fakeBrowser.reset();
-  resetProfileId();
+  return resetProfileId();
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 const share = (over: Partial<ShareEvent> = {}): ShareEvent => ({
@@ -87,6 +99,7 @@ describe("shares[] (F8)", () => {
   it("createStash emits shares: []", async () => {
     const rec = await createStash({ items: [{ url: "https://a", title: "a" }] });
     expect(rec.shares).toEqual([]);
+    expect(rec.kept).toBe(true);
   });
 
   it("updateStash preserves shares on a partial patch", async () => {
@@ -159,5 +172,194 @@ describe("shares[] (F8)", () => {
     await deleteStash(rec.id);
 
     expect((await historyItem.get())?.map((entry) => entry.id)).toEqual(["other"]);
+  });
+
+  it("records an unmatched share as a Recent stash", async () => {
+    const record = await recordShare({
+      items: [{ url: "https://example.com", title: "Example" }],
+      title: "Research trip",
+      share: share(),
+    });
+
+    expect(record).toMatchObject({
+      title: "Research trip",
+      kept: false,
+      shares: [share()],
+    });
+    expect(isKept(record)).toBe(false);
+    expect((await getOutbox()).slice(-1)[0]).toMatchObject({
+      op: "create",
+      record: expect.objectContaining({ id: record.id, kept: false }),
+    });
+  });
+
+  it("appends a share to its existing source stash", async () => {
+    const record = await createStash({
+      items: [{ url: "https://example.com", title: "Example" }],
+      title: "Research trip",
+    });
+
+    const updated = await recordShare({
+      items: [{ url: "https://other.example", title: "Other" }],
+      title: "Ignored title",
+      sourceId: record.id,
+      share: share(),
+    });
+
+    expect(updated?.id).toBe(record.id);
+    expect(updated?.items).toEqual(record.items);
+    expect(updated?.title).toBe("Research trip");
+    expect(updated?.shares).toEqual([share()]);
+  });
+
+  it("keeps a Recent stash through an outbox update", async () => {
+    const record = await createStash({ items: [], kept: false });
+
+    expect(isKept(record)).toBe(false);
+    const kept = await keepStash(record.id);
+
+    expect(kept?.kept).toBe(true);
+    expect(isKept(kept!)).toBe(true);
+    expect((await getOutbox()).slice(-1)[0]).toMatchObject({
+      op: "update",
+      record: expect.objectContaining({ id: record.id, kept: true }),
+    });
+  });
+
+  it("attaches a short URL to the latest matching share", async () => {
+    const record = await createStash({ items: [] });
+    await appendShareEvent(record.id, share());
+    await appendShareEvent(record.id, share({ createdAt: 2000 }));
+
+    const updated = await attachShortUrl(record.id, share().url, "https://s.illo.fyi/s/ABC234");
+
+    expect(updated?.shares).toEqual([
+      share(),
+      { ...share({ createdAt: 2000 }), shortUrl: "https://s.illo.fyi/s/ABC234" },
+    ]);
+  });
+
+  it("prunes only expired Recent records", async () => {
+    const expired: StashRecord = {
+      id: "expired",
+      items: [],
+      shares: [share({ expiresAt: 100 })],
+      createdAt: 1,
+      updatedAt: 1,
+      tags: [],
+      kept: false,
+    };
+    const active: StashRecord = {
+      ...expired,
+      id: "active",
+      shares: [share({ expiresAt: 500 })],
+    };
+    const kept: StashRecord = {
+      ...expired,
+      id: "kept",
+      kept: true,
+    };
+    await materializeStashes(() => [expired, active, kept]);
+
+    expect(recentExpiresAt(active)).toBe(500);
+    expect(await pruneExpiredRecent(200)).toEqual([expired.id]);
+    expect((await listStashes()).map((stash) => stash.id)).toEqual([active.id, kept.id]);
+  });
+
+  it("prunes never-expiring Recent records after 30 days but preserves Kept records", async () => {
+    const lastShareAt = 1_000;
+    const recent: StashRecord = {
+      id: "never-expiring",
+      items: [],
+      shares: [share({ createdAt: lastShareAt, expiresAt: Number.MAX_SAFE_INTEGER })],
+      createdAt: lastShareAt,
+      updatedAt: lastShareAt,
+      tags: [],
+      kept: false,
+    };
+    const kept: StashRecord = { ...recent, id: "kept", kept: true };
+    const expiresAt = lastShareAt + RECENT_MAX_AGE_MS;
+    await materializeStashes(() => [recent, kept]);
+
+    expect(recentExpiresAt(recent)).toBe(expiresAt);
+    expect(await pruneExpiredRecent(expiresAt)).toEqual([recent.id]);
+    expect((await listStashes()).map((stash) => stash.id)).toEqual([kept.id]);
+  });
+
+  it("rescheduling a share pushes the Recent retention date out", async () => {
+    const firstShareAt = 10_000;
+    const recent: StashRecord = {
+      id: "reshared",
+      items: [],
+      shares: [share({ createdAt: firstShareAt, expiresAt: Number.MAX_SAFE_INTEGER })],
+      createdAt: firstShareAt,
+      updatedAt: firstShareAt,
+      tags: [],
+      kept: false,
+    };
+    await materializeStashes(() => [recent]);
+
+    const nextShareAt = firstShareAt + 10 * 24 * 60 * 60 * 1000;
+    const updated = await recordShare({
+      items: recent.items,
+      sourceId: recent.id,
+      share: share({ createdAt: nextShareAt, expiresAt: Number.MAX_SAFE_INTEGER }),
+    });
+
+    expect(recentExpiresAt(updated)).toBe(nextShareAt + RECENT_MAX_AGE_MS);
+    expect(await pruneExpiredRecent(firstShareAt + RECENT_MAX_AGE_MS)).toEqual([]);
+    expect((await listStashes()).map((stash) => stash.id)).toEqual([recent.id]);
+  });
+
+  it("does not revoke short links when pruning expired Recent records", async () => {
+    const fetchMock = vi.fn();
+    vi.spyOn(globalThis, "fetch").mockImplementation(fetchMock);
+    const lastShareAt = 2_000;
+    const recent: StashRecord = {
+      id: "expired-short-link",
+      items: [],
+      shares: [
+        share({
+          createdAt: lastShareAt,
+          expiresAt: Number.MAX_SAFE_INTEGER,
+          shortUrl: "https://s.illo.fyi/s/ABC234",
+        }),
+      ],
+      createdAt: lastShareAt,
+      updatedAt: lastShareAt,
+      tags: [],
+      kept: false,
+    };
+    await materializeStashes(() => [recent]);
+
+    expect(await pruneExpiredRecent(lastShareAt + RECENT_MAX_AGE_MS)).toEqual([recent.id]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("revokes a saved short link when deleting its stash", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+    vi.spyOn(globalThis, "fetch").mockImplementation(fetchMock);
+    const record = await createStash({
+      items: [],
+      shares: [share({ shortUrl: "https://s.illo.fyi/s/ABC234" })],
+    });
+
+    await deleteStash(record.id);
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+
+    expect(fetchMock).toHaveBeenCalledWith("https://s.illo.fyi/api/stash/ABC234", {
+      method: "DELETE",
+    });
+  });
+
+  it("does not revoke short links on a different origin", async () => {
+    const fetchMock = vi.fn();
+    vi.spyOn(globalThis, "fetch").mockImplementation(fetchMock);
+
+    await revokeShortLink("https://attacker.example/s/ABC234");
+
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

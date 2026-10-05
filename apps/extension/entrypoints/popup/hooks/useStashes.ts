@@ -6,8 +6,12 @@ import {
   updateStash,
   deleteStash,
   searchStashes,
+  pruneExpiredRecent,
+  keepStash,
+  recordShare as recordShareInStore,
   type StashRecord,
   type CreateStashInput,
+  type RecordShareInput,
   type UpdateStashInput,
 } from "../../../lib/stash-store";
 
@@ -20,6 +24,7 @@ export function useStashes() {
     setIsLoading(true);
     setError(null);
     try {
+      await pruneExpiredRecent();
       const all = await listStashes();
       setStashes(all);
     } catch {
@@ -66,6 +71,35 @@ export function useStashes() {
     }
   }, []);
 
+  const keep = useCallback(async (id: string) => {
+    try {
+      const updated = await keepStash(id);
+      if (updated) {
+        setStashes((prev) => prev.map((stash) => (stash.id === id ? updated : stash)));
+      }
+      return updated;
+    } catch {
+      setError("Failed to keep stash");
+      return undefined;
+    }
+  }, []);
+
+  const recordShare = useCallback(async (input: RecordShareInput) => {
+    try {
+      const updated = await recordShareInStore(input);
+      setStashes((prev) => {
+        const exists = prev.some((stash) => stash.id === updated.id);
+        return exists
+          ? prev.map((stash) => (stash.id === updated.id ? updated : stash))
+          : [...prev, updated];
+      });
+      return updated;
+    } catch {
+      setError("Failed to record share");
+      return undefined;
+    }
+  }, []);
+
   const remove = useCallback(async (id: string) => {
     try {
       const removed = await deleteStash(id);
@@ -101,6 +135,8 @@ export function useStashes() {
     create,
     importRecords,
     update,
+    keep,
+    recordShare,
     remove,
     search,
   };

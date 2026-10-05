@@ -1,0 +1,1 @@
+{"type":"op","correlationId":"daemon-pushfix1","payload":{"tool":"stash_sync_change","args":{"op":"update","id":"push1","updatedAt":1700000000200,"origin":"daemon","record":{"id":"push1","title":"Fixture Push","tags":["push"],"items":[{"url":"https://fixture.test/push"}],"kept":true,"createdAt":1700000000000,"updatedAt":1700000000200}}}}

@@ -24,6 +24,7 @@ function makeExportStash(args: {
   title?: string | null;
   tags?: string[];
   note?: string | null;
+  kept?: boolean;
 }) {
   return {
     id: args.id ?? "ext-1",
@@ -36,6 +37,7 @@ function makeExportStash(args: {
     ],
     createdAt: 1,
     updatedAt: 2,
+    ...(args.kept === undefined ? {} : { kept: args.kept }),
   };
 }
 
@@ -46,7 +48,73 @@ beforeEach(() => {
 });
 
 describe("MyStashes — extension source", () => {
-  it("renders the extension chip, hides edit/delete buttons, and never calls localStorage.setItem when the bridge returns source: 'extension'", async () => {
+  it("uses the shared title fallback for untitled extension records", async () => {
+    probeMock.mockResolvedValue({
+      available: true,
+      export: {
+        version: 1,
+        source: "extension",
+        stashes: [makeExportStash({ id: "untitled", title: "" })],
+      },
+    });
+
+    render(
+      <LocaleProvider>
+        <MyStashes />
+      </LocaleProvider>,
+    );
+
+    expect(await screen.findByText("Example + 1 more")).toBeTruthy();
+  });
+
+  it("shows extension and viewer-local sections with their hints and status badges", async () => {
+    probeMock.mockResolvedValue({
+      available: true,
+      export: {
+        version: 1,
+        source: "extension",
+        stashes: [
+          makeExportStash({ id: "ext-recent", title: "Recent extension stash", kept: false }),
+        ],
+      },
+    });
+    localStorage.setItem(
+      "stash:records",
+      JSON.stringify([
+        {
+          id: "local-1",
+          title: "Local stash",
+          tags: [],
+          note: "",
+          items: [{ url: "https://example.org", title: "Example" }],
+          createdAt: 10,
+          updatedAt: 20,
+        },
+      ]),
+    );
+
+    render(
+      <LocaleProvider>
+        <MyStashes />
+      </LocaleProvider>,
+    );
+
+    expect(await screen.findByRole("heading", { name: "From the extension" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Saved in this browser" })).toBeTruthy();
+    expect(screen.getByText("Recent extension stash")).toBeTruthy();
+    expect(screen.getByText("Recent")).toBeTruthy();
+    expect(screen.getByText("Local stash")).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Read-only mirror of the extension library; edit stashes from the extension popup.",
+      ),
+    ).toBeTruthy();
+    expect(screen.getByText("Only in this browser; not synced to the extension.")).toBeTruthy();
+    expect(screen.getByLabelText("Edit")).toBeTruthy();
+    expect(screen.getByLabelText("Delete")).toBeTruthy();
+  });
+
+  it("omits the extension source chips, hides edit/delete buttons, and never writes localStorage when the bridge returns source: 'extension'", async () => {
     probeMock.mockResolvedValue({
       available: true,
       export: {
@@ -64,11 +132,12 @@ describe("MyStashes — extension source", () => {
       </LocaleProvider>,
     );
 
-    // Wait for the source chip to flip to extension.
+    // Wait for the root source marker to flip to extension.
     await waitFor(() => {
-      const chip = screen.getByTestId("stash-source-chip");
-      expect(chip.textContent).toContain("This browser's extension library");
+      expect(document.querySelector('[data-stash-source="extension"]')).not.toBeNull();
     });
+
+    expect(screen.queryByTestId("stash-source-chip")).toBeNull();
 
     // Edit / delete buttons must NOT be rendered.
     expect(screen.queryByLabelText("Edit")).toBeNull();

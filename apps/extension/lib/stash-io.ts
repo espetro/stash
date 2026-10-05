@@ -3,8 +3,8 @@ import type { StashRecord } from "./stash-store";
 
 /**
  * Export format version (F8 bumped 1 → 2 in lockstep with the `shares[]`
- * field on `StashRecord`). v1 payloads still import via the shim in
- * `parseStashesImport`; v2 exports round-trip unchanged.
+ * field on `StashRecord`). v2 optionally carries kept and shortUrl metadata;
+ * v1 payloads still import via the shim in `parseStashesImport`.
  */
 const STASH_EXPORT_VERSION = 2;
 
@@ -15,6 +15,7 @@ const stashItemSchema = z.object({
 
 const shareEventSchema = z.object({
   url: z.string(),
+  shortUrl: z.string().optional(),
   itemCount: z.number(),
   truncated: z.boolean(),
   createdAt: z.number(),
@@ -28,6 +29,7 @@ const stashRecordSchema = z.object({
   note: z.string().optional(),
   items: z.array(stashItemSchema),
   shares: z.array(shareEventSchema).optional(),
+  kept: z.boolean().optional(),
   createdAt: z.number(),
   updatedAt: z.number(),
 });

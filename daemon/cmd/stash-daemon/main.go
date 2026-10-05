@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"strings"
+	"time"
 
 	"github.com/espetro/stash/daemon/internal/config"
 	"github.com/espetro/stash/daemon/internal/doctor"
@@ -246,8 +248,13 @@ func runStatus(configDir string, jsonOut bool) {
 	}
 	defer st.Close()
 
-	depth, _ := st.OutboxDepth()
 	peers, _ := st.SyncPeers()
+	// The outbox table is gone; keep the JSON key for existing consumers as
+	// the sum of per-peer push lag (unacked revs at each peer's cursor).
+	depth := int64(0)
+	for _, p := range peers {
+		depth += p.Lag
+	}
 	alive, pid := doctor.CheckPidfile(paths.PidFile)
 
 	// F12: surface the loopback viewer URL written by the serve loop (empty
@@ -275,12 +282,19 @@ func runStatus(configDir string, jsonOut bool) {
 		fmt.Println("browsers:     none")
 	}
 	for _, p := range peers {
-		fmt.Printf("browser:      %s (status %s)\n", p.PeerID, p.Status.String)
+		fmt.Printf("browser:      %s (lag %d, last sync %s)\n", p.PeerID, p.Lag, syncAt(p.LastSyncAt))
 	}
-	fmt.Printf("outbox depth: %d\n", depth)
+	fmt.Printf("push backlog: %d\n", depth)
 	if viewerURL != "" {
 		fmt.Printf("viewer:       %s\n", viewerURL)
 	}
+}
+
+func syncAt(t sql.NullInt64) string {
+	if !t.Valid {
+		return "never"
+	}
+	return time.UnixMilli(t.Int64).UTC().Format(time.RFC3339)
 }
 
 func runDoctor(configDir string, jsonOut bool) {
