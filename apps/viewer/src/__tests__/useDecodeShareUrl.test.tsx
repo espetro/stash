@@ -79,6 +79,39 @@ describe("useDecodeShareUrl — relayed links (zero-trust)", () => {
     }
   });
 
+  it("fetches the envelope from the &relay= origin (mirror-minted links)", async () => {
+    const { id, key, ciphertext } = await makeRelayEntry();
+    setWindowUrl(`http://localhost:4321/s?id=${id}&relay=https://mirror.example.com#${key}`);
+    const fetchSpy = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(JSON.stringify({ id, ciphertext, encrypted: true }), { status: 200 }),
+      );
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const { result } = renderHook(() => useDecodeShareUrl());
+    await waitFor(() => expect(result.current.type).not.toBe("loading"));
+    expect(result.current.type).toBe("content");
+    expect(fetchSpy).toHaveBeenCalledWith(`https://mirror.example.com/s/${id}?format=json`);
+  });
+
+  it("ignores a non-http(s) &relay= and falls back to the default shortener", async () => {
+    const { id, key, ciphertext } = await makeRelayEntry();
+    setWindowUrl(
+      `http://localhost:4321/s?id=${id}&relay=${encodeURIComponent("file:///etc/passwd")}#${key}`,
+    );
+    const fetchSpy = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(JSON.stringify({ id, ciphertext, encrypted: true }), { status: 200 }),
+      );
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const { result } = renderHook(() => useDecodeShareUrl());
+    await waitFor(() => expect(result.current.type).not.toBe("loading"));
+    expect(fetchSpy).toHaveBeenCalledWith(`https://s.example.com/s/${id}?format=json`);
+  });
+
   it("fails closed with an explicit message when the fragment key is missing", async () => {
     setWindowUrl("http://localhost:4321/s?id=ABC234");
     const fetchSpy = vi.fn();

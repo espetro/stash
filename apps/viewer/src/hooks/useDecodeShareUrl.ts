@@ -54,7 +54,23 @@ export function useDecodeShareUrl(): DecodeState {
             }
             return;
           }
-          const res = await fetch(`${getShortenerOrigin()}/s/${relayId.toUpperCase()}?format=json`);
+          // &relay=<origin> carries the minting relay (mirror failover or
+          // ?v= redirect); fetch the ciphertext envelope from there instead
+          // of the default shortener. Origin-only, http(s) — anything else
+          // falls back to the default so the fetch stays fail-closed.
+          let fetchOrigin = getShortenerOrigin();
+          const relayParam = params.get("relay");
+          if (relayParam) {
+            try {
+              const relayUrl = new URL(relayParam);
+              if (relayUrl.protocol === "http:" || relayUrl.protocol === "https:") {
+                fetchOrigin = relayUrl.origin;
+              }
+            } catch {
+              // keep default
+            }
+          }
+          const res = await fetch(`${fetchOrigin}/s/${relayId.toUpperCase()}?format=json`);
           if (!res.ok) {
             if (!cancelled) {
               setState({
