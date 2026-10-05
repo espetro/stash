@@ -96,6 +96,21 @@ export function buildServer(origin: string, deps: StashServerDeps): McpServer {
           isError: true,
         };
       }
+      if (entry.enc) {
+        // Zero-trust relay: the fragment key never reaches the server, so
+        // relayed entries cannot be decoded server-side. Fail closed —
+        // agents should fetch the plaintext via the viewer's ?id= flow or
+        // use self-contained #p= links.
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({ error: "encrypted" }),
+            },
+          ],
+          isError: true,
+        };
+      }
       const brotli = await deps.getBrotli();
       const decoded = await decodeEncodedPayload(entry.p, brotli);
       return {

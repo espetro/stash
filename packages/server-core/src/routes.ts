@@ -92,7 +92,11 @@ async function routeRequest(
     return new Response(null, { status: 204, headers: cors });
   }
 
-  // POST /api/stash  { payload, ttl } -> { id, url }
+  // POST /api/stash  { ciphertext, ttl } | { payload, ttl } -> { id, url }
+  // Dual-mode relay (F14): `ciphertext` stores a client-encrypted blob
+  // (zero-trust: the server never sees plaintext or keys); `payload` keeps
+  // the legacy contract — a decodable plaintext payload, validated and
+  // stored readable so agent flows (?format=, MCP read-back) keep working.
   if (url.pathname === "/api/stash" && request.method === "POST") {
     meta.route = "api_stash";
     const limiter = deps.rateLimiter;
@@ -102,22 +106,46 @@ async function routeRequest(
     ) {
       return tooManyRequests();
     }
-    let body: { payload?: string; ttl?: string };
+    let body: { ciphertext?: string; payload?: string; ttl?: string };
     try {
       body = await request.json();
     } catch {
       return errorResponse(400, "Invalid JSON body");
     }
 
-    const payload = body.payload;
-    if (typeof payload !== "string" || payload.length === 0) {
-      return errorResponse(400, "Missing required field: payload");
+    const hasCiphertext = typeof body.ciphertext === "string" && body.ciphertext.length > 0;
+    const hasPayload = typeof body.payload === "string" && body.payload.length > 0;
+    if (!hasCiphertext && !hasPayload) {
+      return errorResponse(400, "Missing required field: ciphertext or payload");
     }
-    if (payload.length > MAX_PAYLOAD_CHARS) {
+    if (hasCiphertext && hasPayload) {
+      return errorResponse(400, "Pass ciphertext OR payload, not both");
+    }
+
+    const blob = (body.ciphertext ?? body.payload) as string;
+    if (blob.length > MAX_PAYLOAD_CHARS) {
       return errorResponse(413, `Payload exceeds ${MAX_PAYLOAD_CHARS} chars`);
     }
-    if (payload[0] !== "C" && payload[0] !== "R" && payload[0] !== "D" && payload[0] !== "S") {
-      return errorResponse(400, "Unknown payload prefix");
+
+    // Validate per mode: ciphertext is opaque (base64url only); payload
+    // must carry a known prefix and decode.
+    if (hasCiphertext && !/^[A-Za-z0-9_-]+$/.test(blob)) {
+      return errorResponse(400, "Ciphertext must be a base64url string");
+    }
+    let decoded;
+    if (hasPayload) {
+      if (blob[0] !== "C" && blob[0] !== "R" && blob[0] !== "D" && blob[0] !== "S") {
+        return errorResponse(400, "Unknown payload prefix");
+      }
+      try {
+        const brotli = await deps.getBrotli();
+        decoded = await decodeEncodedPayload(blob, brotli);
+      } catch (error) {
+        if (error instanceof PayloadDecodeError) {
+          return errorResponse(400, "Invalid payload: " + error.message);
+        }
+        throw error;
+      }
     }
 
     const ttl = body.ttl ?? deps.defaultTtl;
@@ -129,27 +157,17 @@ async function routeRequest(
       return errorResponse(400, `ttl exceeds maximum allowed (${deps.maxTtl})`);
     }
 
-    // Validate the payload decodes before storing
-    let decoded;
     try {
-      const brotli = await deps.getBrotli();
-      decoded = await decodeEncodedPayload(payload, brotli);
-    } catch (error) {
-      if (error instanceof PayloadDecodeError) {
-        return errorResponse(400, "Invalid payload: " + error.message);
-      }
-      throw error;
-    }
-
-    try {
-      const { id, entry } = await createStash(deps.storage, payload, ttl);
+      const { id, entry } = await createStash(deps.storage, blob, ttl, {
+        encrypted: hasCiphertext,
+      });
       return new Response(
         JSON.stringify(
           {
             id,
             url: `${deps.origin}/s/${id}`,
             expiry: entry.e,
-            itemCount: decoded.items.length,
+            ...(decoded ? { itemCount: decoded.items.length } : {}),
           },
           null,
           2,
@@ -183,7 +201,15 @@ async function routeRequest(
     return new Response(null, { status: 204, headers: cors });
   }
 
-  // GET /s/:id — content negotiation via ?format= then Accept header.
+  // GET /s/:id — content negotiation via ?format= then Accept header,
+  // gated on entry.enc (F14 dual-mode):
+  //  - plaintext entries (legacy + agent-created): decode and serve
+  //    md/txt/json; HTML redirects with the payload inline as before.
+  //  - encrypted entries (zero-trust client uploads): ?format=json returns
+  //    the ciphertext envelope, md/txt fail closed 409, and HTML redirects
+  //    to the viewer with ?id=<id>&relay=<origin> — the viewer fetches the
+  //    ciphertext from the minting relay and decrypts with the fragment
+  //    key, which never reaches any server.
   // The legacy .json|.md|.txt suffix routes are deprecated for one
   // release: they 301-redirect to /s/:id?format=<fmt>.
   const match = url.pathname.match(/^\/s\/([A-Za-z2-7]{6})(\.(json|md|txt))?\/?$/);
@@ -212,10 +238,36 @@ async function routeRequest(
     if (!entry) return errorResponse(404, "Not found or expired");
     if (isExpired(entry)) return errorResponse(410, "Stash expired");
 
-    const brotli = await deps.getBrotli();
-    const decoded = await decodeEncodedPayload(entry.p, brotli);
     const cache = cacheControlFor(entry);
     const baseHeaders = { "Cache-Control": cache, ...cors };
+
+    if (entry.enc) {
+      if (format === "json") {
+        meta.route = "s_view_json";
+        return new Response(
+          JSON.stringify({ id, ciphertext: entry.p, expiry: entry.e, encrypted: true }, null, 2),
+          { status: 200, headers: jsonHeaders(baseHeaders) },
+        );
+      }
+      if (format === "md" || format === "txt") {
+        meta.route = format === "md" ? "s_view_md" : "s_view_txt";
+        // Fail closed: the payload is client-encrypted; md/txt rendering
+        // would require the fragment key, which never reaches the server.
+        return errorResponse(409, "Encrypted stash: plaintext formats require the link fragment");
+      }
+      // HTML: hand the viewer the id + minting relay; the caller's URL
+      // fragment (the key) is preserved across redirects by the browser.
+      meta.route = "s_view_html";
+      const viewer = url.searchParams.get("v") ?? `${deps.viewerOrigin}/s`;
+      const relay = encodeURIComponent(deps.origin);
+      return new Response(null, {
+        status: 302,
+        headers: { Location: `${viewer}?id=${id}&relay=${relay}`, ...cors },
+      });
+    }
+
+    const brotli = await deps.getBrotli();
+    const decoded = await decodeEncodedPayload(entry.p, brotli);
 
     if (format === "md") {
       meta.route = "s_view_md";

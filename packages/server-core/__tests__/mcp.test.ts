@@ -66,6 +66,23 @@ describe("MCP /mcp", () => {
     expect(gotData.items.map((i: any[]) => i[0])).toContain("https://github.com");
   });
 
+  it("stash_get fails closed on zero-trust (enc) entries", async () => {
+    const { encryptForRelay, generateShareKey } = await import("@stash/shared");
+    const ciphertext = await encryptForRelay("S.fakepayload", generateShareKey());
+    // Seed an encrypted entry through the public API.
+    const res = await server.handle(
+      new Request(`${ORIGIN}/api/stash`, {
+        method: "POST",
+        body: JSON.stringify({ ciphertext, ttl: "7d" }),
+      }),
+    );
+    const { id } = (await res.json()) as { id: string };
+
+    const got = await rpc("tools/call", { name: "stash_get", arguments: { id } });
+    const gotData = JSON.parse(got.content[0].text);
+    expect(gotData.error).toBe("encrypted");
+  });
+
   it("stash_decode decodes a codec payload", async () => {
     const brotli = await getBrotliFunctions();
     const payload = await encodePayloadToUrl(
