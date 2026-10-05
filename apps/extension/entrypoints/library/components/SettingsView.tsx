@@ -1,22 +1,22 @@
-import { useState, useEffect, ChangeEventHandler } from "react";
+import { useState, useEffect, type ChangeEventHandler } from "react";
 import { getSettings, setSettings } from "@/lib/settings.js";
 import { getTheme, setTheme } from "@stash/theme";
 import { browserStorageAdapter } from "@/lib/browser-storage-adapter.js";
 import { EXPIRY_OPTIONS } from "@stash/shared";
-import OptionsFooter from "./components/OptionsFooter.js";
-import OptionsExpiryForm from "./components/OptionsExpiryForm.js";
-import OptionsThemeForm from "./components/OptionsThemeForm.js";
-import OptionsViewerForm from "./components/OptionsViewerForm.js";
-import OptionsShortenerForm from "./components/OptionsShortenerForm.js";
-import OptionsLocalLibraryForm from "./components/OptionsLocalLibraryForm.js";
-import OptionsTelemetryForm from "./components/OptionsTelemetryForm.js";
-import TryMcpPanel from "./components/TryMcpPanel.js";
+import OptionsFooter from "./settings/OptionsFooter";
+import OptionsExpiryForm from "./settings/OptionsExpiryForm";
+import OptionsThemeForm from "./settings/OptionsThemeForm";
+import OptionsViewerForm from "./settings/OptionsViewerForm";
+import OptionsShortenerForm from "./settings/OptionsShortenerForm";
+import OptionsLocalLibraryForm from "./settings/OptionsLocalLibraryForm";
+import OptionsTelemetryForm from "./settings/OptionsTelemetryForm";
+import TryMcpPanel from "./settings/TryMcpPanel";
 
 type ExpiryMode = "24h" | "7d" | "30d" | "never";
 type Theme = "light" | "dark" | "system";
 
-/** Options app */
-export default function App() {
+/** Settings tab — the options-page sections, relocated under the Library page. */
+export default function SettingsView() {
   const [expiryMode, setExpiryMode] = useState<ExpiryMode>("never");
   const [theme, setThemeState] = useState<Theme>("system");
   const [viewerOrigin, setViewerOrigin] = useState<string>("");
@@ -62,7 +62,7 @@ export default function App() {
   return (
     <div className="settings-container">
       <header className="settings-header">
-        <h1>Stash Settings</h1>
+        <h1>Settings</h1>
         {showSuccess && (
           <div className="settings-success" role="status" aria-live="polite">
             Settings saved!

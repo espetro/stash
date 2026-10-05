@@ -3,7 +3,7 @@ import { LuCircleAlert, LuPlug, LuPlay, LuRefreshCcw, LuWrench } from "react-ico
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { ChromePortTransport } from "@/lib/mcp/ChromePortTransport";
 import { connectToBackgroundMcp } from "@/lib/mcp/client";
-import type { RuntimePort } from "../../../global";
+import type { RuntimePort } from "../../../../global";
 
 interface ToolInfo {
   name: string;

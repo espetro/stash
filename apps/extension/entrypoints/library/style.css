@@ -1,0 +1,171 @@
+/* Library page (unlisted extension page) — reuses popup stash-view styles
+   via the ../popup/style.css import in main.tsx; these rules lay out the
+   full-page shell and override the popup's fixed-width body constraint. */
+
+body {
+  width: 100%;
+  min-height: 100vh;
+  max-height: none;
+}
+
+.library-page {
+  background: var(--background);
+  min-height: 100vh;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 32px 48px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.library-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.library-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.library-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.library-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.library-tab:hover {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+.library-tab.active {
+  color: var(--foreground);
+  border-color: var(--border);
+  background: var(--muted);
+}
+
+/* The settings sections were built for a standalone options page that
+   already padded the viewport — drop the extra wrapper chrome when they
+   live under the library header. */
+.library-page .settings-container {
+  padding: 0;
+  max-width: none;
+}
+
+.library-page .settings-header {
+  margin-bottom: 16px;
+}
+
+/* Library view top bar: search + filter + actions share one row. */
+.library-view {
+  width: 100%;
+  max-height: none;
+  overflow-y: visible;
+}
+
+/* Pending-import handoff banner (PR E). */
+.pending-import-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent) 10%, var(--background));
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+.pending-import-banner > span {
+  flex: 1;
+}
+
+.pending-import-done {
+  border-color: color-mix(in srgb, var(--success, #22c55e) 30%, transparent);
+  background: color-mix(in srgb, var(--success, #22c55e) 12%, var(--background));
+}
+
+/* Never-paired backup hint (PR E §1.1). */
+.backup-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+}
+
+.backup-hint-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* QR share dialog (lean-qr) — mirrors the viewer's QrDialog surface. */
+.qr-dialog {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--background);
+  color: var(--foreground);
+  padding: 16px;
+  min-width: 280px;
+}
+
+.qr-dialog::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+
+.qr-dialog-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.qr-code {
+  display: block;
+  width: 200px;
+  height: 200px;
+}
+
+.qr-dialog-url {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  word-break: break-all;
+  max-width: 260px;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .library-page {
+    padding: 16px;
+  }
+}

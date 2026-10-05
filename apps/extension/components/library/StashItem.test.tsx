@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { StashItem } from "./StashItem";
-import type { StashRecord } from "../../../lib/stash-store";
+import type { StashRecord } from "../../lib/stash-store";
 
 const stash: StashRecord = {
   id: "saved",
@@ -73,5 +73,40 @@ describe("StashItem", () => {
       await vi.advanceTimersByTimeAsync(1);
     });
     expect(screen.getByRole("button", { name: "Share" })).toBeTruthy();
+  });
+
+  it("fires onQr and onOpenAll from the row icon buttons without expanding", () => {
+    const onQr = vi.fn();
+    const onOpenAll = vi.fn();
+    render(
+      <StashItem
+        stash={stash}
+        onUpdate={vi.fn()}
+        onDelete={vi.fn()}
+        onKeep={vi.fn()}
+        onShare={vi.fn()}
+        onQr={onQr}
+        onOpenAll={onOpenAll}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Share via QR code" }));
+    expect(onQr).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole("button", { name: "Open all 1 items" }));
+    expect(onOpenAll).toHaveBeenCalledOnce();
+  });
+
+  it("omits the QR and open-all buttons when the callbacks are absent", () => {
+    render(
+      <StashItem
+        stash={stash}
+        onUpdate={vi.fn()}
+        onDelete={vi.fn()}
+        onKeep={vi.fn()}
+        onShare={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "Share via QR code" })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Open all/ })).toBeNull();
   });
 });

@@ -29,8 +29,8 @@ export default function Header({ onClickStashes, onClickSettings, onBack }: Head
         <button
           className="theme-toggle"
           onClick={onClickStashes}
-          aria-label="View my stashes"
-          title="My Stashes"
+          aria-label="Open Library"
+          title="Open Library"
         >
           <LuArchive />
         </button>

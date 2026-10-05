@@ -1,31 +1,42 @@
 /**
- * Local browser-agent surface: probe the Stash extension's content-script
- * bridge to ask for the profile-local stash library.
+ * Local browser-agent surface: postMessage protocol between `/stashes`
+ * and the Stash extension's content-script bridge.
  *
  * Wire format (exact-origin postMessage; mirror of
  * `apps/extension/entrypoints/stashes-bridge.content.ts`):
  *
- *   request  { type: "stash:viewer:request",  version: 1, requestId: string }
- *   response { type: "stash:viewer:response", version: 1, requestId: string,
- *              status: "ok" | "error",
- *              payload?: StashExport, error?: string }
+ *   request  { type: BRIDGE_*_TYPE, version: 1, requestId: string,
+ *              payload?: unknown }
+ *   response { type: "stash:viewer:response", version: 1, requestId,
+ *              status: "ok" | "error", payload?: unknown, error?: string }
  *
- * The probe is intentionally narrow: a single request, a single response,
- * a strict timeout, and a hard guarantee that the listener is detached on
- * every resolution path. Failure to resolve the bridge is non-fatal: the
- * caller falls back to viewer-local records.
+ * Request types (PR E):
+ *  - `stash:viewer:presence` — presence ping, answered even when the
+ *    data bridge is disabled; powers the "Open your Library" CTA.
+ *  - `stash:viewer:request`  — full-library export (StashExport); the
+ *    bridge answers `bridge_disabled` when the user has not opted in.
+ *  - `stash:viewer:open`     — open the extension's Library page.
+ *  - `stash:viewer:handoff`  — payload: StashExport(source
+ *    "viewer-local"); the extension parks it for user-confirmed import.
+ *
+ * Every exchange is a single request, a single response, a strict
+ * timeout, and a hard guarantee that the listener is detached on every
+ * resolution path. Failure is non-fatal: callers fall back gracefully.
  *
  * Security notes:
  *  - We only accept messages whose `source === window` (the bridge posts
  *    from the page's own window context). Foreign-window postMessages
  *    cannot impersonate the page.
- *  - We re-validate the payload via `isStashExport` from
+ *  - Export payloads are re-validated via `isStashExport` from
  *    `@stash/shared/agent-export` — strict version guard, http(s) URLs,
  *    array shape, and field types. Untrusted input fails closed.
  */
 import { isStashExport, type StashExport } from "@stash/shared/agent-export";
 
 export const BRIDGE_REQUEST_TYPE = "stash:viewer:request" as const;
+export const BRIDGE_PRESENCE_TYPE = "stash:viewer:presence" as const;
+export const BRIDGE_OPEN_TYPE = "stash:viewer:open" as const;
+export const BRIDGE_HANDOFF_TYPE = "stash:viewer:handoff" as const;
 export const BRIDGE_RESPONSE_TYPE = "stash:viewer:response" as const;
 export const BRIDGE_PROTOCOL_VERSION = 1 as const;
 
@@ -49,23 +60,20 @@ export interface BridgeProbeResult {
   error?: string;
 }
 
-interface ViewerResponseOk {
+export interface BridgeReply {
+  ok: boolean;
+  payload?: unknown;
+  error?: string;
+}
+
+interface ViewerResponse {
   type: typeof BRIDGE_RESPONSE_TYPE;
   version: typeof BRIDGE_PROTOCOL_VERSION;
   requestId: string;
-  status: "ok";
-  payload: unknown;
+  status: "ok" | "error";
+  payload?: unknown;
+  error?: string;
 }
-
-interface ViewerResponseError {
-  type: typeof BRIDGE_RESPONSE_TYPE;
-  version: typeof BRIDGE_PROTOCOL_VERSION;
-  requestId: string;
-  status: "error";
-  error: string;
-}
-
-type ViewerResponse = ViewerResponseOk | ViewerResponseError;
 
 function newRequestId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -78,20 +86,22 @@ function newRequestId(): string {
 
 /**
  * Send a single request to the extension content-script bridge and wait
- * for a matching response, a bridge-side error, or a timeout.
- *
- * The function ALWAYS cleans up its `message` listener before returning,
- * even on timeout or unexpected errors. No state leaks across probes.
+ * for a matching response, a bridge-side error, or a timeout. ALWAYS
+ * cleans up its `message` listener before resolving.
  */
-export async function probeLocalBridge(opts: BridgeProbeOptions = {}): Promise<BridgeProbeResult> {
+async function postViewerRequest(
+  type: string,
+  payload: unknown,
+  opts: BridgeProbeOptions = {},
+): Promise<BridgeReply> {
   if (typeof window === "undefined") {
-    return { available: false };
+    return { ok: false, error: "no_window" };
   }
 
   const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const requestId = newRequestId();
 
-  return new Promise<BridgeProbeResult>((resolve) => {
+  return new Promise<BridgeReply>((resolve) => {
     let settled = false;
 
     const cleanup = (): void => {
@@ -103,7 +113,7 @@ export async function probeLocalBridge(opts: BridgeProbeOptions = {}): Promise<B
       clearInterval(retryHandle);
     };
 
-    const settle = (result: BridgeProbeResult): void => {
+    const settle = (result: BridgeReply): void => {
       if (settled) return;
       settled = true;
       cleanup();
@@ -121,41 +131,34 @@ export async function probeLocalBridge(opts: BridgeProbeOptions = {}): Promise<B
       if (data.requestId !== requestId) return;
 
       if (data.status === "ok") {
-        const payload = (data as ViewerResponseOk).payload;
-        if (isStashExport(payload)) {
-          settle({ available: true, export: payload });
-        } else {
-          settle({ available: false, error: "invalid_payload" });
-        }
+        settle({ ok: true, payload: data.payload });
         return;
       }
-
-      // status === "error"
-      const errorMessage =
-        typeof (data as ViewerResponseError).error === "string"
-          ? (data as ViewerResponseError).error
-          : "bridge_error";
-      settle({ available: false, error: errorMessage });
+      settle({
+        ok: false,
+        error: typeof data.error === "string" ? data.error : "bridge_error",
+      });
     };
 
     let timeoutHandle: ReturnType<typeof setTimeout> | null = setTimeout(() => {
-      settle({ available: false, error: "timeout" });
+      settle({ ok: false, error: "timeout" });
     }, timeoutMs);
 
     const send = (): void => {
       try {
         window.postMessage(
           {
-            type: BRIDGE_REQUEST_TYPE,
+            type,
             version: BRIDGE_PROTOCOL_VERSION,
             requestId,
+            payload,
           },
           "*",
         );
       } catch {
         // Synchronous postMessage failures (rare; e.g. detached frame)
         // collapse to an unavailable result so the caller can fall back.
-        settle({ available: false, error: "post_failed" });
+        settle({ ok: false, error: "post_failed" });
       }
     };
 
@@ -163,4 +166,47 @@ export async function probeLocalBridge(opts: BridgeProbeOptions = {}): Promise<B
     const retryHandle: ReturnType<typeof setInterval> = setInterval(send, RETRY_INTERVAL_MS);
     send();
   });
+}
+
+/**
+ * Ask the bridge for the extension's full-library export. Resolves
+ * `available: true` with a validated `StashExport`, or `available:
+ * false` with the error string (`timeout`, `bridge_disabled`, …).
+ */
+export async function probeLocalBridge(opts: BridgeProbeOptions = {}): Promise<BridgeProbeResult> {
+  const reply = await postViewerRequest(BRIDGE_REQUEST_TYPE, undefined, opts);
+  if (!reply.ok) {
+    return { available: false, error: reply.error };
+  }
+  if (isStashExport(reply.payload)) {
+    return { available: true, export: reply.payload };
+  }
+  return { available: false, error: "invalid_payload" };
+}
+
+/**
+ * Presence ping: answered whenever the extension is installed, even if
+ * the user has not enabled the data bridge — the CTA on /stashes keys
+ * off this rather than the gated export probe.
+ */
+export async function probeBridgePresence(opts: BridgeProbeOptions = {}): Promise<boolean> {
+  const reply = await postViewerRequest(BRIDGE_PRESENCE_TYPE, undefined, opts);
+  if (!reply.ok) return false;
+  const payload = reply.payload as { present?: unknown } | null;
+  return payload?.present === true;
+}
+
+/** Ask the extension to open its Library page in a new tab. */
+export async function openLibraryInExtension(): Promise<BridgeReply> {
+  return postViewerRequest(BRIDGE_OPEN_TYPE, undefined);
+}
+
+/**
+ * One-time handoff: park this page's viewer-local records in the
+ * extension's `pending-import` slot; the user confirms the merge on the
+ * Library page that opens next. Callers clear their own storage only
+ * after an `ok` reply.
+ */
+export async function sendLibraryHandoff(export_: StashExport): Promise<BridgeReply> {
+  return postViewerRequest(BRIDGE_HANDOFF_TYPE, export_);
 }

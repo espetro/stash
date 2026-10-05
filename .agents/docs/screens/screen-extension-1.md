@@ -29,13 +29,14 @@ Elements from `App.tsx`, `Header.tsx`, `SelectAllToggle.tsx`, `TabItem.tsx`.
 |---|---|---|
 | Back chevron | hidden on main view | `LuArrowLeft` top-left; appears only in subviews or link result |
 | Stash title | always | Header `<h1>Stash</h1>` next to back chevron |
-| Header buttons | always | LuArchive (Library), LuCog (Options) |
+| Header buttons | always | LuArchive ("Open Library" → `library.html` new tab), LuCog (Options → `library.html#settings`) |
 | Select All / Deselect All | toggles by `allSelected` | Secondary button; Select All respects URL budget (`findMaxTabsWithinBudget`) |
 | Selected count | always | "N of M selected" text right of the toggle |
 | Budget message | only when `maxTabCount < tabs.length` | "URL budget limit reached" |
 | Tab row | checked / unchecked | Checkbox + favicon + title (truncated at 30 chars, full title in `title` attr) + domain |
 | Share tabs (N) | primary, disabled at N=0 | Creates link, copies to clipboard, adds to history, shows Link result |
 | Save locally | secondary, disabled at N=0 | Title tooltip "Keep this session in your stash library on this device." |
+| Library | not in popup | The popup is collection-only since PR E; the Library lives on `library.html` (see `screen-extension-3.md`) |
 | Error banner | when `error` set | `ErrorMessage`, dismissible |
 
 ### SaveStashForm subview (view = saveStash)

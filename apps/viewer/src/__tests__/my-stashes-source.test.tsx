@@ -106,7 +106,7 @@ describe("MyStashes — extension source", () => {
     expect(screen.getByText("Local stash")).toBeTruthy();
     expect(
       screen.getByText(
-        "Read-only mirror of the extension library; edit stashes from the extension popup.",
+        "Read-only mirror of the extension library; edit stashes from the extension's Library page.",
       ),
     ).toBeTruthy();
     expect(screen.getByText("Only in this browser; not synced to the extension.")).toBeTruthy();

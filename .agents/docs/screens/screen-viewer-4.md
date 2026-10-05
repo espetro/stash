@@ -10,9 +10,12 @@ file: apps/viewer/src/components/MyStashes.tsx
 | [<]          + New stash   My stashes   (theme) (lang)       |
 +--------------------------------------------------------------+
 | + My Stashes ------------------------------------------------+ |
+| | (puzzle) The Stash extension is installed in this browser. | |
+| |   [ Open your Library in the extension ]                   | |
+| |   [ <-> Move to extension Library ]  <- viewer-local only  | |
 | | [(search) Search by title, tag or note            ]        | |
 | | From the extension                                         | |
-| | Read-only mirror of the extension library; edit from popup | |
+| | Read-only mirror of the extension library; edit from Library page | |
 | | +------------------------------------------------------+   | |
 | | | Recent stash [Recent]                (read-only)     |   | |
 | | | [tag] 3 items · Aug 22, 2026 10:04                   |   | |
@@ -43,6 +46,8 @@ file: apps/viewer/src/components/MyStashes.tsx
 | AppHeader | always | Back chevron, New stash / My stashes links, theme and language |
 | Mobile header | below 640px | AppHeader navigation links are icon-only. |
 | Source chip | viewer-local source only | "Saved in this browser." |
+| Extension CTA | whenever presence-ping answers | `[data-stash-extension-cta]` block: detection line + "Open your Library in the extension" (opens `library.html` via `stash:viewer:open`); independent of the data-bridge opt-in |
+| Move to extension Library | CTA block, viewer-local source + records exist | `FaArrowRightArrowLeft`; posts `stash:viewer:handoff` with the local `StashExport`, clears local records on `ok` (confirm happens on the extension page) |
 | Source marker | always, normal view | `[data-stash-source]` on the page root |
 | Search | always | FaMagnifyingGlass icon inside the input; filters the library |
 | Extension section | bridge source only | "From the extension" with a muted read-only hint below; records are read-only and show localized Kept / Recent badges |
@@ -66,6 +71,11 @@ file: apps/viewer/src/components/MyStashes.tsx
   `source: "extension"` `StashExport`, the page renders those records
   in memory and does NOT touch viewer `localStorage`/`IndexedDB`.
   Otherwise the page falls back to viewer-local `localStorage`.
+- Separately, a `stash:viewer:presence` ping detects the extension even
+  when the data bridge is disabled — that powers the CTA block and the
+  one-time `stash:viewer:handoff` (records are parked under
+  `pending-import`; the user confirms the merge on the extension's
+  Library page, after which the viewer clears its local copy).
 - With an extension bridge response, the page shows extension records
   in a read-only section and viewer-local records in a separate editable
   section, with a muted explanatory hint under each heading. The top

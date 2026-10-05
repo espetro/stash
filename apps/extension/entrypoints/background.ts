@@ -14,6 +14,7 @@ import { HOST_NAME } from "../lib/native-messaging/manifest";
 import { SyncClient } from "../lib/sync/sync-client";
 import { migrateHistoryToShares } from "../lib/history-merge";
 import { pruneExpiredRecent } from "../lib/stash-store";
+import { isOpenLibraryMessage, openLibraryRelay } from "../lib/open-library";
 
 export default defineBackground(() => {
   // F5: pair with the local stash-daemon over the F1 native-messaging port.
@@ -52,6 +53,17 @@ export default defineBackground(() => {
 
   settingsItem.onChanged((newValue) => {
     console.log("Settings changed:", newValue);
+  });
+
+  // PR E: the stashes-bridge content script relays "open the Library
+  // page" (and viewer→extension handoffs) through here — content scripts
+  // have no tabs API. Only our own contexts may send the message; the
+  // handoff payload itself was already validated against isStashExport
+  // in the content script.
+  browser.runtime.onMessage.addListener((message: unknown, sender: { id?: string }) => {
+    if (sender.id !== browser.runtime.id) return undefined;
+    if (!isOpenLibraryMessage(message)) return undefined;
+    return openLibraryRelay(message);
   });
 
   browser.runtime.onInstalled.addListener(async () => {

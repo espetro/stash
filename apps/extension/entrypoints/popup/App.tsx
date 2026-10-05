@@ -3,9 +3,8 @@ import { useTabSelection } from "./hooks/useTabSelection";
 import { TabList } from "./components/TabList";
 import { SelectAllToggle } from "./components/SelectAllToggle";
 import { LinkResult } from "./components/LinkResult";
-import { ErrorMessage } from "./components/ErrorMessage";
-import { StashesView } from "./components/StashesView";
-import { SyncStatusBar } from "./components/SyncStatusBar";
+import { ErrorMessage } from "../../components/ErrorMessage";
+import { openLibraryPage } from "../../lib/open-library";
 import { Button } from "@/components/ui/Button";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import { getBrotliFunctions } from "@stash/shared";
@@ -36,7 +35,7 @@ export default function App() {
   const [linkTruncated, setLinkTruncated] = useState(false);
   const [linkTabs, setLinkTabs] = useState<Array<{ url: string; title: string }>>([]);
   const [copyUrl, setCopyUrl] = useState<string | null>(null);
-  const [view, setView] = useState<"main" | "stashes" | "saveStash">("main");
+  const [view, setView] = useState<"main" | "saveStash">("main");
   const [stashToSave, setStashToSave] = useState<Array<{ url: string; title: string }>>([]);
   const hasRecordedTabSelection = useRef(false);
 
@@ -182,7 +181,7 @@ export default function App() {
   }
 
   function handleHeaderBack() {
-    if (view === "stashes" || view === "saveStash") {
+    if (view === "saveStash") {
       setView("main");
       setStashToSave([]);
       return;
@@ -204,19 +203,14 @@ export default function App() {
         onBack={view !== "main" || shareUrl ? () => handleHeaderBack() : undefined}
         onClickStashes={() => {
           recordEvent("stash_list_viewed");
-          setView("stashes");
+          void openLibraryPage();
         }}
-        onClickSettings={() => browser.runtime.openOptionsPage()}
+        onClickSettings={() => void openLibraryPage("#settings")}
       />
 
       {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}
 
-      {view === "stashes" ? (
-        <>
-          <SyncStatusBar />
-          <StashesView />
-        </>
-      ) : view === "saveStash" ? (
+      {view === "saveStash" ? (
         <SaveStashForm
           itemCount={stashToSave.length}
           onSave={handleSaveStash}

@@ -23,7 +23,12 @@ import { useStashLibrary } from "@/hooks/useStashLibrary";
 import type { StashRecord } from "@/lib/stash-store";
 import { formatDateTime, stashDisplayTitle } from "@stash/shared";
 import { recordEvent } from "@/lib/telemetry";
-import { probeLocalBridge } from "@/lib/local-bridge";
+import {
+  probeLocalBridge,
+  probeBridgePresence,
+  openLibraryInExtension,
+  sendLibraryHandoff,
+} from "@/lib/local-bridge";
 import type { StashExportRecord, StashExport } from "@stash/shared/agent-export";
 import { toStashExport } from "@stash/shared/agent-export";
 import {
@@ -33,6 +38,8 @@ import {
   FaFileArrowUp,
   FaTrash,
   FaPen,
+  FaPuzzlePiece,
+  FaArrowRightArrowLeft,
 } from "react-icons/fa6";
 
 type LibrarySource = "extension" | "viewer-local";
@@ -367,9 +374,16 @@ export default function MyStashes() {
     remove,
     exportJson,
     importJson,
+    clearAll,
   } = useStashLibrary();
   const [importMessage, setImportMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // PR E: the extension is installed even when the data bridge is
+  // disabled — presence powers the "Open your Library" CTA and the
+  // one-time handoff of viewer-local records.
+  const [extensionPresent, setExtensionPresent] = useState(false);
+  const [handoffBusy, setHandoffBusy] = useState(false);
+  const [handoffMessage, setHandoffMessage] = useState<string | null>(null);
 
   // Source-aware loading: probe the extension bridge after mount. If it
   // returns an `extension` source, render those records in-memory and
@@ -389,6 +403,16 @@ export default function MyStashes() {
     void (async () => {
       const result = await probeLocalBridge();
       if (cancelled) return;
+      // Presence is probed regardless of the data-bridge setting — but
+      // don't await it here: it has its own timeout and must not delay
+      // the island's data-stash-status=ready flip.
+      if (!result.available) {
+        void probeBridgePresence().then((present) => {
+          if (!cancelled) setExtensionPresent(present);
+        });
+      } else {
+        setExtensionPresent(true);
+      }
       if (result.available && result.export && result.export.source === "extension") {
         setExtensionRecords(result.export.stashes.map(exportRecordToStashRecord));
         setSource("extension");
@@ -449,6 +473,30 @@ export default function MyStashes() {
   );
 
   const isExtensionSource = source === "extension";
+
+  const handleOpenInExtension = useCallback(() => {
+    recordEvent("library_open_in_extension");
+    void openLibraryInExtension();
+  }, []);
+
+  const handleHandoff = useCallback(async () => {
+    if (handoffBusy) return;
+    setHandoffBusy(true);
+    setHandoffMessage(null);
+    try {
+      const count = viewerRecords.length;
+      const reply = await sendLibraryHandoff(toStashExport(viewerRecords, "viewer-local"));
+      if (reply.ok) {
+        recordEvent("viewer_handoff_sent");
+        clearAll();
+        setHandoffMessage(t("myStashes.moveToExtensionDone", { count }, lang));
+      } else {
+        setHandoffMessage(t("myStashes.moveToExtensionError", undefined, lang));
+      }
+    } finally {
+      setHandoffBusy(false);
+    }
+  }, [handoffBusy, viewerRecords, clearAll, lang]);
 
   // The agent island payload is built from the bridge export when the
   // extension source is active, and from an empty `viewer-local`
@@ -514,6 +562,40 @@ export default function MyStashes() {
               >
                 {t("myStashes.sourceViewer", undefined, lang)}
               </span>
+            </div>
+          )}
+
+          {extensionPresent && (
+            <div
+              data-stash-extension-cta
+              className="flex flex-col gap-2 rounded-xl border border-border bg-secondary/50 p-3"
+            >
+              <p className="flex items-center gap-2 text-xs text-muted-foreground">
+                <FaPuzzlePiece className="size-3.5 shrink-0" />
+                {t("myStashes.extensionDetected", undefined, lang)}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleOpenInExtension}
+                  className="h-8 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+                >
+                  {t("myStashes.openInExtension", undefined, lang)}
+                </button>
+                {!isExtensionSource && viewerRecords.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => void handleHandoff()}
+                    disabled={handoffBusy}
+                    className="flex h-8 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-secondary disabled:opacity-50"
+                  >
+                    <FaArrowRightArrowLeft className="size-3" />
+                    {handoffBusy
+                      ? t("myStashes.moveToExtensionBusy", undefined, lang)
+                      : t("myStashes.moveToExtension", undefined, lang)}
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
@@ -618,6 +700,9 @@ export default function MyStashes() {
 
           {importMessage && (
             <p className="text-center text-xs text-muted-foreground">{importMessage}</p>
+          )}
+          {handoffMessage && (
+            <p className="text-center text-xs text-muted-foreground">{handoffMessage}</p>
           )}
         </SharedCardContent>
       </SharedCard>

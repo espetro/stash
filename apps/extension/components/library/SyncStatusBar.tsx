@@ -1,6 +1,6 @@
 import { LuCloudOff, LuCircleAlert, LuRefreshCw, LuHardDriveDownload } from "react-icons/lu";
-import { useSyncStatus } from "../hooks/useSyncStatus";
-import type { SyncState } from "../../../lib/sync/protocol";
+import { useSyncStatus } from "../../entrypoints/library/hooks/useSyncStatus";
+import type { SyncState } from "../../lib/sync/protocol";
 
 function formatLastSeen(ts?: number): string {
   if (!ts) return "";

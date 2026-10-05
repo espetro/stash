@@ -83,7 +83,7 @@ export interface McpRpc {
 export async function connectMcpPort(context: BrowserContext): Promise<McpRpc> {
   const extensionId = await getExtensionId(context);
   const page = await context.newPage();
-  await page.goto(`chrome-extension://${extensionId}/options.html`);
+  await page.goto(`chrome-extension://${extensionId}/library.html#settings`);
 
   // Node-side pending-response map, keyed by JSON-RPC id.
   const pending = new Map<number, { resolve: (v: unknown) => void; reject: (e: Error) => void }>();
