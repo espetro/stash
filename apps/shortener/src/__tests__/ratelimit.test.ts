@@ -58,7 +58,11 @@ describe("rate limiting: POST /api/stash", () => {
     const res = await postStash();
     expect(res.status).toBe(429);
     expect(res.headers.get("Retry-After")).toBe("60");
-    expect(await res.json()).toEqual({ error: "Too many requests" });
+    expect(await res.json()).toEqual({
+      error: "Too many requests",
+      code: "rate_limited",
+      hint: expect.any(String),
+    });
   });
 
   it("fails closed when limit() throws", async () => {

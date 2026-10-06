@@ -51,7 +51,7 @@ describe("createShortLink (zero-trust relay)", () => {
     const url = (result as { url: string }).url;
     const key = url.slice(url.indexOf("#") + 1);
     expect(url.startsWith(`${ORIGIN}/s/ABC234#`)).toBe(true);
-    expect(key).toMatch(/^[A-Za-z0-9_-]{22}$/);
+    expect(key).toMatch(/^[A-Za-z0-9_-]{43}$/);
 
     const body = JSON.parse(await fetchBody());
     expect(body.ciphertext).toMatch(/^[A-Za-z0-9_-]+$/);
@@ -97,7 +97,7 @@ describe("shortenShareUrl (zero-trust relay)", () => {
     const result = await shortenShareUrl("https://viewer.example/s#p=Cpayloaddata", ORIGIN);
     expect(result).toHaveProperty("url");
     expect((result as { url: string }).url).toMatch(
-      new RegExp(`^${ORIGIN.replace(".", "\\.")}/s/XYZ789#[A-Za-z0-9_-]{22}$`),
+      new RegExp(`^${ORIGIN.replace(".", "\\.")}/s/XYZ789#[A-Za-z0-9_-]{43}$`),
     );
     const body = JSON.parse(await fetchBody());
     expect(body.ciphertext).not.toContain("payloaddata");
