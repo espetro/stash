@@ -1,6 +1,6 @@
 {
   "name": "stash-viewer",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "private": true,
   "description": "Stash viewer site",
   "type": "module",

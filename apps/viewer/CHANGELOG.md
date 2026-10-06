@@ -1,5 +1,19 @@
 # stash-viewer
 
+## 0.10.2
+
+### Patch Changes
+
+- fix(viewer): restore block navbar on landing + real Chrome Web Store link
+  - Landing navbar returns to the classic full-width block bar (logo left,
+    links centered, Settings + Install dropdown right); the floating pill
+    style is gone — `/s/` routes keep their own minimal `AppHeader`.
+  - `INSTALL_CHROME_URL` now points at the live Chrome Web Store listing
+    (`VITE_CHROME_DOWNLOAD_URL` still overrides).
+  - @stash/codec@0.10.2
+  - @stash/theme@0.10.2
+  - @stash/shared@0.10.2
+
 ## 0.10.1
 
 ### Patch Changes

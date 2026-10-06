@@ -1,5 +1,12 @@
 # @stash/server-core
 
+## 0.3.2
+
+### Patch Changes
+
+- @stash/codec@0.10.2
+- @stash/shared@0.10.2
+
 ## 0.3.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@stash/mirror",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "type": "module",
   "description": "Non-Cloudflare mirror origin (F13): portable relay + decode surface deployable to Deno Deploy / Vercel / Netlify / Fly",
