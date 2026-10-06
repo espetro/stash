@@ -69,6 +69,17 @@ describe("agent-equivalent fetch (no JS execution)", () => {
     expect(res.headers.get("Content-Type")).toContain("application/json");
     const body = await res.json();
     expect(body.error).toMatch(/format/i);
+    // Contract precision: stable code + actionable hint the agent can follow.
+    expect(body.code).toBe("unknown_format");
+    expect(body.hint).toMatch(/format=json/);
+  });
+
+  it("SPA fallthrough carries rel=alternate Link headers", async () => {
+    const res = await sHandler(makeContext(`/s`, { Accept: "text/html" }));
+    expect(res.headers.get("Link")).toContain('rel="alternate"');
+    expect(res.headers.get("Link")).toContain("format=json");
+    expect(res.headers.get("Link")).toContain("format=md");
+    expect(await res.text()).toContain("SPA shell");
   });
 
   it("explicit format overrides the Accept header", async () => {

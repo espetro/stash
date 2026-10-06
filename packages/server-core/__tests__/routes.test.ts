@@ -160,7 +160,11 @@ describe("GET /s/:id", () => {
     const res = await fetchServer(`${ORIGIN}/s/${id}?format=yaml`);
     expect(res.status).toBe(400);
     expect(res.headers.get("Content-Type")).toContain("application/json");
-    expect(((await res.json()) as any).error).toMatch(/Unknown format/);
+    const body = (await res.json()) as any;
+    expect(body.error).toMatch(/Unknown format/);
+    // Contract precision: a stable code + an actionable hint the agent can follow.
+    expect(body.code).toBe("unknown_format");
+    expect(body.hint).toMatch(/format=json/);
   });
 
   it("negotiates text/plain via Accept header", async () => {
@@ -461,7 +465,11 @@ describe("rate limiting", () => {
     const res = await postStash();
     expect(res.status).toBe(429);
     expect(res.headers.get("Retry-After")).toBe("60");
-    expect(await res.json()).toEqual({ error: "Too many requests" });
+    expect(await res.json()).toEqual({
+      error: "Too many requests",
+      code: "rate_limited",
+      hint: expect.any(String),
+    });
   });
 
   it("passes when the limiter allows", async () => {
@@ -576,5 +584,126 @@ describe("rate limiting", () => {
     expect(limiter.getCalls()).toBe(0);
     const health = await limitedServer.handle(new Request(`${ORIGIN}/health`));
     expect(health.status).toBe(200);
+  });
+});
+
+describe("dual-mode relay (F14 zero-trust)", () => {
+  let ciphertextP: string;
+
+  beforeAll(async () => {
+    const { encryptForRelay, generateShareKey } = await import("@stash/shared");
+    ciphertextP = await encryptForRelay(payloadP, generateShareKey());
+  });
+
+  async function makeEncrypted(ttl = "30d"): Promise<{ id: string; body: any }> {
+    const res = await fetchServer(`${ORIGIN}/api/stash`, {
+      method: "POST",
+      body: JSON.stringify({ ciphertext: ciphertextP, ttl }),
+    });
+    const body: any = await res.json();
+    return { id: body.id, body };
+  }
+
+  it("accepts {ciphertext} and returns id + url without itemCount", async () => {
+    const { body } = await makeEncrypted();
+    expect(body.id).toMatch(/^[A-Z2-7]{6}$/);
+    expect(body.url).toMatch(/^https:\/\/short\.example\.com\/s\/[A-Z2-7]{6}$/);
+    expect(body.itemCount).toBeUndefined();
+  });
+
+  it("stores ciphertext opaquely (enc marker)", async () => {
+    const { id } = await makeEncrypted();
+    const raw = await storage.getItem(id);
+    const entry = typeof raw === "string" ? JSON.parse(raw) : raw;
+    expect(entry.enc).toBe(true);
+    expect(entry.p).toBe(ciphertextP);
+    expect(entry.p).not.toContain("http");
+  });
+
+  it("rejects non-base64url ciphertext with 400", async () => {
+    const res = await fetchServer(`${ORIGIN}/api/stash`, {
+      method: "POST",
+      body: JSON.stringify({ ciphertext: "not base64url!!!", ttl: "7d" }),
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it("rejects a body with both ciphertext and payload", async () => {
+    const res = await fetchServer(`${ORIGIN}/api/stash`, {
+      method: "POST",
+      body: JSON.stringify({ ciphertext: ciphertextP, payload: payloadP, ttl: "7d" }),
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it("rejects a body with neither field", async () => {
+    const res = await fetchServer(`${ORIGIN}/api/stash`, {
+      method: "POST",
+      body: JSON.stringify({ ttl: "7d" }),
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it("legacy {payload} still stores plaintext (enc unset) and returns itemCount", async () => {
+    const res = await fetchServer(`${ORIGIN}/api/stash`, {
+      method: "POST",
+      body: JSON.stringify({ payload: payloadP, ttl: "7d" }),
+    });
+    const body: any = await res.json();
+    expect(body.itemCount).toBe(3);
+    const raw = await storage.getItem(body.id);
+    const entry = typeof raw === "string" ? JSON.parse(raw) : raw;
+    expect(entry.enc).toBeUndefined();
+  });
+
+  it("?format=json on an encrypted entry returns the ciphertext envelope", async () => {
+    const { id } = await makeEncrypted();
+    const res = await fetchServer(`${ORIGIN}/s/${id}?format=json`);
+    expect(res.status).toBe(200);
+    const body: any = await res.json();
+    expect(body.ciphertext).toBe(ciphertextP);
+    expect(body.encrypted).toBe(true);
+    expect(body.items).toBeUndefined();
+  });
+
+  it("?format=md and ?format=txt fail closed 409 on encrypted entries", async () => {
+    const { id } = await makeEncrypted();
+    for (const fmt of ["md", "txt"]) {
+      const res = await fetchServer(`${ORIGIN}/s/${id}?format=${fmt}`);
+      expect(res.status).toBe(409);
+      const body = (await res.json()) as any;
+      expect(body.error).toMatch(/Encrypted/);
+      expect(body.code).toBe("encrypted_payload");
+      expect(body.hint).toMatch(/format=json/);
+    }
+  });
+
+  it("HTML on an encrypted entry redirects to viewer ?id=<id>&relay=<origin>", async () => {
+    const { id } = await makeEncrypted();
+    const res = await fetchServer(`${ORIGIN}/s/${id}`, { redirect: "manual" });
+    expect(res.status).toBe(302);
+    const loc = res.headers.get("Location")!;
+    expect(loc).toContain(`?id=${id}`);
+    expect(loc).toContain(`relay=${encodeURIComponent(ORIGIN)}`);
+    expect(loc).not.toContain(`#p=`);
+  });
+
+  it("?v= overrides the viewer origin on encrypted redirects too", async () => {
+    const { id } = await makeEncrypted();
+    const res = await fetchServer(`${ORIGIN}/s/${id}?v=${encodeURIComponent("https://v.example/s")}`, {
+      redirect: "manual",
+    });
+    const loc = res.headers.get("Location")!;
+    expect(loc).toMatch(/^https:\/\/v\.example\/s\?id=/);
+    expect(loc).toContain(`relay=${encodeURIComponent(ORIGIN)}`);
+  });
+
+  it("plaintext entries keep the legacy ?format= and #p= redirect", async () => {
+    const id = await makeStash();
+    const res = await fetchServer(`${ORIGIN}/s/${id}?format=md`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toContain("text/markdown");
+    const html = await fetchServer(`${ORIGIN}/s/${id}`, { redirect: "manual" });
+    expect(html.headers.get("Location")).toContain("#p=");
   });
 });

@@ -89,7 +89,7 @@ export function buildOpenApiSpec() {
         post: {
           summary: "Create a short stash",
           description:
-            "Creates a stored (server-side) stash with a 6-char base32 id and returns { id, url, expiry, itemCount }. Payload is the same encoded string used in share URL fragments; ttl is one of 1d, 7d, 14d, 30d.",
+            "Creates a stored (server-side) stash with a 6-char base32 id and returns { id, url, expiry } (+ itemCount for plaintext creates). Dual-mode request: send `payload` (the same encoded string used in share URL fragments; decoded, validated and stored readable) OR `ciphertext` (a zero-trust relayed share encrypted client-side with AES-256-GCM; stored opaque — the server never sees the key, which travels in the share URL's #<key> fragment). ttl is one of 1d, 7d, 14d, 30d.",
           servers: [{ url: "https://s.illo.fyi" }],
           requestBody: {
             required: true,
@@ -97,11 +97,16 @@ export function buildOpenApiSpec() {
               "application/json": {
                 schema: {
                   type: "object",
-                  required: ["payload"],
                   properties: {
                     payload: {
                       type: "string",
-                      description: "Encoded payload string (C/R/D/S prefix + body)",
+                      description:
+                        "Encoded payload string (C/R/D/S prefix + body). Exactly one of payload/ciphertext is required.",
+                    },
+                    ciphertext: {
+                      type: "string",
+                      description:
+                        "base64url AES-256-GCM ciphertext (IV || ciphertext+tag) for a zero-trust relayed share. Exactly one of payload/ciphertext is required.",
                     },
                     ttl: {
                       type: "string",
@@ -194,7 +199,7 @@ export function buildOpenApiSpec() {
         get: {
           summary: "Resolve short stash id by content negotiation",
           description:
-            "Returns the decoded stash contents for the given short id. Format is selected by (1) the optional ?format=json|md|txt query parameter, or (2) Accept header (application/json, text/markdown, text/plain). An unknown format value returns 400 JSON. Without a recognized format the request 302-redirects to the interactive viewer at /s#p=<encoded>. Legacy .json/.md/.txt path suffixes 301-redirect to the ?format= form and will be removed in a future release.",
+            "Returns the stash contents for the given short id. Format is selected by (1) the optional ?format=json|md|txt query parameter, or (2) Accept header (application/json, text/markdown, text/plain). An unknown format value returns 400 JSON. Zero-trust (encrypted) entries cannot be decoded server-side: ?format=json returns the ciphertext envelope { id, ciphertext, expiry, encrypted: true } for client-side decryption with the key from the share URL's #<key> fragment; md/txt return 409; HTML negotiation 302-redirects to viewer?id=<id>&relay=<origin>. Plaintext entries decode as before and HTML negotiation 302-redirects to /s#p=<encoded>. Legacy .json/.md/.txt path suffixes 301-redirect to the ?format= form and will be removed in a future release.",
           servers: [{ url: "https://s.illo.fyi" }],
           parameters: [
             {
@@ -220,10 +225,16 @@ export function buildOpenApiSpec() {
           ],
           responses: {
             "200": {
-              description: "Decoded contents",
+              description:
+                "Decoded contents (plaintext) or ciphertext envelope (encrypted, ?format=json only)",
               content: {
                 "application/json": {
-                  schema: { $ref: "#/components/schemas/DecodedPayload" },
+                  schema: {
+                    oneOf: [
+                      { $ref: "#/components/schemas/DecodedPayload" },
+                      { $ref: "#/components/schemas/CiphertextEnvelope" },
+                    ],
+                  },
                 },
                 "text/markdown": {
                   schema: { type: "string" },
@@ -233,9 +244,21 @@ export function buildOpenApiSpec() {
                 },
               },
             },
-            "302": { description: "Redirect to viewer SPA (HTML negotiation)" },
+            "302": {
+              description:
+                "Redirect to viewer SPA (HTML negotiation): /s#p=<encoded> for plaintext entries, /s?id=<id>&relay=<origin> for encrypted entries",
+            },
             "400": {
               description: "Unknown format parameter",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/ErrorResponse" },
+                },
+              },
+            },
+            "409": {
+              description:
+                "Entry is encrypted (zero-trust): md/txt cannot be produced server-side; fetch ?format=json for the ciphertext envelope",
               content: {
                 "application/json": {
                   schema: { $ref: "#/components/schemas/ErrorResponse" },
@@ -363,7 +386,7 @@ export function buildOpenApiSpec() {
         },
         StashCreated: {
           type: "object",
-          required: ["id", "url", "expiry", "itemCount"],
+          required: ["id", "url", "expiry"],
           properties: {
             id: {
               type: "string",
@@ -381,16 +404,70 @@ export function buildOpenApiSpec() {
             },
             itemCount: {
               type: "integer",
-              description: "Number of items in the created stash",
+              description:
+                "Number of items in the created stash (only for plaintext {payload} creates; absent for {ciphertext})",
+            },
+          },
+        },
+        CiphertextEnvelope: {
+          type: "object",
+          required: ["id", "ciphertext", "expiry", "encrypted"],
+          description:
+            "Zero-trust entry: the server holds only ciphertext. Decrypt client-side with the AES-256-GCM key from the share URL's #<key> fragment (ciphertext layout: IV(12B) || ciphertext+tag(16B), base64url).",
+          properties: {
+            id: {
+              type: "string",
+              pattern: "^[A-Z2-7]{6}$",
+            },
+            ciphertext: {
+              type: "string",
+              description: "base64url AES-256-GCM ciphertext (IV || ciphertext+tag)",
+            },
+            expiry: {
+              type: "integer",
+              description: "Expiry timestamp (Unix seconds)",
+            },
+            encrypted: {
+              type: "boolean",
+              enum: [true],
             },
           },
         },
         ErrorResponse: {
           type: "object",
+          required: ["error", "code"],
           properties: {
             error: {
               type: "string",
-              description: "Error message",
+              description: "Human-readable error message",
+            },
+            code: {
+              type: "string",
+              description: "Stable machine-checkable error token — switch on this, not the message",
+              enum: [
+                "invalid_json",
+                "invalid_beacon",
+                "missing_field",
+                "conflicting_fields",
+                "payload_too_large",
+                "invalid_ciphertext",
+                "unknown_prefix",
+                "invalid_payload",
+                "invalid_ttl",
+                "ttl_exceeded",
+                "id_collision",
+                "invalid_id",
+                "unknown_format",
+                "not_found",
+                "expired",
+                "encrypted_payload",
+                "rate_limited",
+                "internal",
+              ],
+            },
+            hint: {
+              type: "string",
+              description: "Actionable recovery: the corrected call shape or next step",
             },
           },
         },

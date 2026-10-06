@@ -59,6 +59,9 @@ const viewerOrigin = validateViewerOrigin(rawViewerOrigin).success
               disable_cookie: true,
               autocapture: true,
               capture_pageview: true,
+              // /s#p= fragments carry the entire stash payload — never let
+              // them reach analytics.
+              disable_capture_url_hashes: true,
             });
           }
         };

@@ -9,6 +9,7 @@ import {
   type BrotliFunctions,
 } from "@stash/codec";
 import { parseStashLine } from "@stash/shared";
+import { stashError } from "@stash/shared/error-contract";
 import { createStash, getStash, isExpired, SERVER_TTL_HOURS, type ServerTtl } from "./store";
 import type { StashServerDeps } from "./config";
 
@@ -20,16 +21,17 @@ export const MCP_TOOLS = [
   {
     name: "stash_create",
     description:
-      "Create a stash: a short shareable link bundling multiple URLs. Returns the short id and share URL.",
+      'Create a stash: a short shareable link bundling multiple URLs. Input: urls[] of lines ("https://..." or "https://... | optional title"), optional title, ttlDays 1|7|14|30. Returns {id, url} — url is shareable as-is. Storing plaintext by design: the payload already transits to this relay in the arguments, so recipients can read it back via stash_get or GET <url>?format=json. Do NOT use to read or look up existing stashes — use stash_get.',
   },
   {
     name: "stash_get",
-    description: "Fetch a stash by its short id and return its title and items.",
+    description:
+      "Fetch a stash by its 6-character base32 id — the token after /s/ in a share URL like https://<host>/s/AHK7QY. Returns {id, title, items[]}. Errors: {error: \"not_found\"} (unknown id), {error: \"expired\"} (link outlived its TTL), {error: \"encrypted\"} (zero-trust entry — the key is in the share URL's #<key> fragment; decrypt client-side or use a self-contained #p= link). When you only have a #p= fragment payload, use stash_decode.",
   },
   {
     name: "stash_decode",
     description:
-      "Decode a stash payload string (the ?p= value from a stash share URL) into its title and items.",
+      "Decode a stash payload string into {title, items[]}. Input: the raw payload token — the value after #p= or ?p= in a share URL — NOT the whole URL (strip everything up to and including p=). For 6-character short-link ids use stash_get instead.",
   },
 ] as const;
 
@@ -43,8 +45,11 @@ export function buildServer(origin: string, deps: StashServerDeps): McpServer {
     "stash_create",
     MCP_TOOLS[0].description,
     {
-      title: z.string().optional().describe("Optional title for the stash"),
-      urls: z.array(z.string()).min(1).describe("URLs to include in the stash"),
+      title: z.string().optional().describe("Optional stash title"),
+      urls: z
+        .array(z.string())
+        .min(1)
+        .describe('URLs to include, one per line; "url | title" syntax sets a per-item title'),
       ttlDays: z
         .union([z.literal(1), z.literal(7), z.literal(14), z.literal(30)])
         .default(Math.round(SERVER_TTL_HOURS[deps.defaultTtl] / 24) as 1 | 7 | 14 | 30)
@@ -59,7 +64,13 @@ export function buildServer(origin: string, deps: StashServerDeps): McpServer {
           content: [
             {
               type: "text",
-              text: JSON.stringify({ error: `ttl exceeds maximum allowed (${deps.maxTtl})` }),
+              text: JSON.stringify(
+                stashError(
+                  "ttl_exceeded",
+                  `ttl exceeds maximum allowed (${deps.maxTtl})`,
+                  `this relay caps ttlDays at ${Math.round(SERVER_TTL_HOURS[deps.maxTtl] / 24)}`,
+                ),
+              ),
             },
           ],
           isError: true,
@@ -81,18 +92,43 @@ export function buildServer(origin: string, deps: StashServerDeps): McpServer {
   server.tool(
     "stash_get",
     MCP_TOOLS[1].description,
-    { id: z.string().describe("The 6-character stash id") },
+    {
+      id: z
+        .string()
+        .describe("The 6-character base32 stash id (the token after /s/ in the share URL)"),
+    },
     async ({ id }) => {
       const entry = await getStash(deps.storage, id.toUpperCase());
       if (!entry) {
         return {
-          content: [{ type: "text", text: JSON.stringify({ error: "not_found" }) }],
+          content: [{ type: "text", text: JSON.stringify(stashError("not_found", "not_found")) }],
           isError: true,
         };
       }
       if (isExpired(entry)) {
         return {
-          content: [{ type: "text", text: JSON.stringify({ error: "expired" }) }],
+          content: [{ type: "text", text: JSON.stringify(stashError("expired", "expired")) }],
+          isError: true,
+        };
+      }
+      if (entry.enc) {
+        // Zero-trust relay: the fragment key never reaches the server, so
+        // relayed entries cannot be decoded server-side. Fail closed —
+        // agents should fetch the plaintext via the viewer's ?id= flow or
+        // use self-contained #p= links.
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(
+                stashError(
+                  "encrypted_payload",
+                  "encrypted",
+                  "the entry's key lives in the share URL's #<key> fragment — decrypt client-side, or use a self-contained #p= link",
+                ),
+              ),
+            },
+          ],
           isError: true,
         };
       }
@@ -112,7 +148,11 @@ export function buildServer(origin: string, deps: StashServerDeps): McpServer {
   server.tool(
     "stash_decode",
     MCP_TOOLS[2].description,
-    { payload: z.string().describe("The encoded payload string (p param value from a share URL)") },
+    {
+      payload: z
+        .string()
+        .describe("The encoded payload token — the value after #p= or ?p=, not the full URL"),
+    },
     async ({ payload }) => {
       const brotli = await deps.getBrotli();
       const decoded = await decodeEncodedPayload(payload, brotli);

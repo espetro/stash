@@ -21,3 +21,10 @@ export {
   type LineValidation,
   type ParsedStashLine,
 } from "./schemas";
+export { generateShareKey, encryptForRelay, decryptFromRelay } from "./crypto";
+export {
+  STASH_ERROR_CODES,
+  stashError,
+  type StashErrorBody,
+  type StashErrorCode,
+} from "./error-contract";
