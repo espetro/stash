@@ -1,3 +1,4 @@
+import { stashError } from "@stash/shared/error-contract";
 import { jsonHeaders } from "./store";
 import type { RateLimitBinding } from "./config";
 
@@ -28,10 +29,15 @@ export async function allowRequest(
 export const RETRY_AFTER = 60;
 
 export function tooManyRequests(): Response {
-  return new Response(JSON.stringify({ error: "Too many requests" }), {
-    status: 429,
-    headers: { "Retry-After": String(RETRY_AFTER), ...jsonHeaders() },
-  });
+  return new Response(
+    JSON.stringify(
+      stashError("rate_limited", "Too many requests", `retry after ${RETRY_AFTER}s`),
+    ),
+    {
+      status: 429,
+      headers: { "Retry-After": String(RETRY_AFTER), ...jsonHeaders() },
+    },
+  );
 }
 
 export function mcpTooManyRequests(): Response {

@@ -11,6 +11,7 @@
     "./fixtures": "./src/fixtures.ts",
     "./fixtures/payloads.json": "./fixtures/payloads.json",
     "./negotiation": "./src/negotiation.ts",
+    "./error-contract": "./src/error-contract.ts",
     "./failover": "./src/failover.ts"
   },
   "scripts": {

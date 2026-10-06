@@ -13,6 +13,7 @@
  * - rate limit and decode errors return JSON, never HTML
  */
 import { PayloadDecodeError } from "@stash/codec";
+import { stashError } from "@stash/shared/error-contract";
 import { isValidFormatParam, negotiateFormat } from "@stash/shared/negotiation";
 import {
   decodePayload,
@@ -41,6 +42,23 @@ function renderPlainUrlList(decoded: Awaited<ReturnType<typeof decodePayload>>):
  *  the host's static asset pipeline instead of rendered here. */
 export type Fallthrough = () => Response | Promise<Response>;
 
+/** Agents fetching the HTML shell can discover the machine-readable
+ *  representations from headers alone: point at the ?format= alternates
+ *  (the payload lives in the fragment; the caller fills it into p=).
+ *  Mirrors the in-page <link rel="alternate"> tags, and works wherever
+ *  this handler runs — independent of host-specific _headers files. */
+const ALTERNATE_LINKS = [
+  '</s?p=&format=json>; rel="alternate"; type="application/json"',
+  '</s?p=&format=md>; rel="alternate"; type="text/markdown"',
+];
+
+async function nextWithAlternateLinks(next: Fallthrough): Promise<Response> {
+  const res = await next();
+  const out = new Response(res.body, res);
+  for (const link of ALTERNATE_LINKS) out.headers.append("Link", link);
+  return out;
+}
+
 export async function handleShareRequest(
   request: Request,
   next: Fallthrough = () => new Response(null, { status: 404 }),
@@ -57,7 +75,7 @@ export async function handleShareRequest(
   // Only server-side render when the payload arrived via ?p= (query).
   const rawP = url.searchParams.get("p");
   if (!rawP) {
-    return next();
+    return nextWithAlternateLinks(next);
   }
 
   // Explicit ?format= wins, then Accept negotiation, then HTML fallthrough.
@@ -65,9 +83,13 @@ export async function handleShareRequest(
   const formatParam = url.searchParams.get("format");
   if (formatParam && !isValidFormatParam(formatParam)) {
     return new Response(
-      JSON.stringify({
-        error: `Unknown format parameter: ${formatParam} (expected json, md, or txt)`,
-      }),
+      JSON.stringify(
+        stashError(
+          "unknown_format",
+          `Unknown format parameter: ${formatParam}`,
+          "supported: json, md, txt — e.g. /s?p=<payload>&format=json, or send Accept: application/json",
+        ),
+      ),
       {
         status: 400,
         headers: { "Content-Type": "application/json", ...CORS_HEADERS, ...NOINDEX_HEADER },
@@ -77,20 +99,23 @@ export async function handleShareRequest(
 
   const format = negotiateFormat(request.headers.get("Accept"), formatParam);
   if (!format) {
-    return next();
+    return nextWithAlternateLinks(next);
   }
 
   try {
     if (!checkRateLimit(extractClientIp(request))) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
-        status: 429,
-        headers: {
-          "Content-Type": "application/json",
-          "Retry-After": "60",
-          ...CORS_HEADERS,
-          ...NOINDEX_HEADER,
+      return new Response(
+        JSON.stringify(stashError("rate_limited", "Rate limit exceeded", "retry after 60s")),
+        {
+          status: 429,
+          headers: {
+            "Content-Type": "application/json",
+            "Retry-After": "60",
+            ...CORS_HEADERS,
+            ...NOINDEX_HEADER,
+          },
         },
-      });
+      );
     }
 
     const decoded = await decodePayload(rawP);
@@ -131,14 +156,23 @@ export async function handleShareRequest(
     });
   } catch (error) {
     if (error instanceof PayloadDecodeError) {
-      return new Response(JSON.stringify({ error: "Invalid payload: " + error.message }), {
-        status: 400,
-        headers: { "Content-Type": "application/json", ...CORS_HEADERS, ...NOINDEX_HEADER },
-      });
+      return new Response(
+        JSON.stringify(
+          stashError(
+            "invalid_payload",
+            "Invalid payload: " + error.message,
+            "pass the payload string from the share URL's #p= fragment as the p= query parameter: /s?p=<payload>&format=json",
+          ),
+        ),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...CORS_HEADERS, ...NOINDEX_HEADER },
+        },
+      );
     }
     // A negotiated format was promised; fail with JSON, never HTML.
     const message = error instanceof Error ? error.message : "Internal server error";
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify(stashError("internal", message)), {
       status: 500,
       headers: { "Content-Type": "application/json", ...CORS_HEADERS, ...NOINDEX_HEADER },
     });

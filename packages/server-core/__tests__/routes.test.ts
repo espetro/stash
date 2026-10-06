@@ -160,7 +160,11 @@ describe("GET /s/:id", () => {
     const res = await fetchServer(`${ORIGIN}/s/${id}?format=yaml`);
     expect(res.status).toBe(400);
     expect(res.headers.get("Content-Type")).toContain("application/json");
-    expect(((await res.json()) as any).error).toMatch(/Unknown format/);
+    const body = (await res.json()) as any;
+    expect(body.error).toMatch(/Unknown format/);
+    // Contract precision: a stable code + an actionable hint the agent can follow.
+    expect(body.code).toBe("unknown_format");
+    expect(body.hint).toMatch(/format=json/);
   });
 
   it("negotiates text/plain via Accept header", async () => {
@@ -461,7 +465,11 @@ describe("rate limiting", () => {
     const res = await postStash();
     expect(res.status).toBe(429);
     expect(res.headers.get("Retry-After")).toBe("60");
-    expect(await res.json()).toEqual({ error: "Too many requests" });
+    expect(await res.json()).toEqual({
+      error: "Too many requests",
+      code: "rate_limited",
+      hint: expect.any(String),
+    });
   });
 
   it("passes when the limiter allows", async () => {
@@ -663,7 +671,10 @@ describe("dual-mode relay (F14 zero-trust)", () => {
     for (const fmt of ["md", "txt"]) {
       const res = await fetchServer(`${ORIGIN}/s/${id}?format=${fmt}`);
       expect(res.status).toBe(409);
-      expect(((await res.json()) as any).error).toMatch(/Encrypted/);
+      const body = (await res.json()) as any;
+      expect(body.error).toMatch(/Encrypted/);
+      expect(body.code).toBe("encrypted_payload");
+      expect(body.hint).toMatch(/format=json/);
     }
   });
 

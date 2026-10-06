@@ -141,6 +141,34 @@ negotiation, plus `text/plain`.
   encrypted — use `format=json`.
 - Rate limit: ~30 requests/minute per IP, HTTP 429 with `Retry-After: 60`.
 
+## Error contract
+
+Every JSON error body is `{ "error": <message>, "code": <token>, "hint": <recovery> }`.
+Switch on `code` — it is stable — and follow `hint` to recover. Codes:
+
+| code | meaning | recovery |
+|---|---|---|
+| `invalid_json` | request body was not JSON | send a JSON object |
+| `missing_field` | POST /api/stash lacks `payload`/`ciphertext` | send `{"payload": "<encoded>"}` or `{"ciphertext": "<base64url>"}` |
+| `conflicting_fields` | both `payload` and `ciphertext` sent | send exactly one |
+| `payload_too_large` | payload exceeds the size cap | shrink the stash |
+| `invalid_ciphertext` | ciphertext not base64url | base64url-encode the blob |
+| `unknown_prefix` | payload doesn't start with C/R/D/S | pass the raw `#p=` fragment value |
+| `invalid_payload` | payload string malformed or truncated | re-copy the full value after `#p=` in the share URL |
+| `invalid_ttl` | ttl not one of `1d\|7d\|14d\|30d` | use a documented ttl |
+| `ttl_exceeded` | ttl above this relay's cap | retry with a smaller ttl |
+| `id_collision` | relay could not allocate an id | retry the request |
+| `invalid_id` | short id not 6-char base32 | use the id after `/s/` in the share URL |
+| `unknown_format` | `?format=` value unsupported | use `format=json\|md\|txt`, or `Accept: application/json` |
+| `not_found` | no such id/entry | check the id; the link may have been revoked |
+| `expired` | entry outlived its TTL | ask the owner to re-share |
+| `encrypted_payload` | zero-trust entry; server cannot decode | fetch `?format=json` for the ciphertext envelope and decrypt with the `#<key>` fragment, or request a `#p=` link |
+| `rate_limited` | quota exceeded | wait `Retry-After` seconds |
+| `internal` | server-side failure | retry; report if persistent |
+
+MCP tools return the same contract inside their JSON result (`isError: true`),
+e.g. `stash_get` on a zero-trust entry yields `{"error": "encrypted", "code": "encrypted_payload", "hint": "..."}`.
+
 ## MCP
 
 - MCP server (Streamable-HTTP, stateless): `https://s.illo.fyi/mcp`

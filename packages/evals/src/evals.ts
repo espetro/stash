@@ -149,6 +149,7 @@ function fetchUrlTool(allowedOrigins: string[]): FetchTool {
       const res = await fetch(url, { headers: { Accept: "application/json, text/markdown, text/plain" } });
       let body = await res.text();
       const contentType = res.headers.get("content-type") ?? "?";
+      const linkHeader = res.headers.get("link");
       if (contentType.includes("text/html")) {
         body += `\n(hint: this is the HTML viewer shell, not machine-readable data; try appending ?format=json or sending Accept: application/json)`;
       }
@@ -161,7 +162,8 @@ function fetchUrlTool(allowedOrigins: string[]): FetchTool {
           .replace(/\s+/g, " ")
           .slice(0, 4_000);
       }
-      return `status: ${res.status} content-type: ${contentType}\n${body}`;
+      const headerLine = `status: ${res.status} content-type: ${contentType}`;
+      return linkHeader ? `${headerLine} link: ${linkHeader}\n${body}` : `${headerLine}\n${body}`;
     },
   };
 }
@@ -205,8 +207,10 @@ function evalJsTool(): FetchTool {
     description:
       "Run JavaScript in a Node.js sandbox with WebCrypto available as `crypto` " +
       "(crypto.subtle for AES-GCM etc.). The code runs as an async function body: " +
-      "use `return` for the result; console.log output is captured. No network, " +
-      "no filesystem, no require/import. 10s timeout.",
+      "use `return` for the result; console.log output is captured. Return values " +
+      "must be JSON-serializable — a raw ArrayBuffer/TypedArray serializes to " +
+      "an empty object, so decode bytes first (new TextDecoder().decode(buf)). " +
+      "No network, no filesystem, no require/import. 10s timeout.",
     parameters: {
       type: "object",
       properties: {
@@ -242,9 +246,37 @@ function evalJsTool(): FetchTool {
             setTimeout(() => reject(new Error("eval_js timeout (10s)")), 10_000),
           ),
         ]);
-        const out =
-          (result === undefined ? "" : `return: ${JSON.stringify(result)}`) +
-          (logs.length ? `${result === undefined ? "" : "\n"}logs: ${logs.join("\n")}` : "");
+        // ArrayBuffer/TypedArray results serialize to {} (or an opaque byte
+        // dict) — the classic silent failure when a model returns
+        // crypto.subtle.decrypt output. Surface the bytes as decoded text
+        // when printable, plus a hint, so the work isn't lost.
+        let rendered = "";
+        if (result !== undefined) {
+          if (result instanceof ArrayBuffer || ArrayBuffer.isView(result)) {
+            const bytes =
+              result instanceof ArrayBuffer
+                ? new Uint8Array(result)
+                : new Uint8Array(result.buffer, result.byteOffset, result.byteLength);
+            const type = result instanceof ArrayBuffer ? "ArrayBuffer" : result.constructor.name;
+            let decoded: string | null = null;
+            try {
+              const s = new TextDecoder().decode(bytes);
+              // Printable text (incl. non-ASCII): no control chars besides
+              // tab/newline/CR.
+              if (!/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(s)) decoded = s;
+            } catch {
+              /* binary — leave undecoded */
+            }
+            rendered =
+              `return: <${type} ${bytes.byteLength}B>` +
+              (decoded !== null
+                ? ` decoded: ${JSON.stringify(decoded).slice(0, 4_000)}`
+                : " — not JSON-serializable; decode bytes to a string first (new TextDecoder().decode(buf))");
+          } else {
+            rendered = `return: ${JSON.stringify(result)}`;
+          }
+        }
+        const out = rendered + (logs.length ? `${rendered ? "\n" : ""}logs: ${logs.join("\n")}` : "");
         return (
           out ||
           "ok (no output) — your code neither returned a value nor logged anything. " +
@@ -709,6 +741,38 @@ export const encryptedDecryptRoundtrip: Eval = async ({
 };
 
 /**
+ * Contract-precision eval — the model is handed a URL with an unsupported
+ * ?format= value. The 400 body carries the {error, code, hint} contract;
+ * the model must read it, retry with a supported format, and still deliver
+ * the stash contents. Exercises the errors-that-teach property: recovery
+ * should come from the error contract, not from llms.txt memorization.
+ */
+export const errorContractRecovery: Eval = async ({
+  client,
+  fixture,
+  shortUrl,
+  viewerOrigin,
+  shortenerOrigin,
+}) => {
+  const prompt = [
+    `Here is a short link served at ${shortenerOrigin}: ${shortUrl}?format=xml`,
+    `Fetch the stash behind this link as XML and list every URL it contains, one per line. If the server rejects your request, read its error response carefully and get the data anyway.`,
+  ].join("\n\n");
+  const result = await client.chat(prompt, AGENT_CONTEXT, [
+    fetchUrlTool([viewerOrigin, shortenerOrigin]),
+  ]);
+  return base(
+    "error-contract-recovery",
+    prompt,
+    result,
+    gradeShortLinkRead(
+      result.content,
+      fixture.items.map((i) => i.url),
+    ),
+  );
+};
+
+/**
  * MCP eval — the relay's stateless JSON-RPC surface must be usable by a plain
  * HTTP agent: stash_create composes a stash from raw URLs (the agent cannot
  * encode msgpack payloads itself), stash_get reads it back.
@@ -743,5 +807,6 @@ export const EVALS: Eval[] = [
   snapshotExtraction,
   encryptedFailClosed,
   encryptedDecryptRoundtrip,
+  errorContractRecovery,
   mcpRoundtrip,
 ];

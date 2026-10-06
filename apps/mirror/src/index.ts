@@ -122,6 +122,11 @@ Agent surface:
 Encrypted entries: the AES-256-GCM key is in the share URL fragment
 (#<key>); decrypt the envelope's ciphertext (IV||CT+tag, base64url)
 client-side to recover the C/R/D/S payload.
+
+Errors: every JSON error body is { error, code, hint? } — switch on the
+stable code (unknown_format, invalid_payload, encrypted_payload,
+rate_limited, ...) and follow hint to recover. Full table:
+https://stash.illo.fyi/llms.txt#error-contract
 `;
 
 let _default: Storage | null = null;

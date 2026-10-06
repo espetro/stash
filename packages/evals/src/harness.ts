@@ -14,7 +14,12 @@ export const DEFAULT_MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
 
 const BASE_URL = "https://openrouter.ai/api/v1";
 export const MAX_REQUESTS_PER_RUN = 60;
-const MAX_TOOL_ROUNDS = 6;
+// Tool-round cap per eval. Real agents aren't hard-capped; this bound only
+// exists to stop degenerate loops before the global request budget (60/model)
+// does. 8 gives recovery room — e.g. a model that fumbles a decrypt twice can
+// still finish the decode step — while the per-eval tool-call metric captures
+// inefficiency separately from correctness.
+const MAX_TOOL_ROUNDS = 8;
 
 export class BudgetExceededError extends Error {
   constructor(used: number, max: number) {

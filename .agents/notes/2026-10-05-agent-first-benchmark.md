@@ -96,3 +96,29 @@ Run: `OPENROUTER_API_KEY=… OPENROUTER_MODEL_ID=<slug> pnpm --filter @stash/eva
 Discriminating evals: encrypted-decrypt-roundtrip (gpt-oss family fails
 outright; 4o-mini/5-nano/nemotron pass) and alternate-link-discovery
 `format=json` precision (nemotron + flaky 4o-mini drop the param).
+
+## Round 3: contract precision (2026-10-05, same-day follow-up)
+
+The BFCL-v4-inspired pass: stable `code` + actionable `hint` on every JSON
+error, `Link: rel="alternate"` headers, precise MCP tool descriptions, an
+llms.txt error table — plus two harness gaps the run exposed.
+
+- **nemotron-3-super-120b:free: 9/10 → 11/11** — both prior misses
+  (`format=json` precision, decrypt) now pass, plus the new
+  `error-contract-recovery` eval.
+- **gpt-4o-mini: decrypt now passes in 4 calls / 12s** — the failure was
+  `crypto.subtle.decrypt` returning `ArrayBuffer`, which `JSON.stringify`
+  renders `{}`. `eval_js` now decodes byte results to text and teaches the
+  serialization requirement in its description.
+- **gpt-oss-20b decrypts too now** (the same `return:` teaching unblocked
+  its crypto step) — but it still fails the eval legitimately: it has the
+  payload and tries to msgpack-decode it in JS instead of handing it to
+  `/s?p=&format=json`. Orchestration gap, not crypto — the eval now
+  discriminates a real capability difference.
+- **New discriminating eval**: `error-contract-recovery` — model is given
+  `/s/<id>?format=xml`, must read the `{error, code, hint}` 400 body and
+  recover. Both models passed in 3 calls / ~2k tokens — cheapest eval in
+  the suite, and evidence the hints work as designed.
+- **Harness learning**: `MAX_TOOL_ROUNDS` 6 → 8 — real agents aren't
+  hard-capped; a slow-but-correct multi-step flow was being truncated
+  mid-success. Efficiency stays measurable via the tool-call metric.
