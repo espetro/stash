@@ -1,5 +1,19 @@
 # stash-viewer
 
+## 0.10.4
+
+### Patch Changes
+
+- fix(viewer): single-button theme toggle in the /s floating navbar
+
+  `ThemeSwitcher` gains a `variant="toggle"` prop — one icon button that
+  flips light/dark explicitly (reusing the view-transition animation);
+  `AppHeader` adopts it so the pill holds a single icon instead of the
+  3-button segmented control. Other callers keep the segmented variant.
+  - @stash/codec@0.10.4
+  - @stash/theme@0.10.4
+  - @stash/shared@0.10.4
+
 ## 0.10.3
 
 ### Patch Changes

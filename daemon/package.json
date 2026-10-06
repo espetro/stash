@@ -1,6 +1,6 @@
 {
   "name": "@stash/daemon",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "private": true,
   "description": "Stash local-first daemon (Go). Packaging only: the build script embeds the built viewer.",
   "scripts": {
