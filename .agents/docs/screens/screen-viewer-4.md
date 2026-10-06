@@ -7,7 +7,7 @@ file: apps/viewer/src/components/MyStashes.tsx
 
 ```text
 +--------------------------------------------------------------+
-| [<]          + New stash   My stashes   (theme) (lang)       |
+| ( floating pill: [<] | + New | My stashes | (theme) (lang) )  |
 +--------------------------------------------------------------+
 | + My Stashes ------------------------------------------------+ |
 | | (puzzle) The Stash extension is installed in this browser. | |
@@ -43,7 +43,7 @@ file: apps/viewer/src/components/MyStashes.tsx
 
 | Element | State | Description |
 |---|---|---|
-| AppHeader | always | Back chevron, New stash / My stashes links, theme and language |
+| AppHeader | always | Floating centered pill (`fixed top-4`): back chevron when `history.length > 1`, New stash / My stashes links, divider, theme and language; in-flow `h-14` spacer |
 | Mobile header | below 640px | AppHeader navigation links are icon-only. |
 | Source chip | viewer-local source only | "Saved in this browser." |
 | Extension CTA | whenever presence-ping answers | `[data-stash-extension-cta]` block: detection line + "Open your Library in the extension" (opens `library.html` via `stash:viewer:open`); independent of the data-bridge opt-in |

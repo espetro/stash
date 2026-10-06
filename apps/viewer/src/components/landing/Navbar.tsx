@@ -3,7 +3,6 @@
 import * as React from "react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { INSTALL_CHROME_URL, INSTALL_FIREFOX_URL } from "@/lib/constants";
-import SettingsMenu from "@/components/landing/SettingsMenu";
 import { useLocale } from "@/components/LocaleProvider";
 import { t, type Lang } from "@/i18n";
 import { localizedHomePath } from "@/i18n/url";
@@ -127,8 +126,6 @@ export default function Navbar({ minimal = false, lang: langProp }: NavbarProps)
 
         {/* Controls */}
         <div className="justify-self-end flex items-center gap-2">
-          <SettingsMenu lang={langProp} />
-
           <div ref={dropdownRef} className="install-dropdown relative">
             <button
               type="button"
