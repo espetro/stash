@@ -1,5 +1,5 @@
-// Package natmsg implements the native-messaging host mode: the
-// newline-delimited JSON frame codec and the F1 reverse-channel envelope.
+// Package natmsg implements the native-messaging host mode: the Chrome
+// native-messaging frame codec and the F1 reverse-channel envelope.
 //
 // CONTRACT: the frame schema (envelope, error shape, protocolVersion
 // handshake) is canonically owned by the TypeScript module
@@ -11,23 +11,28 @@
 // frames.test.ts — through the Go codec. If either side changes the wire
 // shape, CI fails here.
 //
-// Wire format (per frames.ts encodeFrame/decodeFrames): newline-delimited
-// JSON. One envelope in both directions:
+// Wire format: Chrome native messaging. Each message is a 4-byte
+// little-endian length prefix followed by that many bytes of UTF-8 JSON —
+// one envelope in both directions:
 //
 //	{ type, correlationId, payload }
 //
 // with frame types hello|serverCard|op|opResult|error on the F1 contract
 // surface, plus daemon-local ping|pong|mcp extensions for the health loop
 // and MCP routing (unknown types are rejected by TS parseFrame, so these
-// must never cross to the extension channel). The Chrome native-messaging
-// byte-count prefix is applied by the NM wrapper outside this codec, on
-// both sides.
+// must never cross to the extension channel).
+//
+// DEVIATION: the F1 spec (§3.1) said "newline-delimited JSON over the
+// host's stdio". Real Chrome NM only speaks length-prefixed messages —
+// Chrome reads the first 4 bytes as the length and delivers the body as a
+// deserialized JSON value, so a newline-delimited stream can never be
+// parsed and was silently broken end-to-end. The envelope schema is
+// unchanged; only the framing changed (spec deviation note filed).
 package natmsg
 
 import (
-	"bufio"
-	"bytes"
 	"crypto/rand"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -40,7 +45,7 @@ const ProtocolVersion = "1.0.0"
 // SupportedRange is the semver range of accepted peer versions.
 const SupportedRange = ">=1.0.0 <2.0.0"
 
-// MaxFrameSize caps a single newline-delimited frame.
+// MaxFrameSize caps a single frame body.
 const MaxFrameSize = 16 << 20
 
 // correlationIDPattern mirrors CORRELATION_ID in frames.ts:
@@ -127,54 +132,59 @@ func MintCorrelationID(origin string) (string, error) {
 	return origin + "-" + suffix, nil
 }
 
-// EncodeFrame writes one newline-delimited JSON envelope (frames.ts
-// encodeFrame). The native-messaging byte-count prefix is applied by the NM
-// wrapper outside this codec.
+// EncodeFrame writes one envelope as a Chrome native-messaging message:
+// 4-byte little-endian length prefix + JSON body.
 func EncodeFrame(w io.Writer, e *Envelope) error {
 	b, err := json.Marshal(e)
 	if err != nil {
 		return err
 	}
-	if _, err := w.Write(b); err != nil {
+	if len(b) > MaxFrameSize {
+		return fmt.Errorf("frame too large: %d", len(b))
+	}
+	var hdr [4]byte
+	binary.LittleEndian.PutUint32(hdr[:], uint32(len(b)))
+	if _, err := w.Write(hdr[:]); err != nil {
 		return err
 	}
-	_, err = w.Write([]byte{'\n'})
+	_, err = w.Write(b)
 	return err
 }
 
-// Decoder reads newline-delimited envelopes from a stream. It must be
-// reused across frames so buffered input is not dropped.
+// Decoder reads length-prefixed envelopes from a stream. It must be
+// reused across frames.
 type Decoder struct {
-	sc *bufio.Scanner
+	r io.Reader
 }
 
 // NewDecoder wraps r for sequential envelope reads.
 func NewDecoder(r io.Reader) *Decoder {
-	sc := bufio.NewScanner(r)
-	sc.Buffer(make([]byte, 0, 64*1024), MaxFrameSize)
-	return &Decoder{sc: sc}
+	return &Decoder{r: r}
 }
 
-// Decode reads the next envelope. Returns io.EOF at end of stream.
+// Decode reads the next envelope. Returns io.EOF on a clean end of stream
+// and io.ErrUnexpectedEOF when the stream ends mid-frame.
 func (d *Decoder) Decode() (*Envelope, error) {
-	if !d.sc.Scan() {
-		if err := d.sc.Err(); err != nil {
-			return nil, err
-		}
-		return nil, io.EOF
+	var hdr [4]byte
+	if _, err := io.ReadFull(d.r, hdr[:]); err != nil {
+		return nil, err // io.EOF (clean) or io.ErrUnexpectedEOF (truncated)
 	}
-	line := d.sc.Bytes()
-	if len(line) > MaxFrameSize {
-		return nil, fmt.Errorf("frame too large: %d", len(line))
+	n := binary.LittleEndian.Uint32(hdr[:])
+	if n == 0 || n > MaxFrameSize {
+		return nil, fmt.Errorf("invalid frame length %d", n)
+	}
+	buf := make([]byte, n)
+	if _, err := io.ReadFull(d.r, buf); err != nil {
+		return nil, err
 	}
 	var e Envelope
-	if err := json.Unmarshal(bytes.TrimSpace(line), &e); err != nil {
+	if err := json.Unmarshal(buf, &e); err != nil {
 		return nil, err
 	}
 	return &e, nil
 }
 
-// DecodeFrame reads one newline-delimited envelope from r. Convenience for
+// DecodeFrame reads one length-prefixed envelope from r. Convenience for
 // one-shot reads (tests, single-buffer streams); streaming callers should
 // use NewDecoder.
 func DecodeFrame(r io.Reader) (*Envelope, error) {

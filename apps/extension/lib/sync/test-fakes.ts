@@ -1,15 +1,10 @@
 /**
  * Shared test double for F5 tests. A `NativePort` + `NativeTransport`
  * conforming fake daemon channel implementing the F1 frame schema
- * (newline-delimited JSON, same envelope/correlationId/error conventions).
+ * (envelope/correlationId/error conventions — frames cross as objects, as
+ * they do over a real Chrome NM port).
  */
-import {
-  decodeFrames,
-  encodeFrame,
-  makeFrame,
-  mintCorrelationId,
-  type Frame,
-} from "../transport/frames";
+import { makeFrame, mintCorrelationId, type Frame } from "../transport/frames";
 import type { NativePort } from "../transport/native-transport";
 import { SYNC_TOOLS } from "./protocol";
 
@@ -21,15 +16,13 @@ export class FakeDaemonPort implements NativePort {
   handler: ((frame: Frame, reply: (f: Frame) => void) => void) | null = null;
 
   postMessage = (message: unknown): void => {
-    const { frames } = decodeFrames(typeof message === "string" ? message : String(message));
-    for (const frame of frames) {
-      this.received.push(frame);
-      this.handler?.(frame, (f) => this.deliverToExtension(f));
-    }
+    const frame = message as Frame;
+    this.received.push(frame);
+    this.handler?.(frame, (f) => this.deliverToExtension(f));
   };
 
   deliverToExtension(frame: Frame): void {
-    for (const listener of this.messageListeners) listener(encodeFrame(frame));
+    for (const listener of this.messageListeners) listener(frame);
   }
 
   disconnect = (): void => {
