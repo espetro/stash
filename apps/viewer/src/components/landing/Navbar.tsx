@@ -1,17 +1,12 @@
 "use client";
 
 import * as React from "react";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { INSTALL_CHROME_URL, INSTALL_FIREFOX_URL } from "@/lib/constants";
 import SettingsMenu from "@/components/landing/SettingsMenu";
 import { useLocale } from "@/components/LocaleProvider";
 import { t, type Lang } from "@/i18n";
 import { localizedHomePath } from "@/i18n/url";
-import { cn } from "@/lib/utils";
 
 interface NavbarProps {
   minimal?: boolean;
@@ -39,89 +34,230 @@ const LANDING_NAV: readonly NavItem[] = [
 export default function Navbar({ minimal = false, lang: langProp }: NavbarProps) {
   const { lang: clientLang } = useLocale();
   const lang = langProp ?? clientLang;
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setScrolled(!entry.isIntersecting);
+        });
+      },
+      { threshold: 0, rootMargin: "0px" },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    function handleClick(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
+
+  const toggleDropdown = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setOpen((prev) => !prev);
+  }, []);
+
+  const closeDropdown = useCallback(() => setOpen(false), []);
 
   return (
     <nav
       aria-label="Primary"
-      className="navbar-shell fixed top-4 left-0 right-0 z-100 pointer-events-none"
+      className={`navbar fixed top-0 left-0 right-0 z-100 bg-card transition-all duration-300 border-b border-transparent ${
+        scrolled ? "scrolled" : ""
+      }`}
     >
-      <div className="mx-auto max-w-7xl px-6 flex items-center justify-center gap-3 pointer-events-auto">
-        {/* Logo (left) */}
+      <div
+        ref={sentinelRef}
+        className="sentinel absolute top-[50px] left-0 h-px w-px pointer-events-none"
+      />
+
+      <div className="navbar-container max-w-7xl mx-auto px-6 py-3.5 grid grid-cols-[auto_1fr_auto] items-center gap-6">
+        {/* Logo */}
         <a
           href={localizedHomePath(lang)}
-          className="logo flex items-center gap-2 no-underline transition-opacity duration-200 hover:opacity-85 pointer-events-auto"
+          className="logo flex items-center gap-2 no-underline transition-opacity duration-200 justify-self-start"
         >
           <img
             src="/icon-128.png"
             width={40}
             height={40}
             alt=""
-            aria-hidden="true"
-            className="block flex-shrink-0"
+            className="logo-icon block flex-shrink-0"
           />
-          <span className="text-lg font-semibold text-foreground tracking-tight">Stash</span>
+          <span className="logo-text text-lg font-semibold text-foreground tracking-tight">
+            Stash
+          </span>
         </a>
 
-        {/* Nav pill (center) */}
-        <NavigationMenu
-          className={cn(
-            "nav-links rounded-full border border-border bg-card/80 backdrop-blur shadow-md px-2 py-1.5",
-            "max-w-full",
+        {/* Nav Links */}
+        <div className="nav-links flex items-center gap-8 justify-self-center">
+          {minimal ? (
+            <a
+              href={localizedHomePath(lang)}
+              className="nav-link text-foreground no-underline text-[0.9375rem] font-medium font-sans relative pb-0.5"
+            >
+              {t("nav.home", undefined, lang)}
+            </a>
+          ) : (
+            LANDING_NAV.map((item) => (
+              <a
+                key={item.labelKey}
+                href={item.href}
+                className="nav-link text-foreground no-underline text-[0.9375rem] font-medium font-sans relative pb-0.5"
+              >
+                {t(item.labelKey, undefined, lang)}
+              </a>
+            ))
           )}
-        >
-          <NavigationMenuList className="gap-0">
-            {minimal ? (
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <a
-                    href={localizedHomePath(lang)}
-                    className="rounded-full px-4 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    {t("nav.home", undefined, lang)}
-                  </a>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            ) : (
-              LANDING_NAV.map((item) => (
-                <NavigationMenuItem key={item.labelKey}>
-                  <NavigationMenuLink asChild>
-                    <a
-                      href={item.href}
-                      className={cn(
-                        "rounded-full px-4 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                      )}
-                    >
-                      {t(item.labelKey, undefined, lang)}
-                    </a>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              ))
-            )}
-          </NavigationMenuList>
-        </NavigationMenu>
+        </div>
 
-        {/* Settings pill (right) */}
-        <div className="pointer-events-auto">
+        {/* Controls */}
+        <div className="justify-self-end flex items-center gap-2">
           <SettingsMenu lang={langProp} />
+
+          <div ref={dropdownRef} className="install-dropdown relative">
+            <button
+              type="button"
+              onClick={toggleDropdown}
+              aria-expanded={open}
+              aria-haspopup="true"
+              className="cta-button bg-accent text-accent-foreground py-2 px-4 rounded-md text-[0.875rem] font-semibold no-underline transition-colors duration-200 font-sans dropdown-trigger flex items-center cursor-pointer"
+            >
+              {t("install.trigger", undefined, lang)}
+            </button>
+            <div
+              className={`dropdown-menu absolute top-full right-0 bg-card border border-border rounded-md min-w-48 py-2 mt-2 shadow-md transition-all duration-200 z-10 ${
+                open ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"
+              }`}
+              role="menu"
+            >
+              <a
+                href={INSTALL_CHROME_URL}
+                onClick={closeDropdown}
+                className="dropdown-item block py-2.5 px-4 text-foreground no-underline text-[0.875rem] font-medium font-sans transition-colors duration-150"
+                role="menuitem"
+              >
+                {t("install.chrome", undefined, lang)}
+              </a>
+              <a
+                href={INSTALL_FIREFOX_URL}
+                onClick={closeDropdown}
+                className="dropdown-item block py-2.5 px-4 text-foreground no-underline text-[0.875rem] font-medium font-sans transition-colors duration-150"
+                role="menuitem"
+              >
+                {t("install.firefox", undefined, lang)}
+              </a>
+              <div className="dropdown-divider h-px bg-border my-2"></div>
+              <a
+                href="/s/new"
+                onClick={closeDropdown}
+                className="dropdown-item block py-2.5 px-4 text-foreground no-underline text-[0.875rem] font-medium font-sans transition-colors duration-150"
+                role="menuitem"
+              >
+                {t("install.tryInBrowser", undefined, lang)}
+              </a>
+            </div>
+          </div>
         </div>
       </div>
 
       <style
         dangerouslySetInnerHTML={{
           __html: `
+        .navbar.scrolled {
+          background-color: var(--card);
+          border-bottom: 1px solid var(--border);
+          box-shadow: var(--shadow-sm);
+        }
+
+        .logo:hover {
+          opacity: 0.85;
+        }
+
+        .nav-link::after {
+          content: "";
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 0;
+          height: 1px;
+          background-color: var(--primary);
+          transition: width 0.2s ease;
+        }
+
+        .nav-link:hover::after {
+          width: 100%;
+        }
+
+        .nav-link:focus-visible {
+          outline: 2px solid var(--ring);
+          outline-offset: 4px;
+          border-radius: 2px;
+        }
+
+        .cta-button:hover {
+          background-color: color-mix(in srgb, var(--accent) 85%, transparent);
+        }
+
+        .cta-button:focus-visible {
+          outline: 2px solid var(--ring);
+          outline-offset: 2px;
+        }
+
+        .dropdown-item:hover {
+          background-color: var(--muted);
+        }
+
+        .dropdown-item:focus-visible {
+          outline: 2px solid var(--ring);
+          outline-offset: -2px;
+        }
+
         @media (max-width: 767px) {
+          .navbar-container {
+            padding: 0.75rem 1rem;
+            grid-template-columns: auto 1fr;
+          }
+
           .nav-links {
             display: none;
           }
 
-          .navbar-shell {
-            top: 1rem;
+          .logo-text {
+            font-size: 1rem;
           }
 
-          .navbar-shell > div {
-            padding-left: 1rem;
-            padding-right: 1rem;
-            gap: 0.5rem;
+          .cta-button {
+            font-size: 0.8125rem;
+            padding: 0.5rem 0.875rem;
+          }
+
+          .dropdown-menu {
+            right: -0.5rem;
+          }
+        }
+
+        @media (max-width: 767px) and (hover: none) {
+          .dropdown-menu {
+            display: none;
+          }
+
+          .install-dropdown.open .dropdown-menu {
+            display: block;
           }
         }
         `,

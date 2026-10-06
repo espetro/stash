@@ -31,7 +31,7 @@ describe("viewer app i18n keys", () => {
   });
 
   it.each(["en", "es", "fr", "ru"])(
-    "%s has nav keys for floating pill navbar + Settings dropdown",
+    "%s has nav keys for landing navbar + Settings dropdown",
     (lang) => {
       const keys = flatten(bundles[lang]);
       for (const key of [

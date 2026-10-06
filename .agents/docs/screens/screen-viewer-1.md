@@ -7,7 +7,7 @@ file: apps/viewer/src/pages/index.astro
 
 ```text
 +--------------------------------------------------------------+
-| [⌂ Stash]  [ Features | How it works | Demo | Docs ] [⚙]   |
+| [⌂ Stash] [Features | How it works | Demo | Docs] [⚙] [Install ▾] |
 +--------------------------------------------------------------+
 | Your tabs are your thinking.                    (visual demo)|
 | Accent second headline line.                                  |
@@ -45,10 +45,11 @@ with translated strings (`apps/viewer/src/i18n`).
 ## Behavior
 
 - No telemetry on this page; purely static Astro with client-side theme
-  and language widgets accessed via the floating pill navbar's Settings
+  and language widgets accessed via the navbar's Settings
   dropdown (pointing to `apps/viewer/src/components/landing/SettingsMenu.tsx`).
-- The hero sits beneath a shadcn-style floating pill navbar; the logo lives
-  outside the pill on the left, marketing links inside it, and a separate
-  Settings pill sits on the right.
+- The hero sits beneath a classic block navbar (`fixed top-0`, full-width
+  bar): logo on the left, marketing links centered, and a Settings widget
+  plus an Install dropdown (Chrome Web Store / Firefox AMO / Try in
+  browser) on the right. The bar gains a border + shadow on scroll.
 - Locale resolved from `Astro.currentLocale` with fallback to the default
   language.
