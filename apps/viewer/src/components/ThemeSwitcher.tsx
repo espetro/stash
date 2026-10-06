@@ -3,7 +3,10 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { FaSun, FaMoon, FaDesktop } from "react-icons/fa6";
 import { getTheme, setTheme, getEffectiveTheme } from "@stash/theme";
 
-interface ThemeSwitcherProps extends ComponentProps<"div"> {}
+interface ThemeSwitcherProps extends ComponentProps<"div"> {
+  /** "segmented" renders the 3-state control; "toggle" a single icon button. */
+  variant?: "segmented" | "toggle";
+}
 
 type Preference = "light" | "dark" | "system";
 
@@ -12,7 +15,11 @@ const LIGHT_LEFT = "2px";
 const SYSTEM_LEFT = "33%";
 const DARK_LEFT = "calc(66.666% - 0px)";
 
-export default function ThemeSwitcher({ className, ...props }: ThemeSwitcherProps) {
+export default function ThemeSwitcher({
+  className,
+  variant = "segmented",
+  ...props
+}: ThemeSwitcherProps) {
   const [preference, setPreference] = useState<Preference>("system");
   const [isDark, setIsDark] = useState(false);
   const selectorRef = useRef<HTMLDivElement>(null);
@@ -96,6 +103,28 @@ export default function ThemeSwitcher({ className, ...props }: ThemeSwitcherProp
   const lightPressed = preference === "light";
   const systemPressed = preference === "system";
   const darkPressed = preference === "dark";
+
+  if (variant === "toggle") {
+    // Single-button toggle: icon shows the effective theme, click sets the
+    // explicit opposite. The "system" preference can't be expressed by one
+    // button, so clicking always commits light or dark.
+    return (
+      <div {...props} className={className}>
+        <button
+          onClick={(e) => applyTheme(isDark ? "light" : "dark", e.clientX, e.clientY)}
+          aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+          className="flex w-9 items-center justify-center h-9 rounded-full border-none bg-none cursor-pointer transition-colors duration-150 hover:bg-[var(--muted)]"
+          style={{ color: "var(--muted-foreground)" }}
+        >
+          {isDark ? (
+            <FaSun size={16} strokeWidth={1.75} />
+          ) : (
+            <FaMoon size={16} strokeWidth={1.75} />
+          )}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div {...props} className={className}>

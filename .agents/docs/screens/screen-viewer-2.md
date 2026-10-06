@@ -39,7 +39,7 @@ file: apps/viewer/src/components/NewStashForm.tsx
 
 | Element | State | Description |
 |---|---|---|
-| AppHeader | always | Floating centered pill (`fixed top-4`, border + blur + shadow): back chevron ghost button when `history.length > 1`, "New stash" FaPlus link, "My stashes" FaBoxArchive link, divider, ThemeSwitcher, LanguageSelector; in-flow `h-14` spacer keeps content clear |
+| AppHeader | always | Floating centered pill (`fixed top-4`, border + blur + shadow): back chevron ghost button when `history.length > 1`, "New stash" FaPlus link, "My stashes" FaBoxArchive link, divider, single-button ThemeSwitcher (variant="toggle"), LanguageSelector; in-flow `h-14` spacer keeps content clear |
 | Mobile header | below 640px | AppHeader navigation links are icon-only. |
 | Stash title input | always | Optional title embedded in the payload |
 | URLs textarea | always | Mono, one URL per line; parsing feeds line errors and budget meter |

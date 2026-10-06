@@ -63,7 +63,7 @@ export default function AppHeader() {
           </nav>
 
           <span aria-hidden className="h-5 w-px bg-border" />
-          <ThemeSwitcher />
+          <ThemeSwitcher variant="toggle" />
           <LanguageSelector />
         </div>
       </header>
