@@ -27,17 +27,13 @@ interface NavbarProps {
 interface NavItem {
   labelKey: string;
   href: string;
-  disabled?: boolean;
 }
 
 const LANDING_NAV: readonly NavItem[] = [
-  { labelKey: "nav.products", href: "#features" },
-  { labelKey: "nav.solutions", href: "#how-it-works" },
-  { labelKey: "nav.resources", href: "#demo" },
-  { labelKey: "nav.developers", href: "#", disabled: true },
-  { labelKey: "nav.enterprise", href: "#", disabled: true },
-  { labelKey: "nav.pricing", href: "#", disabled: true },
-  { labelKey: "nav.contactSales", href: "#", disabled: true },
+  { labelKey: "nav.features", href: "#features" },
+  { labelKey: "nav.howItWorks", href: "#how-it-works" },
+  { labelKey: "nav.demo", href: "#demo" },
+  { labelKey: "nav.docs", href: "/docs" },
 ] as const;
 
 export default function Navbar({ minimal = false, lang: langProp }: NavbarProps) {
@@ -91,10 +87,8 @@ export default function Navbar({ minimal = false, lang: langProp }: NavbarProps)
                   <NavigationMenuLink asChild>
                     <a
                       href={item.href}
-                      aria-disabled={item.disabled ? "true" : undefined}
                       className={cn(
                         "rounded-full px-4 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                        item.disabled && "opacity-60 cursor-not-allowed hover:bg-transparent",
                       )}
                     >
                       {t(item.labelKey, undefined, lang)}

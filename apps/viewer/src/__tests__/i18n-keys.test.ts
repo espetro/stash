@@ -35,13 +35,10 @@ describe("viewer app i18n keys", () => {
     (lang) => {
       const keys = flatten(bundles[lang]);
       for (const key of [
-        "nav.products",
-        "nav.solutions",
-        "nav.resources",
-        "nav.developers",
-        "nav.enterprise",
-        "nav.pricing",
-        "nav.contactSales",
+        "nav.features",
+        "nav.howItWorks",
+        "nav.demo",
+        "nav.docs",
         "nav.settings",
         "nav.settings.theme",
         "nav.settings.language",

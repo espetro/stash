@@ -7,7 +7,7 @@ file: apps/viewer/src/pages/index.astro
 
 ```text
 +--------------------------------------------------------------+
-| [⌂ Stash]  [ Products | Solutions | Resources | ... | ... ] [⚙]   |
+| [⌂ Stash]  [ Features | How it works | Demo | Docs ] [⚙]   |
 +--------------------------------------------------------------+
 | Your tabs are your thinking.                    (visual demo)|
 | Accent second headline line.                                  |
