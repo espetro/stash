@@ -641,6 +641,28 @@ One wire-contract subtlety: pushes do not correlate on the envelope
 on `result.ack`. `internal/crdt` remains in the tree but is not on the sync
 path; removing it or adopting it for tier 3 is an open issue.
 
+### 6.9 Deviation: Chrome NM wire is length-prefixed, not newline-delimited
+
+§3.1 says extension and host "speak newline-delimited JSON over the host's
+stdio." That is wrong for native messaging and shipped code fixes two bugs
+it caused:
+
+- **Wire framing.** Chrome puts a 4-byte little-endian length prefix on
+  every message in both directions and delivers exactly one JSON value per
+  frame — there is no newline delimiter and no raw-string channel.
+  `daemon/internal/natmsg` therefore encodes `[4]byte len + JSON` and the
+  extension calls `port.postMessage(frame)` with the frame **object**
+  (Chrome serializes it); posting `JSON.stringify(frame)` arrives at the
+  host as a JSON *string*, not an envelope, and previously broke pairing.
+- **Spawn argv.** Chrome launches the host as
+  `<path> chrome-extension://<extension-id>/` (plus platform flags like
+  `--parent-window=0`), so the daemon must detect the NM origin argument
+  *before* flag parsing — the original dispatch required zero args and
+  exited `unknown command "chrome-extension://..."` on every real spawn.
+
+Newline-delimited JSON remains correct for `stash-daemon serve` (the MCP
+stdio server), which is a different transport.
+
 ---
 
 ## 7. Distribution, lifecycle, release coordination

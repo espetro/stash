@@ -1,7 +1,9 @@
 /**
  * Native-messaging transport (F1.W3): wrapper over
- * `browser.runtime.connectNative(<hostName>)` with newline-delimited JSON
- * framing from ./frames.
+ * `browser.runtime.connectNative(<hostName>)`. Chrome serializes each
+ * `postMessage` argument as one native-messaging message (4-byte length
+ * prefix + JSON) and delivers each daemon reply as the deserialized JSON
+ * value — so frames cross as plain objects on both sides.
  *
  * Design constraints (plan §W3):
  * - Idempotent reconnect: `onDisconnect` may fire more than once (or be
@@ -13,7 +15,7 @@
  *   inspects them).
  */
 
-import { encodeFrame, mintCorrelationId, type Frame, type FrameType } from "./frames";
+import { mintCorrelationId, parseFrame, type Frame, type FrameType } from "./frames";
 
 export interface NativeTransportOptions {
   hostName: string;
@@ -44,13 +46,12 @@ export interface NativePort {
 }
 
 /**
- * Frame-parsing wrapper over a raw port: newline-delimited JSON in, typed
- * Frames out. The port emits raw strings; NM layer handles length
- * prefixing, this layer handles framing/parse.
+ * Frame-parsing wrapper over the NM port: Chrome delivers each daemon
+ * message as a deserialized JSON value, `parseFrame` turns it into a typed
+ * Frame (envelope + payload schema per type discriminator).
  */
 export class NativeTransport {
   private port: NativePort | null = null;
-  private buffer = "";
   private status: TransportStatus = "disconnected";
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private disposed = false;
@@ -79,7 +80,7 @@ export class NativeTransport {
    */
   send(frame: Frame): void {
     if (!this.port) this.connect();
-    this.port?.postMessage(encodeFrame(frame));
+    this.port?.postMessage(frame);
   }
 
   /** Build an op frame with a freshly minted sender correlation id. */
@@ -115,7 +116,6 @@ export class NativeTransport {
    */
   private handleDisconnect = (): void => {
     this.detach(); // clears this.port; repeated calls are no-ops
-    this.buffer = "";
     if (this.disposed) return;
     this.setStatus("disconnected");
     if (this.reconnectTimer) return; // already scheduled
@@ -126,11 +126,13 @@ export class NativeTransport {
   };
 
   private handleRawMessage = (raw: unknown): void => {
-    // Feed the partial buffer through the framing decoder.
-    this.buffer += typeof raw === "string" ? raw : "";
-    const { frames, rest } = safeDecode(this.buffer);
-    this.buffer = rest;
-    for (const frame of frames) this.options.onFrame?.(frame);
+    // Chrome delivers each daemon message as the deserialized JSON value —
+    // one complete frame per onMessage. Protocol violations are dropped.
+    try {
+      this.options.onFrame?.(parseFrame(raw));
+    } catch {
+      // daemon protocol violation: ignore the malformed frame
+    }
   };
 
   private setStatus(status: TransportStatus): void {
@@ -144,25 +146,6 @@ export class NativeTransport {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
-  }
-}
-
-function safeDecode(buffer: string): { frames: Frame[]; rest: string } {
-  // Lazy import avoided for bundle simplicity; decodeFrames throws on
-  // complete-but-invalid lines, which we swallow (daemon protocol violation)
-  // while keeping any complete lines parsed so far.
-  try {
-    // Delegate; implemented inline to keep invalid-line isolation.
-    const lines = buffer.split("\n");
-    const rest = lines.pop() ?? "";
-    const frames: Frame[] = [];
-    for (const line of lines) {
-      if (line.trim() === "") continue;
-      frames.push(JSON.parse(line) as Frame);
-    }
-    return { frames, rest };
-  } catch {
-    return { frames: [], rest: "" };
   }
 }
 

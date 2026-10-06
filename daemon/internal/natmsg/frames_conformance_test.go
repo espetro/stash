@@ -8,6 +8,7 @@ package natmsg
 
 import (
 	"bytes"
+	"encoding/binary"
 	"encoding/json"
 	"os"
 	"strings"
@@ -23,16 +24,17 @@ func readFixture(t *testing.T, name string) []byte {
 	return b
 }
 
-// decodeFixture runs a fixture through the codec exactly like the
-// extension's decodeFrames: newline-delimited JSON bytes in, envelope out.
+// decodeFixture parses a fixture envelope: bare JSON in, envelope out. The
+// fixtures pin the envelope schema; the NM length-prefix framing is
+// symmetric Go-side code covered by TestConformanceLengthPrefixedStream.
 func decodeFixture(t *testing.T, name string) *Envelope {
 	t.Helper()
 	raw := readFixture(t, name)
-	env, err := DecodeFrame(bytes.NewReader(raw))
-	if err != nil {
-		t.Fatalf("DecodeFrame: %v", err)
+	var e Envelope
+	if err := json.Unmarshal(raw, &e); err != nil {
+		t.Fatalf("envelope unmarshal: %v", err)
 	}
-	return env
+	return &e
 }
 
 func TestConformanceHandshakeFixtures(t *testing.T) {
@@ -126,25 +128,13 @@ func TestConformanceCorrelationIDConvention(t *testing.T) {
 	}
 }
 
-// Mirrors frames.test.ts "newline-delimited framing": two fixture frames
-// plus a partial tail round-trip through the codec.
-func TestConformanceNewlineDelimitedStream(t *testing.T) {
-	raw := readFixture(t, "stream.ndjson")
-	dec := NewDecoder(bytes.NewReader(raw))
-	first, err := dec.Decode()
-	if err != nil || first.Type != TypeHello {
-		t.Fatalf("frame 1: %+v %v", first, err)
-	}
-	second, err := dec.Decode()
-	if err != nil || second.Type != TypeServerCard || second.CorrelationID != first.CorrelationID {
-		t.Fatalf("frame 2: %+v %v", second, err)
-	}
-	// The partial tail must NOT decode as a frame.
-	if env, err := dec.Decode(); err == nil {
-		t.Fatalf("partial tail decoded as frame: %+v", env)
-	}
+// The wire format is Chrome native messaging: 4-byte little-endian length
+// prefix + one JSON envelope. Stream decode handles back-to-back frames and
+// rejects a truncated tail.
+func TestConformanceLengthPrefixedStream(t *testing.T) {
+	first := decodeFixture(t, "hello.json")
+	second := decodeFixture(t, "server_card.json")
 
-	// And the wire bytes the Go codec emits must parse back to the fixtures.
 	var buf bytes.Buffer
 	if err := EncodeFrame(&buf, first); err != nil {
 		t.Fatal(err)
@@ -152,14 +142,29 @@ func TestConformanceNewlineDelimitedStream(t *testing.T) {
 	if err := EncodeFrame(&buf, second); err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasSuffix(buf.Bytes(), []byte("\n")) {
-		t.Fatal("frames must be newline-terminated")
+	body := buf.Bytes()
+	n := int(binary.LittleEndian.Uint32(body[:4]))
+	if n+4 > len(body) {
+		t.Fatal("declared length exceeds stream")
 	}
-	if !bytes.Contains(buf.Bytes(), []byte("\n{")) {
-		t.Fatal("frames must be newline-delimited, not length-prefixed")
+
+	// Append a truncated tail: a partial third message must not decode.
+	truncated := append(append([]byte{}, body...), 0x20, 0x00, 0x00, 0x00, '{')
+	dec := NewDecoder(bytes.NewReader(truncated))
+	got1, err := dec.Decode()
+	if err != nil || got1.Type != TypeHello {
+		t.Fatalf("frame 1: %+v %v", got1, err)
 	}
-	firstLine := buf.Bytes()[:bytes.IndexByte(buf.Bytes(), '\n')+1]
-	env, err := DecodeFrame(bytes.NewReader(firstLine))
+	got2, err := dec.Decode()
+	if err != nil || got2.Type != TypeServerCard || got2.CorrelationID != got1.CorrelationID {
+		t.Fatalf("frame 2: %+v %v", got2, err)
+	}
+	if env, err := dec.Decode(); err == nil {
+		t.Fatalf("partial tail decoded as frame: %+v", env)
+	}
+
+	// A stream cut at exactly the first message's boundary decodes cleanly.
+	env, err := DecodeFrame(bytes.NewReader(body[:4+n]))
 	if err != nil {
 		t.Fatal(err)
 	}

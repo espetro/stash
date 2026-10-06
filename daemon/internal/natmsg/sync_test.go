@@ -1,7 +1,6 @@
 package natmsg
 
 import (
-	"bytes"
 	"database/sql"
 	"encoding/json"
 	"io"
@@ -568,10 +567,10 @@ func TestSyncFixtures(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		env, err := DecodeFrame(bytes.NewReader(raw))
-		if err != nil {
+		var env Envelope
+		if err := json.Unmarshal(raw, &env); err != nil {
 			t.Fatalf("%s: %v", name, err)
 		}
-		check(t, env)
+		check(t, &env)
 	}
 }
