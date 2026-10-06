@@ -41,7 +41,15 @@ The shortener (`apps/shortener`) is a Cloudflare Worker that provides opt-in sho
 3. The `STASH_ANALYTICS` Analytics Engine binding (optional) records anonymous aggregate counters. Remove the block to disable telemetry.
 4. Deploy with `pnpm --filter @stash/shortener exec wrangler deploy`, authenticating via the `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` environment variables (this is what the repo's `deploy.yml` workflow does).
 
-Shortened stashes are stored server-side in KV with a TTL of at most 7 days. Share links that use the full `?p=` payload never touch the shortener.
+### Zero-trust relay storage
+
+Shortened stashes are zero-trust: before upload, the extension or viewer encrypts the payload with a random per-share AES-256-GCM key. Only the ciphertext (base64url) is stored in KV, alongside creation/expiry timestamps. The key travels exclusively in the URL fragment (`/s/<id>#<key>`), which browsers never send to servers, so your deployment cannot decrypt the stashes it stores.
+
+Retention: KV entries are evicted by TTL (at most 7 days on the hosted relay, configurable via `maxTtl`) and can be revoked early with `DELETE /api/stash/:id`. There are no other copies and no backups.
+
+Because stored payloads are unreadable without the fragment key, server-side plaintext rendering (markdown/txt negotiation) is unavailable for relayed entries: `GET /s/:id?format=md` and `?format=txt` fail closed with 409. `?format=json` returns the ciphertext envelope; the MCP `stash_get` tool returns an `encrypted` error for relayed entries and works only for self-contained payloads.
+
+Share links that use the full `#p=` payload never touch the shortener.
 
 ## Pointing the pieces at each other
 

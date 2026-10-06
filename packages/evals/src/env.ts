@@ -149,7 +149,13 @@ export async function bootAgentViewer(): Promise<SpawnedViewer> {
       };
       const response = (await mod.onRequest(ctx)) as Response;
       const out = Buffer.from(await response.arrayBuffer());
-      response.headers.forEach((v, k) => res.setHeader(k, v));
+      // arrayBuffer() is already decompressed — forwarding content-encoding /
+      // content-length verbatim makes the client gunzip plain bytes and die.
+      response.headers.forEach((v, k) => {
+        const key = k.toLowerCase();
+        if (key === "content-encoding" || key === "content-length" || key === "transfer-encoding") return;
+        res.setHeader(k, v);
+      });
       res.statusCode = response.status;
       res.end(out);
     } catch (error) {
@@ -197,7 +203,13 @@ export async function bootShortener(payload: string): Promise<SpawnedShortener> 
         body ? new Request(url, { method: req.method, headers, body }) : new Request(url, { method: req.method, headers }),
       );
       const out = Buffer.from(await response.arrayBuffer());
-      response.headers.forEach((v, k) => res.setHeader(k, v));
+      // arrayBuffer() is already decompressed — forwarding content-encoding /
+      // content-length verbatim makes the client gunzip plain bytes and die.
+      response.headers.forEach((v, k) => {
+        const key = k.toLowerCase();
+        if (key === "content-encoding" || key === "content-length" || key === "transfer-encoding") return;
+        res.setHeader(k, v);
+      });
       res.statusCode = response.status;
       res.end(out);
     });

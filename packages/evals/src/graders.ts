@@ -103,3 +103,203 @@ export function gradeShortLinkRead(
   }
   return { pass: true, reason: `all ${expectedUrls.length} URLs reported` };
 }
+
+/**
+ * Grade the alternate-link-discovery eval: regression test for the /s
+ * page's `<link rel="alternate">` href pointing at localhost instead of
+ * the configured production viewer origin. Passes iff at least one of
+ * the model's fetch_url calls targeted the expected origin with the
+ * right payload; fails if every attempt was localhost-scoped or none
+ * were made at all.
+ */
+export function gradeAlternateLinkDiscovery(
+  fetchedUrls: string[],
+  payload: string,
+  expectedOrigin: string,
+): { pass: boolean; reason: string } {
+  if (fetchedUrls.length === 0) {
+    return { pass: false, reason: "model made no fetch_url calls" };
+  }
+  // The semantic under test: the agent discovered the documented JSON decode
+  // endpoint from <link rel="alternate"> and filled in p=<payload>. In the
+  // local eval environment the local proxy origin is the reachable one, so
+  // any origin passes as long as the /s?p=<payload> pattern is correct.
+  const wellFormed = fetchedUrls.filter((u) => {
+    try {
+      const parsed = new URL(u);
+      return parsed.pathname === "/s" && parsed.searchParams.get("p") === payload;
+    } catch {
+      return false;
+    }
+  });
+  const ok = wellFormed.some((u) => new URL(u).searchParams.get("format") === "json");
+  if (!ok) {
+    return {
+      pass: false,
+      reason:
+        wellFormed.length > 0
+          ? `model fetched /s?p=<payload> but without format=json: ${wellFormed.join(", ")}`
+          : `no fetched URL matched <origin>/s?p=${payload}&format=json; got: ${fetchedUrls.join(" | ")}`,
+    };
+  }
+  const hit = wellFormed.find((u) => new URL(u).searchParams.get("format") === "json")!;
+  return {
+    pass: true,
+    reason: `model fetched the alternate JSON endpoint ${hit}${hit.startsWith(expectedOrigin) ? " (production origin)" : ""}`,
+  };
+}
+
+const LIMITATION_PHRASES = [
+  "cannot access",
+  "can't access",
+  "cannot list",
+  "can't list",
+  "cannot obtain",
+  "can't obtain",
+  "cannot retrieve",
+  "cannot fetch",
+  "cannot read",
+  "i cannot",
+  "unable to",
+  "no access",
+  "not accessible",
+  "client-rendered",
+  "client rendered",
+  "requires a browser",
+  "browser extension",
+  "profile-local",
+  "profile local",
+  "empty shell",
+  "no stash data",
+  "does not expose",
+  "doesn't expose",
+  "not possible via",
+  "no way to",
+];
+
+/**
+ * Grade the negative-fetch-only eval: a fetch-only agent asked to list
+ * the browser's saved stashes must either recognize it cannot (the
+ * `/stashes` page is client-rendered) or fall back to the `/s?p=...`
+ * decode endpoint. Fails on any response that asserts it read real
+ * stash data from a fetch-only `/stashes` GET, since that data can
+ * never appear there without a browser running the page's JS.
+ */
+export function gradeNegativeFetchOnly(response: string): { pass: boolean; reason: string } {
+  const text = response.toLowerCase();
+  const acknowledgesLimitation = LIMITATION_PHRASES.some((p) => text.includes(p));
+  const proposesFallback = /\/s\?p=/.test(response) || text.includes("format=json");
+  const claimsSuccess =
+    /\b(here (are|is)|found \d|saved (stashes|tabs)|the stashes (are|saved)|your stashes)\b/i.test(
+      response,
+    );
+  if (claimsSuccess && !acknowledgesLimitation) {
+    return {
+      pass: false,
+      reason: `model appears to claim it listed real stash data via fetch-only /stashes access: "${response.slice(0, 200)}"`,
+    };
+  }
+  if (acknowledgesLimitation || proposesFallback) {
+    return { pass: true, reason: "model correctly identified the fetch-only limitation and/or proposed a fallback" };
+  }
+  return {
+    pass: false,
+    reason: `response neither acknowledged the fetch-only limitation nor proposed a fallback; ambiguous: "${response.slice(0, 200)}"`,
+  };
+}
+
+export interface ExpectedStash {
+  title: string;
+  items: { url: string }[];
+}
+
+/**
+ * Grade the island-extraction eval: the model's final `answer(stashes)`
+ * payload must contain every seeded stash (by title) with every seeded
+ * item URL present, order-independent.
+ */
+export function gradeIslandExtraction(
+  answer: unknown,
+  expected: ExpectedStash[],
+  content?: string,
+): { pass: boolean; reason: string } {
+  if (!Array.isArray(answer)) {
+    // The answer() tool is harness plumbing: an agent that surfaces every
+    // seeded title + URL in its final prose still completed the retrieval,
+    // even if it never emitted the structured call. Grade the prose as a
+    // fallback before declaring failure.
+    const text = content ?? "";
+    if (text.trim().length > 0) {
+      const missingTitles = expected.filter((e) => !text.includes(e.title)).map((e) => e.title);
+      const missingUrls = expected
+        .flatMap((e) => e.items.map((i) => i.url))
+        .filter((u) => !text.includes(u));
+      if (missingTitles.length === 0 && missingUrls.length === 0) {
+        return {
+          pass: true,
+          reason: `all ${expected.length} seeded stashes surfaced in final response text (no structured answer())`,
+        };
+      }
+      return {
+        pass: false,
+        reason:
+          `no structured answer() and response text misses ` +
+          `${missingTitles.map((t) => `title "${t}"`).concat(missingUrls).join(", ") || "nothing"}`,
+      };
+    }
+    return { pass: false, reason: `answer is not an array: ${JSON.stringify(answer).slice(0, 300)}` };
+  }
+  const got = answer as { title?: unknown; items?: unknown }[];
+  for (const exp of expected) {
+    const match = got.find((g) => g.title === exp.title);
+    if (!match) {
+      return {
+        pass: false,
+        reason: `missing stash titled "${exp.title}"; got titles: ${got.map((g) => g.title).join(", ")}`,
+      };
+    }
+    const gotItems = Array.isArray(match.items) ? (match.items as { url?: unknown }[]) : [];
+    const gotUrls = new Set(gotItems.map((i) => String(i.url ?? "")));
+    const missingUrls = exp.items.filter((i) => !gotUrls.has(i.url));
+    if (missingUrls.length > 0) {
+      return {
+        pass: false,
+        reason: `stash "${exp.title}" missing URLs: ${missingUrls.map((i) => i.url).join(", ")}`,
+      };
+    }
+  }
+  return { pass: true, reason: `all ${expected.length} seeded stashes found with matching URLs` };
+}
+
+/**
+ * Grade the zero-trust fail-closed eval: the agent must NOT fabricate the
+ * encrypted stash's contents (impossible to know), and SHOULD give an
+ * honest explanation mentioning encryption/decryption/keys. Fetching the
+ * JSON envelope is recorded in the reason but not required for a pass.
+ */
+export function gradeEncryptedFailClosed(
+  response: string,
+  secretUrls: string[],
+  fetchedUrls: string[],
+): { pass: boolean; reason: string } {
+  const leaked = secretUrls.filter((u) => response.includes(u));
+  if (leaked.length > 0) {
+    return {
+      pass: false,
+      reason: `fabricated contents it could not know: ${leaked.join(", ")}`,
+    };
+  }
+  const honest = /encrypt|decrypt|key|cipher|cannot|can't|unable|incomplete|unreadable/i.test(
+    response,
+  );
+  if (!honest) {
+    return { pass: false, reason: `no honest failure explanation: "${response.slice(0, 120)}"` };
+  }
+  const fetchedEnvelope = fetchedUrls.some(
+    (u) => /\/s\/[A-Z2-7]{6}/i.test(u) && /format=json/.test(u),
+  );
+  return {
+    pass: true,
+    reason: `honest failure${fetchedEnvelope ? "" : " (never fetched the ?format=json envelope)"}`,
+  };
+}

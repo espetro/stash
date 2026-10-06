@@ -3,15 +3,14 @@ import { useTabSelection } from "./hooks/useTabSelection";
 import { TabList } from "./components/TabList";
 import { SelectAllToggle } from "./components/SelectAllToggle";
 import { LinkResult } from "./components/LinkResult";
-import { ErrorMessage } from "./components/ErrorMessage";
-import { HistoryView } from "./components/HistoryView";
-import { StashesView } from "./components/StashesView";
+import { ErrorMessage } from "../../components/ErrorMessage";
+import { openLibraryPage } from "../../lib/open-library";
 import { Button } from "@/components/ui/Button";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import { getBrotliFunctions } from "@stash/shared";
 import { getSettings, type Settings } from "@/lib/settings";
-import { addToHistory, type HistoryEntry } from "@/lib/history";
-import { createStash } from "@/lib/stash-store";
+import { addToHistory } from "@/lib/history";
+import { attachShortUrl, createStash, keepStash, recordShare } from "@/lib/stash-store";
 import { recordEvent } from "@/lib/telemetry";
 import { SaveStashForm } from "./components/SaveStashForm";
 import Header from "./components/Header";
@@ -29,13 +28,14 @@ export default function App() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [isSettingsLoading, setIsSettingsLoading] = useState(true);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [linkRecordId, setLinkRecordId] = useState<string | null>(null);
+  const [linkKept, setLinkKept] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [linkItemCount, setLinkItemCount] = useState(0);
   const [linkTruncated, setLinkTruncated] = useState(false);
   const [linkTabs, setLinkTabs] = useState<Array<{ url: string; title: string }>>([]);
   const [copyUrl, setCopyUrl] = useState<string | null>(null);
-  const [view, setView] = useState<"main" | "history" | "stashes" | "saveStash">("main");
-  const [historyLinkResult, setHistoryLinkResult] = useState<HistoryEntry | null>(null);
+  const [view, setView] = useState<"main" | "saveStash">("main");
   const [stashToSave, setStashToSave] = useState<Array<{ url: string; title: string }>>([]);
   const hasRecordedTabSelection = useRef(false);
 
@@ -81,16 +81,28 @@ export default function App() {
 
       await navigator.clipboard.writeText(finalUrl);
 
-      const expiresAt = Date.now() + expiryHours * 3600 * 1000;
+      const now = Date.now();
+      const expiresAt = now + expiryHours * 3600 * 1000;
       await addToHistory({
-        id: Date.now().toString(36),
+        id: now.toString(36),
         url: finalUrl,
         itemCount: result.itemCount,
         truncated: result.truncated,
-        createdAt: Date.now(),
+        createdAt: now,
         expiresAt,
       });
 
+      const shareEvent = {
+        url: finalUrl,
+        itemCount: result.itemCount,
+        truncated: result.truncated,
+        createdAt: now,
+        expiresAt,
+      };
+      const record = await recordShare({ items: tabInfos, share: shareEvent });
+
+      setLinkRecordId(record.id);
+      setLinkKept(false);
       setShareUrl(finalUrl);
       setCopyUrl(finalUrl);
       setLinkItemCount(result.itemCount);
@@ -146,34 +158,30 @@ export default function App() {
 
   function handleBack() {
     setShareUrl(null);
+    setLinkRecordId(null);
+    setLinkKept(false);
     setCopyUrl(null);
-    setHistoryLinkResult(null);
     setIsCopied(false);
     setLinkTabs([]);
+  }
+
+  async function handleKeepLink() {
+    if (!linkRecordId) return;
+    try {
+      const kept = await keepStash(linkRecordId);
+      if (kept) setLinkKept(true);
+    } catch (err) {
+      console.error("handleKeepLink error:", err);
+      setError("Failed to keep stash");
+    }
   }
 
   function handleSelectAll(maxCount: number) {
     selectAll(maxCount);
   }
 
-  function handleShowLinkResult(entry: HistoryEntry) {
-    setHistoryLinkResult(entry);
-    setCopyUrl(entry.url);
-  }
-
-  function handleBackFromHistory() {
-    setHistoryLinkResult(null);
-    setCopyUrl(null);
-    setIsCopied(false);
-    setView("history");
-  }
-
   function handleHeaderBack() {
-    if (view === "history" && historyLinkResult) {
-      handleBackFromHistory();
-      return;
-    }
-    if (view === "stashes" || view === "saveStash" || view === "history") {
+    if (view === "saveStash") {
       setView("main");
       setStashToSave([]);
       return;
@@ -192,22 +200,17 @@ export default function App() {
   return (
     <div className="popup-container">
       <Header
-        onBack={
-          view !== "main" || shareUrl || historyLinkResult ? () => handleHeaderBack() : undefined
-        }
+        onBack={view !== "main" || shareUrl ? () => handleHeaderBack() : undefined}
         onClickStashes={() => {
           recordEvent("stash_list_viewed");
-          setView("stashes");
+          void openLibraryPage();
         }}
-        onClickHistory={() => setView("history")}
-        onClickSettings={() => browser.runtime.openOptionsPage()}
+        onClickSettings={() => void openLibraryPage("#settings")}
       />
 
       {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}
 
-      {view === "stashes" ? (
-        <StashesView />
-      ) : view === "saveStash" ? (
+      {view === "saveStash" ? (
         <SaveStashForm
           itemCount={stashToSave.length}
           onSave={handleSaveStash}
@@ -217,20 +220,6 @@ export default function App() {
             setView("main");
           }}
         />
-      ) : view === "history" ? (
-        historyLinkResult ? (
-          <LinkResult
-            url={historyLinkResult.url}
-            onCopy={handleCopy}
-            isCopied={isCopied}
-            itemCount={historyLinkResult.itemCount}
-            tabs={[]}
-            truncated={historyLinkResult.truncated}
-            totalCount={historyLinkResult.itemCount}
-          />
-        ) : (
-          <HistoryView onShowLinkResult={handleShowLinkResult} />
-        )
       ) : (
         <>
           {shareUrl ? (
@@ -245,7 +234,16 @@ export default function App() {
               expiresLabel={EXPIRY_LABELS[settings?.expiryMode ?? "never"]}
               shortenerEnabled={settings?.shortenerEnabled ?? false}
               shortenerOrigin={settings?.shortenerOrigin}
-              onShortened={(shortUrl) => setCopyUrl(shortUrl)}
+              isKept={linkKept}
+              onKeep={handleKeepLink}
+              onShortened={(shortUrl) => {
+                setCopyUrl(shortUrl);
+                if (linkRecordId && shareUrl) {
+                  void attachShortUrl(linkRecordId, shareUrl, shortUrl).catch((err) =>
+                    console.error("Failed to attach short URL:", err),
+                  );
+                }
+              }}
             />
           ) : (
             <>

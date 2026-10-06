@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import AppHeader from "@/components/AppHeader";
 import { useLocale } from "@/components/LocaleProvider";
 import { t } from "@/i18n";
@@ -21,8 +21,16 @@ import {
 import { TabListItem } from "@/components/TabListItem";
 import { useStashLibrary } from "@/hooks/useStashLibrary";
 import type { StashRecord } from "@/lib/stash-store";
-import { formatDateTime } from "@stash/shared";
+import { formatDateTime, stashDisplayTitle } from "@stash/shared";
 import { recordEvent } from "@/lib/telemetry";
+import {
+  probeLocalBridge,
+  probeBridgePresence,
+  openLibraryInExtension,
+  sendLibraryHandoff,
+} from "@/lib/local-bridge";
+import type { StashExportRecord, StashExport } from "@stash/shared/agent-export";
+import { toStashExport } from "@stash/shared/agent-export";
 import {
   FaMagnifyingGlass,
   FaPlus,
@@ -30,7 +38,34 @@ import {
   FaFileArrowUp,
   FaTrash,
   FaPen,
+  FaPuzzlePiece,
+  FaArrowRightArrowLeft,
 } from "react-icons/fa6";
+
+type LibrarySource = "extension" | "viewer-local";
+
+function isSafeHttpUrl(url: string): boolean {
+  return url.startsWith("http://") || url.startsWith("https://");
+}
+
+/**
+ * Convert an extension `StashExportRecord` into a viewer-shaped
+ * `StashRecord`. Title/note are passed through as-is — the canonical
+ * `null` from the extension is fine for rendering (falsy in the JSX
+ * checks below). Items are dropped if their URL is not `http(s)`.
+ */
+function exportRecordToStashRecord(rec: StashExportRecord): StashRecord {
+  return {
+    id: rec.id,
+    title: rec.title ?? undefined,
+    tags: [...rec.tags],
+    note: rec.note ?? undefined,
+    items: rec.items.filter((it) => isSafeHttpUrl(it.url)),
+    kept: rec.kept !== false,
+    createdAt: rec.createdAt,
+    updatedAt: rec.updatedAt,
+  };
+}
 
 function StashEditForm({
   record,
@@ -102,16 +137,23 @@ function StashCard({
   record,
   onRename,
   onDelete,
+  readOnly,
   lang,
 }: {
   record: StashRecord;
   onRename: (id: string, patch: { title?: string; tags: string[]; note?: string }) => void;
   onDelete: (id: string) => void;
+  readOnly: boolean;
   lang: Parameters<typeof t>[2];
 }) {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const safeItems = useMemo(
+    () => record.items.filter((it) => isSafeHttpUrl(it.url)),
+    [record.items],
+  );
 
   return (
     <div className="rounded-xl border border-border bg-card">
@@ -126,9 +168,22 @@ function StashCard({
         className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
       >
         <div className="flex min-w-0 flex-col gap-1">
-          <span className="truncate text-sm font-semibold text-foreground">
-            {record.title || t("myStashes.untitled", undefined, lang)}
-          </span>
+          <div className="flex min-w-0 items-center gap-2">
+            <span data-stash-title className="truncate text-sm font-semibold text-foreground">
+              {stashDisplayTitle(record, t("myStashes.untitled", undefined, lang))}
+            </span>
+            {readOnly && (
+              <span
+                className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                  record.kept === false
+                    ? "bg-secondary text-secondary-foreground"
+                    : "bg-primary/10 text-primary"
+                }`}
+              >
+                {t(record.kept === false ? "myStashes.recent" : "myStashes.kept", undefined, lang)}
+              </span>
+            )}
+          </div>
           <div className="flex flex-wrap items-center gap-1.5">
             {record.tags.map((tag) => (
               <span
@@ -140,44 +195,46 @@ function StashCard({
             ))}
           </div>
           <span className="text-xs text-muted-foreground">
-            {record.items.length} {t("myStashes.items", undefined, lang)} ·{" "}
+            {safeItems.length} {t("myStashes.items", undefined, lang)} ·{" "}
             {formatDateTime(record.updatedAt)}
           </span>
         </div>
-        <div className="flex shrink-0 items-center gap-3">
-          <span
-            role="button"
-            tabIndex={0}
-            onClick={(e) => {
-              e.stopPropagation();
-              setEditing((v) => !v);
-              setExpanded(true);
-            }}
-            onKeyDown={(e) => e.key === "Enter" && e.currentTarget.click()}
-            aria-label={t("myStashes.edit", undefined, lang)}
-            className="cursor-pointer text-muted-foreground hover:text-foreground"
-          >
-            <FaPen className="size-3.5" />
-          </span>
-          <span
-            role="button"
-            tabIndex={0}
-            onClick={(e) => {
-              e.stopPropagation();
-              setConfirmDelete(true);
-            }}
-            onKeyDown={(e) => e.key === "Enter" && e.currentTarget.click()}
-            aria-label={t("myStashes.delete", undefined, lang)}
-            className="cursor-pointer text-muted-foreground hover:text-red-600"
-          >
-            <FaTrash className="size-3.5" />
-          </span>
-        </div>
+        {!readOnly && (
+          <div className="flex shrink-0 items-center gap-3">
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditing((v) => !v);
+                setExpanded(true);
+              }}
+              onKeyDown={(e) => e.key === "Enter" && e.currentTarget.click()}
+              aria-label={t("myStashes.edit", undefined, lang)}
+              className="cursor-pointer text-muted-foreground hover:text-foreground"
+            >
+              <FaPen className="size-3.5" />
+            </span>
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={(e) => {
+                e.stopPropagation();
+                setConfirmDelete(true);
+              }}
+              onKeyDown={(e) => e.key === "Enter" && e.currentTarget.click()}
+              aria-label={t("myStashes.delete", undefined, lang)}
+              className="cursor-pointer text-muted-foreground hover:text-red-600"
+            >
+              <FaTrash className="size-3.5" />
+            </span>
+          </div>
+        )}
       </button>
 
       {expanded && (
         <div className="border-t border-border">
-          {editing ? (
+          {editing && !readOnly ? (
             <StashEditForm
               record={record}
               lang={lang}
@@ -194,10 +251,10 @@ function StashCard({
                   {record.note}
                 </p>
               )}
-              {record.items.map((item, index) => (
+              {safeItems.map((item, index) => (
                 <React.Fragment key={item.url + index}>
                   {index > 0 && <div className="h-px bg-border" />}
-                  <TabListItem url={item.url} title={item.title} />
+                  <SafeTabListItem url={item.url} title={item.title} />
                 </React.Fragment>
               ))}
             </>
@@ -238,11 +295,158 @@ function StashCard({
   );
 }
 
+/**
+ * Render a `TabListItem` for an item whose URL has been pre-validated as
+ * `http(s)`. `TabListItem` enforces `rel="noopener noreferrer nofollow"`
+ * on its outbound anchor and sets `target="_blank"`.
+ */
+function SafeTabListItem({ url, title }: { url: string; title: string }) {
+  return <TabListItem url={url} title={title} />;
+}
+
+/**
+ * Build the canonical `StashExport` for the JSON island.
+ * - `source === "extension"`: trust the bridge payload verbatim.
+ * - `source === "viewer-local"`: per the plan, expose an empty
+ *   `stashes: []` rather than duplicating viewer-localStorage records.
+ */
+function buildIslandExport(source: LibrarySource, bridgeExport: StashExport | null): StashExport {
+  if (source === "extension" && bridgeExport) {
+    return {
+      version: 1,
+      source: "extension",
+      stashes: bridgeExport.stashes,
+    };
+  }
+  return { version: 1, source: "viewer-local", stashes: [] };
+}
+
+/**
+ * Render a record as Markdown following the `/s` conventions: title
+ * heading, a bulleted line per item, an optional tags line, and an
+ * optional note line. The `http(s)`-only filter is applied before this
+ * is called, so item URLs are safe to embed raw.
+ */
+function recordToMarkdown(record: StashRecord): string {
+  const heading = record.title?.trim() || "Untitled";
+  const lines: string[] = [`# ${heading}`, ""];
+  if (record.items.length === 0) {
+    lines.push("_(no items)_", "");
+  } else {
+    for (const item of record.items) {
+      // Item titles may contain markdown metacharacters; only escape
+      // backslashes for now and let the link text fall through. URLs
+      // are already http(s) and will be rendered by the agent.
+      const label = item.title || item.url;
+      lines.push(`- [${label}](${item.url})`);
+    }
+    lines.push("");
+  }
+  if (record.tags.length > 0) {
+    lines.push(`tags: ${record.tags.join(", ")}`);
+  }
+  if (record.note) {
+    lines.push(`note: ${record.note}`);
+  }
+  return lines.join("\n");
+}
+
+/**
+ * Detect the optional `?agent=json|markdown` browser-only view.
+ * Client-side only; this is intentionally not a fetch endpoint (the
+ * `client:only` Astro shell returns an empty document to non-browser
+ * clients — fetch agents must use `/s` instead).
+ */
+function readAgentMode(): "json" | "markdown" | null {
+  if (typeof window === "undefined") return null;
+  const value = new URLSearchParams(window.location.search).get("agent");
+  if (value === "json" || value === "markdown") return value;
+  return null;
+}
+
 export default function MyStashes() {
   const { lang } = useLocale();
-  const { query, setQuery, records, rename, remove, exportJson, importJson } = useStashLibrary();
+  const {
+    query,
+    setQuery,
+    records: viewerRecords,
+    rename,
+    remove,
+    exportJson,
+    importJson,
+    clearAll,
+  } = useStashLibrary();
   const [importMessage, setImportMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // PR E: the extension is installed even when the data bridge is
+  // disabled — presence powers the "Open your Library" CTA and the
+  // one-time handoff of viewer-local records.
+  const [extensionPresent, setExtensionPresent] = useState(false);
+  const [handoffBusy, setHandoffBusy] = useState(false);
+  const [handoffMessage, setHandoffMessage] = useState<string | null>(null);
+
+  // Source-aware loading: probe the extension bridge after mount. If it
+  // returns an `extension` source, render those records in-memory and
+  // do NOT touch viewer localStorage. Otherwise fall back to
+  // useStashLibrary() (viewer localStorage).
+  const [source, setSource] = useState<LibrarySource>("viewer-local");
+  const [extensionRecords, setExtensionRecords] = useState<StashRecord[]>([]);
+  // The bridge payload itself, kept around so the JSON island can copy
+  // it verbatim. `null` while probing or when the bridge is unavailable.
+  const [bridgeExport, setBridgeExport] = useState<StashExport | null>(null);
+  // `loading` until the bridge probe resolves or the viewer-local
+  // fallback is selected. Mirrors the lifecycle required by the plan's
+  // `data-stash-status` attribute on the JSON island.
+  const [status, setStatus] = useState<"loading" | "ready">("loading");
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const result = await probeLocalBridge();
+      if (cancelled) return;
+      // Presence is probed regardless of the data-bridge setting — but
+      // don't await it here: it has its own timeout and must not delay
+      // the island's data-stash-status=ready flip.
+      if (!result.available) {
+        void probeBridgePresence().then((present) => {
+          if (!cancelled) setExtensionPresent(present);
+        });
+      } else {
+        setExtensionPresent(true);
+      }
+      if (result.available && result.export && result.export.source === "extension") {
+        setExtensionRecords(result.export.stashes.map(exportRecordToStashRecord));
+        setSource("extension");
+        setBridgeExport(result.export);
+      } else {
+        setSource("viewer-local");
+        setBridgeExport(null);
+      }
+      setStatus("ready");
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const filteredExtensionRecords = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return extensionRecords;
+    return extensionRecords.filter((r) => {
+      const haystack = [r.title ?? "", ...r.tags, r.note ?? ""].join(" ").toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [extensionRecords, query]);
+
+  const filteredViewerRecords = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return viewerRecords;
+    return viewerRecords.filter((r) => {
+      const haystack = [r.title ?? "", ...r.tags, r.note ?? ""].join(" ").toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [viewerRecords, query]);
+
+  const records = source === "extension" ? filteredExtensionRecords : filteredViewerRecords;
 
   const handleNew = useCallback(() => {
     window.location.href = "/s/new";
@@ -268,14 +472,133 @@ export default function MyStashes() {
     [importJson, lang],
   );
 
+  const isExtensionSource = source === "extension";
+
+  const handleOpenInExtension = useCallback(() => {
+    recordEvent("library_open_in_extension");
+    void openLibraryInExtension();
+  }, []);
+
+  const handleHandoff = useCallback(async () => {
+    if (handoffBusy) return;
+    setHandoffBusy(true);
+    setHandoffMessage(null);
+    try {
+      const count = viewerRecords.length;
+      const reply = await sendLibraryHandoff(toStashExport(viewerRecords, "viewer-local"));
+      if (reply.ok) {
+        recordEvent("viewer_handoff_sent");
+        clearAll();
+        setHandoffMessage(t("myStashes.moveToExtensionDone", { count }, lang));
+      } else {
+        setHandoffMessage(t("myStashes.moveToExtensionError", undefined, lang));
+      }
+    } finally {
+      setHandoffBusy(false);
+    }
+  }, [handoffBusy, viewerRecords, clearAll, lang]);
+
+  // The agent island payload is built from the bridge export when the
+  // extension source is active, and from an empty `viewer-local`
+  // fallback otherwise — we never duplicate viewer-localStorage records
+  // into the island.
+  const islandExport = useMemo(
+    () => buildIslandExport(source, bridgeExport),
+    [source, bridgeExport],
+  );
+  const islandJson = useMemo(() => JSON.stringify(islandExport), [islandExport]);
+
+  // Agent views keep their existing single-source contract; the
+  // extension bridge remains authoritative when available.
+  const agentExportJson = useMemo(
+    () => JSON.stringify(toStashExport(records, source)),
+    [records, source],
+  );
+
+  // Optional `?agent=json|markdown` browser-only view. Read once on
+  // mount so the very first render already lands in the right shape
+  // (avoids a SharedCard→agent-mode flicker when an agent navigates
+  // straight to /stashes?agent=json|markdown).
+  const [agentMode] = useState<"json" | "markdown" | null>(() => readAgentMode());
+
+  if (agentMode === "json") {
+    return (
+      <div data-stash-root data-stash-status={status} className="min-h-screen p-3">
+        <pre id="agent-export" data-stash-status={status}>
+          {agentExportJson}
+        </pre>
+      </div>
+    );
+  }
+
+  if (agentMode === "markdown") {
+    const markdown = records.map(recordToMarkdown).join("\n\n");
+    return (
+      <div data-stash-root data-stash-status={status} className="min-h-screen p-3">
+        <pre id="agent-export-md" data-stash-status={status}>
+          {markdown}
+        </pre>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8">
+    <div
+      data-stash-root
+      data-stash-source={source}
+      className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8"
+    >
       <AppHeader />
 
       <SharedCard>
         <SharedCardHeader title={t("myStashes.title", undefined, lang)} />
 
         <SharedCardContent>
+          {!isExtensionSource && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                data-testid="stash-source-chip"
+                className="rounded-full bg-muted px-3 py-1 text-[11px] font-medium text-muted-foreground"
+              >
+                {t("myStashes.sourceViewer", undefined, lang)}
+              </span>
+            </div>
+          )}
+
+          {extensionPresent && (
+            <div
+              data-stash-extension-cta
+              className="flex flex-col gap-2 rounded-xl border border-border bg-secondary/50 p-3"
+            >
+              <p className="flex items-center gap-2 text-xs text-muted-foreground">
+                <FaPuzzlePiece className="size-3.5 shrink-0" />
+                {t("myStashes.extensionDetected", undefined, lang)}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleOpenInExtension}
+                  className="h-8 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+                >
+                  {t("myStashes.openInExtension", undefined, lang)}
+                </button>
+                {!isExtensionSource && viewerRecords.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => void handleHandoff()}
+                    disabled={handoffBusy}
+                    className="flex h-8 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-secondary disabled:opacity-50"
+                  >
+                    <FaArrowRightArrowLeft className="size-3" />
+                    {handoffBusy
+                      ? t("myStashes.moveToExtensionBusy", undefined, lang)
+                      : t("myStashes.moveToExtension", undefined, lang)}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="relative">
             <FaMagnifyingGlass className="pointer-events-none absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <input
@@ -287,20 +610,90 @@ export default function MyStashes() {
             />
           </div>
 
-          {records.length === 0 ? (
+          {isExtensionSource ? (
+            <div className="flex flex-col gap-5">
+              <section aria-labelledby="extension-stashes-heading">
+                <h3
+                  id="extension-stashes-heading"
+                  className="mb-2 text-sm font-semibold text-foreground"
+                >
+                  {t("myStashes.fromExtension", undefined, lang)}
+                </h3>
+                <p className="mb-2 text-xs text-muted-foreground">
+                  {t("myStashes.readOnlyHint", undefined, lang)}
+                </p>
+                {filteredExtensionRecords.length === 0 ? (
+                  <p className="rounded-xl border border-dashed border-border p-5 text-center text-sm text-muted-foreground">
+                    {query.trim()
+                      ? t("myStashes.noMatches", undefined, lang)
+                      : t("myStashes.extensionEmpty", undefined, lang)}
+                  </p>
+                ) : (
+                  <div data-stash-list className="flex flex-col gap-2">
+                    {filteredExtensionRecords.map((record) => (
+                      <div data-stash-record-id={record.id} key={record.id}>
+                        <StashCard
+                          record={record}
+                          lang={lang}
+                          onRename={rename}
+                          onDelete={remove}
+                          readOnly
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              <section aria-labelledby="viewer-stashes-heading">
+                <h3
+                  id="viewer-stashes-heading"
+                  className="mb-2 text-sm font-semibold text-foreground"
+                >
+                  {t("myStashes.savedInBrowser", undefined, lang)}
+                </h3>
+                <p className="mb-2 text-xs text-muted-foreground">
+                  {t("myStashes.viewerLocalHint", undefined, lang)}
+                </p>
+                {filteredViewerRecords.length === 0 ? (
+                  <p className="rounded-xl border border-dashed border-border p-5 text-center text-sm text-muted-foreground">
+                    {query.trim()
+                      ? t("myStashes.noMatches", undefined, lang)
+                      : t("myStashes.browserEmpty", undefined, lang)}
+                  </p>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    {filteredViewerRecords.map((record) => (
+                      <div data-stash-record-id={record.id} key={record.id}>
+                        <StashCard
+                          record={record}
+                          lang={lang}
+                          onRename={rename}
+                          onDelete={remove}
+                          readOnly={false}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </div>
+          ) : records.length === 0 ? (
             <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
               {t("myStashes.empty", undefined, lang)}
             </p>
           ) : (
-            <div className="flex flex-col gap-2">
+            <div data-stash-list className="flex flex-col gap-2">
               {records.map((record) => (
-                <StashCard
-                  key={record.id}
-                  record={record}
-                  lang={lang}
-                  onRename={rename}
-                  onDelete={remove}
-                />
+                <div data-stash-record-id={record.id} key={record.id}>
+                  <StashCard
+                    record={record}
+                    lang={lang}
+                    onRename={rename}
+                    onDelete={remove}
+                    readOnly={isExtensionSource}
+                  />
+                </div>
               ))}
             </div>
           )}
@@ -308,31 +701,36 @@ export default function MyStashes() {
           {importMessage && (
             <p className="text-center text-xs text-muted-foreground">{importMessage}</p>
           )}
+          {handoffMessage && (
+            <p className="text-center text-xs text-muted-foreground">{handoffMessage}</p>
+          )}
         </SharedCardContent>
       </SharedCard>
 
-      <SharedButtonArea>
-        <PrimaryButton onClick={handleNew}>
-          <FaPlus className="size-4" />
-          {t("myStashes.newStash", undefined, lang)}
-        </PrimaryButton>
-        <div className="flex justify-center gap-2">
-          <OutlineButton
-            onClick={exportJson}
-            aria-label={t("myStashes.export", undefined, lang)}
-            className="size-10 rounded-xl p-0"
-          >
-            <FaFileArrowDown className="size-4" />
-          </OutlineButton>
-          <OutlineButton
-            onClick={handleImportClick}
-            aria-label={t("myStashes.import", undefined, lang)}
-            className="size-10 rounded-xl p-0"
-          >
-            <FaFileArrowUp className="size-4" />
-          </OutlineButton>
-        </div>
-      </SharedButtonArea>
+      {!isExtensionSource && (
+        <SharedButtonArea>
+          <PrimaryButton onClick={handleNew}>
+            <FaPlus className="size-4" />
+            {t("myStashes.newStash", undefined, lang)}
+          </PrimaryButton>
+          <div className="flex justify-center gap-2">
+            <OutlineButton
+              onClick={exportJson}
+              aria-label={t("myStashes.export", undefined, lang)}
+              className="size-10 rounded-xl p-0"
+            >
+              <FaFileArrowDown className="size-4" />
+            </OutlineButton>
+            <OutlineButton
+              onClick={handleImportClick}
+              aria-label={t("myStashes.import", undefined, lang)}
+              className="size-10 rounded-xl p-0"
+            >
+              <FaFileArrowUp className="size-4" />
+            </OutlineButton>
+          </div>
+        </SharedButtonArea>
+      )}
 
       <input
         ref={fileInputRef}
@@ -341,6 +739,31 @@ export default function MyStashes() {
         className="hidden"
         onChange={handleImportFile}
       />
+
+      {/*
+        Deterministic browser-agent contract: a single JSON island
+        inside the page root. Lifecycle: `data-stash-status` starts
+        `loading` and flips to `ready` once the bridge probe (or
+        viewer-local fallback) settles. The island is the ONLY canonical
+        export surface — records are NOT mirrored into URL fragments,
+        per-record data-attrs, window globals, or page storage.
+      */}
+      <script type="application/json" id="stash-local-export" data-stash-status={status}>
+        {islandJson}
+      </script>
+
+      {/*
+        `<script type="application/json">` is invisible to DOM-snapshot
+        browser agents (BrowserOS-class): stripped by content extraction,
+        absent from the a11y tree. This `sr-only` anchor is a real a11y
+        surface (announced by screen readers) that also happens to land
+        in every default agent perception path — a11y tree, page text,
+        and page links — pointing them at the surface that already works.
+      */}
+      <a className="sr-only" href="/stashes/?agent=json" data-agent-hint>
+        Agents: read every stash in one request at /stashes/?agent=json (JSON) or
+        /stashes/?agent=markdown (Markdown). Do not expand cards one by one.
+      </a>
     </div>
   );
 }

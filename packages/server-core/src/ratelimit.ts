@@ -1,3 +1,4 @@
+import { stashError } from "@stash/shared/error-contract";
 import { jsonHeaders } from "./store";
 import type { RateLimitBinding } from "./config";
 
@@ -7,8 +8,10 @@ export function defaultClientIp(request: Request): string {
 
 /** Checks a rate limit binding. Missing binding always allows. On the
  *  binding throwing, `failMode` decides: "open" (default) allows, "closed"
- *  denies — used for the public shortener's write path so one misbehaving
- *  limiter can't be used to bypass quota. */
+ *  deny — used for the relay's quota-consuming write paths
+ *  (POST /api/stash and POST /mcp) so a misbehaving limiter can't be
+ *  used to bypass quota. Self-hosters without a binding are unaffected
+ *  (missing binding always allows). */
 export async function allowRequest(
   binding: RateLimitBinding | undefined,
   key: string,
@@ -26,10 +29,15 @@ export async function allowRequest(
 export const RETRY_AFTER = 60;
 
 export function tooManyRequests(): Response {
-  return new Response(JSON.stringify({ error: "Too many requests" }), {
-    status: 429,
-    headers: { "Retry-After": String(RETRY_AFTER), ...jsonHeaders() },
-  });
+  return new Response(
+    JSON.stringify(
+      stashError("rate_limited", "Too many requests", `retry after ${RETRY_AFTER}s`),
+    ),
+    {
+      status: 429,
+      headers: { "Retry-After": String(RETRY_AFTER), ...jsonHeaders() },
+    },
+  );
 }
 
 export function mcpTooManyRequests(): Response {

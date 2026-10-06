@@ -1,5 +1,11 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeAll } from "vitest";
 import { createClient, envConfig, BudgetExceededError, MAX_REQUESTS_PER_RUN } from "../harness";
+
+// The client reads OPENROUTER_API_KEY lazily inside chat(); give tests a
+// hermetic key so the suite does not depend on the box's real env.
+beforeAll(() => {
+  process.env.OPENROUTER_API_KEY ??= "test-key";
+});
 
 function okFetch(model = "fake/model") {
   return vi.fn(async () =>

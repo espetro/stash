@@ -160,7 +160,11 @@ describe("GET /s/:id", () => {
     const res = await fetchServer(`${ORIGIN}/s/${id}?format=yaml`);
     expect(res.status).toBe(400);
     expect(res.headers.get("Content-Type")).toContain("application/json");
-    expect(((await res.json()) as any).error).toMatch(/Unknown format/);
+    const body = (await res.json()) as any;
+    expect(body.error).toMatch(/Unknown format/);
+    // Contract precision: a stable code + an actionable hint the agent can follow.
+    expect(body.code).toBe("unknown_format");
+    expect(body.hint).toMatch(/format=json/);
   });
 
   it("negotiates text/plain via Accept header", async () => {
@@ -202,7 +206,37 @@ describe("GET /s/:id", () => {
     const id = await makeStash();
     const res = await fetchServer(`${ORIGIN}/s/${id}`, { redirect: "manual" });
     expect(res.status).toBe(302);
-    expect(res.headers.get("Location")).toMatch(/\/s#p=/);
+    expect(res.headers.get("Location")).toBe(`${ORIGIN}/s#p=${payloadP}`);
+  });
+
+  it("redirects to the configured viewer origin", async () => {
+    const id = await makeStash();
+    const viewerServer = createStashServer({
+      storage,
+      origin: ORIGIN,
+      viewerOrigin: "https://viewer.example",
+      getBrotli: getBrotliFunctions,
+    });
+    const res = await viewerServer.handle(new Request(`${ORIGIN}/s/${id}`, { redirect: "manual" }));
+
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toBe(`https://viewer.example/s#p=${payloadP}`);
+  });
+
+  it("lets ?v= override the configured viewer origin", async () => {
+    const id = await makeStash();
+    const viewerServer = createStashServer({
+      storage,
+      origin: ORIGIN,
+      viewerOrigin: "https://viewer.example",
+      getBrotli: getBrotliFunctions,
+    });
+    const res = await viewerServer.handle(
+      new Request(`${ORIGIN}/s/${id}?v=https://custom.example/view`, { redirect: "manual" }),
+    );
+
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toBe(`https://custom.example/view#p=${payloadP}`);
   });
 
   it("404s unknown id", async () => {
@@ -260,6 +294,107 @@ describe("maxTtl", () => {
       }),
     );
     expect(res.status).toBe(201);
+  });
+});
+
+describe("DELETE /api/stash/:id", () => {
+  it("revokes a stash before TTL expiry (204, then 404 on read)", async () => {
+    const id = await makeStash();
+    const del = await fetchServer(`${ORIGIN}/api/stash/${id}`, { method: "DELETE" });
+    expect(del.status).toBe(204);
+    const get = await fetchServer(`${ORIGIN}/s/${id}?format=json`);
+    expect(get.status).toBe(404);
+  });
+
+  it("404s on unknown id", async () => {
+    const res = await fetchServer(`${ORIGIN}/api/stash/AAAAAA`, { method: "DELETE" });
+    expect(res.status).toBe(404);
+  });
+
+  it("rejects a malformed id with 404 (no route match)", async () => {
+    const res = await fetchServer(`${ORIGIN}/api/stash/TOOLONG1`, { method: "DELETE" });
+    expect(res.status).toBe(404);
+  });
+
+  it("deleting an already-deleted stash returns 404", async () => {
+    const id = await makeStash();
+    await fetchServer(`${ORIGIN}/api/stash/${id}`, { method: "DELETE" });
+    const again = await fetchServer(`${ORIGIN}/api/stash/${id}`, { method: "DELETE" });
+    expect(again.status).toBe(404);
+  });
+
+  it("accepts a lowercase id", async () => {
+    const id = await makeStash();
+    const res = await fetchServer(`${ORIGIN}/api/stash/${id.toLowerCase()}`, { method: "DELETE" });
+    expect(res.status).toBe(204);
+  });
+});
+
+describe("defaultTtl (relay config default)", () => {
+  it("POST /api/stash falls back to the configured defaultTtl", async () => {
+    const srv = createStashServer({
+      storage: createStorage({ driver: memoryDriver() }),
+      origin: ORIGIN,
+      getBrotli: getBrotliFunctions,
+      defaultTtl: "1d",
+      maxTtl: "1d",
+    });
+    const res = await srv.handle(
+      new Request(`${ORIGIN}/api/stash`, {
+        method: "POST",
+        body: JSON.stringify({ payload: payloadP }),
+      }),
+    );
+    expect(res.status).toBe(201);
+    // default 1d is within maxTtl 1d; an explicit 7d would have been rejected
+    const body: any = await res.json();
+    const get = await srv.handle(new Request(`${ORIGIN}/s/${body.id}?format=json`));
+    expect(get.status).toBe(200);
+  });
+
+  it("an explicit ttl above maxTtl is still rejected even with a larger default", async () => {
+    const capped = createStashServer({
+      storage: createStorage({ driver: memoryDriver() }),
+      origin: ORIGIN,
+      getBrotli: getBrotliFunctions,
+      defaultTtl: "7d",
+      maxTtl: "7d",
+    });
+    const res = await capped.handle(
+      new Request(`${ORIGIN}/api/stash`, {
+        method: "POST",
+        body: JSON.stringify({ payload: payloadP, ttl: "30d" }),
+      }),
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it("the MCP ttlDays default comes from config", async () => {
+    const srv = createStashServer({
+      storage: createStorage({ driver: memoryDriver() }),
+      origin: ORIGIN,
+      getBrotli: getBrotliFunctions,
+      defaultTtl: "1d",
+    });
+    const res = await srv.handle(
+      new Request(`${ORIGIN}/mcp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json, text/event-stream",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "tools/list",
+          params: {},
+        }),
+      }),
+    );
+    const body: any = await res.json();
+    const create = body.result.tools.find((t: any) => t.name === "stash_create");
+    const schema = JSON.stringify(create.inputSchema);
+    expect(schema).toContain('"default":1');
   });
 });
 
@@ -330,7 +465,11 @@ describe("rate limiting", () => {
     const res = await postStash();
     expect(res.status).toBe(429);
     expect(res.headers.get("Retry-After")).toBe("60");
-    expect(await res.json()).toEqual({ error: "Too many requests" });
+    expect(await res.json()).toEqual({
+      error: "Too many requests",
+      code: "rate_limited",
+      hint: expect.any(String),
+    });
   });
 
   it("passes when the limiter allows", async () => {
@@ -349,7 +488,7 @@ describe("rate limiting", () => {
     expect(res.status).toBe(429);
   });
 
-  it("fails open for POST /mcp when limit() throws", async () => {
+  it("fails closed for POST /mcp when limit() throws", async () => {
     rebuildServer({
       limit: async () => {
         throw new Error("boom");
@@ -362,7 +501,39 @@ describe("rate limiting", () => {
         body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: {} }),
       }),
     );
-    expect(res.status).not.toBe(429);
+    expect(res.status).toBe(429);
+  });
+
+  it("fails closed for POST /mcp when the binding returns success: false", async () => {
+    rebuildServer(fakeLimiter(false));
+    const res = await limitedServer.handle(
+      new Request(`${ORIGIN}/mcp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: {} }),
+      }),
+    );
+    expect(res.status).toBe(429);
+  });
+
+  it("DELETE /api/stash/:id returns 429 when the limiter denies", async () => {
+    rebuildServer(fakeLimiter(false));
+    const res = await limitedServer.handle(
+      new Request(`${ORIGIN}/api/stash/AAAAAA`, { method: "DELETE" }),
+    );
+    expect(res.status).toBe(429);
+  });
+
+  it("DELETE /api/stash/:id fails closed when limit() throws", async () => {
+    rebuildServer({
+      limit: async () => {
+        throw new Error("boom");
+      },
+    });
+    const res = await limitedServer.handle(
+      new Request(`${ORIGIN}/api/stash/AAAAAA`, { method: "DELETE" }),
+    );
+    expect(res.status).toBe(429);
   });
 
   it("fails open when the binding is absent", async () => {
@@ -413,5 +584,126 @@ describe("rate limiting", () => {
     expect(limiter.getCalls()).toBe(0);
     const health = await limitedServer.handle(new Request(`${ORIGIN}/health`));
     expect(health.status).toBe(200);
+  });
+});
+
+describe("dual-mode relay (F14 zero-trust)", () => {
+  let ciphertextP: string;
+
+  beforeAll(async () => {
+    const { encryptForRelay, generateShareKey } = await import("@stash/shared");
+    ciphertextP = await encryptForRelay(payloadP, generateShareKey());
+  });
+
+  async function makeEncrypted(ttl = "30d"): Promise<{ id: string; body: any }> {
+    const res = await fetchServer(`${ORIGIN}/api/stash`, {
+      method: "POST",
+      body: JSON.stringify({ ciphertext: ciphertextP, ttl }),
+    });
+    const body: any = await res.json();
+    return { id: body.id, body };
+  }
+
+  it("accepts {ciphertext} and returns id + url without itemCount", async () => {
+    const { body } = await makeEncrypted();
+    expect(body.id).toMatch(/^[A-Z2-7]{6}$/);
+    expect(body.url).toMatch(/^https:\/\/short\.example\.com\/s\/[A-Z2-7]{6}$/);
+    expect(body.itemCount).toBeUndefined();
+  });
+
+  it("stores ciphertext opaquely (enc marker)", async () => {
+    const { id } = await makeEncrypted();
+    const raw = await storage.getItem(id);
+    const entry = typeof raw === "string" ? JSON.parse(raw) : raw;
+    expect(entry.enc).toBe(true);
+    expect(entry.p).toBe(ciphertextP);
+    expect(entry.p).not.toContain("http");
+  });
+
+  it("rejects non-base64url ciphertext with 400", async () => {
+    const res = await fetchServer(`${ORIGIN}/api/stash`, {
+      method: "POST",
+      body: JSON.stringify({ ciphertext: "not base64url!!!", ttl: "7d" }),
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it("rejects a body with both ciphertext and payload", async () => {
+    const res = await fetchServer(`${ORIGIN}/api/stash`, {
+      method: "POST",
+      body: JSON.stringify({ ciphertext: ciphertextP, payload: payloadP, ttl: "7d" }),
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it("rejects a body with neither field", async () => {
+    const res = await fetchServer(`${ORIGIN}/api/stash`, {
+      method: "POST",
+      body: JSON.stringify({ ttl: "7d" }),
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it("legacy {payload} still stores plaintext (enc unset) and returns itemCount", async () => {
+    const res = await fetchServer(`${ORIGIN}/api/stash`, {
+      method: "POST",
+      body: JSON.stringify({ payload: payloadP, ttl: "7d" }),
+    });
+    const body: any = await res.json();
+    expect(body.itemCount).toBe(3);
+    const raw = await storage.getItem(body.id);
+    const entry = typeof raw === "string" ? JSON.parse(raw) : raw;
+    expect(entry.enc).toBeUndefined();
+  });
+
+  it("?format=json on an encrypted entry returns the ciphertext envelope", async () => {
+    const { id } = await makeEncrypted();
+    const res = await fetchServer(`${ORIGIN}/s/${id}?format=json`);
+    expect(res.status).toBe(200);
+    const body: any = await res.json();
+    expect(body.ciphertext).toBe(ciphertextP);
+    expect(body.encrypted).toBe(true);
+    expect(body.items).toBeUndefined();
+  });
+
+  it("?format=md and ?format=txt fail closed 409 on encrypted entries", async () => {
+    const { id } = await makeEncrypted();
+    for (const fmt of ["md", "txt"]) {
+      const res = await fetchServer(`${ORIGIN}/s/${id}?format=${fmt}`);
+      expect(res.status).toBe(409);
+      const body = (await res.json()) as any;
+      expect(body.error).toMatch(/Encrypted/);
+      expect(body.code).toBe("encrypted_payload");
+      expect(body.hint).toMatch(/format=json/);
+    }
+  });
+
+  it("HTML on an encrypted entry redirects to viewer ?id=<id>&relay=<origin>", async () => {
+    const { id } = await makeEncrypted();
+    const res = await fetchServer(`${ORIGIN}/s/${id}`, { redirect: "manual" });
+    expect(res.status).toBe(302);
+    const loc = res.headers.get("Location")!;
+    expect(loc).toContain(`?id=${id}`);
+    expect(loc).toContain(`relay=${encodeURIComponent(ORIGIN)}`);
+    expect(loc).not.toContain(`#p=`);
+  });
+
+  it("?v= overrides the viewer origin on encrypted redirects too", async () => {
+    const { id } = await makeEncrypted();
+    const res = await fetchServer(`${ORIGIN}/s/${id}?v=${encodeURIComponent("https://v.example/s")}`, {
+      redirect: "manual",
+    });
+    const loc = res.headers.get("Location")!;
+    expect(loc).toMatch(/^https:\/\/v\.example\/s\?id=/);
+    expect(loc).toContain(`relay=${encodeURIComponent(ORIGIN)}`);
+  });
+
+  it("plaintext entries keep the legacy ?format= and #p= redirect", async () => {
+    const id = await makeStash();
+    const res = await fetchServer(`${ORIGIN}/s/${id}?format=md`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toContain("text/markdown");
+    const html = await fetchServer(`${ORIGIN}/s/${id}`, { redirect: "manual" });
+    expect(html.headers.get("Location")).toContain("#p=");
   });
 });

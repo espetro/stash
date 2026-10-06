@@ -1,0 +1,6 @@
+{
+  "manifest_version": 3,
+  "name": "lna-spike-no-perms",
+  "version": "0.0.1",
+  "background": { "service_worker": "sw.js" }
+}

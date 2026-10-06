@@ -4,19 +4,13 @@
     "features": "Fonctionnalités",
     "howItWorks": "Comment ça marche",
     "demo": "Démo",
-    "products": "Produits",
-    "solutions": "Solutions",
-    "resources": "Ressources",
-    "developers": "Développeurs",
-    "enterprise": "Entreprise",
-    "pricing": "Tarifs",
-    "contactSales": "Contacter les ventes",
     "settings": "Paramètres",
     "settings.theme": "Thème",
     "settings.language": "Langue",
     "newStash": "Nouveau stash",
     "myStashes": "Mes stashes",
-    "back": "Retour"
+    "back": "Retour",
+    "docs": "Docs"
   },
   "install": {
     "trigger": "Installer ▾",
@@ -234,6 +228,24 @@
     "deleteConfirmBody": "Cela supprimera définitivement ce stash de cet appareil.",
     "deleteConfirm": "Supprimer",
     "importSuccess": "{count} stash(s) importé(s)",
-    "importError": "Impossible d'importer le fichier"
-  }
+    "importError": "Impossible d'importer le fichier",
+    "sourceExtension": "This browser's extension library",
+    "sourceViewer": "Saved in this browser.",
+    "fromExtension": "Depuis l’extension",
+    "savedInBrowser": "Enregistrés dans ce navigateur",
+    "viewerLocalHint": "Uniquement dans ce navigateur ; non synchronisé avec l’extension.",
+    "kept": "Conservé",
+    "recent": "Récent",
+    "extensionEmpty": "Aucun stash dans la bibliothèque de l’extension.",
+    "browserEmpty": "Aucun stash enregistré dans ce navigateur.",
+    "noMatches": "Aucun stash correspondant.",
+    "readOnlyHint": "Read-only mirror of the extension library; edit stashes from the extension popup."
+  },
+  "myStashes.extensionDetected": "L'extension Stash est installée dans ce navigateur.",
+  "myStashes.openInExtension": "Ouvrir votre bibliothèque dans l'extension",
+  "myStashes.moveToExtension": "Déplacer vers la bibliothèque de l'extension",
+  "myStashes.moveToExtensionBusy": "Déplacement...",
+  "myStashes.moveToExtensionDone": "{count} stash(es) déplacé(s) — confirmez l'import dans la page Bibliothèque de l'extension.",
+  "myStashes.moveToExtensionError": "Impossible de transférer les stashes vers l'extension.",
+  "myStashes.readOnlyHint": "Miroir en lecture seule de la bibliothèque de l'extension ; modifiez les stashes depuis la page Bibliothèque de l'extension."
 }

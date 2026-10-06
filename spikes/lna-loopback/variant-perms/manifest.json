@@ -1,0 +1,7 @@
+{
+  "manifest_version": 3,
+  "name": "lna-spike-perms-only",
+  "version": "0.0.1",
+  "permissions": ["http://127.0.0.1/*"],
+  "background": { "service_worker": "sw.js" }
+}

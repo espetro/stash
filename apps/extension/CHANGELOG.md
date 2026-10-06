@@ -1,5 +1,93 @@
 # @stash/extension
 
+## 0.10.4
+
+### Patch Changes
+
+- @stash/codec@0.10.4
+- @stash/theme@0.10.4
+- @stash/shared@0.10.4
+- @stash/server-core@0.3.4
+
+## 0.10.3
+
+### Patch Changes
+
+- @stash/codec@0.10.3
+- @stash/theme@0.10.3
+- @stash/shared@0.10.3
+- @stash/server-core@0.3.3
+
+## 0.10.2
+
+### Patch Changes
+
+- @stash/codec@0.10.2
+- @stash/theme@0.10.2
+- @stash/shared@0.10.2
+- @stash/server-core@0.3.2
+
+## 0.10.1
+
+### Patch Changes
+
+- dcad132: fix(daemon,extension): make Chrome native-messaging pairing actually work
+  - daemon: detect the `chrome-extension://<id>/` spawn argument before flag
+    parsing — Chrome always launches the host with the origin as argv, and the
+    previous dispatch exited `unknown command` on every real spawn.
+  - daemon: natmsg codec now speaks the Chrome NM wire format (4-byte
+    little-endian length prefix + JSON) instead of newline-delimited JSON.
+  - extension: `postMessage` the frame object instead of its JSON string —
+    Chrome delivers strings verbatim to the host, so the daemon saw a string
+    where it expected an envelope.
+  - @stash/codec@0.10.1
+  - @stash/theme@0.10.1
+  - @stash/shared@0.10.1
+  - @stash/server-core@0.3.1
+
+## 0.10.0
+
+### Minor Changes
+
+- ffe25f4: Move the Library out of the popup into a dedicated `library.html` page.
+  The popup is now collection-only (Share / Save locally) with an "Open
+  Library" button; the new page hosts the full library — All/Kept/Recent,
+  search, inline editing, per-row Share + QR + Open-all, import/export —
+  plus a `#settings` tab carrying the old options page (`options_ui` now
+  points there). `/stashes` detects the extension via an always-on
+  presence ping and offers "Open your Library in the extension" plus a
+  one-time handoff that parks viewer-local records for a user-confirmed
+  import; while never paired, the page shows a "Not backed up: install
+  daemon or export" hint. The data bridge keeps its `localLibraryViewerEnabled`
+  gate — presence, open, and handoff work regardless.
+- 401e0ea: feat(extension,viewer): zero-trust client flip — the extension's "Shorten link" and the viewer's own short-link creation now encrypt the payload client-side (AES-256-GCM, per-share 128-bit key) and upload only ciphertext; share URLs carry the key in `#<key>` (never sent to any server). The viewer decrypts relayed `/s?id=<id>&relay=<origin>#<key>` links locally — fetching the ciphertext envelope from the minting relay (`&relay=`, http(s) origins only) — fails closed on missing key, tampered ciphertext, or expired entries. Failures fall back silently to self-contained `#p=` links.
+- 7007184: Add a profile-local browser-agent surface at `https://stash.illo.fyi/stashes`. When the new `localLibraryViewerEnabled` setting is on, a content-script bridge (`stashes-bridge.content.ts`) reads the user's extension stash library in memory and exposes it through a deterministic JSON island and `?agent=json|markdown` browser-only views for browser-class agents (ChromeClaw, NanoBrowser, BrowserOS). Fetch-only agents must continue using `/s?p=<payload>&format=json`.
+  - `@stash/shared`: new `agent-export` subpath exporting `StashExport`, `toStashExport`, `isStashExport`, `MAX_STASHES`.
+  - Extension: new `localLibraryViewerEnabled` opt-in setting (default `false`, lives in `browser.storage.sync`), a `defineContentScript` postMessage bridge gated on the setting with origin / source / schema / replay / size validation, and an `OptionsLocalLibraryForm` disclosing the sync-roaming flag and metadata exposure.
+  - Viewer: `MyStashes` probes the bridge on mount, falls back to viewer `localStorage` when the bridge is unavailable, shows a source chip and read-only hint, hides edit/delete/import/export for the extension source, filters non-`http(s)` URLs, and renders the canonical `StashExport` JSON island (`#stash-local-export`, `data-stash-status="loading"→"ready"`) plus stable `[data-stash-*]` semantic selectors. New `?agent=json` and `?agent=markdown` browser-only client-rendered views.
+  - OpenAPI / `llms.txt`: description notes calling out the new `/stashes` profile-local surface for browser agents; no `/stashes` path entry added (it is not a fetch endpoint).
+  - E2E: new `packages/e2e/specs/local-bridge.spec` covering bridge-enabled surface, bridge-disabled fallback, no-persistence, and fetch-only baseline.
+
+### Patch Changes
+
+- 73d01c5: Make the daemon the durable stash store: `stash_records` now holds the full
+  record shape (tags, note, kept, shares, unknown-field round-trip) behind a
+  monotonic `rev` feed, and bidirectional extension sync applies record-level
+  last-writer-wins with tombstones so deletes can't be resurrected by a stale
+  re-seed. The daemon pushes changes it sees elsewhere back to the extension
+  and restores the whole library into new or wiped profiles; the extension
+  materializes pushes under the same LWW rule and gains `unlimitedStorage` so
+  `storage.local` stays a viable fallback.
+- Updated dependencies [e3a02fb]
+- Updated dependencies [b635f89]
+- Updated dependencies [5f44887]
+- Updated dependencies [524f935]
+- Updated dependencies [7007184]
+  - @stash/shared@0.10.0
+  - @stash/server-core@0.3.0
+  - @stash/codec@0.10.0
+  - @stash/theme@0.10.0
+
 ## 0.9.0
 
 ### Minor Changes

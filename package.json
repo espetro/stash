@@ -3,7 +3,8 @@
   "private": true,
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "daemon"
   ],
   "version": "0.5.0",
   "scripts": {
@@ -15,7 +16,10 @@
     "format": "turbo run format",
     "validate": "tsx scripts/validate.ts",
     "screenshots": "tsx scripts/generate-screenshots.ts",
-    "eval:agents": "pnpm --filter @stash/evals run eval"
+    "eval:agents": "pnpm --filter @stash/evals run eval",
+    "daemon:test": "go -C daemon test ./... -race",
+    "daemon:conformance": "go -C daemon test ./internal/conformance/ -race",
+    "daemon:build": "go -C daemon build -o /tmp/stash-daemon ./cmd/stash-daemon"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",

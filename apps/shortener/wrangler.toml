@@ -2,6 +2,9 @@ name = "stash-shortener"
 main = "src/index.ts"
 compatibility_date = "2026-08-01"
 
+[vars]
+VIEWER_ORIGIN = "https://stash.illo.fyi"
+
 # Bind the KV namespace before deploying:
 #   wrangler kv namespace create STASH_KV
 #   wrangler kv namespace create STASH_KV --preview

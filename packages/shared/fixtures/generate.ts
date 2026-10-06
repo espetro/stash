@@ -30,6 +30,7 @@ import {
   createPayload,
   encodePayloadToUrl,
   decodeShareUrl,
+  EXPIRY_HOURS_MAP,
 } from "@stash/codec";
 
 // See e2e's encoder-helper.ts for the same trick. brotli-wasm's ESM
@@ -127,7 +128,7 @@ async function enc(
   const result = await encodeTabsToShareUrl(
     tabs,
     brotli,
-    24,
+    EXPIRY_HOURS_MAP.never,
     VIEWER_ORIGIN,
     options.title,
     options.tags,
@@ -179,7 +180,7 @@ async function generatePayloadFixtures(): Promise<PayloadFixture[]> {
   // QR-optimized #q= fragments (base32, D/S prefixed). The hash of
   // the qrUrl is the fragment the viewer understands.
   {
-    const single = await encodeTabsToQrUrl(SINGLE_TAB, brotli, 24, VIEWER_ORIGIN);
+    const single = await encodeTabsToQrUrl(SINGLE_TAB, brotli, EXPIRY_HOURS_MAP.never, VIEWER_ORIGIN);
     out.push({
       name: "qr-single-tab",
       description: "One tab encoded for QR (#q= base32 fragment)",
@@ -187,7 +188,7 @@ async function generatePayloadFixtures(): Promise<PayloadFixture[]> {
       itemCount: single.itemCount,
       items: SINGLE_TAB,
     });
-    const three = await encodeTabsToQrUrl(THREE_TABS, brotli, 24, VIEWER_ORIGIN);
+    const three = await encodeTabsToQrUrl(THREE_TABS, brotli, EXPIRY_HOURS_MAP.never, VIEWER_ORIGIN);
     out.push({
       name: "qr-three-tabs",
       description: "Three tabs encoded for QR (#q= base32 fragment)",

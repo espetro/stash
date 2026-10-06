@@ -2,6 +2,7 @@ import { decodeEncodedPayload, PayloadDecodeError } from "@stash/codec";
 import {
   createStash,
   getStash,
+  removeItem,
   isServerTtl,
   isExpired,
   cacheControlFor,
@@ -18,6 +19,7 @@ import {
   classifyOrigin,
   ttlBucketFor,
   isBeaconEvent,
+  BEACON_EVENTS,
   type TelemetryRoute,
   type TtlBucket,
 } from "./telemetry";
@@ -26,10 +28,17 @@ import {
   isValidFormatParam,
   type NegotiatedFormat,
 } from "@stash/shared/negotiation";
+import { stashError, type StashErrorCode } from "@stash/shared/error-contract";
 import type { StashServerDeps } from "./config";
 
-function errorResponse(status: number, message: string, extra: Record<string, string> = {}) {
-  return new Response(JSON.stringify({ error: message }), {
+function errorResponse(
+  status: number,
+  code: StashErrorCode,
+  message: string,
+  hint?: string,
+  extra: Record<string, string> = {},
+) {
+  return new Response(JSON.stringify(stashError(code, message, hint)), {
     status,
     headers: jsonHeaders(extra),
   });
@@ -81,17 +90,26 @@ async function routeRequest(
     try {
       body = await request.json();
     } catch {
-      return errorResponse(400, "Invalid JSON body");
+      return errorResponse(400, "invalid_json", "Request body is not valid JSON");
     }
     if (!isBeaconEvent(body.event) || (body.surface !== "extension" && body.surface !== "web")) {
-      return errorResponse(400, "Invalid beacon event");
+      return errorResponse(
+        400,
+        "invalid_beacon",
+        "Invalid beacon event",
+        `expected {event: one of ${BEACON_EVENTS.join("|")}, surface: "extension"|"web"}`,
+      );
     }
     meta.beaconEvent = body.event;
     meta.surface = body.surface;
     return new Response(null, { status: 204, headers: cors });
   }
 
-  // POST /api/stash  { payload, ttl } -> { id, url }
+  // POST /api/stash  { ciphertext, ttl } | { payload, ttl } -> { id, url }
+  // Dual-mode relay (F14): `ciphertext` stores a client-encrypted blob
+  // (zero-trust: the server never sees plaintext or keys); `payload` keeps
+  // the legacy contract — a decodable plaintext payload, validated and
+  // stored readable so agent flows (?format=, MCP read-back) keep working.
   if (url.pathname === "/api/stash" && request.method === "POST") {
     meta.route = "api_stash";
     const limiter = deps.rateLimiter;
@@ -101,54 +119,91 @@ async function routeRequest(
     ) {
       return tooManyRequests();
     }
-    let body: { payload?: string; ttl?: string };
+    let body: { ciphertext?: string; payload?: string; ttl?: string };
     try {
       body = await request.json();
     } catch {
-      return errorResponse(400, "Invalid JSON body");
+      return errorResponse(400, "invalid_json", "Request body is not valid JSON");
     }
 
-    const payload = body.payload;
-    if (typeof payload !== "string" || payload.length === 0) {
-      return errorResponse(400, "Missing required field: payload");
+    const hasCiphertext = typeof body.ciphertext === "string" && body.ciphertext.length > 0;
+    const hasPayload = typeof body.payload === "string" && body.payload.length > 0;
+    if (!hasCiphertext && !hasPayload) {
+      return errorResponse(
+        400,
+        "missing_field",
+        "Missing required field: ciphertext or payload",
+        'send {"payload": "<encoded>", "ttl?": "1d|7d|14d|30d"} for a plaintext stash, or {"ciphertext": "<base64url>"} for a client-encrypted one',
+      );
     }
-    if (payload.length > MAX_PAYLOAD_CHARS) {
-      return errorResponse(413, `Payload exceeds ${MAX_PAYLOAD_CHARS} chars`);
-    }
-    if (payload[0] !== "C" && payload[0] !== "R" && payload[0] !== "D" && payload[0] !== "S") {
-      return errorResponse(400, "Unknown payload prefix");
+    if (hasCiphertext && hasPayload) {
+      return errorResponse(
+        400,
+        "conflicting_fields",
+        "Pass ciphertext OR payload, not both",
+      );
     }
 
-    const ttl = body.ttl ?? "7d";
+    const blob = (body.ciphertext ?? body.payload) as string;
+    if (blob.length > MAX_PAYLOAD_CHARS) {
+      return errorResponse(
+        413,
+        "payload_too_large",
+        `Payload exceeds ${MAX_PAYLOAD_CHARS} chars`,
+      );
+    }
+
+    // Validate per mode: ciphertext is opaque (base64url only); payload
+    // must carry a known prefix and decode.
+    if (hasCiphertext && !/^[A-Za-z0-9_-]+$/.test(blob)) {
+      return errorResponse(400, "invalid_ciphertext", "Ciphertext must be a base64url string");
+    }
+    let decoded;
+    if (hasPayload) {
+      if (blob[0] !== "C" && blob[0] !== "R" && blob[0] !== "D" && blob[0] !== "S") {
+        return errorResponse(
+          400,
+          "unknown_prefix",
+          "Unknown payload prefix",
+          "payload must start with C, R, D or S — take it from a share URL's #p= fragment or POST {ciphertext} for opaque client-encrypted data",
+        );
+      }
+      try {
+        const brotli = await deps.getBrotli();
+        decoded = await decodeEncodedPayload(blob, brotli);
+      } catch (error) {
+        if (error instanceof PayloadDecodeError) {
+          return errorResponse(400, "invalid_payload", "Invalid payload: " + error.message);
+        }
+        throw error;
+      }
+    }
+
+    const ttl = body.ttl ?? deps.defaultTtl;
     if (!isServerTtl(ttl)) {
-      return errorResponse(400, "ttl must be one of 1d, 7d, 14d, 30d");
+      return errorResponse(400, "invalid_ttl", 'ttl must be one of "1d", "7d", "14d", "30d"');
     }
     meta.ttlBucket = ttlBucketFor(ttl);
     if (deps.maxTtl && SERVER_TTL_HOURS[ttl] > SERVER_TTL_HOURS[deps.maxTtl]) {
-      return errorResponse(400, `ttl exceeds maximum allowed (${deps.maxTtl})`);
-    }
-
-    // Validate the payload decodes before storing
-    let decoded;
-    try {
-      const brotli = await deps.getBrotli();
-      decoded = await decodeEncodedPayload(payload, brotli);
-    } catch (error) {
-      if (error instanceof PayloadDecodeError) {
-        return errorResponse(400, "Invalid payload: " + error.message);
-      }
-      throw error;
+      return errorResponse(
+        400,
+        "ttl_exceeded",
+        `ttl exceeds maximum allowed (${deps.maxTtl})`,
+        `this relay caps ttl at ${deps.maxTtl}; retry with a smaller value`,
+      );
     }
 
     try {
-      const { id, entry } = await createStash(deps.storage, payload, ttl);
+      const { id, entry } = await createStash(deps.storage, blob, ttl, {
+        encrypted: hasCiphertext,
+      });
       return new Response(
         JSON.stringify(
           {
             id,
             url: `${deps.origin}/s/${id}`,
             expiry: entry.e,
-            itemCount: decoded.items.length,
+            ...(decoded ? { itemCount: decoded.items.length } : {}),
           },
           null,
           2,
@@ -157,19 +212,47 @@ async function routeRequest(
       );
     } catch (e) {
       if (e instanceof Error && e.message === "id-collision") {
-        return errorResponse(503, "Could not allocate id, retry");
+        return errorResponse(503, "id_collision", "Could not allocate id", "retry the request");
       }
       throw e;
     }
   }
 
-  // GET /s/:id — content negotiation via ?format= then Accept header.
+  // DELETE /api/stash/:id -> 204 (revokes a short link before TTL expiry).
+  // No auth in v1: the id is a 6-char unguessable base32 secret; abuse is
+  // bounded by the rate limiter. See the relay README.
+  const deleteMatch = url.pathname.match(/^\/api\/stash\/([A-Za-z2-7]{6})\/?$/);
+  if (deleteMatch && request.method === "DELETE") {
+    meta.route = "api_stash_delete";
+    const limiter = deps.rateLimiter;
+    if (
+      limiter &&
+      !(await allowRequest(limiter.stash, (limiter.clientIp ?? defaultClientIp)(request), "closed"))
+    ) {
+      return tooManyRequests();
+    }
+    const id = deleteMatch[1].toUpperCase();
+    if (!(await deps.storage.hasItem(id))) return errorResponse(404, "not_found", "Not found");
+    await removeItem(deps.storage, id);
+    return new Response(null, { status: 204, headers: cors });
+  }
+
+  // GET /s/:id — content negotiation via ?format= then Accept header,
+  // gated on entry.enc (F14 dual-mode):
+  //  - plaintext entries (legacy + agent-created): decode and serve
+  //    md/txt/json; HTML redirects with the payload inline as before.
+  //  - encrypted entries (zero-trust client uploads): ?format=json returns
+  //    the ciphertext envelope, md/txt fail closed 409, and HTML redirects
+  //    to the viewer with ?id=<id>&relay=<origin> — the viewer fetches the
+  //    ciphertext from the minting relay and decrypts with the fragment
+  //    key, which never reaches any server.
   // The legacy .json|.md|.txt suffix routes are deprecated for one
   // release: they 301-redirect to /s/:id?format=<fmt>.
   const match = url.pathname.match(/^\/s\/([A-Za-z2-7]{6})(\.(json|md|txt))?\/?$/);
   if (match && request.method === "GET") {
     const id = match[1].toUpperCase();
-    if (!ID_RE.test(id)) return errorResponse(400, "Invalid id");
+    if (!ID_RE.test(id))
+      return errorResponse(400, "invalid_id", "Invalid id", "expected a 6-character base32 id");
 
     if (match[2]) {
       const suffix = match[2].slice(1) as NegotiatedFormat;
@@ -183,19 +266,57 @@ async function routeRequest(
     if (formatParam !== null && formatParam !== "" && !isValidFormatParam(formatParam)) {
       return errorResponse(
         400,
-        `Unknown format "${formatParam}"; supported: json, md, markdown, txt, plain, text`,
+        "unknown_format",
+        `Unknown format "${formatParam}"`,
+        "supported: json, md, markdown, txt, plain, text — e.g. /s/<id>?format=json, or send Accept: application/json",
       );
     }
     const format = negotiateFormat(request.headers.get("Accept"), formatParam);
 
     const entry = await getStash(deps.storage, id);
-    if (!entry) return errorResponse(404, "Not found or expired");
-    if (isExpired(entry)) return errorResponse(410, "Stash expired");
+    if (!entry) return errorResponse(404, "not_found", "Not found or expired");
+    if (isExpired(entry))
+      return errorResponse(410, "expired", "Stash expired", "short links are temporary; ask the owner to re-share");
+
+    const cache = cacheControlFor(entry);
+    const baseHeaders = { "Cache-Control": cache, ...cors };
+
+    if (entry.enc) {
+      if (format === "json") {
+        meta.route = "s_view_json";
+        return new Response(
+          JSON.stringify({ id, ciphertext: entry.p, expiry: entry.e, encrypted: true }, null, 2),
+          { status: 200, headers: jsonHeaders(baseHeaders) },
+        );
+      }
+      if (format === "md" || format === "txt") {
+        meta.route = format === "md" ? "s_view_md" : "s_view_txt";
+        // Fail closed: the payload is client-encrypted; md/txt rendering
+        // would require the fragment key, which never reaches the server.
+        return errorResponse(
+          409,
+          "encrypted_payload",
+          "Encrypted stash: plaintext formats require the link fragment",
+          "GET ?format=json returns {id, ciphertext, expiry, encrypted} — decrypt locally with the AES-256-GCM key from the share URL's #<key> fragment",
+        );
+      }
+      // HTML: hand the viewer the id + minting relay; the caller's URL
+      // fragment (the key) is preserved across redirects by the browser.
+      meta.route = "s_view_html";
+      const viewer = url.searchParams.get("v") ?? `${deps.viewerOrigin}/s`;
+      const relay = encodeURIComponent(deps.origin);
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: `${viewer}?id=${id}&relay=${relay}`,
+          Link: `<${deps.origin}/s/${id}?format=json>; rel="alternate"; type="application/json"`,
+          ...cors,
+        },
+      });
+    }
 
     const brotli = await deps.getBrotli();
     const decoded = await decodeEncodedPayload(entry.p, brotli);
-    const cache = cacheControlFor(entry);
-    const baseHeaders = { "Cache-Control": cache, ...cors };
 
     if (format === "md") {
       meta.route = "s_view_md";
@@ -220,8 +341,15 @@ async function routeRequest(
     }
     // HTML: redirect into the viewer SPA with the payload inline (stateless render)
     meta.route = "s_view_html";
-    const viewer = url.searchParams.get("v") ?? `${deps.origin}/s`;
-    return Response.redirect(`${viewer}#p=${entry.p}`, 302);
+    const viewer = url.searchParams.get("v") ?? `${deps.viewerOrigin}/s`;
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: `${viewer}#p=${entry.p}`,
+        Link: `<${deps.origin}/s/${id}?format=json>; rel="alternate"; type="application/json"`,
+        ...cors,
+      },
+    });
   }
 
   // MCP: stateless Streamable-HTTP server
@@ -231,7 +359,10 @@ async function routeRequest(
     if (
       request.method === "POST" &&
       limiter &&
-      !(await allowRequest(limiter.mcp, (limiter.clientIp ?? defaultClientIp)(request)))
+      // Fail-closed (§12.2): /mcp is a quota-consuming write path on the
+      // hosted relay, so a degraded RateLimit binding blocks writes
+      // instead of admitting them. Missing binding still allows.
+      !(await allowRequest(limiter.mcp, (limiter.clientIp ?? defaultClientIp)(request), "closed"))
     ) {
       return mcpTooManyRequests();
     }
@@ -250,5 +381,5 @@ async function routeRequest(
     return new Response(JSON.stringify({ ok: true }), { headers: jsonHeaders() });
   }
 
-  return errorResponse(404, "Not found");
+  return errorResponse(404, "not_found", "Not found");
 }

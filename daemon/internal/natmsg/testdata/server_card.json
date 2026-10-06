@@ -1,0 +1,1 @@
+{"type":"serverCard","correlationId":"ext-abc12345","payload":{"protocolVersion":"1.0.0","supportedRange":">=1.0.0 <2.0.0","server":{"name":"stashd","version":"0.1.0"}}}

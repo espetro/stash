@@ -1,11 +1,25 @@
 import { z } from "zod";
 import type { StashRecord } from "./stash-store";
 
-const STASH_EXPORT_VERSION = 1;
+/**
+ * Export format version (F8 bumped 1 → 2 in lockstep with the `shares[]`
+ * field on `StashRecord`). v2 optionally carries kept and shortUrl metadata;
+ * v1 payloads still import via the shim in `parseStashesImport`.
+ */
+const STASH_EXPORT_VERSION = 2;
 
 const stashItemSchema = z.object({
   url: z.string(),
   title: z.string(),
+});
+
+const shareEventSchema = z.object({
+  url: z.string(),
+  shortUrl: z.string().optional(),
+  itemCount: z.number(),
+  truncated: z.boolean(),
+  createdAt: z.number(),
+  expiresAt: z.number(),
 });
 
 const stashRecordSchema = z.object({
@@ -14,6 +28,8 @@ const stashRecordSchema = z.object({
   tags: z.array(z.string()),
   note: z.string().optional(),
   items: z.array(stashItemSchema),
+  shares: z.array(shareEventSchema).optional(),
+  kept: z.boolean().optional(),
   createdAt: z.number(),
   updatedAt: z.number(),
 });
@@ -21,6 +37,11 @@ const stashRecordSchema = z.object({
 const stashExportSchema = z.object({
   version: z.literal(STASH_EXPORT_VERSION),
   stashes: z.array(stashRecordSchema),
+});
+
+/** v1 payloads differ from v2 only by the absent `shares[]` field. */
+const stashExportV1Schema = stashExportSchema.extend({
+  version: z.literal(1),
 });
 
 export interface StashExport {
@@ -41,9 +62,21 @@ export function parseStashesImport(json: string): StashRecord[] {
     throw new Error("Invalid JSON");
   }
 
-  const result = stashExportSchema.safeParse(parsed);
+  let result = stashExportSchema.safeParse(parsed);
   if (!result.success) {
-    throw new Error("Not a valid stash export file");
+    // v1 → v2 shim (F8): pre F8 exports carry no `shares[]`, so upgrading is
+    // leaving the field absent. Records are still fully revalidated.
+    const v1 = stashExportV1Schema.safeParse(parsed);
+    if (!v1.success) {
+      throw new Error("Not a valid stash export file");
+    }
+    result = stashExportSchema.safeParse({
+      version: STASH_EXPORT_VERSION,
+      stashes: v1.data.stashes,
+    });
+    if (!result.success) {
+      throw new Error("Not a valid stash export file");
+    }
   }
 
   return result.data.stashes;

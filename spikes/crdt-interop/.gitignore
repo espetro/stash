@@ -1,0 +1,5 @@
+bin-darwin-arm64
+bin-linux-amd64
+data/*.bin
+data/*.json
+node_modules/

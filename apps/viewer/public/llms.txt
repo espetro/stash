@@ -34,15 +34,64 @@ host `https://s.illo.fyi`:
 - `GET /s/<id>?format=json|md|txt` (explicit fallback; same precedence
   rules as the viewer)
 - Without negotiation, `GET /s/<id>` 302-redirects to the interactive
-  viewer with the payload inline
+  viewer (plaintext entries carry the payload inline; encrypted
+  entries carry `?id=<id>&relay=<origin>` — see below)
 - An unknown `format` value returns `400` JSON
 - Legacy suffix routes `GET /s/<id>.json`, `/s/<id>.md`, `/s/<id>.txt`
   still resolve but now 301-redirect to the `?format=` form; they will
   be removed in a future release
 
-`<id>` is a 6-character base32 id (e.g. `AHK7QY`). The same three
-output formats (JSON, Markdown, plain URL list) are available as on
-the viewer.
+`<id>` is a 6-character base32 id (e.g. `AHK7QY`).
+
+#### Encrypted (zero-trust) entries
+
+Short links minted by the extension/viewer (since v2.x) are encrypted
+client-side before upload: the relay stores only ciphertext, and the
+AES-256-GCM key travels in the URL fragment (`https://s.illo.fyi/s/<id>#<key>`).
+The fragment never reaches any server, so `?format=md` and `?format=txt`
+cannot be produced server-side for these entries.
+
+For an encrypted entry:
+
+- `GET /s/<id>?format=json` returns the ciphertext envelope:
+  `{ "id": "<id>", "ciphertext": "<base64url>", "expiry": <unix ms>, "encrypted": true }`
+- `?format=md` and `?format=txt` return `409` JSON
+- `stash_get` (MCP) returns `{ "error": "encrypted" }`
+
+To read an encrypted entry, decrypt client-side: base64url-decode the
+`#<key>` fragment (32 bytes) and the `ciphertext` field, then AES-256-GCM
+decrypt `ciphertext` (layout: `IV(12B) || ciphertext+tag(16B)`) with that
+key. The plaintext is the same `C`/`R`/`D`/`S` payload string described
+above — decode it with the same codec. If you cannot run AES-GCM, ask the
+link's owner for a self-contained `#p=` link instead.
+
+Worked example (WebCrypto), given `url = "https://s.illo.fyi/s/<id>#<key>"`:
+
+```js
+const u = new URL(url);
+const id = u.pathname.split("/").pop();
+const b64u = (s) =>
+  Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) =>
+    c.charCodeAt(0),
+  );
+const env = await (
+  await fetch(`${u.origin}/s/${id}?format=json`)
+).json(); // { ciphertext, ... }
+const raw = b64u(env.ciphertext);
+const plain = await crypto.subtle.decrypt(
+  { name: "AES-GCM", iv: raw.slice(0, 12) },
+  await crypto.subtle.importKey("raw", b64u(u.hash.slice(1)), "AES-GCM", false, [
+    "decrypt",
+  ]),
+  raw.slice(12),
+);
+const payload = new TextDecoder().decode(plain); // the p-style payload string
+// server-side decode on the VIEWER origin (the host serving this llms.txt —
+// NOT the short-link host): GET /s?p=<payload>&format=json
+```
+
+Plaintext entries (created via `POST /api/stash {"payload": ...}` or
+`stash_create`) decode in all three formats exactly as before.
 
 ## Worked example: URL → JSON → MD
 
@@ -73,20 +122,57 @@ negotiation, plus `text/plain`.
 
 ## Notes for agents
 
-- **All programmatic reads go through `GET /s?p=<payload>`.** Prefer the
+- **All programmatic reads go through `GET /s?p=<payload>`** (payload
+  links) or `GET /s/<id>?format=json` (short links). Prefer the
   `Accept` header negotiation; `?format=` is a fallback when headers cannot
   be set. Output is identical data across formats.
+- A short link whose URL ends in `#<key>` is a zero-trust entry: the
+  relay cannot decode it. Fetch `?format=json`, decrypt with the
+  fragment key (see "Encrypted (zero-trust) entries"), or request a
+  `#p=` link.
+- `POST /api/stash` accepts `{ "payload", "ttl" }` (stored readable —
+  all formats work) or `{ "ciphertext", "ttl" }` (stored opaque — only
+  the JSON envelope is retrievable).
 - Responses are cached until the payload's expiry timestamp.
 - Expired stashes still decode (check `isExpired` in JSON output).
 - A 400 means the payload string was malformed or truncated, or the
   `format` parameter value was unknown; re-copy the full payload from
-  the share URL or use `format=json|md|txt`.
+  the share URL or use `format=json|md|txt`. A 409 means the entry is
+  encrypted — use `format=json`.
 - Rate limit: ~30 requests/minute per IP, HTTP 429 with `Retry-After: 60`.
+
+## Error contract
+
+Every JSON error body is `{ "error": <message>, "code": <token>, "hint": <recovery> }`.
+Switch on `code` — it is stable — and follow `hint` to recover. Codes:
+
+| code | meaning | recovery |
+|---|---|---|
+| `invalid_json` | request body was not JSON | send a JSON object |
+| `missing_field` | POST /api/stash lacks `payload`/`ciphertext` | send `{"payload": "<encoded>"}` or `{"ciphertext": "<base64url>"}` |
+| `conflicting_fields` | both `payload` and `ciphertext` sent | send exactly one |
+| `payload_too_large` | payload exceeds the size cap | shrink the stash |
+| `invalid_ciphertext` | ciphertext not base64url | base64url-encode the blob |
+| `unknown_prefix` | payload doesn't start with C/R/D/S | pass the raw `#p=` fragment value |
+| `invalid_payload` | payload string malformed or truncated | re-copy the full value after `#p=` in the share URL |
+| `invalid_ttl` | ttl not one of `1d\|7d\|14d\|30d` | use a documented ttl |
+| `ttl_exceeded` | ttl above this relay's cap | retry with a smaller ttl |
+| `id_collision` | relay could not allocate an id | retry the request |
+| `invalid_id` | short id not 6-char base32 | use the id after `/s/` in the share URL |
+| `unknown_format` | `?format=` value unsupported | use `format=json\|md\|txt`, or `Accept: application/json` |
+| `not_found` | no such id/entry | check the id; the link may have been revoked |
+| `expired` | entry outlived its TTL | ask the owner to re-share |
+| `encrypted_payload` | zero-trust entry; server cannot decode | fetch `?format=json` for the ciphertext envelope and decrypt with the `#<key>` fragment, or request a `#p=` link |
+| `rate_limited` | quota exceeded | wait `Retry-After` seconds |
+| `internal` | server-side failure | retry; report if persistent |
+
+MCP tools return the same contract inside their JSON result (`isError: true`),
+e.g. `stash_get` on a zero-trust entry yields `{"error": "encrypted", "code": "encrypted_payload", "hint": "..."}`.
 
 ## MCP
 
 - MCP server (Streamable-HTTP, stateless): `https://s.illo.fyi/mcp`
-- Tools: `stash_create` (urls -> short link), `stash_get` (id -> items), `stash_decode` (payload -> items)
+- Tools: `stash_create` (urls -> plaintext short link), `stash_get` (id -> items; returns `{error: "encrypted"}` for zero-trust entries), `stash_decode` (payload -> items)
 - Discovery card: `https://s.illo.fyi/.well-known/mcp-server-card`
 - Short links live on the same host: `https://s.illo.fyi/s/<id>`
 - Rate limit: ~20 creates/min per IP on `/api/stash`, ~60 req/min on `/mcp`; HTTP 429 with `Retry-After: 60`.
@@ -101,7 +187,68 @@ with eight tools (`stash_snapshot_tabs`, `stash_list`, `stash_get`,
 `stash_decode`). See the extension package (`apps/extension/lib/mcp/`)
 for wiring details.
 
+## Profile-local browser-agent surface (`/stashes`)
+
+`https://stash.illo.fyi/stashes/` is a **profile-local** surface for
+browser-class agents that run inside the user's browser profile
+(ChromeClaw, NanoBrowser, BrowserOS). It is NOT a fetch endpoint. Use
+the trailing-slash form (`/stashes/`) directly — `/stashes` without the
+slash 308-redirects to it, costing an extra round trip.
+
+- The page is client-rendered (`client:only="react"`) — a plain
+  `curl`/`page.request.get` returns an empty Astro shell and **no
+  stashes**.
+- **Read all stashes in one shot at `/stashes/?agent=json` (or
+  `?agent=markdown`).** Open that URL, wait for `data-stash-status="ready"`
+  on `<pre id="agent-export">` (JSON, the canonical `StashExport` shape)
+  or `<pre id="agent-export-md">` (Markdown, per `/s` conventions), and
+  read its text content. This is the surface that works for DOM-snapshot
+  browser agents (BrowserOS-class): it is plain visible text, present in
+  the accessibility tree and in any DOM-to-text extraction. **Do not**
+  click into individual stash cards to enumerate them — expensive and
+  unnecessary, the `?agent=` views already return everything.
+- The normal view (no `?agent=` query) also embeds a
+  `<script type="application/json" id="stash-local-export"
+  data-stash-status="ready">{ "version": 1, "source": "extension",
+  "stashes": [...] }</script>` island, but **`<script>` elements are
+  invisible to default DOM-snapshot/DOM-to-text tools** in common
+  browser-agent runtimes — they get stripped before the agent ever sees
+  them. Only tools that read raw HTML (`evaluate_script`, `get_dom`, or
+  a Playwright/CDP-driven `page.content()`) can reach it. If your runtime
+  only offers a DOM snapshot or extracted page text, use `?agent=json`
+  instead — do not rely on this island.
+- Unlike the island, which mirrors only the browser-extension library,
+  `?agent=json` and `?agent=markdown` serialize everything the signed-in
+  profile can see on the page — on a viewer-local-only profile (no
+  extension bridge) they return real rows while the island still reports
+  `stashes: []`. They always return the same record set as each other.
+
+The rendered list items in the normal view
+(`[data-stash-record-id="..."]`, `[data-stash-title]`) are for human
+display only: cards render collapsed by default and per-item data only
+appears in the DOM once a card is expanded, so agents polling those
+selectors at load time will find nothing. Do not rely on them — use
+`?agent=json`/`?agent=markdown`.
+
+Stable semantic selectors for browser agents:
+
+- `[data-stash-root]`, `[data-stash-list]` (presence/structure only,
+  not a data source)
+- `#agent-export`, `#agent-export-md` (JSON/markdown `?agent=` views —
+  the recommended read path; lifecycle via their own
+  `data-stash-status="loading"|"ready"` attribute)
+- `#stash-local-export` (JSON island, normal view; readable only via
+  `evaluate_script`/`get_dom`/a Playwright-style `page.content()` — not
+  by DOM-snapshot or extracted-text tools; lifecycle via its own
+  `data-stash-status="loading"|"ready"` attribute)
+
+This surface is gated on the extension being installed **and** the user
+having opted in via `Settings → Local Library Bridge`. Fetch-only agents
+must use `/s?p=<payload>&format=json` instead — that endpoint is the
+universal baseline and works without the extension.
+
 ## Docs
 
+- Agent runtime compatibility matrix (per-runtime verification status and manual POC script): `.agents/docs/agent-runtime-matrix.md`
 - Human docs: https://stash.illo.fyi/docs
 - OpenAPI spec: https://stash.illo.fyi/api/openapi.json

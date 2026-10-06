@@ -1,0 +1,8 @@
+{
+  "name": "crdt-interop-spike-ts",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@automerge/automerge": "^2.2.9"
+  }
+}

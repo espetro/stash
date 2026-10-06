@@ -5,6 +5,7 @@ import {
   searchStashes,
   updateStash,
   deleteStash,
+  clearStashes,
   exportStashes,
   importStashes,
 } from "@/lib/stash-store";
@@ -71,5 +72,10 @@ export function useStashLibrary() {
     [refresh],
   );
 
-  return { query, setQuery, records, rename, remove, exportJson, importJson };
+  const clearAll = useCallback(() => {
+    clearStashes();
+    refresh();
+  }, [refresh]);
+
+  return { query, setQuery, records, rename, remove, exportJson, importJson, clearAll };
 }

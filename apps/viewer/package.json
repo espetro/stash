@@ -1,6 +1,6 @@
 {
   "name": "stash-viewer",
-  "version": "0.9.0",
+  "version": "0.10.4",
   "private": true,
   "description": "Stash viewer site",
   "type": "module",
@@ -15,7 +15,7 @@
     "lint": "oxlint src --ignore-pattern '**/*.d.ts'",
     "tscheck": "astro sync && tsc --noEmit",
     "test": "vitest run",
-    "test:dist": "vitest run src/__tests__/dist-alternates.test.ts"
+    "test:dist": "vitest run --config vitest.dist.config.ts src/__tests__/dist-alternates.test.ts"
   },
   "dependencies": {
     "@astrojs/react": "^5.0.4",

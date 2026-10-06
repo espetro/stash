@@ -264,6 +264,18 @@ body {
   margin-top: 16px;
 }
 
+.link-keep {
+  margin-top: 8px;
+}
+
+.link-keep .btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
 /* Hint line under the URL */
 .link-hint {
   font-size: 0.75rem;
@@ -699,6 +711,43 @@ body {
   min-height: 100%;
 }
 
+/* Sync status surface (F5.W4) — persistent status line, never a modal */
+.sync-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  border-radius: var(--radius);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.sync-status code {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.7rem;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--muted);
+}
+
+.sync-status-offline {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.sync-status-pending {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.sync-status-error {
+  background: var(--destructive-muted, rgba(220, 38, 38, 0.12));
+  color: var(--destructive, #dc2626);
+}
+
+
 .stash-header {
   display: flex;
   align-items: center;
@@ -761,6 +810,30 @@ body {
   color: var(--foreground);
 }
 
+.library-filters {
+  display: flex;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.library-filter {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  padding: 6px 8px;
+  background: var(--card);
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.library-filter-active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
 .stash-list {
   max-height: 420px;
   overflow-y: auto;
@@ -815,6 +888,48 @@ body {
 .stash-item-meta {
   font-size: 0.75rem;
   color: var(--muted-foreground);
+}
+
+.stash-state-badge {
+  align-self: flex-start;
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.stash-recent-badge {
+  background: var(--secondary);
+  color: var(--secondary-foreground, var(--foreground));
+}
+
+.stash-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.stash-row-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
+  background: var(--card);
+  color: var(--foreground);
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.stash-row-action:hover {
+  background: var(--muted);
+}
+
+.stash-row-action:disabled {
+  cursor: wait;
+  opacity: 0.7;
 }
 
 .stash-tags {
@@ -968,4 +1083,39 @@ body {
 
 .stash-item-link:hover {
   text-decoration: underline;
+}
+
+/* F8: per-record share history affordance */
+.stash-shares-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.stash-shares-toggle:hover {
+  color: var(--foreground);
+}
+
+.stash-shares-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stash-share {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stash-share-meta {
+  font-size: 0.7rem;
+  color: var(--muted-foreground);
 }

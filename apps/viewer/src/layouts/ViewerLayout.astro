@@ -1,5 +1,6 @@
 ---
 import { LocaleProvider } from "@/components/LocaleProvider";
+import { validateViewerOrigin } from "@stash/shared";
 
 interface Props {
   title: string;
@@ -7,6 +8,16 @@ interface Props {
 const { title } = Astro.props;
 const posthogKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
 const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST ?? 'https://eu.posthog.com';
+// F12: the daemon-embedded build makes zero network requests, so PostHog
+// and Google Fonts are compiled out of the loopback shell.
+const embedded = Boolean(import.meta.env.VITE_EMBEDDED_VIEWER);
+
+// Build-time origin, not Astro.url.origin — the latter resolves to the
+// prerender/build server (localhost) for prerendered pages in production.
+const rawViewerOrigin = import.meta.env.VITE_VIEWER_ORIGIN || 'https://stash.illo.fyi';
+const viewerOrigin = validateViewerOrigin(rawViewerOrigin).success
+  ? rawViewerOrigin
+  : 'https://stash.illo.fyi';
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -22,13 +33,19 @@ const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST ?? 'https://eu.post
       SSR emits a stable href that omits the payload (fragments never reach
       the server); the useDecodeShareUrl hook fills in `p=<encoded>` client-side
       once the fragment is decoded. */}
-  {Astro.url.pathname.startsWith('/s') && (
+  {(Astro.url.pathname === '/s' || Astro.url.pathname === '/s/' || Astro.url.pathname.startsWith('/s?')) && (
     <>
-      <link rel="alternate" type="application/json" href={Astro.url.origin + '/s?p=&format=json'} title="Stash as JSON" />
-      <link rel="alternate" type="text/markdown" href={Astro.url.origin + '/s?p=&format=md'} title="Stash as Markdown" />
+      <link rel="alternate" type="application/json" href={viewerOrigin + '/s?p=&format=json'} title="Stash as JSON" />
+      <link rel="alternate" type="text/markdown" href={viewerOrigin + '/s?p=&format=md'} title="Stash as Markdown" />
     </>
   )}
-  {posthogKey && posthogHost && (
+  {(Astro.url.pathname === '/stashes' || Astro.url.pathname === '/stashes/') && (
+    <>
+      <link rel="alternate" type="application/json" href={viewerOrigin + '/stashes/?agent=json'} title="Stashes as JSON" />
+      <link rel="alternate" type="text/markdown" href={viewerOrigin + '/stashes/?agent=markdown'} title="Stashes as Markdown" />
+    </>
+  )}
+  {!embedded && posthogKey && posthogHost && (
     <script is:inline define:vars={{ posthogKey, posthogHost }}>
       (function() {
         var script = document.createElement('script');
@@ -42,6 +59,9 @@ const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST ?? 'https://eu.post
               disable_cookie: true,
               autocapture: true,
               capture_pageview: true,
+              // /s#p= fragments carry the entire stash payload — never let
+              // them reach analytics.
+              disable_capture_url_hashes: true,
             });
           }
         };
@@ -49,9 +69,9 @@ const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST ?? 'https://eu.post
       })();
     </script>
   )}
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  {!embedded && <link rel="preconnect" href="https://fonts.googleapis.com">}
+  {!embedded && <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>}
+  {!embedded && <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">}
   <script>
     import { initTheme } from '@stash/theme';
     initTheme(localStorage);

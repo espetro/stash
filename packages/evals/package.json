@@ -5,14 +5,18 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "eval": "tsx src/run.ts"
+    "eval": "tsx src/run.ts",
+    "tscheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@stash/codec": "workspace:*",
+    "@stash/e2e": "workspace:*",
     "@stash/server-core": "workspace:*",
     "@stash/shared": "workspace:*",
+    "@types/chrome": "^0.2.6",
     "@types/node": "^26.2.0",
     "dotenv": "^17.2.3",
+    "playwright": "^1.62.1",
     "typescript": "^7.0.2",
     "tsx": "^4.21.0",
     "unstorage": "^1.17.1",

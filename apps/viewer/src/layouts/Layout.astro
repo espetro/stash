@@ -62,6 +62,9 @@ const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST ?? 'https://eu.post
               disable_cookie: true,
               autocapture: true,
               capture_pageview: true,
+              // /s#p= fragments carry the entire stash payload — never let
+              // them reach analytics.
+              disable_capture_url_hashes: true,
             });
           }
         };

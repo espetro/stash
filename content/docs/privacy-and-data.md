@@ -63,7 +63,7 @@ Stash has minimal server infrastructure:
 - **No processing**: No server-side data manipulation
 - **Static hosting**: Viewer site is static files with no dynamic processing
 
-There is one opt-in exception: short links. If you explicitly enable the short link feature, a copy of the stash is stored on the shortener service for at most 7 days. Agents can also manage a stash library that lives locally in your browser's `storage.local` and never leaves your machine (see [Agents & MCP](/agent-server)).
+There is one opt-in exception: short links. If you explicitly enable the short link feature, an encrypted copy of the stash is stored on the shortener service for at most 7 days (see below). Agents can also manage a stash library that lives locally in your browser's `storage.local` and never leaves your machine (see [Agents & MCP](/agent-server)).
 
 ### Link Security
 Shared links are designed for security:

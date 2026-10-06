@@ -25,7 +25,10 @@ export default defineConfig({
       "brotli-wasm": path.resolve(__dirname, "node_modules/brotli-wasm/index.node.js"),
       "@": path.resolve(__dirname, "src"),
     },
-    exclude: ["node_modules", "dist"],
+    // dist-alternates is a post-build contract test, run explicitly via
+    // `pnpm run test:dist` after `astro build` (matches CI ordering);
+    // excluded from the pre-build unit run so it can't fail spuriously.
+    exclude: ["node_modules", "dist", "src/__tests__/dist-alternates.test.ts"],
   },
   resolve: {
     alias: {

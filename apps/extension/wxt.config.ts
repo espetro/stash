@@ -16,8 +16,23 @@ export default defineConfig({
     description:
       "Stash saves your open tabs as a shareable snapshot link, inline or short. Local-first. No accounts. Anonymous aggregate usage counters only, opt-out in Settings.",
     version: pkg.version,
-    permissions: ["contextMenus", "tabs", "clipboardWrite", "notifications", "storage"],
+    permissions: [
+      "contextMenus",
+      "tabs",
+      "clipboardWrite",
+      "notifications",
+      "storage",
+      // Lift Chrome's 10 MB storage.local cap; the extension store is the
+      // tier-1 fallback when no daemon is installed.
+      "unlimitedStorage",
+      // Talks to the locally installed Stash daemon over runtime.connectNative
+      // (stdio). Local-only channel; see STORE_LISTING.nativeMessaging.md.
+      "nativeMessaging",
+    ],
     action: { default_popup: "popup/index.html" },
+    // Settings moved into the unlisted library.html page (PR E); keep the
+    // options_ui entry so browser-level "Extension options" links land there.
+    options_ui: { page: "library.html#settings", open_in_tab: true },
     // @ts-ignore - WXT doesn't expose externally_connectable in its manifest types yet
     externally_connectable: {
       // Allowlist (NOT `["*"]`): any extension the user installs would otherwise
@@ -25,8 +40,8 @@ export default defineConfig({
       // - `mhipkdochajohklmmjinmicahanmldbj` is MCP-B's production extension id
       //   (see @mcp-b/native-server docs), the only external extension that
       //   needs to talk to the in-extension MCP server.
-      // - localhost / 127.0.0.1 allow a local stdio relay (@stash/mcp-relay)
-      //   to attach as a web page over a loopback origin.
+      // - localhost / 127.0.0.1 keep loopback origins reachable for local
+      //   development against the in-extension MCP server.
       ids: ["mhipkdochajohklmmjinmicahanmldbj"],
       matches: [
         "https://stash.illo.fyi/*",

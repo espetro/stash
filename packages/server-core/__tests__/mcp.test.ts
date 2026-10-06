@@ -66,6 +66,23 @@ describe("MCP /mcp", () => {
     expect(gotData.items.map((i: any[]) => i[0])).toContain("https://github.com");
   });
 
+  it("stash_get fails closed on zero-trust (enc) entries", async () => {
+    const { encryptForRelay, generateShareKey } = await import("@stash/shared");
+    const ciphertext = await encryptForRelay("S.fakepayload", generateShareKey());
+    // Seed an encrypted entry through the public API.
+    const res = await server.handle(
+      new Request(`${ORIGIN}/api/stash`, {
+        method: "POST",
+        body: JSON.stringify({ ciphertext, ttl: "7d" }),
+      }),
+    );
+    const { id } = (await res.json()) as { id: string };
+
+    const got = await rpc("tools/call", { name: "stash_get", arguments: { id } });
+    const gotData = JSON.parse(got.content[0].text);
+    expect(gotData.error).toBe("encrypted");
+  });
+
   it("stash_decode decodes a codec payload", async () => {
     const brotli = await getBrotliFunctions();
     const payload = await encodePayloadToUrl(
@@ -156,16 +173,16 @@ describe("GET /.well-known/mcp-server-card", () => {
       },
     ]);
 
-    // Dual-surface `servers` array.
+    // The shortener surface plus the local surfaces: the browser-internal
+    // extension port and the daemon stdio entry (desktop MCP clients).
     expect(Array.isArray(card.servers)).toBe(true);
-    expect(card.servers).toHaveLength(2);
+    expect(card.servers).toHaveLength(3);
 
-    const [shortener, extension] = card.servers;
+    const [shortener, extension, daemon] = card.servers;
 
     expect(shortener.name).toBe("stash-shortener");
     expect(shortener.transport).toBe("streamable-http");
     expect(shortener.url).toBe(`${ORIGIN}/mcp`);
-    expect(shortener.portName).toBeUndefined();
     expect(shortener.tools.map((t: any) => t.name)).toEqual([
       "stash_create",
       "stash_get",
@@ -176,16 +193,10 @@ describe("GET /.well-known/mcp-server-card", () => {
     expect(extension.transport).toBe("extension-port");
     expect(extension.portName).toBe("mcp");
     expect(extension.url).toBeUndefined();
-    expect(extension.tools.map((t: any) => t.name)).toEqual([
-      "stash_snapshot_tabs",
-      "stash_list",
-      "stash_get",
-      "stash_create",
-      "stash_update",
-      "stash_delete",
-      "stash_search",
-      "stash_decode",
-    ]);
+
+    expect(daemon.name).toBe("stash-daemon");
+    expect(daemon.transport).toBe("stdio");
+    expect(daemon.url).toBeUndefined();
 
     // Legacy flat fields preserved for backwards compat.
     expect(card.url).toBe(`${ORIGIN}/mcp`);

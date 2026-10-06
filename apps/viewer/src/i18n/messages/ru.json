@@ -79,19 +79,13 @@
     "features": "Функции",
     "howItWorks": "Как это работает",
     "demo": "Демо",
-    "products": "Продукты",
-    "solutions": "Решения",
-    "resources": "Ресурсы",
-    "developers": "Разработчикам",
-    "enterprise": "Для бизнеса",
-    "pricing": "Цены",
-    "contactSales": "Связаться с отделом продаж",
     "settings": "Настройки",
     "settings.theme": "Тема",
     "settings.language": "Язык",
     "newStash": "Новый стеш",
     "myStashes": "Мои стеши",
-    "back": "Назад"
+    "back": "Назад",
+    "docs": "Документация"
   },
   "hero": {
     "headline": {
@@ -234,6 +228,24 @@
     "deleteConfirmBody": "Это навсегда удалит этот стеш с этого устройства.",
     "deleteConfirm": "Удалить",
     "importSuccess": "Импортировано {count} стеш(ей)",
-    "importError": "Не удалось импортировать файл"
-  }
+    "importError": "Не удалось импортировать файл",
+    "sourceExtension": "This browser's extension library",
+    "sourceViewer": "Saved in this browser.",
+    "fromExtension": "Из расширения",
+    "savedInBrowser": "Сохранено в этом браузере",
+    "viewerLocalHint": "Только в этом браузере; не синхронизируется с расширением.",
+    "kept": "Сохранено",
+    "recent": "Недавнее",
+    "extensionEmpty": "В библиотеке расширения пока нет стешей.",
+    "browserEmpty": "В этом браузере пока нет сохранённых стешей.",
+    "noMatches": "Подходящих стешей не найдено.",
+    "readOnlyHint": "Read-only mirror of the extension library; edit stashes from the extension popup."
+  },
+  "myStashes.extensionDetected": "Расширение Stash установлено в этом браузере.",
+  "myStashes.openInExtension": "Открыть библиотеку в расширении",
+  "myStashes.moveToExtension": "Перенести в библиотеку расширения",
+  "myStashes.moveToExtensionBusy": "Перенос...",
+  "myStashes.moveToExtensionDone": "Перенесено: {count} — подтвердите импорт на странице библиотеки расширения.",
+  "myStashes.moveToExtensionError": "Не удалось передать стэши в расширение.",
+  "myStashes.readOnlyHint": "Зеркало библиотеки расширения только для чтения; редактируйте стэши на странице библиотеки расширения."
 }

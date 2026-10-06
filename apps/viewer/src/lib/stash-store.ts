@@ -9,6 +9,7 @@ export interface StashRecord {
   tags: string[];
   note?: string;
   items: StashItem[];
+  kept?: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -113,6 +114,17 @@ export function searchStashes(query: string): StashRecord[] {
 
 export function exportStashes(): StashExport {
   return { version: 1, stashes: listStashes() };
+}
+
+/**
+ * Remove every viewer-local record. Called after the user confirms a
+ * handoff into the extension (PR E) — the records live on inside the
+ * extension Library, so keeping localStorage copies would resurrect
+ * them on the next visit.
+ */
+export function clearStashes(): void {
+  if (!hasLocalStorage()) return;
+  localStorage.removeItem(STORAGE_KEY);
 }
 
 /** Parses+validates an import file's contents, appending new records

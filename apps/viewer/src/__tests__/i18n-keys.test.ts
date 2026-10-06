@@ -31,17 +31,14 @@ describe("viewer app i18n keys", () => {
   });
 
   it.each(["en", "es", "fr", "ru"])(
-    "%s has nav keys for floating pill navbar + Settings dropdown",
+    "%s has nav keys for landing navbar + Settings dropdown",
     (lang) => {
       const keys = flatten(bundles[lang]);
       for (const key of [
-        "nav.products",
-        "nav.solutions",
-        "nav.resources",
-        "nav.developers",
-        "nav.enterprise",
-        "nav.pricing",
-        "nav.contactSales",
+        "nav.features",
+        "nav.howItWorks",
+        "nav.demo",
+        "nav.docs",
         "nav.settings",
         "nav.settings.theme",
         "nav.settings.language",
@@ -58,6 +55,22 @@ describe("viewer app i18n keys", () => {
       "stash.link.shortHint",
       "stash.link.shortenFailed",
       "stash.shorten.idle",
+    ]) {
+      expect(keys, `${lang} missing ${key}`).toContain(key);
+    }
+  });
+
+  it.each(["en", "es", "fr", "ru"])("%s has Library section and state labels", (lang) => {
+    const keys = flatten(bundles[lang]);
+    for (const key of [
+      "myStashes.fromExtension",
+      "myStashes.savedInBrowser",
+      "myStashes.viewerLocalHint",
+      "myStashes.kept",
+      "myStashes.recent",
+      "myStashes.extensionEmpty",
+      "myStashes.browserEmpty",
+      "myStashes.noMatches",
     ]) {
       expect(keys, `${lang} missing ${key}`).toContain(key);
     }

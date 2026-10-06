@@ -6,7 +6,7 @@ import { recordEvent } from "../../../lib/telemetry";
 import { generate as generateQr } from "lean-qr";
 import { toSvgDataURL } from "lean-qr/extras/svg";
 import { makeSyncComponent } from "lean-qr/extras/react";
-import { LuChevronDown } from "react-icons/lu";
+import { LuChevronDown, LuPin } from "react-icons/lu";
 
 const QrCode = makeSyncComponent(React, generateQr, toSvgDataURL, {
   on: "#1A1A1A",
@@ -31,6 +31,8 @@ interface LinkResultProps {
   shortenerOrigin?: string;
   /** Called when the displayed URL is replaced by a short link. */
   onShortened?: (shortUrl: string) => void;
+  isKept?: boolean;
+  onKeep?: () => void;
 }
 
 export function LinkResult({
@@ -45,6 +47,8 @@ export function LinkResult({
   shortenerEnabled = false,
   shortenerOrigin,
   onShortened,
+  isKept = false,
+  onKeep,
 }: LinkResultProps) {
   const [displayUrl, setDisplayUrl] = useState(url);
   const [shortenState, setShortenState] = useState<ShortenState>("payload");
@@ -80,7 +84,7 @@ export function LinkResult({
 
   const hint =
     shortenState === "short"
-      ? "Short link. A copy is stored on the shortener for up to 7 days."
+      ? "Encrypted short link. Only the key in the link can read it; a copy is stored on the shortener for up to 7 days."
       : shortenState === "failed"
         ? "Couldn't shorten, using self-contained link."
         : isPayloadLink
@@ -111,6 +115,22 @@ export function LinkResult({
         title={displayUrl}
         onClick={(e) => (e.target as HTMLInputElement).select()}
       />
+      {onKeep && (
+        <div className="link-keep">
+          <button
+            className={`btn ${isKept ? "btn-secondary" : "btn-primary"}`}
+            onClick={onKeep}
+            disabled={isKept}
+          >
+            {!isKept && <LuPin aria-hidden />}
+            {isKept ? "Kept ✓" : "Keep in Library"}
+          </button>
+          <p className="link-hint">
+            Added to Library as Recent. Recent shares clear after 30 days, or sooner if the link
+            expires, unless you keep them.
+          </p>
+        </div>
+      )}
       {hint && <p className="link-hint">{hint}</p>}
       {(() => {
         try {

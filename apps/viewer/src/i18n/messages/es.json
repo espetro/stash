@@ -67,19 +67,13 @@
     "features": "Características",
     "howItWorks": "Cómo funciona",
     "demo": "Demo",
-    "products": "Productos",
-    "solutions": "Soluciones",
-    "resources": "Recursos",
-    "developers": "Desarrolladores",
-    "enterprise": "Empresa",
-    "pricing": "Precios",
-    "contactSales": "Contactar con ventas",
     "settings": "Ajustes",
     "settings.theme": "Tema",
     "settings.language": "Idioma",
     "newStash": "Nuevo stash",
     "myStashes": "Mis stashes",
-    "back": "Volver"
+    "back": "Volver",
+    "docs": "Docs"
   },
   "theme": {
     "label": "Cambiar tema",
@@ -234,6 +228,24 @@
     "deleteConfirmBody": "Esto eliminará permanentemente este stash de este dispositivo.",
     "deleteConfirm": "Eliminar",
     "importSuccess": "Se importaron {count} stash(es)",
-    "importError": "No se pudo importar el archivo"
-  }
+    "importError": "No se pudo importar el archivo",
+    "sourceExtension": "This browser's extension library",
+    "sourceViewer": "Saved in this browser.",
+    "fromExtension": "Desde la extensión",
+    "savedInBrowser": "Guardados en este navegador",
+    "viewerLocalHint": "Solo en este navegador; no se sincroniza con la extensión.",
+    "kept": "Guardado",
+    "recent": "Reciente",
+    "extensionEmpty": "No hay stashes en la biblioteca de la extensión.",
+    "browserEmpty": "No hay stashes guardados en este navegador.",
+    "noMatches": "No hay stashes que coincidan.",
+    "readOnlyHint": "Read-only mirror of the extension library; edit stashes from the extension popup."
+  },
+  "myStashes.extensionDetected": "La extensión de Stash está instalada en este navegador.",
+  "myStashes.openInExtension": "Abrir tu biblioteca en la extensión",
+  "myStashes.moveToExtension": "Mover a la biblioteca de la extensión",
+  "myStashes.moveToExtensionBusy": "Moviendo...",
+  "myStashes.moveToExtensionDone": "Se movieron {count} stash(es) — confirma la importación en la página Biblioteca de la extensión.",
+  "myStashes.moveToExtensionError": "No se pudieron transferir los stashes a la extensión.",
+  "myStashes.readOnlyHint": "Copia de solo lectura de la biblioteca de la extensión; edita los stashes desde la página Biblioteca de la extensión."
 }

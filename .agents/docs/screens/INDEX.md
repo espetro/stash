@@ -9,18 +9,25 @@ whenever you touch UI layout, copy, or flows.
 ## User flows
 
 ```
-Extension popup (main)
-  -> select tabs -> "Share tabs (N)"  -> Link result
+Extension popup (main) — collection only
+  -> select tabs -> "Share tabs (N)"  -> Link result -> Keep in Library
   -> select tabs -> "Save locally"    -> Save stash form -> main
-  -> header stashes                   -> My Stashes
-  -> header history                   -> History -> (active entry) Link result
-  -> header settings                  -> browser options page
+  -> header "Open Library"            -> library.html (new tab)
+  -> header settings                  -> library.html#settings
+
+Extension Library page (unlisted, library.html)
+  #library    -> Library (All / Kept / Recent, search, import/export,
+               QR share, open-all, sync status, backup hint)
+  #settings   -> Settings (the retired options.html sections)
+  #pending-import -> viewer→extension handoff confirm banner
 
 Viewer
   /            landing
   /s/new       create form -> result block (copy / save locally / shorten)
   /s/<payload> tab viewer -> QR dialog | Share drawer (JSON / Markdown)
-  /stashes     My Stashes (expand / edit / delete / import / export)
+  /stashes     Library (extension mirror + viewer-local records)
+               + "Open your Library in the extension" CTA when the
+               extension presence-pings, + one-time handoff button
   /privacy /terms  static legal pages
   /docs/...    Starlight docs shell
 ```
@@ -30,10 +37,9 @@ Viewer
 | Name | Route / surface | File |
 |---|---|---|
 | Popup selection view | extension popup, main view | `screen-extension-1.md` |
-| Link result | extension popup, after share or from History | `screen-extension-2.md` |
-| My Stashes (popup) | extension popup, stashes view | `screen-extension-3.md` |
-| History | extension popup, history view | `screen-extension-4.md` |
-| Options page | extension options page (Shortener/Telemetry forms) | `screen-extension-5.md` |
+| Link result | extension popup, after sharing tabs | `screen-extension-2.md` |
+| Library page | extension `library.html` (All/Kept/Recent + Settings tabs) | `screen-extension-3.md` |
+| Settings tab | extension `library.html#settings` (Shortener/Telemetry forms) | `screen-extension-5.md` |
 | Landing | viewer `/` | `screen-viewer-1.md` |
 | Create stash | viewer `/s/new` | `screen-viewer-2.md` |
 | Tab viewer | viewer `/s/<id>` plus `/s?p=` content-negotiated payload route | `screen-viewer-3.md` |
@@ -49,6 +55,11 @@ Do not reintroduce these; they were removed on purpose.
 
 - Bottom back-button rows in popup subviews (history, stashes): replaced by
   the header top-left back chevron (`Header.tsx` `onBack`).
+- Popup History view: replaced by the Library; `stash-history` writes
+  remain during the downgrade compatibility window.
+- Popup-hosted Library view and the standalone `options.html` options page:
+  replaced by the unlisted `library.html` page (Library + `#settings` tabs).
+  `options_ui` points at `library.html#settings` for browser-level links.
 - Footer theme + language cluster in the viewer tab viewer card footer:
   replaced by the compact ThemeSwitcher + LanguageSelector row inside
   `SharedCardContent` (tab viewer) and the AppHeader on `/s/new`, `/stashes`.

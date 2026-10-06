@@ -17,3 +17,14 @@
 
 /*.ico
   Cache-Control: public, max-age=86400
+
+# Agent-discovery link headers on the homepage
+# (llms.txt, hosted MCP server card, OpenAPI spec)
+/
+  Link: <https://stash.illo.fyi/llms.txt>; rel="llms", <https://stash.illo.fyi/.well-known/mcp-server-card.json>; rel="service", <https://stash.illo.fyi/openapi.json>; rel="describedby"
+
+# /stashes library page: alternate discovery for agent exports.
+# (/s needs no rule — functions/s.ts emits rel="alternate" Link headers
+# itself on every fallthrough response.)
+/stashes/
+  Link: <https://stash.illo.fyi/stashes/?agent=json>; rel="alternate"; type="application/json", <https://stash.illo.fyi/stashes/?agent=markdown>; rel="alternate"; type="text/markdown"

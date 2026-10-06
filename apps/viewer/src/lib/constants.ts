@@ -4,4 +4,4 @@ export const INSTALL_FIREFOX_URL =
 
 export const INSTALL_CHROME_URL =
   import.meta.env.VITE_CHROME_DOWNLOAD_URL ??
-  `https://github.com/espetro/stash/blob/main/content/docs/getting-started.md`;
+  `https://chromewebstore.google.com/detail/stash/npkcdanhacbmbinabhogbngifebkfpeo`;

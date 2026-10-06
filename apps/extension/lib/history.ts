@@ -42,3 +42,13 @@ export async function clearHistory(): Promise<void> {
     await historyItem.set([]);
   } catch {}
 }
+
+export async function removeHistoryByUrls(urls: string[]): Promise<void> {
+  if (urls.length === 0) return;
+
+  try {
+    const history = (await historyItem.get()) ?? [];
+    const urlSet = new Set(urls);
+    await historyItem.set(history.filter((entry) => !urlSet.has(entry.url)));
+  } catch {}
+}

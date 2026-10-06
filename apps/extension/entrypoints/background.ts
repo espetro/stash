@@ -10,8 +10,24 @@ import {
   senderDebugInfo,
   startMcpServerOverPort,
 } from "../lib/mcp/background-server";
+import { HOST_NAME } from "../lib/native-messaging/manifest";
+import { SyncClient } from "../lib/sync/sync-client";
+import { migrateHistoryToShares } from "../lib/history-merge";
+import { pruneExpiredRecent } from "../lib/stash-store";
+import { isOpenLibraryMessage, openLibraryRelay } from "../lib/open-library";
 
 export default defineBackground(() => {
+  // F5: pair with the local stash-daemon over the F1 native-messaging port.
+  // Local-first invariants hold regardless: browser.storage.local stays the
+  // materialized view, local writes never block on the daemon, and every
+  // sync failure surfaces through the sync status (read by the popup).
+  const syncClient = new SyncClient({ hostName: HOST_NAME });
+  void syncClient.restoreStatus().then(() => syncClient.start());
+  void syncClient.flushOutbox();
+  // F8.W5: one-time fold of stash-history into record shares[]; idempotent.
+  void migrateHistoryToShares()
+    .then(() => pruneExpiredRecent())
+    .catch((err) => console.warn("[background] library startup cleanup failed", err));
   // MCP server over runtime ports (fresh server + transport per connection).
   // Defence in depth: the `externally_connectable` manifest field gates
   // *who can initiate* a connection, but `port.sender` is still trusted to
@@ -37,6 +53,17 @@ export default defineBackground(() => {
 
   settingsItem.onChanged((newValue) => {
     console.log("Settings changed:", newValue);
+  });
+
+  // PR E: the stashes-bridge content script relays "open the Library
+  // page" (and viewer→extension handoffs) through here — content scripts
+  // have no tabs API. Only our own contexts may send the message; the
+  // handoff payload itself was already validated against isStashExport
+  // in the content script.
+  browser.runtime.onMessage.addListener((message: unknown, sender: { id?: string }) => {
+    if (sender.id !== browser.runtime.id) return undefined;
+    if (!isOpenLibraryMessage(message)) return undefined;
+    return openLibraryRelay(message);
   });
 
   browser.runtime.onInstalled.addListener(async () => {
