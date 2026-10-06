@@ -1,5 +1,19 @@
 # stash-viewer
 
+## 0.10.3
+
+### Patch Changes
+
+- fix(viewer): floating centered navbar on /s routes, drop landing Settings button
+  - `/s/new` and `/stashes` get a floating centered pill (back chevron,
+    New stash / My stashes, divider, theme + language) via a reworked
+    `AppHeader` with an in-flow spacer; the edge-pinned header is gone.
+  - Landing navbar drops the rounded Settings button (theme/lang controls
+    no longer duplicate the Install CTA); `SettingsMenu` removed.
+  - @stash/codec@0.10.3
+  - @stash/theme@0.10.3
+  - @stash/shared@0.10.3
+
 ## 0.10.2
 
 ### Patch Changes

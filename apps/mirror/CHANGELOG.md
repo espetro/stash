@@ -1,5 +1,13 @@
 # @stash/mirror
 
+## 0.2.3
+
+### Patch Changes
+
+- @stash/codec@0.10.3
+- @stash/shared@0.10.3
+- @stash/server-core@0.3.3
+
 ## 0.2.2
 
 ### Patch Changes

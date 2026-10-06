@@ -1,5 +1,14 @@
 # @stash/extension
 
+## 0.10.3
+
+### Patch Changes
+
+- @stash/codec@0.10.3
+- @stash/theme@0.10.3
+- @stash/shared@0.10.3
+- @stash/server-core@0.3.3
+
 ## 0.10.2
 
 ### Patch Changes
