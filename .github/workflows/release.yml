@@ -96,3 +96,66 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get extension version
+        id: pkg
+        run: echo "version=$(node -p "require('./apps/extension/package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Zip sources for AMO review
+        run: git archive --format=zip --output=artifacts/extension-sources.zip HEAD
+
+      # Firefox is always submitted (AMO JWT creds exist). Chrome is gated on
+      # vars.CHROME_PUBLISH_ENABLED — flip it once the v2 service-account
+      # secrets are set. See .agents/docs/store-publishing.md.
+      - name: Submit to Firefox AMO
+        working-directory: apps/extension
+        run: |
+          pnpm exec publish-extension \
+            --firefox-zip "../../artifacts/stashextension-${{ steps.pkg.outputs.version }}-firefox.zip" \
+            --firefox-sources-zip "../../artifacts/extension-sources.zip"
+        env:
+          FIREFOX_EXTENSION_ID: ${{ vars.FIREFOX_EXTENSION_ID }}
+          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+          FIREFOX_CHANNEL: listed
+
+      - name: Submit to Chrome Web Store
+        if: vars.CHROME_PUBLISH_ENABLED == 'true'
+        working-directory: apps/extension
+        run: |
+          pnpm exec publish-extension \
+            --chrome-zip "../../artifacts/stashextension-${{ steps.pkg.outputs.version }}-chrome.zip" \
+            --chrome-api-version v2
+        env:
+          CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
+          CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
+          CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL: ${{ secrets.CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL }}
+          CHROME_SERVICE_ACCOUNT_PRIVATE_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_PRIVATE_KEY }}
