@@ -1,5 +1,41 @@
 # @stash/extension
 
+## 0.10.5
+
+### Patch Changes
+
+- feat(daemon-setup): store-id install default + extension id on sync banner
+
+  `stash-daemon install` now defaults `--chrome-id` to the published store
+  id and prints guidance for dev/unpacked builds. The never-paired sync
+  banner self-reports `browser.runtime.id` with a "Copy install command"
+  button.
+
+- 2e771e5: feat(brand): new stash mark across extension, viewer, and og card
+
+  Swaps the blue-doc icon for the new mark (red accent variant). Extension
+  `icon-{16,48,128}` PNGs regenerated from the trimmed 2048px source and
+  the embedded-raster `icon-*.svg` files replaced with the real vector.
+  Viewer `icon-{48,128}` (navbar logo, favicon, apple-touch-icon) updated
+  and `favicon.svg` added so the docs pages' `/favicon.svg` link resolves.
+  og-card variant C now shows mark + wordmark; `og.png` re-rendered via
+  Playwright CDP (`chrome --screenshot` clips bottom-anchored elements on
+  Chrome for Testing — recipe comment updated). Sources + size ladder
+  (16-512px, both colorways) kept in `assets/brand/`.
+
+- 2e771e5: chore(extension): automated store submission via publish-browser-extension
+
+  `release.yml` gains a `publish` job that submits the tag's zips to the
+  stores: Firefox AMO always (JWT creds + `git archive` sources zip),
+  Chrome Web Store once `CHROME_PUBLISH_ENABLED` + the CWS API v2
+  service-account secrets are configured. Setup documented in
+  `.agents/docs/store-publishing.md`; manual dashboard upload remains the
+  fallback.
+  - @stash/codec@0.10.5
+  - @stash/theme@0.10.5
+  - @stash/shared@0.10.5
+  - @stash/server-core@0.3.5
+
 ## 0.10.4
 
 ### Patch Changes

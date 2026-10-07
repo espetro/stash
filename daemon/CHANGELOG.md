@@ -1,5 +1,14 @@
 # @stash/daemon
 
+## 0.2.5
+
+### Patch Changes
+
+- Updated dependencies [2e771e5]
+- Updated dependencies [2e771e5]
+- Updated dependencies
+  - stash-viewer@0.10.5
+
 ## 0.2.4
 
 ### Patch Changes

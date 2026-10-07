@@ -1,5 +1,40 @@
 # stash-viewer
 
+## 0.10.5
+
+### Patch Changes
+
+- 2e771e5: feat(brand): new stash mark across extension, viewer, and og card
+
+  Swaps the blue-doc icon for the new mark (red accent variant). Extension
+  `icon-{16,48,128}` PNGs regenerated from the trimmed 2048px source and
+  the embedded-raster `icon-*.svg` files replaced with the real vector.
+  Viewer `icon-{48,128}` (navbar logo, favicon, apple-touch-icon) updated
+  and `favicon.svg` added so the docs pages' `/favicon.svg` link resolves.
+  og-card variant C now shows mark + wordmark; `og.png` re-rendered via
+  Playwright CDP (`chrome --screenshot` clips bottom-anchored elements on
+  Chrome for Testing — recipe comment updated). Sources + size ladder
+  (16-512px, both colorways) kept in `assets/brand/`.
+
+- 2e771e5: feat(viewer): branded og-image + Open Graph/Twitter card meta
+
+  `public/og.png` (product-mock variant: wordmark, headline, mini Shared
+  Tabs card) rendered from the checked-in `og-card.html` recipe — same
+  approach as calca's landing. `Layout.astro` and `ViewerLayout.astro` now
+  emit `og:*`/`twitter:*` tags (summary_large_image) so link previews show
+  the card on every landing and `/s` page.
+
+- feat(viewer): expanded privacy policy + localized meta description
+
+  `/privacy` rewritten as a formal policy (operator + contact, data
+  categories, share-link/relay storage incl. zero-trust ciphertext,
+  PostHog, maintainer-only Google OAuth, retention, choices). Landing
+  pages emit `<meta name="description">` in all locales. Supports Google
+  OAuth brand verification for release automation.
+  - @stash/codec@0.10.5
+  - @stash/theme@0.10.5
+  - @stash/shared@0.10.5
+
 ## 0.10.4
 
 ### Patch Changes

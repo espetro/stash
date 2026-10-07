@@ -1,5 +1,12 @@
 # @stash/e2e
 
+## 0.10.5
+
+### Patch Changes
+
+- @stash/codec@0.10.5
+- @stash/shared@0.10.5
+
 ## 0.10.4
 
 ### Patch Changes
