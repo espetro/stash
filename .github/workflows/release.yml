@@ -132,10 +132,11 @@ jobs:
       - name: Zip sources for AMO review
         run: git archive --format=zip --output=artifacts/extension-sources.zip HEAD
 
-      # Firefox is always submitted (AMO JWT creds exist). Chrome is gated on
-      # vars.CHROME_PUBLISH_ENABLED — flip it once the v2 service-account
-      # secrets are set. See .agents/docs/store-publishing.md.
+      # Each store submits only when its var flag is set: FIREFOX_PUBLISH_ENABLED
+      # once AMO JWT creds exist, CHROME_PUBLISH_ENABLED once the v2
+      # service-account secrets are set. See .agents/docs/store-publishing.md.
       - name: Submit to Firefox AMO
+        if: vars.FIREFOX_PUBLISH_ENABLED == 'true'
         working-directory: apps/extension
         run: |
           pnpm exec publish-extension \

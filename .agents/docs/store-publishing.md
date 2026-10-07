@@ -8,7 +8,8 @@ Chrome Web Store API v2 flags the vendored 4.x lacks).
 
 ## What runs on a tag
 
-- **Firefox (AMO)** — always submitted. `publish-extension --firefox-zip …
+- **Firefox (AMO)** — runs only when the repo variable
+  `FIREFOX_PUBLISH_ENABLED == 'true'`. `publish-extension --firefox-zip …
   --firefox-sources-zip …`; the sources zip is a `git archive` of the tag,
   satisfying AMO's source-submission policy for bundled code.
 - **Chrome Web Store** — runs only when the repo variable
@@ -22,10 +23,11 @@ store's review passes (review itself is never automatable).
 
 Non-secret values live in repo **variables**; credentials in repo **secrets**.
 
-### Firefox (already configured — owner did it)
+### Firefox (enable when ready)
 
 | Kind | Name | Value |
 |------|------|-------|
+| variable | `FIREFOX_PUBLISH_ENABLED` | `true` once the secrets below exist |
 | variable | `FIREFOX_EXTENSION_ID` | `stash@stash-extension` (gecko id; the AMO slug works too) |
 | secret | `FIREFOX_JWT_ISSUER` | AMO → Developer Hub → "Manage API Keys" → JWT issuer |
 | secret | `FIREFOX_JWT_SECRET` | same page → JWT secret |
