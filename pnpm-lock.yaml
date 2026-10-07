@@ -113,13 +113,16 @@ importers:
         version: 17.4.2
       geist:
         specifier: ^1.7.0
-        version: 1.7.1(next@16.2.6(@playwright/test@1.62.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))
+        version: 1.7.1(next@16.2.6(@babel/core@7.29.7)(@playwright/test@1.62.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))
       happy-dom:
         specifier: ^20.9.0
         version: 20.9.0
       jsdom:
         specifier: ^29.1.1
         version: 29.1.1
+      publish-browser-extension:
+        specifier: ^5.1.0
+        version: 5.1.0
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -229,7 +232,7 @@ importers:
         version: 3.0.1
       geist:
         specifier: ^1.7.0
-        version: 1.7.1(next@16.2.6(@playwright/test@1.62.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))
+        version: 1.7.1(next@16.2.6(@babel/core@7.29.7)(@playwright/test@1.62.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))
       intl-messageformat:
         specifier: ^11.2.8
         version: 11.2.8
@@ -2026,15 +2029,18 @@ packages:
   '@intl-ai/api@0.4.1':
     resolution: {integrity: sha512-R5kWMhLm4BRLR+cS9CwC8+uTevVGj6179Z0AN1a6Jiru+GeVAFd8xboo56tK1tSfTHea6jV4fQFgq/zk/NoquA==}
     engines: {node: ^22.18.0 || >=24}
+    deprecated: 'Deprecated: intl-ai is now a Rust binary. Install via install.sh, brew, mise, or the "intl-ai" npm package. Migration: https://github.com/sigilco/intl-ai#migration'
 
   '@intl-ai/cli@0.3.2':
     resolution: {integrity: sha512-M9mQ16ghgb2qYgs5ZHwEqn7kiHnJwRwvNettflOzMp5dfddKlXwlbnCp1u67j5VzCJ+Dy0yFP7txXRjfzNjEpA==}
     engines: {node: ^22.18.0 || >=24}
+    deprecated: 'Deprecated: intl-ai is now a Rust binary. Install via install.sh, brew, mise, or the "intl-ai" npm package. Migration: https://github.com/sigilco/intl-ai#migration'
     hasBin: true
 
   '@intl-ai/unplugin@0.4.1':
     resolution: {integrity: sha512-14HNrLX/20Ss3MDv10xpydZBIm1/2+ZQwGFIg+5Dc/Y7Vf60qt+txnwL1ZE0hAvHmtEkZcck4vgAxN4Bme5xFA==}
     engines: {node: ^22.18.0 || >=24}
+    deprecated: 'Deprecated: intl-ai is now a Rust binary. Install via install.sh, brew, mise, or the "intl-ai" npm package. Migration: https://github.com/sigilco/intl-ai#migration'
     peerDependencies:
       '@rspack/core': '>=2.1.1'
       esbuild: '>=0.18.0'
@@ -6173,6 +6179,11 @@ packages:
 
   publish-browser-extension@4.0.5:
     resolution: {integrity: sha512-EePAn3VIHJS/jqCuvs1NgPgoecCT8+RsES76hbgYe2Ze1dyvB0tX60C1PCrV8Z8fv56mW3E59s9Gd/GwWiw7dw==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
+
+  publish-browser-extension@5.1.0:
+    resolution: {integrity: sha512-cRP5AV5UhXGheK//GwI3dCKPDtvStbcoqwerh6HZ7McB6RpepQmkHjSAWXmNGik0Eu0sRhPPuRUNmgvCn+cFrg==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -11604,7 +11615,7 @@ snapshots:
       which: 1.2.4
       winreg: 0.0.12
 
-  geist@1.7.1(next@16.2.6(@playwright/test@1.62.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)):
+  geist@1.7.1(next@16.2.6(@babel/core@7.29.7)(@playwright/test@1.62.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)):
     dependencies:
       next: 16.2.6(@babel/core@7.29.7)(@playwright/test@1.62.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
 
@@ -13289,6 +13300,15 @@ snapshots:
       listr2: 10.2.1
       ofetch: 1.5.1
       zod: 4.4.3
+
+  publish-browser-extension@5.1.0:
+    dependencies:
+      cac: 6.7.14
+      consola: 3.4.2
+      dotenv: 17.4.2
+      form-data-encoder: 4.1.0
+      formdata-node: 6.0.3
+      tasuku: 2.3.0
 
   punycode@2.3.1: {}
 
