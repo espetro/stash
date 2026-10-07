@@ -1,11 +1,18 @@
 <!doctype html>
 <!--
   og-image source card for stash.illo.fyi (1200x630).
-  Re-render: open this file in headless Chrome at the right size, e.g.
+  Re-render: screenshot at 1200x630 via Playwright (chrome --headless
+  --screenshot under-renders bottom-anchored elements on Chrome for
+  Testing — the band/urltag silently clip — so use CDP):
 
-    chrome --headless --disable-gpu --hide-scrollbars \
-      --screenshot=apps/viewer/public/og.png --window-size=1200,630 \
-      "file:///abs/path/to/apps/viewer/og-card.html?v=c"
+    // from packages/e2e
+    import { chromium } from 'playwright';
+    const b = await chromium.launch({ executablePath: '<chrome>' });
+    const p = await b.newPage({ viewport: { width: 1200, height: 630 } });
+    await p.goto('file:///abs/path/to/apps/viewer/og-card.html?v=c');
+    await p.waitForTimeout(800); // fonts
+    await p.screenshot({ path: '../../apps/viewer/public/og.png' });
+    await b.close();
 
   Variants: ?v=a light wordmark | ?v=b dark wordmark | ?v=c product mock (shipped)
 -->
@@ -28,6 +35,8 @@ body{width:1200px;height:630px;position:relative;overflow:hidden;font-family:'Ge
 /* ---- variant c: product mock ---- */
 .mock-row{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:52px}
 .mock-txt{display:flex;flex-direction:column;gap:24px;flex-shrink:0}
+.mock-brand{display:flex;align-items:center;gap:20px}
+.mock-logo{width:88px;height:88px;object-fit:contain}
 .mock-txt .name{font-size:96px}
 .mock-txt .tag{font-size:36px}
 .mock-txt .meta{font-size:24px}
@@ -55,7 +64,7 @@ body{width:1200px;height:630px;position:relative;overflow:hidden;font-family:'Ge
 </div>
 <div class="mock-row" id="product" style="display:none">
   <div class="mock-txt">
-    <div class="name">stash</div>
+    <div class="mock-brand"><img class="mock-logo" src="public/icon-128.png"><div class="name">stash</div></div>
     <div class="tag">Your tabs are your thinking.<br><b>Stop losing them.</b></div>
     <div class="meta">Free · No account · Local-first</div>
   </div>
