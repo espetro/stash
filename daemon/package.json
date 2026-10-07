@@ -6,10 +6,10 @@
   "scripts": {
     "build": "sh scripts/build.sh",
     "clean": "git clean -fqX internal/viewer/dist",
-    "test": "go test ./... -race",
-    "lint": "go vet ./...",
+    "test": "sh scripts/ensure-viewer-dist.sh && go test ./... -race",
+    "lint": "sh scripts/ensure-viewer-dist.sh && go vet ./...",
     "format": "gofmt -w cmd internal",
-    "tscheck": "go vet ./..."
+    "tscheck": "sh scripts/ensure-viewer-dist.sh && go vet ./..."
   },
   "dependencies": {
     "stash-viewer": "workspace:*"
