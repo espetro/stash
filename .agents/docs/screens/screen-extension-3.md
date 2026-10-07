@@ -63,7 +63,7 @@ QR dialog (`QrDialog.tsx`, native `<dialog>`):
 |---|---|---|
 | Library/Settings tabs | always | Hash-routed (`#library` / `#settings`); `#pending-import` lands on Library and shows the import banner |
 | Pending-import banner | only when `pending-import` storage slot set | viewer→extension handoff confirm surface; Import merges records + clears slot; Dismiss clears slot |
-| Sync status line | hidden when paired & drained | `SyncStatusBar`; never-paired / offline / refused / backlog variants |
+| Sync status line | hidden when paired & drained | `SyncStatusBar`; never-paired / offline / refused / backlog variants. The extension id and a "Copy install command" button (copying `stash-daemon install --chrome-id <id>`, plain `stash-daemon install` on Firefox) show in the never-paired variant and in the offline variant when the daemon was never seen (`offline` with no `lastSeenAt`) — Chrome persists `offline` on first connectNative drop, so a never-paired user typically lands in the offline variant. Error copy names `stash-daemon doctor`. Popup saving/sharing fully functional in every state. |
 | Backup hint | only when `state === "disconnected"` | "Not backed up … Install the Stash daemon or export a copy" |
 | Export icon | header, disabled when empty | LuDownload, downloads `stash-export-<ts>.json`; fires `export_used` |
 | Import icon | header | LuUpload, opens hidden file input (JSON only); fires `import_used`, skips existing ids |

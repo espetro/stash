@@ -1,4 +1,12 @@
-import { LuCloudOff, LuCircleAlert, LuRefreshCw, LuHardDriveDownload } from "react-icons/lu";
+import { useState } from "react";
+import {
+  LuCloudOff,
+  LuCircleAlert,
+  LuRefreshCw,
+  LuHardDriveDownload,
+  LuCopy,
+  LuCheck,
+} from "react-icons/lu";
 import { useSyncStatus } from "../../entrypoints/library/hooks/useSyncStatus";
 import type { SyncState } from "../../lib/sync/protocol";
 
@@ -18,7 +26,45 @@ function formatLastSeen(ts?: number): string {
  */
 export function SyncStatusBar() {
   const { status, backlog } = useSyncStatus();
+  const [copied, setCopied] = useState(false);
   const state: SyncState = status.state;
+
+  // Self-reported extension id so dev/unpacked users can point
+  // `stash-daemon install --chrome-id` at it without hunting in
+  // chrome://extensions. Firefox needs no --chrome-id flag.
+  const extensionId = browser.runtime.id;
+  const installCommand = import.meta.env.FIREFOX
+    ? "stash-daemon install"
+    : `stash-daemon install --chrome-id ${extensionId}`;
+
+  async function copyInstallCommand() {
+    try {
+      await navigator.clipboard.writeText(installCommand);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  // The SyncClient persists "offline" as soon as connectNative drops on
+  // Chrome, so a daemon that was never seen still lands here — surface the
+  // setup row whenever no lastSeenAt is recorded, not only on the absent
+  // "disconnected" fallback (which real users rarely render).
+  const setupRow = (
+    <span className="sync-status-setup">
+      Extension id: <code>{extensionId}</code>
+      <button
+        type="button"
+        className="sync-status-copy"
+        onClick={copyInstallCommand}
+        title={installCommand}
+      >
+        {copied ? <LuCheck aria-hidden /> : <LuCopy aria-hidden />}
+        {copied ? "Copied" : "Copy install command"}
+      </button>
+    </span>
+  );
 
   if (state === "paired") {
     if (backlog > 0) {
@@ -38,6 +84,7 @@ export function SyncStatusBar() {
         {status.lastSeenAt ? `, last seen ${formatLastSeen(status.lastSeenAt)}` : ""}. Changes will
         sync when it reconnects. If this persists, run <code>stash-daemon doctor</code>.
         {backlog > 0 && ` ${backlog} change${backlog === 1 ? "" : "s"} pending.`}
+        {!status.lastSeenAt && setupRow}
       </div>
     );
   }
@@ -59,6 +106,7 @@ export function SyncStatusBar() {
       <code>stash-daemon</code> to sync across devices (setup: <code>stash-daemon doctor</code>).
       Saving and sharing work locally.
       {backlog > 0 && ` ${backlog} change${backlog === 1 ? "" : "s"} waiting to sync.`}
+      {setupRow}
     </div>
   );
 }
