@@ -20,7 +20,7 @@ import { LuBadgeCheck } from "react-icons/lu";
         </p>
       </header>
 
-      <!-- Policy items -->
+      <!-- At a glance -->
       <ul class="policy-list" role="list">
         <li class="policy-item">
           <LuBadgeCheck className="size-[18px] flex-shrink-0 mt-[3px]" />
@@ -51,16 +51,9 @@ import { LuBadgeCheck } from "react-icons/lu";
             <strong
               >Short links are stored server-side only when you choose that
               mode.</strong
-            > The tab URLs and titles you selected are stored encrypted-in-transit
-            in Cloudflare KV under a random id, never linked to you, and deleted automatically
-            when the link expires (1–30 days).
-          </div>
-        </li>
-        <li class="policy-item">
-          <LuBadgeCheck className="size-[18px] flex-shrink-0 mt-[3px]" />
-          <div>
-            <strong>Links expire automatically.</strong> Shared content cannot be
-            accessed once a link expires.
+            > Entries can be client-encrypted (zero-trust): the decryption key lives
+            only in the link's fragment and never reaches our servers. Entries expire
+            automatically and are deleted.
           </div>
         </li>
         <li class="policy-item">
@@ -86,10 +79,148 @@ import { LuBadgeCheck } from "react-icons/lu";
         </li>
       </ul>
 
+      <!-- Formal policy -->
+      <span class="page-label">THE POLICY</span>
+      <div class="terms-body">
+        <section class="term-section">
+          <h2 class="term-heading">1. Who operates Stash</h2>
+          <p class="term-body">
+            Stash is an open-source project maintained by Joaquin Terrasa (<a
+              href="https://github.com/espetro"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-link">@espetro</a
+            >). For any privacy question or request, email
+            <a href="mailto:josocjoq+dev@pm.me" class="inline-link"
+              >josocjoq+dev@pm.me</a
+            >
+            or open an issue in the
+            <a
+              href="https://github.com/espetro/stash/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-link">GitHub repository</a
+            >.
+          </p>
+        </section>
+
+        <section class="term-section">
+          <h2 class="term-heading">2. Data we process</h2>
+          <p class="term-body">
+            <strong>Website (stash.illo.fyi).</strong> Anonymous page views, clicks,
+            and feature-usage event names via PostHog's cookieless mode. No cookies,
+            no persistent identifiers, and URL fragments (which can carry shared stash
+            content) are never captured.
+          </p>
+          <p class="term-body">
+            <strong>Browser extension.</strong> Tab snapshots, names, tags, and preferences
+            are stored in your browser's local storage and processed on your device.
+            The only outbound calls are anonymous, aggregate usage counters — sent
+            only when telemetry is enabled (on by default, switchable in the extension's
+            settings).
+          </p>
+          <p class="term-body">
+            <strong>Tab URLs and titles.</strong> Local by default. They leave your
+            device only when you explicitly create a share link — and only in the
+            form that link requires.
+          </p>
+        </section>
+
+        <section class="term-section">
+          <h2 class="term-heading">3. Share links and the relay</h2>
+          <p class="term-body">
+            Stash offers two link types. <strong>Self-contained links</strong>
+            carry the compressed payload inside the URL fragment (<code
+              >#p=…</code
+            >); nothing is stored on our servers and the fragment is never sent
+            in HTTP requests. <strong>Short links</strong> store an entry on our Cloudflare-hosted
+            relay under an unguessable random 6-character id. A stored entry contains
+            only the payload — plaintext-encoded or client-encrypted ciphertext (zero-trust
+            mode, where the key exists solely in the link's <code
+              >#&lt;key&gt;</code
+            > fragment and never reaches the server) — plus creation and expiry timestamps.
+            No account, IP profile, or user identifier is attached.
+          </p>
+        </section>
+
+        <section class="term-section">
+          <h2 class="term-heading">4. Anonymous analytics</h2>
+          <p class="term-body">
+            Both the website and the extension report anonymous aggregate event
+            names (e.g. "stash saved", page views) to PostHog, hosted in the EU.
+            We use these counters to understand feature usage. They contain no
+            URLs, titles, notes, or identifiers. You can turn telemetry off in
+            the extension's settings; the site's analytics use cookieless,
+            memory-only persistence.
+          </p>
+        </section>
+
+        <section class="term-section">
+          <h2 class="term-heading">5. Google OAuth and the Chrome Web Store</h2>
+          <p class="term-body">
+            The project operates a Google OAuth app named "Stash" that is used
+            exclusively by the maintainer's release automation (GitHub Actions)
+            to upload and publish extension packages via the Chrome Web Store
+            API. This is maintainer-only automation: it never requests access to
+            end-user Google data, and Stash never asks users to connect a Google
+            account.
+          </p>
+        </section>
+
+        <section class="term-section">
+          <h2 class="term-heading">6. Local daemon and native messaging</h2>
+          <p class="term-body">
+            The optional Stash daemon communicates with the browser extension
+            over native messaging. All of that traffic stays on your machine;
+            nothing is relayed to our servers.
+          </p>
+        </section>
+
+        <section class="term-section">
+          <h2 class="term-heading">7. Retention and deletion</h2>
+          <p class="term-body">
+            Local data (saved stashes, preferences) stays on your device until
+            you delete it. Short-link entries expire automatically at the link's
+            chosen lifetime and are deleted on expiry; you can also revoke a
+            short link early through the relay's deletion endpoint. We retain no
+            personal data because we collect none.
+          </p>
+        </section>
+
+        <section class="term-section">
+          <h2 class="term-heading">8. No sale, no advertising</h2>
+          <p class="term-body">
+            We do not sell data, share it with advertisers, or use it for
+            advertising or profiling.
+          </p>
+        </section>
+
+        <section class="term-section">
+          <h2 class="term-heading">9. Your choices</h2>
+          <p class="term-body">
+            Sharing is always explicit: nothing is transmitted until you create
+            a link. You can use self-contained links to avoid server storage
+            entirely, disable telemetry in the extension settings, and revoke
+            short links before they expire.
+          </p>
+        </section>
+
+        <section class="term-section">
+          <h2 class="term-heading">10. Changes and contact</h2>
+          <p class="term-body">
+            If this policy changes, the updated version is posted on this page.
+            Effective date: October 7, 2026. Contact:
+            <a href="mailto:josocjoq+dev@pm.me" class="inline-link"
+              >josocjoq+dev@pm.me</a
+            >.
+          </p>
+        </section>
+      </div>
+
       <!-- Footer note -->
       <div class="page-foot">
         <a href="/" class="back-link">← Back to home</a>
-        <span class="updated">Last updated: 2026</span>
+        <span class="updated">Last updated: October 2026</span>
       </div>
     </div>
   </main>
@@ -169,9 +300,59 @@ import { LuBadgeCheck } from "react-icons/lu";
     border-bottom: none;
   }
 
-  .check-icon {
-    flex-shrink: 0;
-    margin-top: 0.1875rem;
+  /* Formal sections (same rhythm as /terms) */
+  .terms-body {
+    margin-bottom: 3rem;
+    margin-top: 1rem;
+  }
+
+  .term-section {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .term-section:first-child {
+    padding-top: 0;
+  }
+
+  .term-section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .term-heading {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--foreground);
+    margin: 0 0 0.625rem;
+    letter-spacing: -0.01em;
+  }
+
+  .term-body {
+    font-size: 0.9375rem;
+    color: var(--muted-foreground);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .term-body + .term-body {
+    margin-top: 0.75rem;
+  }
+
+  .term-body code {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+
+  .inline-link {
+    color: var(--primary);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s ease;
+  }
+
+  .inline-link:hover {
+    border-bottom-color: var(--primary);
   }
 
   /* Footer row */
