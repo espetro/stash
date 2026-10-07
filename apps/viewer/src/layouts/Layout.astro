@@ -19,6 +19,10 @@ interface Props {
 const { title, description, lang: langProp, localizedPath } = Astro.props;
 const lang: Lang = langProp && isLang(langProp) ? langProp : DEFAULT_LANG;
 const site = Astro.site?.toString().replace(/\/$/, "");
+const origin = site ?? "https://stash.illo.fyi";
+const ogImage = `${origin}/og.png`;
+const ogDescription =
+  "Share your entire browser context as one link, or just save it for later. Locally. Privately. No account. No cloud. No noise.";
 const showI18nTags = Boolean(site && localizedPath);
 const posthogKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
 const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST ?? 'https://eu.posthog.com';
@@ -34,6 +38,18 @@ const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST ?? 'https://eu.post
   <apple-touch-icon href="/icon-128.png" />
   <title>{title}</title>
   {description && <meta name="description" content={description} />}
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description ?? ogDescription} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:url" content={`${origin}${Astro.url.pathname}`} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Stash" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description ?? ogDescription} />
+  <meta name="twitter:image" content={ogImage} />
   {showI18nTags && site && localizedPath && (
     <>
       <link rel="canonical" href={`${site}${localizedPath === "/" ? "/" : localizedPath}`} />

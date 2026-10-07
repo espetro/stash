@@ -1,0 +1,94 @@
+<!doctype html>
+<!--
+  og-image source card for stash.illo.fyi (1200x630).
+  Re-render: screenshot at 1200x630 via Playwright (chrome --headless
+  --screenshot under-renders bottom-anchored elements on Chrome for
+  Testing — the band/urltag silently clip — so use CDP):
+
+    // from packages/e2e
+    import { chromium } from 'playwright';
+    const b = await chromium.launch({ executablePath: '<chrome>' });
+    const p = await b.newPage({ viewport: { width: 1200, height: 630 } });
+    await p.goto('file:///abs/path/to/apps/viewer/og-card.html?v=c');
+    await p.waitForTimeout(800); // fonts
+    await p.screenshot({ path: '../../apps/viewer/public/og.png' });
+    await b.close();
+
+  Variants: ?v=a light wordmark | ?v=b dark wordmark | ?v=c product mock (shipped)
+-->
+<html><head><meta charset="utf-8"><style>
+@font-face{font-family:'Geist Sans';src:url('../extension/public/fonts/GeistSans-Variable.woff2') format('woff2');font-weight:100 900}
+@font-face{font-family:'Geist Mono';src:url('../extension/public/fonts/GeistMono-Variable.woff2') format('woff2');font-weight:100 900}
+*{margin:0;box-sizing:border-box}
+body{width:1200px;height:630px;position:relative;overflow:hidden;font-family:'Geist Sans',system-ui,sans-serif;background:var(--bg)}
+.dots{position:absolute;inset:0;background-image:radial-gradient(var(--dot) 1.6px,transparent 1.6px);background-size:30px 30px}
+/* ---- variant a/b: wordmark layout ---- */
+.row{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:64px}
+.logo{width:230px;height:230px;object-fit:contain}
+.divider{width:2px;height:230px;background:var(--rule);align-self:center}
+.txt{display:flex;flex-direction:column;gap:22px;flex-shrink:0}
+.name{font-weight:700;font-size:118px;letter-spacing:-0.03em;color:var(--ink);line-height:0.95}
+.tag{font-size:44px;line-height:1.26;color:var(--sub);font-weight:400;letter-spacing:-0.01em}
+.tag b{font-weight:600;color:var(--ink)}
+.meta{font-family:'Geist Mono',monospace;font-size:26px;color:var(--sub);letter-spacing:0.02em}
+.band{position:absolute;left:0;right:0;bottom:0;height:14px;background:var(--band)}
+/* ---- variant c: product mock ---- */
+.mock-row{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:52px}
+.mock-txt{display:flex;flex-direction:column;gap:24px;flex-shrink:0}
+.mock-brand{display:flex;align-items:center;gap:20px}
+.mock-logo{width:88px;height:88px;object-fit:contain}
+.mock-txt .name{font-size:96px}
+.mock-txt .tag{font-size:36px}
+.mock-txt .meta{font-size:24px}
+.card{width:440px;background:var(--cardbg);border-radius:32px;box-shadow:0 2px 6px rgb(0 0 0 / .08),0 16px 40px rgb(0 0 0 / .10);padding:30px 30px 26px;display:flex;flex-direction:column;gap:6px}
+.card h3{font-size:30px;font-weight:600;color:var(--ink);letter-spacing:-0.02em;margin-bottom:10px}
+.item{display:flex;align-items:center;gap:14px;padding:11px 4px;border-bottom:1px solid var(--rule2)}
+.item:last-of-type{border-bottom:none}
+.fav{width:22px;height:22px;border-radius:50%;flex-shrink:0}
+.url{flex:1;font-family:'Geist Mono',monospace;font-size:21px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.url span{color:var(--sub)}
+.chiprow{display:flex;gap:12px;margin-top:18px}
+.chip{font-family:'Geist Mono',monospace;font-size:18px;padding:8px 14px;border-radius:12px;border:1.5px solid var(--rule);color:var(--sub);white-space:nowrap}
+.chip.short{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.urltag{position:absolute;left:64px;bottom:48px;font-family:'Geist Mono',monospace;font-size:25px;color:var(--sub);letter-spacing:0.02em}
+</style></head><body>
+<div class="dots"></div>
+<div class="row" id="wordmark">
+  <img class="logo" src="public/icon-128.png">
+  <div class="divider"></div>
+  <div class="txt">
+    <div class="name">stash</div>
+    <div class="tag">Your tabs are your thinking.<br><b>Stop losing them.</b></div>
+    <div class="meta">stash.illo.fyi</div>
+  </div>
+</div>
+<div class="mock-row" id="product" style="display:none">
+  <div class="mock-txt">
+    <div class="mock-brand"><img class="mock-logo" src="public/icon-128.png"><div class="name">stash</div></div>
+    <div class="tag">Your tabs are your thinking.<br><b>Stop losing them.</b></div>
+    <div class="meta">Free · No account · Local-first</div>
+  </div>
+  <div class="card">
+    <h3>Shared Tabs</h3>
+    <div class="item"><div class="fav" style="background:#EA4335"></div><div class="url">github.com <span>/espetro/stash</span></div></div>
+    <div class="item"><div class="fav" style="background:#F48024"></div><div class="url">stackoverflow.com <span>/questions/…</span></div></div>
+    <div class="item"><div class="fav" style="background:#5865F2"></div><div class="url">developer.mozilla.org <span>/docs/Web/…</span></div></div>
+    <div class="item"><div class="fav" style="background:#ED3F1C"></div><div class="url">arxiv.org <span>/abs/2402.…</span></div></div>
+    <div class="chiprow"><div class="chip short">stash.illo.fyi/s/xK3f9</div><div class="chip">copy link</div></div>
+  </div>
+</div>
+<div class="urltag" id="urltag" style="display:none">stash.illo.fyi</div>
+<div class="band"></div>
+<script>
+const q=new URLSearchParams(location.search),v=q.get('v')||'a';
+const themes={
+ a:{bg:'#FAFAF9',ink:'#1A1A1A',sub:'#737373',dot:'rgb(26 26 26 / 0.13)',rule:'#E5E5E5',rule2:'#F0F0EF',cardbg:'#FFFFFF',band:'transparent'},
+ b:{bg:'#141414',ink:'#F0F0F0',sub:'#A3A3A3',dot:'rgb(240 240 240 / 0.12)',rule:'#2C2C2C',rule2:'#242424',cardbg:'#1C1C1C',band:'transparent'},
+ c:{bg:'#FAFAF9',ink:'#1A1A1A',sub:'#737373',dot:'rgb(26 26 26 / 0.13)',rule:'#E5E5E5',rule2:'#F0F0EF',cardbg:'#FFFFFF',band:'#ED3F1C'},
+}[v];
+const s=document.documentElement.style;
+s.setProperty('--bg',themes.bg);s.setProperty('--ink',themes.ink);s.setProperty('--sub',themes.sub);
+s.setProperty('--dot',themes.dot);s.setProperty('--rule',themes.rule);s.setProperty('--rule2',themes.rule2);
+s.setProperty('--cardbg',themes.cardbg);s.setProperty('--band',themes.band);
+if(v==='c'){document.getElementById('wordmark').style.display='none';document.getElementById('product').style.display='flex';document.getElementById('urltag').style.display='block';}
+</script></body></html>

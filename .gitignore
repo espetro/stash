@@ -9,6 +9,7 @@ dist/
 tmp/
 .DS_STORE
 .env
+.env.submit
 # Generated JavaScript files from TypeScript compilation
 *.js
 # Vendored sources (plain-JS deps consumed directly)

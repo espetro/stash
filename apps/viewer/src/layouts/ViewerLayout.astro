@@ -18,6 +18,9 @@ const rawViewerOrigin = import.meta.env.VITE_VIEWER_ORIGIN || 'https://stash.ill
 const viewerOrigin = validateViewerOrigin(rawViewerOrigin).success
   ? rawViewerOrigin
   : 'https://stash.illo.fyi';
+const ogImage = `${viewerOrigin}/og.png`;
+const ogDescription =
+  "Share your entire browser context as one link, or just save it for later. Locally. Privately. No account. No cloud. No noise.";
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -29,6 +32,18 @@ const viewerOrigin = validateViewerOrigin(rawViewerOrigin).success
   <link rel="icon" type="image/png" href="/icon-48.png" sizes="48x48" />
   <link rel="apple-touch-icon" href="/icon-128.png" />
   <title>{title}</title>
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={ogDescription} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:url" content={`${viewerOrigin}${Astro.url.pathname}`} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Stash" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={ogDescription} />
+  <meta name="twitter:image" content={ogImage} />
   {/* AI agent consumption — alternate representations of this stash page.
       SSR emits a stable href that omits the payload (fragments never reach
       the server); the useDecodeShareUrl hook fills in `p=<encoded>` client-side

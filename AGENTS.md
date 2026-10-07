@@ -77,9 +77,11 @@ Releases use [changesets](https://changesets.tools/) for versioning and a tag-tr
 3. **Push to main** — web deploys run automatically
 4. **Tag the release**: `git tag vX.Y.Z && git push origin vX.Y.Z`
    - `release.yml` builds Chrome + Firefox zips (`VITE_VIEWER_ORIGIN=https://stash.illo.fyi`) and creates the GitHub Release with the zips attached
-5. **Store submission** (manual)
-   - Chrome: download the chrome zip from the Release, upload at the Web Store Developer Dashboard
-   - Firefox: download the firefox zip, upload at addons.mozilla.org developer hub
+5. **Store submission** — automated by the `publish` job in `release.yml`
+   (Firefox AMO always; Chrome once `CHROME_PUBLISH_ENABLED=true` + the v2
+   service-account secrets are set — see `.agents/docs/store-publishing.md`).
+   Manual fallback: download the zips from the GitHub Release and upload at
+   the CWS Developer Dashboard / addons.mozilla.org developer hub.
 6. **Post-release sync**: fast-forward `develop` to `main` and push
 
 ### Conventional Commits
