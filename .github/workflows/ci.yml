@@ -52,6 +52,13 @@ jobs:
           go-version: '1.25'
           cache-dependency-path: daemon/go.sum
 
+      # go:embed all:dist needs a non-empty tree to compile; vet/test only
+      # need the pattern to resolve, so stub it (real builds use build.sh).
+      - name: Stub embedded viewer dist
+        if: steps.paths_check.outputs.daemon == 'true'
+        working-directory: daemon
+        run: sh scripts/ensure-viewer-dist.sh
+
       - name: Build daemon
         if: steps.paths_check.outputs.daemon == 'true'
         working-directory: daemon

@@ -56,6 +56,7 @@
   "stash.expiry.24h": "24 hours",
   "stash.expiry.7d": "7 days",
   "stash.expiry.30d": "30 days",
+  "meta.description": "Stash saves and shares browser tab collections as local-first links — a browser extension plus an optional local daemon. No account, no cloud; share only when you choose.",
   "hero.headline.line1": "Your tabs are your thinking.",
   "hero.headline.line2": "Stop losing them.",
   "hero.subheadline": "Share your entire browser context as one link, or just save it for later. Locally. Privately. No account. No cloud. No noise.",

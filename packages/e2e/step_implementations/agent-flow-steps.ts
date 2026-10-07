@@ -15,11 +15,7 @@ import {
   EXTENSION_SEED,
   type McpRpc,
 } from "../helpers/mcp-seed";
-import {
-  generateViewerUrlFromFixture,
-  encodeFixturePayload,
-  VIEWER_ORIGIN,
-} from "../helpers/encoder-helper";
+import { generateViewerUrlFromFixture, encodeFixturePayload } from "../helpers/encoder-helper";
 import { agentFetchServer } from "../helpers/agent-fetch-server";
 
 /** The 8 tools the extension MCP server exposes (lib/mcp/server.ts). */
@@ -96,9 +92,10 @@ step("The agent fetches the alternate link and receives JSON items", async () =>
   // astro preview does not run Pages Functions, so the agent surface
   // is served by the local stand-in that reuses the real handler.
   const base = await agentFetchServer();
-  // The SSR href may be entity-encoded (&amp;) and carries the preview
-  // origin; decode it and point it at the local agent server.
-  const url = href.replace(/&amp;/g, "&").replace(VIEWER_ORIGIN, base);
+  // The SSR href may be entity-encoded (&amp;) and carries whatever
+  // origin the viewer was built with (prod origin in CI); decode it and
+  // repoint it at the local agent server regardless.
+  const url = href.replace(/&amp;/g, "&").replace(/^https?:\/\/[^/]+/, base);
   const response = await (await api()).get(url);
   if (!response.ok()) {
     throw new Error(`Alternate link fetch failed: ${response.status()}`);

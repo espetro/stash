@@ -5,6 +5,8 @@ import { localizedHomePath } from "@/i18n/url";
 
 interface Props {
   title: string;
+  /** Optional <meta name="description"> — landing sets this for SEO/crawlers. */
+  description?: string;
   lang?: Lang;
   /**
    * Current page pathname. When provided, render hreflang alternates +
@@ -14,7 +16,7 @@ interface Props {
    */
   localizedPath?: string;
 }
-const { title, lang: langProp, localizedPath } = Astro.props;
+const { title, description, lang: langProp, localizedPath } = Astro.props;
 const lang: Lang = langProp && isLang(langProp) ? langProp : DEFAULT_LANG;
 const site = Astro.site?.toString().replace(/\/$/, "");
 const showI18nTags = Boolean(site && localizedPath);
@@ -31,6 +33,7 @@ const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST ?? 'https://eu.post
   <link rel="icon" type="image/png" href="/icon-48.png" sizes="48x48" />
   <apple-touch-icon href="/icon-128.png" />
   <title>{title}</title>
+  {description && <meta name="description" content={description} />}
   {showI18nTags && site && localizedPath && (
     <>
       <link rel="canonical" href={`${site}${localizedPath === "/" ? "/" : localizedPath}`} />
