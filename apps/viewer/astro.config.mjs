@@ -8,7 +8,10 @@ import starlight from "@astrojs/starlight";
 import starlightDocsPrefix from "./src/integrations/starlight-docs-prefix/index.ts";
 import IntlAi from "@intl-ai/unplugin/vite";
 
-const viewerOrigin = (process.env.VITE_VIEWER_ORIGIN ?? "http://localhost:4321").replace(/\/$/, "");
+// Default to the production origin: Cloudflare Pages builds without
+// VITE_VIEWER_ORIGIN set, and a localhost fallback leaks into canonical,
+// hreflang, sitemap, and og:url/og:image on the deployed site.
+const viewerOrigin = (process.env.VITE_VIEWER_ORIGIN ?? "https://stash.illo.fyi").replace(/\/$/, "");
 
 const pkg = JSON.parse(readFileSync(resolve(import.meta.dirname, "package.json"), "utf-8"));
 
