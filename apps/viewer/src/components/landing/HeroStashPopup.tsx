@@ -62,7 +62,7 @@ export default function HeroStashPopup() {
         >
           <div className="flex items-center gap-2">
             <img
-              src="/icon-48.png"
+              src="/icon-48-v2.png"
               alt=""
               width="20"
               height="20"
