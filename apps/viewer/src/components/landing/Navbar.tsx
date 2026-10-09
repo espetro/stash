@@ -91,7 +91,7 @@ export default function Navbar({ minimal = false, lang: langProp }: NavbarProps)
           className="logo flex items-center gap-2 no-underline transition-opacity duration-200 justify-self-start"
         >
           <img
-            src="/icon-128.png"
+            src="/icon-128-v2.png"
             width={40}
             height={40}
             alt=""
