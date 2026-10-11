@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useState, useCallback, useRef } from "react";
-import ThemeSwitcher from "@/components/ThemeSwitcher";
-import LanguageSelector from "@/components/LanguageSelector";
+import SiteHeader from "@/components/SiteHeader";
 import { useLocale } from "@/components/LocaleProvider";
 import { t } from "@/i18n";
 import { ShareDrawer } from "./ShareDrawer";
@@ -9,6 +8,7 @@ import { QrDialogContent } from "./QrDialog";
 import { Dialog } from "@/components/ui/dialog";
 import { TabListItem } from "@/components/TabListItem";
 import { useDecodeShareUrl, type DecodedData } from "@/hooks/useDecodeShareUrl";
+import { createStash } from "@/lib/stash-store";
 import { buildCaption } from "@stash/shared";
 import { encodeTabsToShareUrl, EXPIRY_HOURS_MAP } from "@stash/codec";
 import { getBrotliFunctions } from "@stash/shared";
@@ -19,6 +19,7 @@ import {
   SharedButtonArea,
   SplitButtonGroup,
   OutlineButton,
+  PrimaryButton,
 } from "@/components/shared";
 import { FaRegSquare, FaRegSquareCheck } from "react-icons/fa6";
 
@@ -99,6 +100,7 @@ export default function TabViewer() {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const lastClicked = useRef<number | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [libSaved, setLibSaved] = useState(false);
   const [editedUrl, setEditedUrl] = useState<string | null>(null);
   const [openNote, setOpenNote] = useState<{ text: string; title: string } | null>(null);
 
@@ -226,8 +228,26 @@ export default function TabViewer() {
     }
   };
 
+  const openAll = () => {
+    for (const item of currentItems) {
+      window.open(item[0], "_blank", "noopener,noreferrer");
+    }
+  };
+
+  const saveToLibrary = () => {
+    createStash({
+      title: data.title ?? undefined,
+      tags: data.tags,
+      note: data.note,
+      items: currentItems.map(([url, title]) => ({ url, title })),
+    });
+    setLibSaved(true);
+  };
+
   return (
     <div className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8">
+      <SiteHeader variant="share" />
+
       <SharedCard className="h-[75dvh] max-h-[75dvh] sm:h-[75vh]">
         <SharedCardHeader
           title={data.title ?? t("sharedTabs.title", undefined, lang)}
@@ -293,10 +313,6 @@ export default function TabViewer() {
               ))}
             </div>
           </div>
-          <div className="flex items-center justify-center gap-2">
-            <ThemeSwitcher />
-            <LanguageSelector />
-          </div>
         </SharedCardContent>
       </SharedCard>
 
@@ -312,13 +328,31 @@ export default function TabViewer() {
                   : t("sharedTabs.saveEdited", undefined, lang)}
           </OutlineButton>
         ) : (
-          <SplitButtonGroup
-            mainLabel={t("sharedTabs.shareQr", undefined, lang)}
-            onMainClick={handleShareQr}
-            onDropdownClick={handleOpenDrawer}
-          />
+          <>
+            <PrimaryButton onClick={openAll}>
+              {t("sharedTabs.openAll", undefined, lang)}
+            </PrimaryButton>
+            <PrimaryButton onClick={saveToLibrary} disabled={libSaved}>
+              {libSaved
+                ? t("sharedTabs.savedToLibrary", undefined, lang)
+                : t("sharedTabs.saveToLibrary", undefined, lang)}
+            </PrimaryButton>
+          </>
         )}
-        <OutlineButton onClick={handleNew}>{t("sharedTabs.new", undefined, lang)}</OutlineButton>
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <SplitButtonGroup
+              mainLabel={t("sharedTabs.shareQr", undefined, lang)}
+              onMainClick={handleShareQr}
+              onDropdownClick={handleOpenDrawer}
+              mainClassName="border border-border bg-card text-foreground hover:bg-muted"
+              dropdownClassName="border border-border bg-card text-foreground hover:bg-muted"
+            />
+          </div>
+          <OutlineButton onClick={handleNew} className="flex-1">
+            {t("sharedTabs.new", undefined, lang)}
+          </OutlineButton>
+        </div>
       </SharedButtonArea>
 
       {editedUrl && (

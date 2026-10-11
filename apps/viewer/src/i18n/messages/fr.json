@@ -10,7 +10,10 @@
     "newStash": "Nouveau stash",
     "myStashes": "Mes stashes",
     "back": "Retour",
-    "docs": "Docs"
+    "docs": "Docs",
+    "getStash": "Obtenir Stash",
+    "new": "Nouveau",
+    "library": "Bibliothèque"
   },
   "install": {
     "trigger": "Installer ▾",
@@ -73,12 +76,16 @@
     "savedEdited": "Enregistré ! Lien ci-dessous",
     "editedLink": "Lien du stash modifié",
     "empty": "Aucun élément restant",
-    "close": "Fermer"
+    "close": "Fermer",
+    "openAll": "Tout ouvrir",
+    "saveToLibrary": "Enregistrer dans ma bibliothèque",
+    "savedToLibrary": "Enregistré dans la bibliothèque"
   },
   "theme": {
     "light": "Thème clair",
     "dark": "Thème sombre",
-    "label": "Commutateur de thème"
+    "label": "Commutateur de thème",
+    "system": "Système"
   },
   "language": {
     "en": "Anglais",
@@ -247,5 +254,8 @@
   "myStashes.moveToExtensionBusy": "Déplacement...",
   "myStashes.moveToExtensionDone": "{count} stash(es) déplacé(s) — confirmez l'import dans la page Bibliothèque de l'extension.",
   "myStashes.moveToExtensionError": "Impossible de transférer les stashes vers l'extension.",
-  "myStashes.readOnlyHint": "Miroir en lecture seule de la bibliothèque de l'extension ; modifiez les stashes depuis la page Bibliothèque de l'extension."
+  "myStashes.readOnlyHint": "Miroir en lecture seule de la bibliothèque de l'extension ; modifiez les stashes depuis la page Bibliothèque de l'extension.",
+  "appearance": {
+    "label": "Apparence"
+  }
 }

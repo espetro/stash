@@ -3063,6 +3063,198 @@
       "origin": "ai",
       "model": "openrouter/free",
       "timestamp": "2026-08-22T11:49:19.060Z"
+    },
+    "es||nav.getStash": {
+      "key": "nav.getStash",
+      "locale": "es",
+      "sourceHash": "d7ff1b2907f7fb89e37d0f31343b0a63c452b5ed",
+      "translated": "Obtener Stash",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "fr||nav.getStash": {
+      "key": "nav.getStash",
+      "locale": "fr",
+      "sourceHash": "d7ff1b2907f7fb89e37d0f31343b0a63c452b5ed",
+      "translated": "Obtenir Stash",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "ru||nav.getStash": {
+      "key": "nav.getStash",
+      "locale": "ru",
+      "sourceHash": "d7ff1b2907f7fb89e37d0f31343b0a63c452b5ed",
+      "translated": "Скачать Stash",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "es||nav.new": {
+      "key": "nav.new",
+      "locale": "es",
+      "sourceHash": "6403f2b7eb2aaafe6de34cbf2a029b01afebc512",
+      "translated": "Nuevo",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "fr||nav.new": {
+      "key": "nav.new",
+      "locale": "fr",
+      "sourceHash": "6403f2b7eb2aaafe6de34cbf2a029b01afebc512",
+      "translated": "Nouveau",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "ru||nav.new": {
+      "key": "nav.new",
+      "locale": "ru",
+      "sourceHash": "6403f2b7eb2aaafe6de34cbf2a029b01afebc512",
+      "translated": "Создать",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "es||nav.library": {
+      "key": "nav.library",
+      "locale": "es",
+      "sourceHash": "b8100f5ba8bd048a7cf11d116fbbd73130c3c6f5",
+      "translated": "Biblioteca",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "fr||nav.library": {
+      "key": "nav.library",
+      "locale": "fr",
+      "sourceHash": "b8100f5ba8bd048a7cf11d116fbbd73130c3c6f5",
+      "translated": "Bibliothèque",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "ru||nav.library": {
+      "key": "nav.library",
+      "locale": "ru",
+      "sourceHash": "b8100f5ba8bd048a7cf11d116fbbd73130c3c6f5",
+      "translated": "Библиотека",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "es||theme.system": {
+      "key": "theme.system",
+      "locale": "es",
+      "sourceHash": "bc0792d8dc81e8aa30b987246a5ce97c40cd6833",
+      "translated": "Sistema",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "fr||theme.system": {
+      "key": "theme.system",
+      "locale": "fr",
+      "sourceHash": "bc0792d8dc81e8aa30b987246a5ce97c40cd6833",
+      "translated": "Système",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "ru||theme.system": {
+      "key": "theme.system",
+      "locale": "ru",
+      "sourceHash": "bc0792d8dc81e8aa30b987246a5ce97c40cd6833",
+      "translated": "Системная",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "es||appearance.label": {
+      "key": "appearance.label",
+      "locale": "es",
+      "sourceHash": "41def7a0febe741da87c5b79ce78ce27b83f3ae7",
+      "translated": "Apariencia",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "fr||appearance.label": {
+      "key": "appearance.label",
+      "locale": "fr",
+      "sourceHash": "41def7a0febe741da87c5b79ce78ce27b83f3ae7",
+      "translated": "Apparence",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "ru||appearance.label": {
+      "key": "appearance.label",
+      "locale": "ru",
+      "sourceHash": "41def7a0febe741da87c5b79ce78ce27b83f3ae7",
+      "translated": "Оформление",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "es||sharedTabs.openAll": {
+      "key": "sharedTabs.openAll",
+      "locale": "es",
+      "sourceHash": "09f0662f459dce1c343c4baed28cacf67ce584f0",
+      "translated": "Abrir todo",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "fr||sharedTabs.openAll": {
+      "key": "sharedTabs.openAll",
+      "locale": "fr",
+      "sourceHash": "09f0662f459dce1c343c4baed28cacf67ce584f0",
+      "translated": "Tout ouvrir",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "ru||sharedTabs.openAll": {
+      "key": "sharedTabs.openAll",
+      "locale": "ru",
+      "sourceHash": "09f0662f459dce1c343c4baed28cacf67ce584f0",
+      "translated": "Открыть все",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "es||sharedTabs.saveToLibrary": {
+      "key": "sharedTabs.saveToLibrary",
+      "locale": "es",
+      "sourceHash": "dd0ae4b44aab1de1b63d10d522a626a6c4dd7197",
+      "translated": "Guardar en mi biblioteca",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "fr||sharedTabs.saveToLibrary": {
+      "key": "sharedTabs.saveToLibrary",
+      "locale": "fr",
+      "sourceHash": "dd0ae4b44aab1de1b63d10d522a626a6c4dd7197",
+      "translated": "Enregistrer dans ma bibliothèque",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "ru||sharedTabs.saveToLibrary": {
+      "key": "sharedTabs.saveToLibrary",
+      "locale": "ru",
+      "sourceHash": "dd0ae4b44aab1de1b63d10d522a626a6c4dd7197",
+      "translated": "Сохранить в библиотеку",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "es||sharedTabs.savedToLibrary": {
+      "key": "sharedTabs.savedToLibrary",
+      "locale": "es",
+      "sourceHash": "8a3c7a59afb5b64e442156042188654d3278a6db",
+      "translated": "Guardado en la biblioteca",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "fr||sharedTabs.savedToLibrary": {
+      "key": "sharedTabs.savedToLibrary",
+      "locale": "fr",
+      "sourceHash": "8a3c7a59afb5b64e442156042188654d3278a6db",
+      "translated": "Enregistré dans la bibliothèque",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
+    },
+    "ru||sharedTabs.savedToLibrary": {
+      "key": "sharedTabs.savedToLibrary",
+      "locale": "ru",
+      "sourceHash": "8a3c7a59afb5b64e442156042188654d3278a6db",
+      "translated": "Сохранено в библиотеке",
+      "origin": "human",
+      "timestamp": "2026-10-11T13:00:11.767642Z"
     }
   }
 }

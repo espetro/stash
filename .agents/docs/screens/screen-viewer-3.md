@@ -7,6 +7,8 @@ file: apps/viewer/src/components/TabViewer.tsx
 
 ```text
 +--------------------------------------------------------------+
+| [icon] Stash                       Get Stash  (appearance)     |
++--------------------------------------------------------------+
 | + Shared Tabs (or stash title) ------------------------------+ |
 | | caption: N items · expires in X                            | |
 | |                                                            | |
@@ -16,9 +18,10 @@ file: apps/viewer/src/components/TabViewer.tsx
 | | | [x] favicon Title              domain                 |   | |
 | | |     ... scrollable list                              |   | |
 | | +------------------------------------------------------+   | |
-| |              (theme) (lang)                                | |
 | +------------------------------------------------------------+ |
-|    [ Share QR v ]        [ New stash ]                        |
+|    [ Open all ]                                             |
+|    [ Save to my library ]                                   |
+|    [ Share QR v ]        [ New stash ]   (secondary row)    |
 |    + edited link block (after saving edits) +                 |
 +--------------------------------------------------------------+
 ```
@@ -39,9 +42,10 @@ format value returns `400` JSON. See the agent notice comment in
 | Selection bar | only when selected.size > 0 | Count, "Open selected" (new tabs, noopener), "Remove selected" |
 | Tab list row | selected / unselected | Favicon, title, domain; note items open a NoteDialog; shift+click selects a range |
 | Empty list | after removing all | Empty-state paragraph |
-| Theme / lang row | always | Centered ThemeSwitcher + LanguageSelector inside the card content |
-| Share QR v | default footer | SplitButtonGroup: main opens the QR dialog, dropdown opens the ShareDrawer |
-| Save edited / New stash | footer | When items were removed (dirty), the split button is replaced by an OutlineButton "Save edited"; always followed by "New stash" linking `/s/new` |
+| SiteHeader (share) | always | Slim centered header above the card: logo (-> `/`), "Get Stash" link, AppearanceMenu (theme light/system/dark + language). Theme/lang no longer live inside the card |
+| Open all | default footer | PrimaryButton; opens every item via `window.open` |
+| Save to my library | default footer | PrimaryButton; `createStash` into the viewer-local store, label flips to "Saved to library" |
+| Share QR v + New stash | secondary footer row | Outlined SplitButtonGroup (main opens QR dialog, dropdown opens ShareDrawer) beside an OutlineButton "New stash" linking `/s/new`; when dirty the primaries are replaced by "Save edited" |
 | Edited link block | after save | Caption "Edited link" plus mono link to the re-encoded URL (remaining lifetime preserved) |
 | NoteDialog | on note item click | Modal with note text and Close button |
 

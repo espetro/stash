@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
-import AppHeader from "@/components/AppHeader";
+import SiteHeader from "@/components/SiteHeader";
 import { useLocale } from "@/components/LocaleProvider";
 import { t } from "@/i18n";
 import {
@@ -548,7 +548,7 @@ export default function MyStashes() {
       data-stash-source={source}
       className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8"
     >
-      <AppHeader />
+      <SiteHeader variant="app" active="library" />
 
       <SharedCard>
         <SharedCardHeader title={t("myStashes.title", undefined, lang)} />

@@ -171,5 +171,21 @@
   "myStashes.moveToExtensionBusy": "Moving...",
   "myStashes.moveToExtensionDone": "Moved {count} stash(es) — confirm the import on the extension's Library page.",
   "myStashes.moveToExtensionError": "Could not hand off stashes to the extension.",
-  "nav.docs": "Docs"
+  "nav.docs": "Docs",
+  "nav": {
+    "getStash": "Get Stash",
+    "new": "New",
+    "library": "Library"
+  },
+  "theme": {
+    "system": "System"
+  },
+  "appearance": {
+    "label": "Appearance"
+  },
+  "sharedTabs": {
+    "openAll": "Open all",
+    "saveToLibrary": "Save to my library",
+    "savedToLibrary": "Saved to library"
+  }
 }
