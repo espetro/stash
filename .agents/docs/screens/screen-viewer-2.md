@@ -7,7 +7,7 @@ file: apps/viewer/src/components/NewStashForm.tsx
 
 ```text
 +--------------------------------------------------------------+
-| ( floating pill: [<] | + New | My stashes | (theme) (lang) )  |
+| [<] ( New | Library )                        (appearance)    |
 +--------------------------------------------------------------+
 | + Create stash --------------------------------------------+ |
 | | [ Stash title                                    ]        | |
@@ -39,8 +39,8 @@ file: apps/viewer/src/components/NewStashForm.tsx
 
 | Element | State | Description |
 |---|---|---|
-| AppHeader | always | Floating centered pill (`fixed top-4`, border + blur + shadow): back chevron ghost button when `history.length > 1`, "New stash" FaPlus link, "My stashes" FaBoxArchive link, divider, single-button ThemeSwitcher (variant="toggle"), LanguageSelector; in-flow `h-14` spacer keeps content clear |
-| Mobile header | below 640px | AppHeader navigation links are icon-only. |
+| SiteHeader | always | In-flow header constrained to the 640px content column (`max-w-160 mx-auto`): back chevron when `history.length > 1`, `New · Library` segmented control (active = New), `AppearanceMenu` (theme light/system/dark + language) on the right |
+| Mobile header | below 640px | SiteHeader segment labels are icon-only. |
 | Stash title input | always | Optional title embedded in the payload |
 | URLs textarea | always | Mono, one URL per line; parsing feeds line errors and budget meter |
 | Expiry select | always | 24h / 7d / 30d / never options |

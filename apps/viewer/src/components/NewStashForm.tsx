@@ -1,5 +1,5 @@
 import * as React from "react";
-import AppHeader from "@/components/AppHeader";
+import SiteHeader from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/components/LocaleProvider";
 import { t } from "@/i18n";
@@ -61,7 +61,7 @@ export default function NewStashForm() {
 
   return (
     <div className="flex min-h-screen flex-col items-center p-3 pt-6 sm:pt-8">
-      <AppHeader />
+      <SiteHeader variant="app" active="new" />
 
       <SharedCard>
         <SharedCardHeader title={t("stash.create.title", undefined, lang)} />

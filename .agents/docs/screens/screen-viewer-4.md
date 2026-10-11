@@ -7,7 +7,7 @@ file: apps/viewer/src/components/MyStashes.tsx
 
 ```text
 +--------------------------------------------------------------+
-| ( floating pill: [<] | + New | My stashes | (theme) (lang) )  |
+| [<] ( New | Library )                        (appearance)    |
 +--------------------------------------------------------------+
 | + My Stashes ------------------------------------------------+ |
 | | (puzzle) The Stash extension is installed in this browser. | |
@@ -43,8 +43,8 @@ file: apps/viewer/src/components/MyStashes.tsx
 
 | Element | State | Description |
 |---|---|---|
-| AppHeader | always | Floating centered pill (`fixed top-4`): back chevron when `history.length > 1`, New stash / My stashes links, divider, theme toggle (single button) and language; in-flow `h-14` spacer |
-| Mobile header | below 640px | AppHeader navigation links are icon-only. |
+| SiteHeader | always | In-flow header constrained to the 640px content column: back chevron when `history.length > 1`, `New · Library` segmented control (active = Library), `AppearanceMenu` (theme + language) on the right |
+| Mobile header | below 640px | SiteHeader segment labels are icon-only. |
 | Source chip | viewer-local source only | "Saved in this browser." |
 | Extension CTA | whenever presence-ping answers | `[data-stash-extension-cta]` block: detection line + "Open your Library in the extension" (opens `library.html` via `stash:viewer:open`); independent of the data-bridge opt-in |
 | Move to extension Library | CTA block, viewer-local source + records exist | `FaArrowRightArrowLeft`; posts `stash:viewer:handoff` with the local `StashExport`, clears local records on `ok` (confirm happens on the extension page) |

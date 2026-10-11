@@ -60,7 +60,10 @@
     "savedEdited": "¡Guardado! Enlace abajo",
     "editedLink": "Enlace del stash editado",
     "empty": "No quedan elementos",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "openAll": "Abrir todo",
+    "saveToLibrary": "Guardar en mi biblioteca",
+    "savedToLibrary": "Guardado en la biblioteca"
   },
   "nav": {
     "home": "Inicio",
@@ -73,12 +76,16 @@
     "newStash": "Nuevo stash",
     "myStashes": "Mis stashes",
     "back": "Volver",
-    "docs": "Docs"
+    "docs": "Docs",
+    "getStash": "Obtener Stash",
+    "new": "Nuevo",
+    "library": "Biblioteca"
   },
   "theme": {
     "label": "Cambiar tema",
     "light": "Tema claro",
-    "dark": "Tema oscuro"
+    "dark": "Tema oscuro",
+    "system": "Sistema"
   },
   "language": {
     "label": "Idioma",
@@ -247,5 +254,8 @@
   "myStashes.moveToExtensionBusy": "Moviendo...",
   "myStashes.moveToExtensionDone": "Se movieron {count} stash(es) — confirma la importación en la página Biblioteca de la extensión.",
   "myStashes.moveToExtensionError": "No se pudieron transferir los stashes a la extensión.",
-  "myStashes.readOnlyHint": "Copia de solo lectura de la biblioteca de la extensión; edita los stashes desde la página Biblioteca de la extensión."
+  "myStashes.readOnlyHint": "Copia de solo lectura de la biblioteca de la extensión; edita los stashes desde la página Biblioteca de la extensión.",
+  "appearance": {
+    "label": "Apariencia"
+  }
 }
