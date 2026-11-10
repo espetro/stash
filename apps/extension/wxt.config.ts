@@ -14,7 +14,7 @@ export default defineConfig({
   manifest: {
     name: "Stash",
     description:
-      "Stash saves your open tabs as a shareable snapshot link, inline or short. Local-first. No accounts. Anonymous aggregate usage counters only, opt-out in Settings.",
+      "Stash saves your open tabs as a shareable link, inline or short. Local-first. No accounts.",
     version: pkg.version,
     permissions: [
       "contextMenus",
